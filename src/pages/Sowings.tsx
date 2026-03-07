@@ -148,7 +148,7 @@ const Sowings = () => {
           </DialogContent>
         </Dialog>
         </div>
-      </div>
+      </FadeIn>
 
       {isLoading ? (
         <div className="space-y-3">{[1, 2, 3].map(i => <Skeleton key={i} className="h-16" />)}</div>
