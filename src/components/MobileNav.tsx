@@ -13,6 +13,8 @@ const primaryItems = [
 ];
 
 const moreItems = [
+  { title: 'Skörd', url: '/app/harvests', icon: Carrot },
+  { title: 'Växtbibliotek', url: '/app/plants', icon: BookOpen },
   { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
   { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
   { title: 'Fröförråd', url: '/app/seeds', icon: Package },

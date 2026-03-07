@@ -15,6 +15,8 @@ const mainNav = [
   { title: 'Mina bäddar', url: '/app/beds', icon: LayoutGrid },
   { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
   { title: 'Skördlogg', url: '/app/harvests', icon: Carrot },
+  { title: 'Mina växter', url: '/app/my-plants', icon: Flower2 },
+  { title: 'Växtbibliotek', url: '/app/plants', icon: BookOpen },
   { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
   { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
   { title: 'Fröförråd', url: '/app/seeds', icon: Package },

@@ -104,6 +104,8 @@ const AppRoutes = () => (
           <Route path="companion" element={<CompanionPlanting />} />
           <Route path="pests" element={<PestLog />} />
           <Route path="photos" element={<PhotoDiary />} />
+          <Route path="plants" element={<PlantLibrary />} />
+          <Route path="my-plants" element={<MyPlants />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
