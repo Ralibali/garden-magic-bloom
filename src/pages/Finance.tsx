@@ -16,23 +16,20 @@ import { format } from 'date-fns';
 import { PremiumGate } from '@/components/PremiumGate';
 
 const INCOME_CATEGORIES = [
-  { value: 'egg_sales', label: 'Äggförsäljning' },
-  { value: 'hen_sales', label: 'Sålt höna' },
-  { value: 'rooster_sales', label: 'Sålt tupp' },
-  { value: 'chick_sales', label: 'Sålt kycklingar' },
-  { value: 'manure_sales', label: 'Sålt gödsel' },
+  { value: 'vegetable_sales', label: 'Försäljning grönsaker' },
+  { value: 'herb_sales', label: 'Försäljning örter' },
+  { value: 'plant_sales', label: 'Försäljning plantor' },
   { value: 'other', label: 'Övrigt' },
 ];
 
 const EXPENSE_CATEGORIES = [
-  { value: 'feed', label: 'Foder' },
-  { value: 'bedding', label: 'Strö & bäddmaterial' },
-  { value: 'veterinary', label: 'Veterinär' },
-  { value: 'medicine', label: 'Medicin & avmaskning' },
-  { value: 'equipment', label: 'Utrustning & material' },
-  { value: 'electricity', label: 'El & värme' },
-  { value: 'coop_maintenance', label: 'Underhåll av hönshus' },
-  { value: 'new_hens', label: 'Inköp av hönor/tuppar' },
+  { value: 'seeds', label: 'Frön & utsäde' },
+  { value: 'soil', label: 'Jord & substrat' },
+  { value: 'fertilizer', label: 'Gödsel' },
+  { value: 'tools', label: 'Verktyg & redskap' },
+  { value: 'pots', label: 'Krukor & odlingslådor' },
+  { value: 'irrigation', label: 'Bevattning' },
+  { value: 'greenhouse', label: 'Växthus & drivbänk' },
   { value: 'other', label: 'Övrigt' },
 ];
 

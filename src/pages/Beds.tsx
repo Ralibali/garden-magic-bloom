@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Trash2, LayoutGrid } from 'lucide-react';
+import { Plus, Trash2, LayoutGrid, BookOpen, Save, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -15,6 +15,8 @@ const Beds = () => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [editingNotes, setEditingNotes] = useState<Record<string, string>>({});
+  const [savingNotes, setSavingNotes] = useState<string | null>(null);
 
   const { data: beds, isLoading } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
 
@@ -37,19 +39,33 @@ const Beds = () => {
     },
   });
 
+  const handleSaveNotes = async (bedId: string) => {
+    setSavingNotes(bedId);
+    try {
+      await api.updateBed(bedId, { season_notes: editingNotes[bedId] ?? '' });
+      queryClient.invalidateQueries({ queryKey: ['beds'] });
+      toast({ title: 'Anteckningar sparade! 📝' });
+      setEditingNotes(prev => { const n = { ...prev }; delete n[bedId]; return n; });
+    } catch {
+      toast({ title: 'Kunde inte spara', variant: 'destructive' });
+    } finally {
+      setSavingNotes(null);
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2"><LayoutGrid className="h-6 w-6" /> Mina bäddar</h1>
-          <p className="text-muted-foreground">Hantera dina odlingsbäddar</p>
+          <h1 className="text-2xl sm:text-3xl font-serif flex items-center gap-2"><LayoutGrid className="h-6 w-6 text-primary" /> Mina bäddar</h1>
+          <p className="text-muted-foreground text-sm mt-1">Hantera dina odlingsbäddar och säsongsanteckningar</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2"><Plus className="h-4 w-4" /> Ny bädd</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Lägg till bädd</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle className="font-serif">Lägg till bädd</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <Input placeholder="Namn (t.ex. Bädd 1, Växthuset)" value={name} onChange={e => setName(e.target.value)} />
               <Textarea placeholder="Beskrivning (valfritt)" value={description} onChange={e => setDescription(e.target.value)} />
@@ -63,7 +79,7 @@ const Beds = () => {
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map(i => <Skeleton key={i} className="h-32" />)}
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-48" />)}
         </div>
       ) : !beds?.length ? (
         <Card><CardContent className="py-12 text-center text-muted-foreground">
@@ -71,17 +87,46 @@ const Beds = () => {
         </CardContent></Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {beds.map(bed => (
-            <Card key={bed.id}>
-              <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                <CardTitle className="text-lg">{bed.name}</CardTitle>
-                <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(bed.id)}>
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
-              </CardHeader>
-              {bed.description && <CardContent><p className="text-sm text-muted-foreground">{bed.description}</p></CardContent>}
-            </Card>
-          ))}
+          {beds.map((bed: any) => {
+            const isEditing = editingNotes[bed.id] !== undefined;
+            const notesValue = isEditing ? editingNotes[bed.id] : (bed.season_notes || '');
+            return (
+              <Card key={bed.id} className="bg-card border-border shadow-sm">
+                <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-serif">{bed.name}</CardTitle>
+                  <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(bed.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {bed.description && <p className="text-sm text-muted-foreground">{bed.description}</p>}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <BookOpen className="h-3.5 w-3.5 text-primary" />
+                      <span className="text-xs font-medium text-foreground">Säsongsanteckningar</span>
+                    </div>
+                    <Textarea
+                      placeholder="Vad lärde du dig i år? Vad funkade bra?"
+                      className="text-xs min-h-[60px] resize-none"
+                      value={notesValue}
+                      onChange={e => setEditingNotes(prev => ({ ...prev, [bed.id]: e.target.value }))}
+                    />
+                    {isEditing && (
+                      <Button
+                        size="sm"
+                        className="mt-2 gap-1.5 w-full"
+                        onClick={() => handleSaveNotes(bed.id)}
+                        disabled={savingNotes === bed.id}
+                      >
+                        {savingNotes === bed.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+                        Spara anteckningar
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

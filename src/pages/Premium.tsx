@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Crown, Check, Bell, BarChart3, Download, TrendingUp, Star, Calculator, Camera, ClipboardCheck, Baby, Loader2, Settings, Sparkles, ArrowRight, CalendarDays } from 'lucide-react';
+import { Crown, Bell, BarChart3, Download, TrendingUp, Star, Loader2, Settings, Sparkles, ArrowRight, CalendarDays, Sprout, BookOpen, RotateCcw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,38 +10,33 @@ import { format } from 'date-fns';
 import { sv } from 'date-fns/locale';
 
 const PRICES = {
-  monthly: 'price_1T3joGHzffTezY82dRQc7GTO',
   yearly: 'price_1T3jwRHzffTezY829aWQVXZr',
 };
 
 const premiumFeatures = [
-  { text: 'Obegränsat antal hönor', icon: '🐔' },
+  { text: 'Smarta påminnelser per klimatzon', icon: '🔔' },
+  { text: 'Växtföljdshistorik – fler än 1 år', icon: '🔄' },
   { text: 'Avancerad statistik & trender', icon: '📊' },
-  { text: 'Smarta varningar & prognoser', icon: '🔔' },
-  { text: 'Hälsologg & vaccinationer', icon: '💉' },
-  { text: 'Foderspårning & kostnad/ägg', icon: '🌾' },
-  { text: 'Kläckningsräknare', icon: '🐣' },
-  { text: 'Dagliga uppgifter & påminnelser', icon: '✅' },
+  { text: 'Säsongsanteckningar per bädd', icon: '📝' },
   { text: 'Exportera data (PDF/CSV)', icon: '📥' },
+  { text: 'Ekonomi & odlingsbudget', icon: '💰' },
   { text: 'Prioriterad support', icon: '⭐' },
   { text: 'Alla framtida funktioner', icon: '🚀' },
 ];
 
 const highlights = [
-  { icon: Calculator, title: 'Kostnad per ägg', desc: 'Se exakt vad varje ägg kostar att producera.' },
-  { icon: TrendingUp, title: 'Smarta prognoser', desc: 'Förväntat antal ägg baserat på dina data.' },
-  { icon: Bell, title: 'Avmaskning & påminnelser', desc: 'Automatiska påminnelser för vaccination och veterinär.' },
-  { icon: Baby, title: 'Kläckningsräknare', desc: '21-dagars nedräkning med milstolpar.' },
-  { icon: ClipboardCheck, title: 'Dagliga uppgifter', desc: 'Checklista som återställs varje morgon.' },
-  { icon: Camera, title: 'Fotoalbum', desc: 'Dokumentera dina hönor med bilder.' },
-  { icon: BarChart3, title: 'Detaljerad statistik', desc: 'Jämför månader och hitta din bästa värpare.' },
-  { icon: Download, title: 'Exportera rapporter', desc: 'PDF eller CSV för bokföring.' },
+  { icon: Bell, title: 'Smarta påminnelser', desc: 'Automatiska påminnelser anpassade efter din klimatzon – dags att förodla, plantera ut eller skörda.' },
+  { icon: RotateCcw, title: 'Växtföljd', desc: 'Se hela historiken per bädd och planera rätt rotation för friskare jord.' },
+  { icon: TrendingUp, title: 'Skördestatistik', desc: 'Jämför skördar mellan säsonger och hitta dina bästa sorter.' },
+  { icon: BookOpen, title: 'Säsongsanteckningar', desc: '"Vad lärde jag mig i år?" – din personliga dagbok per bädd.' },
+  { icon: BarChart3, title: 'Detaljerad ekonomi', desc: 'Spåra kostnader för frö, jord och verktyg – se vad odlingen kostar.' },
+  { icon: Download, title: 'Exportera rapporter', desc: 'PDF eller CSV för din egen bokföring.' },
 ];
 
 const testimonials = [
-  { name: 'Anna-Lena', location: 'Dalarna', text: 'Sedan jag uppgraderade har jag koll på exakt vad varje ägg kostar. Fantastiskt!' },
-  { name: 'Per-Olof', location: 'Skåne', text: 'Kläckningsräknaren räddade min första kull – jag hade glömt sluta vända äggen!' },
-  { name: 'Margareta', location: 'Gotland', text: 'Dagliga uppgifterna gör att barnen kan hjälpa till. De älskar att bocka av!' },
+  { name: 'Anna-Lena', location: 'Dalarna', text: 'Äntligen en app som förstår svenska odlingsförhållanden! Påminnelserna för zon 4 stämmer perfekt.' },
+  { name: 'Per-Olof', location: 'Skåne', text: 'Växtföljden har gjort att jag undviker samma misstag varje år. Helt ovärderligt.' },
+  { name: 'Margareta', location: 'Gotland', text: 'Enklaste odlingsappen jag testat. Registrerar en skörd på 10 sekunder!' },
 ];
 
 export default function Premium() {
@@ -53,27 +48,24 @@ export default function Premium() {
 
   useEffect(() => {
     if (searchParams.get('success') === 'true') {
-      // After Stripe redirect, sync subscription status
       const syncSubscription = async () => {
         try {
           const { data, error } = await supabase.functions.invoke('check-subscription');
           if (!error && data?.subscribed) {
-            toast({ title: '🎉 Välkommen till Premium!', description: 'Din uppgradering är klar. Njut av alla funktioner!' });
-            // Reload to pick up new profile status
+            toast({ title: '🎉 Välkommen till Plus!', description: 'Din uppgradering är klar. Njut av alla funktioner!' });
             window.location.replace('/app/premium');
           } else {
-            // Stripe may take a moment – retry once after 3s
             setTimeout(async () => {
               const { data: retryData } = await supabase.functions.invoke('check-subscription');
               if (retryData?.subscribed) {
                 window.location.replace('/app/premium');
               } else {
-                toast({ title: 'Betalningen behandlas', description: 'Det kan ta någon minut innan din premium aktiveras. Ladda om sidan snart.' });
+                toast({ title: 'Betalningen behandlas', description: 'Det kan ta någon minut. Ladda om sidan snart.' });
               }
             }, 3000);
           }
         } catch {
-          toast({ title: 'Betalningen behandlas', description: 'Ladda om sidan om en stund för att se din premium-status.' });
+          toast({ title: 'Betalningen behandlas', description: 'Ladda om sidan om en stund.' });
         }
       };
       syncSubscription();
@@ -86,9 +78,7 @@ export default function Premium() {
       const { data, error } = await supabase.functions.invoke('customer-portal');
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
-      if (data?.url) {
-        window.location.href = data.url;
-      }
+      if (data?.url) window.location.href = data.url;
     } catch (err: any) {
       toast({ title: 'Fel', description: err.message || 'Kunde inte öppna kundportalen.', variant: 'destructive' });
     } finally {
@@ -103,18 +93,12 @@ export default function Premium() {
     }
     setLoadingPlan(planName);
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId },
-      });
+      const { data, error } = await supabase.functions.invoke('create-checkout', { body: { priceId } });
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('Ingen checkout-URL returnerades');
-      }
+      if (data?.url) window.location.href = data.url;
+      else throw new Error('Ingen checkout-URL returnerades');
     } catch (err: any) {
-      console.error('Checkout error:', err);
       toast({ title: 'Kunde inte starta betalning', description: err.message || 'Något gick fel.', variant: 'destructive' });
     } finally {
       setLoadingPlan(null);
@@ -129,73 +113,44 @@ export default function Premium() {
         <div className="relative">
           <div className="inline-flex items-center gap-2 bg-primary/15 text-primary px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
             <Sparkles className="h-4 w-4" />
-            Premium
+            Plus
           </div>
           <h1 className="text-3xl sm:text-4xl font-serif text-foreground mb-3">
-            Uppgradera din hönsgård
+            Uppgradera din odling
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto">
-            Få full kontroll med avancerad statistik, smarta prognoser och automatiska påminnelser.
+            Smarta påminnelser, växtföljdshistorik och detaljerad statistik – allt du behöver för att odla smartare.
           </p>
         </div>
       </div>
 
-      {/* Pricing cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Monthly */}
-        <Card className="bg-card border-border shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
-            <h3 className="font-serif text-lg text-foreground mb-1">Månadsplan</h3>
-            <p className="text-muted-foreground text-sm mb-5">Flexibelt, ingen bindningstid</p>
-            <div className="mb-2">
-              <span className="text-4xl font-bold text-foreground">19</span>
-              <span className="text-lg text-muted-foreground ml-1">kr/mån</span>
-            </div>
-            <p className="text-xs text-muted-foreground mb-4">7 dagar gratis provperiod</p>
-            <Button 
-              variant="outline"
-              className="w-full h-11 gap-2 active:scale-95 transition-transform"
-              onClick={() => handleCheckout(PRICES.monthly, 'monthly')}
-              disabled={!!loadingPlan || isPremium}
-            >
-              {loadingPlan === 'monthly' ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-              {isPremium ? 'Du har redan Premium' : 'Välj månadsplan'}
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Yearly - highlighted */}
-        <Card className="bg-card border-2 border-primary shadow-lg relative overflow-hidden hover:shadow-xl transition-shadow">
-           <div className="absolute top-0 left-0 right-0 bg-primary text-primary-foreground text-xs font-semibold py-1.5 text-center tracking-wide uppercase">
-             Spara 35% – populärast
-           </div>
-           <CardContent className="p-6 pt-10">
-             <h3 className="font-serif text-lg text-foreground mb-1">Årsplan</h3>
-             <p className="text-muted-foreground text-sm mb-5">Bästa värdet – bara 12 kr/mån</p>
-             <div className="mb-2">
-               <span className="text-4xl font-bold text-foreground">149</span>
-               <span className="text-lg text-muted-foreground ml-1">kr/år</span>
-             </div>
-             <p className="text-xs text-muted-foreground mb-5">
-               <span className="line-through">228 kr</span> → du sparar 79 kr per år
-             </p>
-            <Button 
-              className="w-full h-12 gap-2 active:scale-95 transition-transform text-base font-semibold shadow-[0_4px_14px_0_hsl(var(--primary)/0.3)]"
-              onClick={() => handleCheckout(PRICES.yearly, 'yearly')}
-              disabled={!!loadingPlan || isPremium}
-            >
-              {loadingPlan === 'yearly' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crown className="h-4 w-4" />}
-              {isPremium ? 'Du har redan Premium' : 'Välj årsplan – 149 kr'}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Single pricing card */}
+      <Card className="bg-card border-2 border-primary shadow-lg relative overflow-hidden max-w-md mx-auto">
+        <div className="absolute top-0 left-0 right-0 bg-primary text-primary-foreground text-xs font-semibold py-1.5 text-center tracking-wide uppercase">
+          7 dagar gratis · Inget kreditkort krävs
+        </div>
+        <CardContent className="p-6 pt-10 text-center">
+          <h3 className="font-serif text-lg text-foreground mb-1">Odlingsdagboken Plus</h3>
+          <p className="text-muted-foreground text-sm mb-5">Allt du behöver för en lyckad odlingssäsong</p>
+          <div className="mb-2">
+            <span className="text-5xl font-bold text-foreground">99</span>
+            <span className="text-lg text-muted-foreground ml-1">kr/år</span>
+          </div>
+          <p className="text-xs text-muted-foreground mb-5">Bara ~8 kr/månad</p>
+          <Button
+            className="w-full h-12 gap-2 text-base font-semibold shadow-[0_4px_14px_0_hsl(var(--primary)/0.3)]"
+            onClick={() => handleCheckout(PRICES.yearly, 'yearly')}
+            disabled={!!loadingPlan || isPremium}
+          >
+            {loadingPlan === 'yearly' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crown className="h-4 w-4" />}
+            {isPremium ? 'Du har redan Plus' : 'Prova gratis i 7 dagar'}
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* What's included */}
       <div>
-        <h2 className="font-serif text-xl sm:text-2xl text-foreground text-center mb-5">
-          Allt som ingår
-        </h2>
+        <h2 className="font-serif text-xl sm:text-2xl text-foreground text-center mb-5">Allt som ingår i Plus</h2>
         <Card className="bg-card border-border shadow-sm">
           <CardContent className="p-5 sm:p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -229,7 +184,7 @@ export default function Premium() {
 
       {/* Testimonials */}
       <div>
-        <h2 className="font-serif text-xl text-foreground text-center mb-4">Vad säger våra användare?</h2>
+        <h2 className="font-serif text-xl text-foreground text-center mb-4">Vad säger våra odlare?</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {testimonials.map((t) => (
             <Card key={t.name} className="bg-card border-border shadow-sm">
@@ -257,34 +212,22 @@ export default function Premium() {
         </CardContent>
       </Card>
 
-      {/* Manage subscription (premium users) */}
+      {/* Manage subscription */}
       {isPremium && (
         <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 shadow-sm">
           <CardContent className="p-5 sm:p-6 text-center space-y-3">
             <div className="inline-flex items-center gap-2 text-foreground font-semibold text-lg">
               <Crown className="h-5 w-5 text-warning" />
-              Du har Premium!
+              Du har Plus!
             </div>
             {user?.subscription_end && (
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <CalendarDays className="h-4 w-4" />
-                <span>
-                  Betald t.o.m.{' '}
-                  <span className="font-medium text-foreground">
-                    {format(new Date(user.subscription_end), 'd MMMM yyyy', { locale: sv })}
-                  </span>
-                </span>
+                <span>Betald t.o.m. <span className="font-medium text-foreground">{format(new Date(user.subscription_end), 'd MMMM yyyy', { locale: sv })}</span></span>
               </div>
             )}
-            <p className="text-sm text-muted-foreground">
-              Hantera din prenumeration, byt betalmetod eller avsluta.
-            </p>
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={handleManageSubscription}
-              disabled={loadingPortal}
-            >
+            <p className="text-sm text-muted-foreground">Hantera din prenumeration, byt betalmetod eller avsluta.</p>
+            <Button variant="outline" className="gap-2" onClick={handleManageSubscription} disabled={loadingPortal}>
               {loadingPortal ? <Loader2 className="h-4 w-4 animate-spin" /> : <Settings className="h-4 w-4" />}
               Hantera prenumeration
             </Button>
@@ -295,17 +238,17 @@ export default function Premium() {
       {/* Bottom CTA */}
       {!isPremium && (
         <div className="text-center pb-4">
-          <Button 
-            size="lg" 
-            className="h-12 px-10 text-base gap-2 active:scale-95 transition-transform shadow-[0_4px_14px_0_hsl(var(--primary)/0.3)]"
+          <Button
+            size="lg"
+            className="h-12 px-10 text-base gap-2 shadow-[0_4px_14px_0_hsl(var(--primary)/0.3)]"
             onClick={() => handleCheckout(PRICES.yearly, 'yearly')}
             disabled={!!loadingPlan}
           >
-            {loadingPlan === 'yearly' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crown className="h-4 w-4" />}
-            Uppgradera nu – 149 kr/år
+            {loadingPlan === 'yearly' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sprout className="h-4 w-4" />}
+            Prova gratis i 7 dagar – 99 kr/år
           </Button>
           <p className="text-xs text-muted-foreground mt-3">
-            Frågor? <a href="mailto:support@honsgarden.se" className="text-primary hover:underline">support@honsgarden.se</a>
+            Frågor? <a href="mailto:hej@odlingsdagboken.se" className="text-primary hover:underline">hej@odlingsdagboken.se</a>
           </p>
         </div>
       )}
