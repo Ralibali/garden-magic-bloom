@@ -1,4 +1,4 @@
-import { Home, Sprout, LayoutGrid, Flower2, MoreHorizontal, BarChart3, Settings, Crown, Shield, CalendarDays, RefreshCw, Package, Clock, Heart, Bug, Camera, Carrot, BookOpen } from 'lucide-react';
+import { Home, Sprout, LayoutGrid, Flower2, MoreHorizontal, BarChart3, Settings, Crown, Shield, CalendarDays, RefreshCw, Package, Clock, Heart, Bug, Camera, Carrot, BookOpen, Sparkles } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
