@@ -92,6 +92,11 @@ const AppRoutes = () => (
           <Route path="admin" element={<Admin />} />
           <Route path="calendar" element={<SowingCalendar />} />
           <Route path="rotation" element={<CropRotation />} />
+          <Route path="seeds" element={<SeedInventory />} />
+          <Route path="timeline" element={<Timeline />} />
+          <Route path="companion" element={<CompanionPlanting />} />
+          <Route path="pests" element={<PestLog />} />
+          <Route path="photos" element={<PhotoDiary />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

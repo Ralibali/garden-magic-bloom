@@ -22,6 +22,9 @@ const mainNav = [
 ];
 
 const secondaryNav = [
+  { title: 'Tidslinje', url: '/app/timeline', icon: Clock },
+  { title: 'Samplantering', url: '/app/companion', icon: Heart },
+  { title: 'Skadedjur', url: '/app/pests', icon: Bug },
   { title: 'Statistik', url: '/app/statistics', icon: BarChart3 },
   { title: 'Premium', url: '/app/premium', icon: Crown },
   { title: 'Inställningar', url: '/app/settings', icon: Settings },
