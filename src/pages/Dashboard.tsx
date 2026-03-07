@@ -69,6 +69,13 @@ const Dashboard = () => {
     retry: 1,
   });
 
+  const { data: rainData } = useQuery({
+    queryKey: ['rain-history', climateZone],
+    queryFn: () => api.getRainHistory(climateZone),
+    staleTime: 600_000,
+    retry: 1,
+  });
+
   const { data: beds } = useQuery({
     queryKey: ['beds'],
     queryFn: api.getBeds,
