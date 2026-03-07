@@ -226,6 +226,28 @@ export async function getWeather(climateZone?: number | null) {
   return res.json();
 }
 
+export async function getRainHistory(climateZone?: number | null): Promise<{ dryDays: number; totalPrecipitation: number }> {
+  const { lat, lon } = getCoordinatesForZone(climateZone ?? null);
+  const end = new Date();
+  const start = new Date();
+  start.setDate(start.getDate() - 6);
+  const fmt = (d: Date) => d.toISOString().split('T')[0];
+  const res = await fetch(
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum&timezone=Europe/Stockholm&start_date=${fmt(start)}&end_date=${fmt(end)}`
+  );
+  if (!res.ok) throw new Error('Rain history fetch failed');
+  const json = await res.json();
+  const precip: number[] = json.daily?.precipitation_sum ?? [];
+  // Count consecutive dry days from today backwards
+  let dryDays = 0;
+  for (let i = precip.length - 1; i >= 0; i--) {
+    if (precip[i] < 1) dryDays++;
+    else break;
+  }
+  const totalPrecipitation = precip.reduce((a, b) => a + b, 0);
+  return { dryDays, totalPrecipitation };
+}
+
 // ==================== AI ====================
 
 export async function getDailyTip() {
