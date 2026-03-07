@@ -397,7 +397,7 @@ export default function GuideArticle() {
     script.textContent = JSON.stringify(jsonLd);
 
     return () => {
-      document.title = 'Hönsgården';
+      document.title = 'Odlingsdagboken';
       createdElements.forEach(el => el.remove());
       document.getElementById('json-ld-article')?.remove();
     };
