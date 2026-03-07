@@ -30,6 +30,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const Sowings = () => {
+  const { user } = useAuth();
+  const isPremium = user?.subscription_status === 'premium';
   const queryClient = useQueryClient();
   const location = useLocation();
   const prefill = (location.state as any)?.prefill;
