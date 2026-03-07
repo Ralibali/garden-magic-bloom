@@ -80,8 +80,24 @@ const Dashboard = () => {
     select: (data) => data?.slice(0, 5),
   });
 
+  const { data: overduePlants } = useQuery({
+    queryKey: ['overdue-plants'],
+    queryFn: async () => {
+      const { data, error } = await (await import('@/integrations/supabase/client')).supabase
+        .from('my_plants').select('*, plants(name_sv)').order('created_at', { ascending: false });
+      if (error) return [];
+      return (data || []).filter((p: any) => {
+        if (!p.last_watered) return true;
+        const ago = Math.floor((Date.now() - new Date(p.last_watered).getTime()) / 86400000);
+        return ago >= (p.watering_interval_days || 7);
+      });
+    },
+  });
+
+  // Use first name only from display_name
   const rawName = profile?.display_name?.trim();
-  const displayName = rawName || '';
+  const firstName = rawName ? rawName.split(' ')[0] : '';
+  const displayName = firstName;
   const temp = weather?.current?.temperature_2m;
 
   // Temperature-based tips
