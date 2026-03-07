@@ -197,13 +197,13 @@ export default function GuideArticle() {
   // SEO - full OG, Twitter, hreflang, JSON-LD with Article + FAQ + Product + BreadcrumbList
   React.useEffect(() => {
     if (!post) return;
-    const BASE = 'https://honsgarden.se';
+    const BASE = 'https://odlingsdagboken.se';
     const fullUrl = `${BASE}/blogg/${post.slug}`;
-    const pageTitle = post.meta_title || post.title + ' | Hönsgården';
+    const pageTitle = post.meta_title || post.title + ' | Odlingsdagboken';
     const pageDesc = post.meta_description || post.excerpt || '';
     const imageUrl = post.cover_image_url
       ? (post.cover_image_url.startsWith('http') ? post.cover_image_url : `${BASE}${post.cover_image_url}`)
-      : `${BASE}/blog-images/hens-garden.jpg`;
+      : `${BASE}/blog-images/spring-garden.jpg`;
 
     const createdElements: HTMLElement[] = [];
 
