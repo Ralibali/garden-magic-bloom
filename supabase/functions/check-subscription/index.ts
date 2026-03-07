@@ -19,9 +19,6 @@ serve(async (req) => {
   );
 
   try {
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header");
 
@@ -31,11 +28,31 @@ serve(async (req) => {
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated");
 
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+
+    // If Stripe is not configured, fall back to database profile status
+    if (!stripeKey) {
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('subscription_status, premium_expires_at')
+        .eq('user_id', user.id)
+        .single();
+
+      const isPremium = profile?.subscription_status === 'premium' &&
+        (!profile?.premium_expires_at || new Date(profile.premium_expires_at) > new Date());
+
+      return new Response(JSON.stringify({
+        subscribed: isPremium,
+        subscription_end: profile?.premium_expires_at,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
     if (customers.data.length === 0) {
-      // Update profile to free
       await supabaseClient.from('profiles').update({ subscription_status: 'free' }).eq('user_id', user.id);
       return new Response(JSON.stringify({ subscribed: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -64,8 +81,6 @@ serve(async (req) => {
         // Skip if date parsing fails
       }
       productId = subscription.items.data[0].price.product;
-
-      // Update profile to premium
       await supabaseClient.from('profiles').update({ subscription_status: 'premium' }).eq('user_id', user.id);
     } else {
       await supabaseClient.from('profiles').update({ subscription_status: 'free' }).eq('user_id', user.id);
