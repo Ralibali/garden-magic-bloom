@@ -107,7 +107,23 @@ const Sowings = () => {
             <DialogHeader><DialogTitle>Lägg till sådning</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <Input placeholder="Sort (t.ex. Tomat – Sungold)" value={variety} onChange={e => setVariety(e.target.value)} />
-              <Input placeholder="Frömärke/leverantör (t.ex. Impecta, Nelson Garden)" value={seedBrand} onChange={e => setSeedBrand(e.target.value)} />
+              <div className="relative" ref={brandRef}>
+                <Input
+                  placeholder="Frömärke/leverantör (t.ex. Impecta, Nelson Garden)"
+                  value={seedBrand}
+                  onChange={e => { setSeedBrand(e.target.value); setShowBrandSuggestions(true); }}
+                  onFocus={() => setShowBrandSuggestions(true)}
+                />
+                {showBrandSuggestions && filteredBrands.length > 0 && (
+                  <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                    {filteredBrands.map(b => (
+                      <button key={b} type="button" className="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors" onClick={() => { setSeedBrand(b); setShowBrandSuggestions(false); }}>
+                        {b}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <Select value={bedId} onValueChange={setBedId}>
                 <SelectTrigger><SelectValue placeholder="Välj bädd (valfritt)" /></SelectTrigger>
                 <SelectContent>
