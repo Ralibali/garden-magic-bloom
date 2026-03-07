@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Egg, Loader2, BookOpen, CalendarDays } from 'lucide-react';
+import { ArrowLeft, Sprout, Loader2, BookOpen, CalendarDays } from 'lucide-react';
 
 const categoryLabels: Record<string, string> = {
   guide: 'Guide',
