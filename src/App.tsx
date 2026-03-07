@@ -50,10 +50,20 @@ const queryClient = new QueryClient({
 });
 
 const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="flex flex-col items-center gap-3">
-      <span className="text-2xl">🌱</span>
-      <span className="text-sm text-muted-foreground">Laddar...</span>
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="flex flex-col items-center gap-4">
+      <div className="relative">
+        <span className="text-4xl animate-[pulse_1.5s_ease-in-out_infinite]">🌱</span>
+        <div className="absolute -inset-3 rounded-full bg-primary/10 animate-[ping_2s_ease-in-out_infinite] opacity-30" />
+      </div>
+      <div className="flex flex-col items-center gap-1.5">
+        <span className="text-sm font-medium text-foreground">Odlingsdagboken</span>
+        <div className="flex gap-1">
+          <div className="w-1.5 h-1.5 rounded-full bg-primary animate-[bounce_1s_ease-in-out_infinite]" />
+          <div className="w-1.5 h-1.5 rounded-full bg-primary animate-[bounce_1s_ease-in-out_0.15s_infinite]" />
+          <div className="w-1.5 h-1.5 rounded-full bg-primary animate-[bounce_1s_ease-in-out_0.3s_infinite]" />
+        </div>
+      </div>
     </div>
   </div>
 );

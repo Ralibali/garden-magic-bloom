@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import OnboardingFlow from '@/components/OnboardingFlow';
 import GettingStartedGuide from '@/components/GettingStartedGuide';
 import { GardenCategory } from '@/lib/gardenModules';
+import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 
 const MONTH_TIPS: Record<number, string> = {
   1: 'Beställ frön och planera årets odling. Rita en bäddplan!',
@@ -138,20 +139,21 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       {/* Greeting + weather */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">{displayName ? `God säsong, ${displayName}!` : 'God säsong!'} 🌱</h1>
-
-          <p className="text-muted-foreground">Klimatzon {climateZone} · {MONTH_TIPS[currentMonth]}</p>
-        </div>
-        {temp !== undefined && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-card border border-border rounded-xl px-4 py-2 w-fit">
-            <Thermometer className="h-4 w-4 text-primary" />
-            <span className="font-medium text-foreground">{Math.round(temp)}°C</span>
-            <span>just nu</span>
+      <FadeIn>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">{displayName ? `God säsong, ${displayName}!` : 'God säsong!'} 🌱</h1>
+            <p className="text-muted-foreground">Klimatzon {climateZone} · {MONTH_TIPS[currentMonth]}</p>
           </div>
-        )}
-      </div>
+          {temp !== undefined && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-card border border-border rounded-xl px-4 py-2 w-fit">
+              <Thermometer className="h-4 w-4 text-primary" />
+              <span className="font-medium text-foreground">{Math.round(temp)}°C</span>
+              <span>just nu</span>
+            </div>
+          )}
+        </div>
+      </FadeIn>
 
       {/* Temperature-based sowing tips */}
       {weatherTips.length > 0 && (
@@ -240,38 +242,44 @@ const Dashboard = () => {
       {isNewUser ? (
         <GettingStartedGuide />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {isLoading ? (
             <>{[1, 2, 3].map(i => <Skeleton key={i} className="h-28" />)}</>
           ) : (
             <>
-              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/app/beds')}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <LayoutGrid className="h-4 w-4" /> Aktiva bäddar
-                  </CardTitle>
-                </CardHeader>
-                <CardContent><p className="text-3xl font-bold">{stats?.active_beds ?? 0}</p></CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/app/sowings')}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <Sprout className="h-4 w-4" /> Sådder i år
-                  </CardTitle>
-                </CardHeader>
-                <CardContent><p className="text-3xl font-bold">{stats?.sowings_this_year ?? 0}</p></CardContent>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/app/harvests')}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <Carrot className="h-4 w-4" /> Skörd i år
-                  </CardTitle>
-                </CardHeader>
-                <CardContent><p className="text-3xl font-bold">{(stats?.harvest_kg ?? 0).toFixed(1)} kg</p></CardContent>
-              </Card>
+              <StaggerItem>
+                <Card className="cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200" onClick={() => navigate('/app/beds')}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <LayoutGrid className="h-4 w-4" /> Aktiva bäddar
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent><p className="text-3xl font-bold">{stats?.active_beds ?? 0}</p></CardContent>
+                </Card>
+              </StaggerItem>
+              <StaggerItem>
+                <Card className="cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200" onClick={() => navigate('/app/sowings')}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <Sprout className="h-4 w-4" /> Sådder i år
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent><p className="text-3xl font-bold">{stats?.sowings_this_year ?? 0}</p></CardContent>
+                </Card>
+              </StaggerItem>
+              <StaggerItem>
+                <Card className="cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200" onClick={() => navigate('/app/harvests')}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <Carrot className="h-4 w-4" /> Skörd i år
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent><p className="text-3xl font-bold">{(stats?.harvest_kg ?? 0).toFixed(1)} kg</p></CardContent>
+                </Card>
+              </StaggerItem>
             </>
           )}
-        </div>
+        </StaggerContainer>
       )}
 
       {/* Recent sowings */}
