@@ -15,7 +15,6 @@ function getSeason(month: number): string {
 
 function getStockholmDate(): { dateStr: string; season: string; displayDate: string } {
   const now = new Date();
-  // Convert to Stockholm time
   const stockholm = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
   const year = stockholm.getFullYear();
   const month = stockholm.getMonth() + 1;
@@ -65,15 +64,16 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const prompt = `Du är en hjälpsam expert på hönsskötsel. Skriv ETT kort dagligt tips för hobbyhöns i Sverige. Anpassa efter säsong: ${season} och datum: ${displayDate}.
+    const prompt = `Du är en kunnig trädgårdsrådgivare specialiserad på grönsaksodling i Sverige. Skriv ETT kort dagligt odlingstips. Anpassa efter säsong: ${season} och datum: ${displayDate}.
 
 Krav:
 - 70–120 ord.
 - Svenskt språk.
-- Praktiskt, konkret och tryggt.
+- Praktiskt, konkret och användbart för hobbyodlare.
+- Tips kan handla om: sådd, förodling, utplantering, skötsel, skörd, kompost, växtföljd, jordförbättring, skadedjur, bevattning.
+- Anpassa efter vad som är relevant för årstiden i Sverige.
 - Inga emojis.
-- Ingen fluff, inga långa utläggningar.
-- Ingen medicinsk rådgivning; hänvisa till veterinär vid sjukdomstecken.
+- Ingen fluff.
 
 Returnera bara själva tipstexten.`;
 
@@ -120,7 +120,6 @@ Returnera bara själva tipstexten.`;
       .single();
 
     if (insertError) {
-      // Duplicate key = another request beat us, read their result
       if (insertError.code === '23505') {
         console.log(`[getDailyTip] Duplicate key, reading existing...`);
         const { data: existing } = await supabase
