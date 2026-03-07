@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const BASE = 'https://honsgarden.se';
+const BASE = 'https://odlingsdagboken.se';
 
 interface SeoOptions {
   title: string;
