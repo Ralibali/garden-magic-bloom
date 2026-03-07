@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import OnboardingFlow from '@/components/OnboardingFlow';
 import GettingStartedGuide from '@/components/GettingStartedGuide';
 import { GardenCategory } from '@/lib/gardenModules';
+import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 
 const MONTH_TIPS: Record<number, string> = {
   1: 'Beställ frön och planera årets odling. Rita en bäddplan!',
