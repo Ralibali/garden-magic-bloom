@@ -194,6 +194,8 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+      )}
+
       {/* Season wrap-up banner */}
       {showSeasonWrap && (
         <Card className="bg-accent/5 border-accent/30 shadow-sm">
