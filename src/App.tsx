@@ -110,7 +110,9 @@ const AppRoutes = () => (
           <Route path="plants" element={<PlantLibrary />} />
           <Route path="plants/:id" element={<PlantProfilePage />} />
           <Route path="my-plants" element={<MyPlants />} />
+          <Route path="coach" element={<GardeningCoach />} />
         </Route>
+        <Route path="/install" element={<Install />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
