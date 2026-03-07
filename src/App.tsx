@@ -28,6 +28,11 @@ const Guides = React.lazy(() => import("./pages/Guides"));
 const GuideArticle = React.lazy(() => import("./pages/GuideArticle"));
 const SowingCalendar = React.lazy(() => import("./pages/SowingCalendar"));
 const CropRotation = React.lazy(() => import("./pages/CropRotation"));
+const SeedInventory = React.lazy(() => import("./pages/SeedInventory"));
+const Timeline = React.lazy(() => import("./pages/Timeline"));
+const CompanionPlanting = React.lazy(() => import("./pages/CompanionPlanting"));
+const PestLog = React.lazy(() => import("./pages/PestLog"));
+const PhotoDiary = React.lazy(() => import("./pages/PhotoDiary"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
