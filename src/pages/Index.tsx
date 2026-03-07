@@ -1,18 +1,21 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useSeo } from '@/hooks/useSeo';
 import { Button } from '@/components/ui/button';
-import { Sprout, ArrowRight, BarChart3, LayoutGrid, Carrot, RefreshCw, Calendar, Check, ChevronDown, ChevronRight, Star, Users, Clock } from 'lucide-react';
-import heroGarden from '@/assets/hero-garden.jpg';
+import { ArrowRight, Check, ChevronRight, Sprout, Carrot, CalendarDays, RefreshCw, TrendingUp, BarChart3, Zap, Star, ArrowDown } from 'lucide-react';
+import heroFlatlay from '@/assets/hero-flatlay.jpg';
+import heroHands from '@/assets/hero-harvest-hands.jpg';
+import heroAerial from '@/assets/hero-beds-aerial.jpg';
 
-function useInView(threshold = 0.12) {
+/* ─── Scroll-triggered fade ─── */
+function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold }
+      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold },
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -20,340 +23,450 @@ function useInView(threshold = 0.12) {
   return { ref, visible };
 }
 
-function FadeUp({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
+function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const { ref, visible } = useInView();
   return (
-    <div ref={ref} className={`transition-all duration-600 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'} ${className}`} style={{ transitionDelay: `${delay}ms` }}>
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
       {children}
     </div>
   );
 }
 
-function AnimatedNumber({ target, suffix = '' }: { target: number; suffix?: string }) {
-  const [count, setCount] = useState(0);
-  const { ref, visible } = useInView(0.3);
-  useEffect(() => {
-    if (!visible) return;
-    let start = 0;
-    const step = Math.ceil(target / 90);
-    const timer = setInterval(() => { start += step; if (start >= target) { setCount(target); clearInterval(timer); } else setCount(start); }, 16);
-    return () => clearInterval(timer);
-  }, [visible, target]);
-  return <span ref={ref}>{count.toLocaleString('sv-SE')}{suffix}</span>;
-}
-
+/* ─── FAQ ─── */
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-border rounded-xl overflow-hidden">
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between p-4 sm:p-5 text-left hover:bg-muted/50 transition-colors">
-        <span className="text-sm sm:text-base font-medium text-foreground pr-4">{q}</span>
-        <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200 ${open ? 'rotate-90' : ''}`} />
+    <div className="border-b border-border last:border-0">
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-5 text-left group">
+        <span className="text-sm sm:text-base font-medium text-foreground pr-4 group-hover:text-primary transition-colors">{q}</span>
+        <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-300 ${open ? 'rotate-90' : ''}`} />
       </button>
-      {open && <div className="px-4 sm:px-5 pb-4 sm:pb-5 -mt-1"><p className="text-sm text-muted-foreground leading-relaxed">{a}</p></div>}
+      <div className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-96 pb-5' : 'max-h-0'}`}>
+        <p className="text-sm text-muted-foreground leading-relaxed">{a}</p>
+      </div>
     </div>
   );
 }
 
-const features = [
-  { icon: Sprout, title: 'Sålogg', desc: 'Logga sort, bädd och sådatum. Håll koll på förodling och utplantering.' },
-  { icon: Carrot, title: 'Skördlogg', desc: 'Registrera skörd med vikt och datum. Se totalt per sort.' },
-  { icon: RefreshCw, title: 'Växtföljd', desc: 'Se vad du odlat var, år för år. Undvik att odla samma sak på samma ställe.' },
-  { icon: Calendar, title: 'Såtider', desc: 'Rekommenderade tider anpassade för just din klimatzon.' },
+/* ─── Data ─── */
+const capabilities = [
+  {
+    icon: Sprout,
+    title: 'Sålogg',
+    desc: 'Logga sort, bädd, sådatum och typ. Håll koll på förodling och utplantering – allt på ett ställe.',
+    color: 'bg-primary/10 text-primary',
+  },
+  {
+    icon: Carrot,
+    title: 'Skördlogg med vikt',
+    desc: 'Registrera varje skörd i gram. Se totalt per sort och bädd – och vet vad som faktiskt presterar.',
+    color: 'bg-accent/10 text-accent',
+  },
+  {
+    icon: CalendarDays,
+    title: 'Såkalender per zon',
+    desc: 'Rekommenderade tider för 20+ grönsaker, automatiskt anpassade efter din klimatzon (1–8).',
+    color: 'bg-success/10 text-success',
+  },
+  {
+    icon: RefreshCw,
+    title: 'Växtföljd',
+    desc: 'Se vad du odlat var, år för år. Undvik sjukdomar och planera smartare rotation.',
+    color: 'bg-warning/10 text-warning',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Ekonomi',
+    desc: 'Spåra kostnader för frön, jord och verktyg. Se intäkter från försäljning. Går odlingen plus?',
+    color: 'bg-primary/10 text-primary',
+  },
+  {
+    icon: BarChart3,
+    title: 'Statistik & trender',
+    desc: 'Jämför säsonger. Hitta dina bästa sorter. Se hur odlingen utvecklas över tid.',
+    color: 'bg-accent/10 text-accent',
+  },
 ];
 
-const steps = [
-  { num: '1', title: 'Skapa konto', desc: 'Det tar 10 sekunder. 7 dagars Plus ingår.' },
-  { num: '2', title: 'Lägg till bäddar', desc: 'Namnge dina odlingsbäddar, pallkragar och växthus.' },
-  { num: '3', title: 'Börja logga', desc: 'Registrera sådder och skördar. Se allt i din dagbok.' },
+const comparisons = [
+  { feature: 'Klimatzonanpassning (1–8)', us: true, them: false },
+  { feature: 'Skördlogg med vikt (kg)', us: true, them: false },
+  { feature: 'Växtföljd bädd-för-bädd', us: true, them: false },
+  { feature: 'Ekonomi & kostnadsanalys', us: true, them: false },
+  { feature: 'Såkalender per zon', us: true, them: false },
+  { feature: 'Pris per år', us: '99 kr', them: '349 kr' },
 ];
 
 const testimonials = [
-  { text: 'Äntligen kan jag hålla koll på vad jag odlade var förra året! Växtföljden hade jag aldrig lyckats med innan.', name: 'Maria L.', location: 'Skåne · Zon 1', avatar: '👩‍🌾' },
-  { text: 'Perfekt för oss som har pallkragar och vill veta exakt hur mycket vi skördar. Enkelt och snyggt.', name: 'Anders K.', location: 'Dalarna · Zon 4', avatar: '👨‍🌾' },
-  { text: 'Jag säljer lite grönsaker till grannar och nu ser jag vilka sorter som ger bäst. Tack Odlingsdagboken!', name: 'Eva S.', location: 'Halland · Zon 2', avatar: '👩‍🌾' },
+  { text: 'Äntligen kan jag hålla koll på vad jag odlade var förra året! Växtföljden hade jag aldrig lyckats med innan.', name: 'Maria L.', zone: 'Zon 1 · Skåne' },
+  { text: 'Perfekt för oss som har pallkragar och vill veta exakt hur mycket vi skördar. Enkelt och snyggt.', name: 'Anders K.', zone: 'Zon 4 · Dalarna' },
+  { text: 'Jag säljer lite grönsaker till grannar och nu ser jag vilka sorter som ger bäst.', name: 'Eva S.', zone: 'Zon 2 · Halland' },
 ];
 
 const faqs = [
-  { q: 'Kostar det något?', a: 'Grundversionen är helt gratis – för alltid. Med Plus (99 kr/år) får du obegränsade bäddar, smarta påminnelser, full växtföljdshistorik och säsongsanteckningar. Nya användare får dessutom 7 dagars gratis Plus automatiskt.' },
-  { q: 'Behöver jag ladda ner en app?', a: 'Nej! Odlingsdagboken fungerar direkt i webbläsaren. Du kan lägga till den på hemskärmen så känns det som en app.' },
-  { q: 'Vad skiljer er från Gardenize?', a: 'Gardenize riktar sig brett – krukväxter, träd, inspiration. Vi fokuserar 100% på grönsaksodling och gör det konkret: 1) Såkalender anpassad per klimatzon 1–8, 2) Skördlogg med vikt i kg per sort så du ser vad som faktiskt presterar, 3) Växtföljd bädd-för-bädd, år efter år, 4) Smarta påminnelser som säger "dags att förodla tomater i zon 4" – inte bara en statisk kalender, 5) Ekonomispårning per kategori (frön, jord, försäljning). Gardenize har inget av det. Vi kostar 99 kr/år, Gardenize kostar 349 kr/år.' },
+  { q: 'Kostar det något?', a: 'Grundversionen är helt gratis – för alltid. Med Plus (99 kr/år) får du obegränsade bäddar, smarta påminnelser, växtföljdshistorik och CSV-export. Nya användare får dessutom 7 dagars gratis Plus automatiskt.' },
+  { q: 'Behöver jag ladda ner en app?', a: 'Nej! Odlingsdagboken fungerar direkt i webbläsaren på mobil och dator. Lägg till den på hemskärmen så känns det som en app.' },
+  { q: 'Hur skiljer ni er från Gardenize?', a: 'Gardenize fokuserar brett – krukväxter, träd, inspiration. Vi fokuserar 100 % på grönsaksodling med konkreta verktyg: såkalender per klimatzon, skördlogg med vikt, växtföljd per bädd och ekonomispårning. Vi kostar 99 kr/år mot deras 349 kr/år.' },
   { q: 'Är mina data säkra?', a: 'Absolut. All data lagras krypterat inom EU. Vi följer GDPR och du kan radera allt när du vill.' },
-  { q: 'Hur många bäddar kan jag ha gratis?', a: 'I gratisversionen kan du ha upp till 3 bäddar och 20 sådder per år. Nya konton får 7 dagars Plus automatiskt så du kan testa allt.' },
+  { q: 'Hur många bäddar kan jag ha gratis?', a: 'Upp till 3 bäddar och 20 sådder per år. Nya konton får 7 dagars Plus automatiskt så du kan testa allt.' },
 ];
 
+/* ─── Component ─── */
 export default function Index() {
   useSeo({
-    title: 'Odlingsdagboken – Din digitala odlingsdagbok för svenska odlare',
-    description: 'Håll koll på såtider, skördar och växtföljd. Vet vad som funkar i just din trädgård – år efter år. Gratis att börja!',
+    title: 'Odlingsdagboken – Digital odlingsdagbok för svenska odlare',
+    description: 'Logga sådder, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis att börja!',
     path: '/',
   });
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      {/* ═══ HERO ═══ */}
-      <section className="relative min-h-[92vh] flex items-center justify-center">
-        <div className="absolute inset-0 overflow-hidden">
-          <img src={heroGarden} alt="Svensk köksträdgård med odlingsbäddar i morgonljus" className="w-full h-full object-cover object-[50%_45%] animate-hero-zoom scale-110" loading="eager" />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/50 to-background" />
 
-        <nav aria-label="Huvudnavigation" className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-5 sm:px-8 py-4 sm:py-5">
+      {/* ═══════════════════════ NAV ═══════════════════════ */}
+      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-5 sm:px-8 h-14">
+          <a href="/" className="flex items-center gap-2.5">
+            <span className="text-lg">🌱</span>
+            <span className="font-serif text-base font-semibold text-foreground tracking-tight">Odlingsdagboken</span>
+          </a>
           <div className="flex items-center gap-2">
-            <span className="text-xl">🌱</span>
-            <span className="font-serif text-lg text-primary-foreground drop-shadow-sm">Odlingsdagboken</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm" className="text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10">
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm">
+              <a href="/blogg">Blogg</a>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm hidden sm:inline-flex">
               <a href="/login?mode=login">Logga in</a>
             </Button>
-            <Button asChild size="sm" className="shadow-lg">
+            <Button asChild size="sm" className="h-8 px-4 text-sm">
               <a href="/login?mode=register">Kom igång</a>
             </Button>
           </div>
-        </nav>
-
-        <div className="relative z-10 text-center px-5 sm:px-6 max-w-3xl mx-auto">
-          <FadeUp>
-            <div className="inline-flex items-center gap-2 bg-primary-foreground/15 backdrop-blur-md text-primary-foreground px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-primary-foreground/20 mb-6">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
-              </span>
-              Anpassad för svenska klimatzoner
-            </div>
-          </FadeUp>
-
-          <FadeUp delay={100}>
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl text-primary-foreground mb-4 sm:mb-5 leading-[1.1] drop-shadow-lg">
-              Din digitala{' '}
-              <span className="relative inline-block">
-                odlingsdagbok
-                <svg className="absolute -bottom-3 left-0 w-full h-3 text-primary" viewBox="0 0 200 12" fill="none">
-                  <path d="M2 8 C50 2, 150 2, 198 8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-                </svg>
-              </span>
-            </h1>
-          </FadeUp>
-
-          <FadeUp delay={200}>
-            <p className="text-base sm:text-xl text-primary-foreground/85 mb-8 max-w-lg mx-auto leading-relaxed">
-              Håll koll på såtider, skördar och växtföljd. Vet vad som funkar i just <strong>din</strong> trädgård – år efter år.
-            </p>
-          </FadeUp>
-
-          <FadeUp delay={300}>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-5">
-              <Button asChild size="lg" className="h-14 px-12 text-lg gap-2 shadow-[0_8px_30px_hsl(var(--primary)/0.4)] hover:shadow-[0_8px_40px_hsl(var(--primary)/0.5)] hover:scale-[1.02] transition-all">
-                <a href="/login?mode=register">
-                  🌱 Kom igång gratis
-                  <ArrowRight className="h-5 w-5" />
-                </a>
-              </Button>
-            </div>
-            <p className="text-xs text-primary-foreground/60">Klart på 10 sekunder · Helt kostnadsfritt</p>
-          </FadeUp>
-
-          <FadeUp delay={400}>
-            <div className="flex flex-wrap gap-x-6 gap-y-1 justify-center text-xs sm:text-sm text-primary-foreground/70 mt-6">
-              <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Helt gratis att börja</span>
-              <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Svenska klimatzoner</span>
-              <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> 100% svensk 🇸🇪</span>
-            </div>
-          </FadeUp>
         </div>
+      </nav>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
-          <ChevronDown className="h-6 w-6 text-primary-foreground/40" />
-        </div>
-      </section>
+      {/* ═══════════════════════ HERO — editorial split ═══════════════════════ */}
+      <section className="pt-14">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24 lg:py-32">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left — copy */}
+            <div>
+              <Reveal>
+                <div className="inline-flex items-center gap-2 bg-primary/8 border border-primary/15 text-primary px-3.5 py-1.5 rounded-full text-xs font-medium mb-6">
+                  <Zap className="h-3 w-3" />
+                  Anpassad för svenska klimatzoner 1–8
+                </div>
+              </Reveal>
 
-      {/* ═══ SOCIAL PROOF ═══ */}
-      <section className="relative z-10 border-b border-border bg-card">
-        <div className="container max-w-5xl mx-auto px-5">
-          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border">
-            {[
-              { target: 1240, suffix: '+', label: 'sådder loggade', icon: Sprout },
-              { target: 380, suffix: '', label: 'odlare', icon: Users },
-              { target: 4, suffix: ',9 ★', label: 'snittbetyg', icon: Star },
-              { target: 10, suffix: 's', label: 'att skapa konto', icon: Clock },
-            ].map((s, i) => (
-              <FadeUp key={s.label} delay={i * 100} className="py-5 sm:py-7 text-center">
-                <p className="stat-number text-lg sm:text-2xl text-foreground"><AnimatedNumber target={s.target} suffix={s.suffix} /></p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">{s.label}</p>
-              </FadeUp>
-            ))}
+              <Reveal delay={80}>
+                <h1 className="font-serif text-4xl sm:text-5xl lg:text-[3.5rem] text-foreground leading-[1.08] tracking-tight mb-5">
+                  Vet vad som <em className="not-italic gradient-text">funkar</em> i din trädgård
+                </h1>
+              </Reveal>
+
+              <Reveal delay={160}>
+                <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg">
+                  Logga sådder, mät skördar i kg och spåra växtföljd — allt anpassat efter din klimatzon. Så du odlar smartare, år efter år.
+                </p>
+              </Reveal>
+
+              <Reveal delay={240}>
+                <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                  <Button asChild size="lg" className="h-13 px-8 text-base gap-2 shadow-lg">
+                    <a href="/login?mode=register">
+                      Skapa gratis konto <ArrowRight className="h-4 w-4" />
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="lg" className="h-13 px-8 text-base">
+                    <a href="#funktioner">Se hur det funkar</a>
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">Helt gratis · 7 dagars Plus ingår · Inget kreditkort</p>
+              </Reveal>
+            </div>
+
+            {/* Right — image mosaic */}
+            <Reveal delay={200} className="relative">
+              <div className="grid grid-cols-5 grid-rows-4 gap-3 h-[360px] sm:h-[420px] lg:h-[480px]">
+                <div className="col-span-3 row-span-4 rounded-2xl overflow-hidden shadow-lg">
+                  <img src={heroFlatlay} alt="Odlingsplanering med fröpåsar, plantor och anteckningsblock" className="w-full h-full object-cover" loading="eager" />
+                </div>
+                <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden shadow-md">
+                  <img src={heroHands} alt="Händer med nyskördade grönsaker" className="w-full h-full object-cover" loading="eager" />
+                </div>
+                <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden shadow-md">
+                  <img src={heroAerial} alt="Odlingsbäddar ovanifrån" className="w-full h-full object-cover" loading="eager" />
+                </div>
+              </div>
+              {/* Floating stat pill */}
+              <div className="absolute -bottom-4 left-4 sm:left-8 bg-card border border-border rounded-xl shadow-lg px-4 py-2.5 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center">
+                  <Carrot className="h-4 w-4 text-success" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Total skörd i år</p>
+                  <p className="text-sm font-bold text-foreground tabular-nums">127,4 kg</p>
+                </div>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* ═══ FEATURES ═══ */}
-      <section className="relative z-10 py-16 sm:py-24">
-        <div className="container max-w-5xl mx-auto px-5 sm:px-6">
-          <FadeUp className="text-center mb-10 sm:mb-14">
-            <h2 className="font-serif text-2xl sm:text-4xl text-foreground mb-3">
-              Allt du behöver för att <span className="gradient-text">odla smartare</span>
+      {/* ═══════════════════════ PROBLEM → SOLUTION ═══════════════════════ */}
+      <section className="bg-card border-y border-border">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+          <Reveal>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Problemet</p>
+            <h2 className="font-serif text-2xl sm:text-3xl text-foreground mb-4 max-w-2xl">
+              De flesta hobbyodlare gör samma misstag – år efter år
             </h2>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto">
-              Fokuserat på grönsaksodling. Byggt för svenska förhållanden.
+            <p className="text-muted-foreground max-w-xl mb-10">
+              Vad odlade jag i den här bädden förra året? Vilka sorter gav bäst? Ska jag så tomaterna nu eller vänta?
+              Utan data odlar du på känsla. Med Odlingsdagboken odlar du på kunskap.
             </p>
-          </FadeUp>
+          </Reveal>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            {features.map((f, i) => (
-              <FadeUp key={f.title} delay={i * 100}>
-                <div className="p-6 rounded-2xl border border-border bg-card card-hover">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                    <f.icon className="h-6 w-6 text-primary" />
+          <div className="grid sm:grid-cols-3 gap-6">
+            {[
+              { emoji: '📓', problem: '"Jag glömmer vad jag odlade var"', solution: 'Bädd-för-bädd logg med full historik' },
+              { emoji: '🤷', problem: '"Jag vet inte vilka sorter som ger bäst"', solution: 'Skördlogg med vikt per sort' },
+              { emoji: '📅', problem: '"Jag missar rätt såtider"', solution: 'Såkalender anpassad per klimatzon' },
+            ].map((item, i) => (
+              <Reveal key={item.problem} delay={i * 100}>
+                <div className="p-5 rounded-xl border border-border bg-background">
+                  <span className="text-2xl mb-3 block">{item.emoji}</span>
+                  <p className="text-sm font-medium text-foreground mb-2">{item.problem}</p>
+                  <p className="text-xs text-primary font-medium flex items-center gap-1">
+                    <Check className="h-3 w-3" /> {item.solution}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════ CAPABILITIES — bento grid ═══════════════════════ */}
+      <section id="funktioner" className="scroll-mt-20">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+          <Reveal className="mb-12">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Funktioner</p>
+            <h2 className="font-serif text-2xl sm:text-3xl text-foreground max-w-lg">
+              Allt du behöver för att odla smartare
+            </h2>
+          </Reveal>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {capabilities.map((cap, i) => (
+              <Reveal key={cap.title} delay={i * 80}>
+                <div className="group p-6 rounded-2xl border border-border bg-card hover:shadow-lg transition-all duration-300 h-full">
+                  <div className={`w-10 h-10 rounded-xl ${cap.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                    <cap.icon className="h-5 w-5" />
                   </div>
-                  <h3 className="font-serif text-lg text-foreground mb-2">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                  <h3 className="font-serif text-lg text-foreground mb-2">{cap.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{cap.desc}</p>
                 </div>
-              </FadeUp>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ HOW IT WORKS ═══ */}
-      <section className="relative z-10 bg-card/50 border-y border-border py-16 sm:py-24">
-        <div className="container max-w-4xl mx-auto px-5 sm:px-6">
-          <FadeUp className="text-center mb-10 sm:mb-14">
-            <h2 className="font-serif text-2xl sm:text-4xl text-foreground mb-3">Kom igång på under en minut</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">Tre enkla steg – sen odlar du smartare.</p>
-          </FadeUp>
+      {/* ═══════════════════════ COMPARISON — vs Gardenize ═══════════════════════ */}
+      <section className="bg-card border-y border-border">
+        <div className="max-w-3xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+          <Reveal className="text-center mb-10">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Jämförelse</p>
+            <h2 className="font-serif text-2xl sm:text-3xl text-foreground">
+              Odlingsdagboken vs Gardenize
+            </h2>
+          </Reveal>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {steps.map((s, i) => (
-              <FadeUp key={s.num} delay={i * 150}>
-                <div className="text-center">
-                  <div className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold font-serif">{s.num}</div>
-                  <h3 className="font-serif text-lg text-foreground mb-2">{s.title}</h3>
-                  <p className="text-sm text-muted-foreground">{s.desc}</p>
+          <Reveal delay={100}>
+            <div className="rounded-2xl border border-border overflow-hidden bg-background">
+              <div className="grid grid-cols-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
+                <div className="p-4">Funktion</div>
+                <div className="p-4 text-center bg-primary/5 text-primary">Odlingsdagboken</div>
+                <div className="p-4 text-center">Gardenize</div>
+              </div>
+              {comparisons.map((row, i) => (
+                <div key={row.feature} className={`grid grid-cols-3 text-sm ${i < comparisons.length - 1 ? 'border-b border-border' : ''}`}>
+                  <div className="p-4 text-foreground">{row.feature}</div>
+                  <div className="p-4 text-center bg-primary/5 font-medium">
+                    {typeof row.us === 'boolean'
+                      ? row.us ? <Check className="h-4 w-4 text-primary mx-auto" /> : '–'
+                      : <span className="text-primary font-bold">{row.us}</span>
+                    }
+                  </div>
+                  <div className="p-4 text-center text-muted-foreground">
+                    {typeof row.them === 'boolean'
+                      ? row.them ? <Check className="h-4 w-4 mx-auto" /> : '–'
+                      : row.them
+                    }
+                  </div>
                 </div>
-              </FadeUp>
-            ))}
-          </div>
-
-          <FadeUp delay={450} className="text-center mt-10">
-            <Button asChild size="lg" className="h-12 px-8 text-base gap-2">
-              <a href="/login?mode=register">Skapa konto gratis <ArrowRight className="h-4 w-4" /></a>
-            </Button>
-          </FadeUp>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* ═══ TESTIMONIALS ═══ */}
-      <section className="relative z-10 py-16 sm:py-24">
-        <div className="container max-w-5xl mx-auto px-5 sm:px-6">
-          <FadeUp className="text-center mb-10 sm:mb-14">
-            <h2 className="font-serif text-2xl sm:text-4xl text-foreground mb-3">Vad andra odlare säger</h2>
-          </FadeUp>
+      {/* ═══════════════════════ TESTIMONIALS — horizontal cards ═══════════════════════ */}
+      <section>
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+          <Reveal className="mb-10">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Odlare berättar</p>
+            <h2 className="font-serif text-2xl sm:text-3xl text-foreground">
+              Från anteckningsblock till data
+            </h2>
+          </Reveal>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="grid sm:grid-cols-3 gap-4">
             {testimonials.map((t, i) => (
-              <FadeUp key={t.name} delay={i * 100}>
+              <Reveal key={t.name} delay={i * 100}>
                 <div className="p-6 rounded-2xl border border-border bg-card h-full flex flex-col">
-                  <div className="flex gap-1 mb-3">{[1,2,3,4,5].map(s => <Star key={s} className="h-4 w-4 text-warning fill-warning" />)}</div>
-                  <p className="text-sm text-foreground/90 leading-relaxed flex-1 mb-4">"{t.text}"</p>
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{t.avatar}</span>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">{t.location}</p>
-                    </div>
+                  <div className="flex gap-0.5 mb-4">
+                    {[1, 2, 3, 4, 5].map(s => <Star key={s} className="h-3.5 w-3.5 text-warning fill-warning" />)}
+                  </div>
+                  <p className="text-sm text-foreground/90 leading-relaxed flex-1 mb-5">"{t.text}"</p>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.zone}</p>
                   </div>
                 </div>
-              </FadeUp>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ PRICING ═══ */}
-      <section className="relative z-10 bg-card/50 border-y border-border py-16 sm:py-24">
-        <div className="container max-w-4xl mx-auto px-5 sm:px-6">
-          <FadeUp className="text-center mb-10 sm:mb-14">
-            <h2 className="font-serif text-2xl sm:text-4xl text-foreground mb-3">Enkel prissättning</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">Börja gratis, uppgradera när du behöver.</p>
-          </FadeUp>
+      {/* ═══════════════════════ PRICING — single centered ═══════════════════════ */}
+      <section className="bg-card border-y border-border">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+          <Reveal className="text-center mb-12">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Prissättning</p>
+            <h2 className="font-serif text-2xl sm:text-3xl text-foreground mb-3">
+              Börja gratis. Uppgradera när du vill.
+            </h2>
+            <p className="text-muted-foreground max-w-md mx-auto text-sm">
+              Ingen bindning. Inget kreditkort. Dina data finns alltid kvar.
+            </p>
+          </Reveal>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            <FadeUp>
-              <div className="p-6 rounded-2xl border border-border bg-card">
+          <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            <Reveal>
+              <div className="p-6 sm:p-8 rounded-2xl border border-border bg-background h-full">
                 <h3 className="font-serif text-xl text-foreground mb-1">Gratis</h3>
-                <p className="text-3xl font-bold text-foreground mb-4">0 kr<span className="text-sm font-normal text-muted-foreground">/år</span></p>
-                <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Max 3 bäddar</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Max 20 sådder/år</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Växtföljd – nuvarande år</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Skördlogg med vikt</li>
+                <div className="flex items-baseline gap-1 mb-5">
+                  <span className="text-4xl font-bold text-foreground">0</span>
+                  <span className="text-muted-foreground">kr/år</span>
+                </div>
+                <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Max 3 bäddar</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Max 20 sådder per år</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Skördlogg med vikt</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Såkalender per zon</li>
                 </ul>
                 <Button asChild variant="outline" className="w-full">
-                  <a href="/login?mode=register">Kom igång gratis</a>
+                  <a href="/login?mode=register">Börja gratis</a>
                 </Button>
               </div>
-            </FadeUp>
+            </Reveal>
 
-            <FadeUp delay={100}>
-              <div className="p-6 rounded-2xl border-2 border-primary bg-card relative">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs px-3 py-1 rounded-full font-medium">Populärast</div>
+            <Reveal delay={100}>
+              <div className="relative p-6 sm:p-8 rounded-2xl border-2 border-primary bg-background h-full">
+                <div className="absolute -top-3 right-6 bg-primary text-primary-foreground text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
+                  Populärast
+                </div>
                 <h3 className="font-serif text-xl text-foreground mb-1">Plus</h3>
-                <p className="text-3xl font-bold text-foreground mb-4">99 kr<span className="text-sm font-normal text-muted-foreground">/år</span></p>
-                <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Obegränsade bäddar & sådder</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Smarta påminnelser per klimatzon</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Full växtföljdshistorik (alla år)</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Säsongsanteckningar per bädd</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> CSV-export</li>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-4xl font-bold text-foreground">99</span>
+                  <span className="text-muted-foreground">kr/år</span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-5">~8 kr/mån · 7 dagar gratis</p>
+                <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Obegränsade bäddar & sådder</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Smarta påminnelser per zon</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Full växtföljdshistorik</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Ekonomi & export (CSV/PDF)</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Säsongsanteckningar</li>
                 </ul>
                 <Button asChild className="w-full">
-                  <a href="/login?mode=register">Prova Plus – 7 dagar gratis</a>
+                  <a href="/login?mode=register">Prova Plus gratis</a>
                 </Button>
-                <p className="text-xs text-muted-foreground text-center mt-2">Inget kreditkort krävs</p>
               </div>
-            </FadeUp>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* ═══ FAQ ═══ */}
-      <section className="relative z-10 py-16 sm:py-24">
-        <div className="container max-w-2xl mx-auto px-5 sm:px-6">
-          <FadeUp className="text-center mb-10">
-            <h2 className="font-serif text-2xl sm:text-4xl text-foreground mb-3">Vanliga frågor</h2>
-          </FadeUp>
-          <div className="space-y-3">
-            {faqs.map((f, i) => <FadeUp key={i} delay={i * 60}><FAQItem q={f.q} a={f.a} /></FadeUp>)}
+      {/* ═══════════════════════ FAQ ═══════════════════════ */}
+      <section>
+        <div className="max-w-2xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+          <Reveal className="mb-8">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">FAQ</p>
+            <h2 className="font-serif text-2xl sm:text-3xl text-foreground">Vanliga frågor</h2>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className="border-t border-border">
+              {faqs.map((f) => <FAQItem key={f.q} q={f.q} a={f.a} />)}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══════════════════════ FINAL CTA — asymmetric ═══════════════════════ */}
+      <section className="bg-foreground text-background">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
+            <Reveal>
+              <h2 className="font-serif text-3xl sm:text-4xl leading-[1.1] mb-4">
+                Redo att veta vad som funkar i din trädgård?
+              </h2>
+              <p className="text-background/70 mb-8 max-w-md">
+                Skapa ett konto på 10 sekunder. Börja logga. Se resultat redan efter första säsongen.
+              </p>
+              <Button asChild size="lg" variant="secondary" className="h-13 px-8 text-base gap-2">
+                <a href="/login?mode=register">
+                  Kom igång gratis <ArrowRight className="h-4 w-4" />
+                </a>
+              </Button>
+            </Reveal>
+            <Reveal delay={200}>
+              <div className="grid grid-cols-2 gap-4 text-center">
+                {[
+                  { value: '20+', label: 'grönsaker i\nsåkalendern' },
+                  { value: '8', label: 'klimatzoner\nstöds' },
+                  { value: '99 kr', label: 'per år för\nallt i Plus' },
+                  { value: '10s', label: 'att skapa\nett konto' },
+                ].map((stat) => (
+                  <div key={stat.label} className="p-5 rounded-xl bg-background/5 border border-background/10">
+                    <p className="text-2xl sm:text-3xl font-bold text-background mb-1">{stat.value}</p>
+                    <p className="text-xs text-background/50 whitespace-pre-line">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* ═══ FINAL CTA ═══ */}
-      <section className="relative z-10 bg-primary text-primary-foreground py-16 sm:py-20">
-        <div className="container max-w-3xl mx-auto px-5 sm:px-6 text-center">
-          <FadeUp>
-            <h2 className="font-serif text-2xl sm:text-4xl mb-4">Redo att odla smartare?</h2>
-            <p className="text-primary-foreground/80 mb-8 max-w-md mx-auto">
-              Skapa ett gratis konto och börja logga dina sådder och skördar redan idag.
-            </p>
-            <Button asChild size="lg" variant="secondary" className="h-14 px-10 text-lg gap-2">
-              <a href="/login?mode=register">
-                🌱 Kom igång nu
-                <ArrowRight className="h-5 w-5" />
-              </a>
-            </Button>
-          </FadeUp>
-        </div>
-      </section>
-
-      {/* ═══ FOOTER ═══ */}
-      <footer className="border-t border-border bg-card py-8 px-5">
-        <div className="container max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} Odlingsdagboken</span>
-          <div className="flex gap-4">
+      {/* ═══════════════════════ FOOTER ═══════════════════════ */}
+      <footer className="border-t border-border bg-background py-10 px-5">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <span>🌱</span>
+            <span className="font-serif font-medium text-foreground">Odlingsdagboken</span>
+            <span className="text-border mx-2">|</span>
+            <span>© {new Date().getFullYear()}</span>
+          </div>
+          <div className="flex gap-5">
             <a href="/terms" className="hover:text-foreground transition-colors">Villkor</a>
             <a href="/blogg" className="hover:text-foreground transition-colors">Blogg</a>
+            <a href="mailto:hej@odlingsdagboken.se" className="hover:text-foreground transition-colors">Kontakt</a>
             <a href="/login" className="hover:text-foreground transition-colors">Logga in</a>
           </div>
         </div>
