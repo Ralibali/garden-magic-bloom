@@ -1,1 +1,4 @@
 project_id = "ysonnvbkrwajacvdkqut"
+
+[functions.gardening-coach]
+verify_jwt = false
