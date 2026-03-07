@@ -10,6 +10,10 @@ import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
+import { FreeLimitBadge } from '@/components/PremiumGate';
+import { useAuth } from '@/hooks/useAuth';
+
+const FREE_BED_LIMIT = 3;
 
 const Beds = () => {
   const queryClient = useQueryClient();
