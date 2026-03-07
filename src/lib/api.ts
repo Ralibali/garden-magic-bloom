@@ -244,3 +244,34 @@ export async function exportUserData() {
   ]);
   return { beds, sowings, harvests, transactions };
 }
+
+// ==================== NAMESPACE EXPORT ====================
+
+export const api = {
+  getBeds,
+  createBed,
+  updateBed,
+  deleteBed,
+  getSowings,
+  createSowing,
+  updateSowing,
+  deleteSowing,
+  getHarvests,
+  createHarvest,
+  deleteHarvest,
+  getTransactions,
+  createTransaction,
+  deleteTransaction,
+  submitFeedback,
+  getReminderSettings,
+  updateReminderSettings,
+  getSummaryStats,
+  getWeather,
+  getDailyTip,
+  getPremiumStatus,
+  createCheckoutSession,
+  openCustomerPortal,
+  getProfile,
+  updateProfile,
+  exportUserData,
+};
