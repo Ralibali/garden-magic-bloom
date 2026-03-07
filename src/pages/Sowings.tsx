@@ -70,6 +70,11 @@ const Sowings = () => {
           <h1 className="text-2xl font-bold flex items-center gap-2"><Sprout className="h-6 w-6" /> Sålogg</h1>
           <p className="text-muted-foreground">Alla dina sådder den här säsongen</p>
         </div>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Sök sort eller märke…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 w-44 sm:w-56 h-9 text-sm" />
+          </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2"><Plus className="h-4 w-4" /> Ny sådning</Button>
