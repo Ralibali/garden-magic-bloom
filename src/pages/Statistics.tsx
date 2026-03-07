@@ -209,6 +209,7 @@ const Statistics = () => {
                         contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 13 }}
                         formatter={(value: number) => [`${value} sådder`]}
                       />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
                     </PieChart>
                   </ResponsiveContainer>
                 </CardContent>
