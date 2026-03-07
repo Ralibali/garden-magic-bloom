@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Trash2, LayoutGrid, BookOpen, Save, Loader2 } from 'lucide-react';
+import { Plus, Trash2, LayoutGrid, BookOpen, Save, Loader2, Leaf } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -19,6 +19,10 @@ const Beds = () => {
   const [savingNotes, setSavingNotes] = useState<string | null>(null);
 
   const { data: beds, isLoading } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
+  const { data: seasonSummaries } = useQuery({
+    queryKey: ['season-summaries'],
+    queryFn: () => api.getSeasonSummaries(),
+  });
 
   const createMutation = useMutation({
     mutationFn: () => api.createBed({ name, description: description || undefined }),
@@ -51,6 +55,14 @@ const Beds = () => {
     } finally {
       setSavingNotes(null);
     }
+  };
+
+  // Get the latest season summary for a bed
+  const getLatestSummary = (bedId: string) => {
+    if (!seasonSummaries?.length) return null;
+    const summaries = seasonSummaries.filter((s: any) => s.bed_id === bedId);
+    if (!summaries.length) return null;
+    return summaries.sort((a: any, b: any) => b.year - a.year)[0];
   };
 
   return (
@@ -90,6 +102,7 @@ const Beds = () => {
           {beds.map((bed: any) => {
             const isEditing = editingNotes[bed.id] !== undefined;
             const notesValue = isEditing ? editingNotes[bed.id] : (bed.season_notes || '');
+            const lastSummary = getLatestSummary(bed.id);
             return (
               <Card key={bed.id} className="bg-card border-border shadow-sm">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
@@ -100,6 +113,23 @@ const Beds = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {bed.description && <p className="text-sm text-muted-foreground">{bed.description}</p>}
+
+                  {/* Last season summary */}
+                  {lastSummary && (
+                    <div className="bg-accent/5 border border-accent/20 rounded-lg p-2.5">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Leaf className="h-3 w-3 text-accent" />
+                        <span className="text-[10px] font-semibold text-accent uppercase tracking-wide">Förra säsongen ({lastSummary.year})</span>
+                      </div>
+                      {lastSummary.went_well && (
+                        <p className="text-xs text-foreground line-clamp-2">✓ {lastSummary.went_well}</p>
+                      )}
+                      {lastSummary.learnings && (
+                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">💡 {lastSummary.learnings}</p>
+                      )}
+                    </div>
+                  )}
+
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <BookOpen className="h-3.5 w-3.5 text-primary" />
