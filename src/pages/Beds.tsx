@@ -150,7 +150,7 @@ const Beds = () => {
               </StaggerItem>
             );
           })}
-        </div>
+        </StaggerContainer>
       )}
     </div>
   );
