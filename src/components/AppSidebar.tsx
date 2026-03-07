@@ -16,6 +16,7 @@ const mainNav = [
   { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
   { title: 'Skördlogg', url: '/app/harvests', icon: Carrot },
   { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
+  { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
 ];
 
 const secondaryNav = [

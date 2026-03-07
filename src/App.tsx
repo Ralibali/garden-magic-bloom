@@ -91,6 +91,7 @@ const AppRoutes = () => (
           <Route path="premium" element={<Premium />} />
           <Route path="admin" element={<Admin />} />
           <Route path="calendar" element={<SowingCalendar />} />
+          <Route path="rotation" element={<CropRotation />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

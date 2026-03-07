@@ -14,6 +14,7 @@ const primaryItems = [
 
 const moreItems = [
   { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
+  { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
   { title: 'Statistik', url: '/app/statistics', icon: BarChart3 },
   { title: 'Premium', url: '/app/premium', icon: Crown },
   { title: 'Inställningar', url: '/app/settings', icon: Settings },
