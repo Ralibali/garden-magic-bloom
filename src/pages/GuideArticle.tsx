@@ -291,7 +291,7 @@ export default function GuideArticle() {
         author: { '@type': 'Organization', name: 'Odlingsdagboken', url: BASE, '@id': `${BASE}/#organization` },
         publisher: {
           '@type': 'Organization',
-          name: 'Hönsgården',
+          name: 'Odlingsdagboken',
           url: BASE,
           '@id': `${BASE}/#organization`,
           logo: { '@type': 'ImageObject', url: `${BASE}/favicon.ico` },
