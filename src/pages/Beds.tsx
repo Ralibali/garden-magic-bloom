@@ -9,6 +9,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 
 const Beds = () => {
   const queryClient = useQueryClient();
