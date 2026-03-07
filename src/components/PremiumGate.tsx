@@ -66,7 +66,7 @@ function PremiumUpsellCard({ feature }: { feature?: string }) {
             {feature ? `${feature} kräver Premium` : 'Premium-funktion'}
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Lås upp alla funktioner med Premium. Prova 7 dagar gratis – sedan bara 19 kr/mån.
+            Lås upp alla funktioner med Plus – bara 99 kr/år.
           </p>
         </div>
         <Button
@@ -77,7 +77,7 @@ function PremiumUpsellCard({ feature }: { feature?: string }) {
           Prova Premium gratis
           <ArrowRight className="h-4 w-4" />
         </Button>
-        <p className="text-[10px] text-muted-foreground">Ingen bindningstid · Avbryt när du vill</p>
+        <p className="text-[10px] text-muted-foreground">Ingen bindningstid · 99 kr/år</p>
       </div>
     </div>
   );
@@ -99,7 +99,7 @@ function PremiumBannerInline({ feature }: { feature?: string }) {
         <p className="text-xs font-semibold text-foreground">
           {feature ? `Lås upp ${feature.toLowerCase()} med Premium` : 'Uppgradera till Premium'}
         </p>
-        <p className="text-[10px] text-muted-foreground">7 dagar gratis – sedan 19 kr/mån</p>
+        <p className="text-[10px] text-muted-foreground">99 kr/år</p>
       </div>
       <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
     </button>

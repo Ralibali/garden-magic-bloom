@@ -2,10 +2,38 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Leaf, Send, RefreshCw } from 'lucide-react';
+import { Leaf, Send, RefreshCw, Crown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from '@/hooks/use-toast';
 import { FadeIn } from '@/components/animations';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+
+const FREE_DAILY_LIMIT = 3;
+const COACH_USAGE_KEY = 'gro-daily-usage';
+
+function getDailyUsage(): { count: number; date: string } {
+  try {
+    const raw = localStorage.getItem(COACH_USAGE_KEY);
+    if (!raw) return { count: 0, date: '' };
+    return JSON.parse(raw);
+  } catch { return { count: 0, date: '' }; }
+}
+
+function incrementUsage(): number {
+  const today = new Date().toISOString().split('T')[0];
+  const usage = getDailyUsage();
+  const newCount = usage.date === today ? usage.count + 1 : 1;
+  localStorage.setItem(COACH_USAGE_KEY, JSON.stringify({ count: newCount, date: today }));
+  return newCount;
+}
+
+function getRemainingToday(): number {
+  const today = new Date().toISOString().split('T')[0];
+  const usage = getDailyUsage();
+  if (usage.date !== today) return FREE_DAILY_LIMIT;
+  return Math.max(0, FREE_DAILY_LIMIT - usage.count);
+}
 
 const COACH_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gardening-coach`;
 
@@ -69,10 +97,14 @@ async function streamChat({
 }
 
 const GardeningCoach = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const isPremium = user?.subscription_status === 'premium';
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [remaining, setRemaining] = useState(getRemainingToday());
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -133,7 +165,22 @@ const GardeningCoach = () => {
   const handleSend = async () => {
     const text = input.trim();
     if (!text || loading) return;
+
+    // Check daily limit for free users
+    if (!isPremium && getRemainingToday() <= 0) {
+      toast({
+        title: 'Dagskvot uppnådd',
+        description: `Du har använt dina ${FREE_DAILY_LIMIT} gratisfrågor idag. Uppgradera till Plus för obegränsad tillgång!`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setInput('');
+    if (!isPremium) {
+      incrementUsage();
+      setRemaining(getRemainingToday());
+    }
     const userMsg: Msg = { role: 'user', content: text };
     const newMsgs = [...messages.filter(m => m.content), userMsg];
     setMessages(prev => [...prev, userMsg]);
@@ -197,19 +244,33 @@ const GardeningCoach = () => {
 
       {/* Input */}
       <div className="border-t border-border/60 pt-3 pb-1">
+        {!isPremium && (
+          <div className="flex items-center justify-between mb-2 px-1">
+            <span className="text-[10px] text-muted-foreground">
+              {remaining > 0
+                ? `${remaining} av ${FREE_DAILY_LIMIT} gratisfrågor kvar idag`
+                : 'Inga gratisfrågor kvar idag'}
+            </span>
+            {remaining <= 0 && (
+              <button onClick={() => navigate('/app/premium')} className="text-[10px] font-medium text-primary hover:underline flex items-center gap-1">
+                <Crown className="h-3 w-3" /> Uppgradera till Plus
+              </button>
+            )}
+          </div>
+        )}
         <div className="flex gap-2">
           <Input
             ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ställ en fråga till Gro..."
-            disabled={loading}
+            placeholder={!isPremium && remaining <= 0 ? 'Uppgradera till Plus för fler frågor...' : 'Ställ en fråga till Gro...'}
+            disabled={loading || (!isPremium && remaining <= 0)}
             className="flex-1 rounded-xl bg-muted/40 border-border/60"
           />
           <Button
             onClick={handleSend}
-            disabled={loading || !input.trim()}
+            disabled={loading || !input.trim() || (!isPremium && remaining <= 0)}
             size="icon"
             className="rounded-xl shrink-0"
           >

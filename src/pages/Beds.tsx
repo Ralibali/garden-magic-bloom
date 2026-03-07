@@ -10,8 +10,14 @@ import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
+import { FreeLimitBadge } from '@/components/PremiumGate';
+import { useAuth } from '@/hooks/useAuth';
+
+const FREE_BED_LIMIT = 3;
 
 const Beds = () => {
+  const { user } = useAuth();
+  const isPremium = user?.subscription_status === 'premium';
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
@@ -74,10 +80,18 @@ const Beds = () => {
             <h1 className="text-2xl sm:text-3xl font-serif flex items-center gap-2"><LayoutGrid className="h-6 w-6 text-primary" /> Mina bäddar</h1>
             <p className="text-muted-foreground text-sm mt-1">Hantera dina odlingsbäddar och säsongsanteckningar</p>
           </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2"><Plus className="h-4 w-4" /> Ny bädd</Button>
-          </DialogTrigger>
+          <div className="flex items-center gap-2">
+            <FreeLimitBadge current={beds?.length || 0} limit={FREE_BED_LIMIT} label="bäddar" />
+            <Dialog open={open} onOpenChange={(o) => {
+              if (o && !isPremium && (beds?.length || 0) >= FREE_BED_LIMIT) {
+                toast({ title: 'Begränsning', description: `Max ${FREE_BED_LIMIT} bäddar i gratisversionen. Uppgradera till Plus!`, variant: 'destructive' });
+                return;
+              }
+              setOpen(o);
+            }}>
+              <DialogTrigger asChild>
+                <Button className="gap-2"><Plus className="h-4 w-4" /> Ny bädd</Button>
+              </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle className="font-serif">Lägg till bädd</DialogTitle></DialogHeader>
             <div className="space-y-4">
@@ -88,7 +102,8 @@ const Beds = () => {
               </Button>
             </div>
           </DialogContent>
-        </Dialog>
+            </Dialog>
+          </div>
         </div>
       </FadeIn>
 
