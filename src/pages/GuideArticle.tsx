@@ -502,16 +502,16 @@ export default function GuideArticle() {
 
         {/* Inline CTA */}
         <div className="mt-12 bg-gradient-to-br from-primary/5 via-card to-accent/5 rounded-2xl p-6 sm:p-8 border border-border/30 text-center">
-          <span className="text-2xl mb-2 block">🐔</span>
+          <span className="text-2xl mb-2 block">🌱</span>
           <h3 className="font-serif text-lg text-foreground mb-2">
-            Vill du hålla koll på dina höns?
+            Vill du odla smartare?
           </h3>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4">
-            Logga ägg, foder och hälsa med Hönsgården – helt kostnadsfritt.
+            Logga sådder, skördar och växtföljd med Odlingsdagboken – helt kostnadsfritt.
           </p>
           <Link to="/login">
             <Button className="rounded-xl gap-2">
-              <Egg className="h-4 w-4" /> Skapa ett konto
+              <Sprout className="h-4 w-4" /> Skapa ett konto
             </Button>
           </Link>
         </div>
