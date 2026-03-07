@@ -97,10 +97,14 @@ async function streamChat({
 }
 
 const GardeningCoach = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const isPremium = user?.subscription_status === 'premium';
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [remaining, setRemaining] = useState(getRemainingToday());
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
