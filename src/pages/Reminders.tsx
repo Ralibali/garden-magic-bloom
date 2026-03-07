@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Syringe, Bug, Stethoscope, Calendar, Check, Bell, AlertTriangle } from 'lucide-react';
+import { Plus, Sprout, Shovel, Droplets, Calendar, Check, Bell, AlertTriangle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -10,25 +10,25 @@ import { Badge } from '@/components/ui/badge';
 interface Reminder {
   id: number;
   title: string;
-  type: 'vaccination' | 'deworming' | 'vet' | 'other';
+  type: 'sowing' | 'transplant' | 'watering' | 'other';
   date: string;
   done: boolean;
-  hen?: string;
+  bed?: string;
 }
 
 const initialReminders: Reminder[] = [
-  { id: 1, title: 'Avmaskning – alla hönor', type: 'deworming', date: '2026-03-15', done: false },
-  { id: 2, title: 'Vaccination Marek', type: 'vaccination', date: '2026-04-01', done: false, hen: 'Alla' },
-  { id: 3, title: 'Veterinärbesök – Freja', type: 'vet', date: '2026-03-20', done: false, hen: 'Freja' },
-  { id: 4, title: 'Kvalsterkontroll', type: 'other', date: '2026-03-10', done: false },
-  { id: 5, title: 'Avmaskning – alla', type: 'deworming', date: '2026-01-15', done: true },
-  { id: 6, title: 'Vaccination Newcastle', type: 'vaccination', date: '2025-12-01', done: true },
+  { id: 1, title: 'Förodla tomater inomhus', type: 'sowing', date: '2026-03-15', done: false },
+  { id: 2, title: 'Plantera ut squash', type: 'transplant', date: '2026-05-20', done: false, bed: 'Bädd 1' },
+  { id: 3, title: 'Så morötter direkt', type: 'sowing', date: '2026-04-15', done: false, bed: 'Bädd 3' },
+  { id: 4, title: 'Vattna växthuset', type: 'watering', date: '2026-03-10', done: false },
+  { id: 5, title: 'Förodla paprika', type: 'sowing', date: '2026-02-01', done: true },
+  { id: 6, title: 'Plantera ut sallat', type: 'transplant', date: '2026-04-10', done: true, bed: 'Bädd 2' },
 ];
 
 const typeConfig = {
-  vaccination: { icon: Syringe, label: 'Vaccination', color: 'text-primary' },
-  deworming: { icon: Bug, label: 'Avmaskning', color: 'text-warning' },
-  vet: { icon: Stethoscope, label: 'Veterinär', color: 'text-destructive' },
+  sowing: { icon: Sprout, label: 'Sådd', color: 'text-primary' },
+  transplant: { icon: Shovel, label: 'Utplantering', color: 'text-accent' },
+  watering: { icon: Droplets, label: 'Vattning', color: 'text-blue-500' },
   other: { icon: Bell, label: 'Övrigt', color: 'text-muted-foreground' },
 };
 
@@ -41,7 +41,7 @@ export default function Reminders() {
   const [reminders, setReminders] = useState(initialReminders);
   const [open, setOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
-  const [newType, setNewType] = useState<string>('vaccination');
+  const [newType, setNewType] = useState<string>('sowing');
   const [newDate, setNewDate] = useState('');
 
   const upcoming = reminders.filter(r => !r.done).sort((a, b) => a.date.localeCompare(b.date));
@@ -66,8 +66,8 @@ export default function Reminders() {
     <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-serif text-foreground">Påminnelser 💉</h1>
-          <p className="text-sm text-muted-foreground mt-1">Håll koll på avmaskning, vaccination och veterinärbesök</p>
+          <h1 className="text-2xl sm:text-3xl font-serif text-foreground">Påminnelser 🌱</h1>
+          <p className="text-sm text-muted-foreground mt-1">Håll koll på sådd, utplantering och vattning</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -81,13 +81,13 @@ export default function Reminders() {
               <DialogTitle className="font-serif">Ny påminnelse</DialogTitle>
             </DialogHeader>
             <div className="space-y-3 pt-2">
-              <Input placeholder="Titel (t.ex. Avmaskning)" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+              <Input placeholder="Titel (t.ex. Förodla tomater)" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
               <Select value={newType} onValueChange={setNewType}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="vaccination">💉 Vaccination</SelectItem>
-                  <SelectItem value="deworming">🐛 Avmaskning</SelectItem>
-                  <SelectItem value="vet">🩺 Veterinär</SelectItem>
+                  <SelectItem value="sowing">🌱 Sådd</SelectItem>
+                  <SelectItem value="transplant">🪴 Utplantering</SelectItem>
+                  <SelectItem value="watering">💧 Vattning</SelectItem>
                   <SelectItem value="other">🔔 Övrigt</SelectItem>
                 </SelectContent>
               </Select>
@@ -132,7 +132,7 @@ export default function Reminders() {
                   <config.icon className={`h-4 w-4 shrink-0 ${config.color}`} />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs sm:text-sm font-medium text-foreground truncate">{r.title}</p>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">{r.date} {r.hen && `· ${r.hen}`}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">{r.date} {r.bed && `· ${r.bed}`}</p>
                   </div>
                   <Badge variant={days <= 3 ? 'destructive' : days <= 7 ? 'default' : 'secondary'} className="text-[10px] shrink-0">
                     {days < 0 ? 'Försenad' : days === 0 ? 'Idag' : `${days} dagar`}
@@ -155,8 +155,8 @@ export default function Reminders() {
               const config = typeConfig[r.type];
               return (
                 <div key={r.id} className="flex items-center gap-3 px-4 sm:px-6 py-3 opacity-60">
-                  <button onClick={() => toggleDone(r.id)} className="shrink-0 w-6 h-6 rounded-full bg-success/20 border-2 border-success flex items-center justify-center">
-                    <Check className="h-3 w-3 text-success" />
+                  <button onClick={() => toggleDone(r.id)} className="shrink-0 w-6 h-6 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
+                    <Check className="h-3 w-3 text-primary" />
                   </button>
                   <config.icon className={`h-4 w-4 shrink-0 ${config.color}`} />
                   <div className="flex-1 min-w-0">
