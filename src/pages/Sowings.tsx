@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Trash2, Sprout } from 'lucide-react';
+import { Plus, Trash2, Sprout, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -30,9 +30,16 @@ const Sowings = () => {
   const [type, setType] = useState('direct');
   const [notes, setNotes] = useState('');
   const [seedBrand, setSeedBrand] = useState('');
+  const [search, setSearch] = useState('');
 
-  const { data: sowings, isLoading } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const { data: sowingsRaw, isLoading } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const { data: beds } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
+
+  const sowings = sowingsRaw?.filter((s: any) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return s.variety?.toLowerCase().includes(q) || s.seed_brand?.toLowerCase().includes(q);
+  });
 
   const createMutation = useMutation({
     mutationFn: () => api.createSowing({ variety, bed_id: bedId || undefined, sow_date: sowDate, type, notes: notes || undefined, seed_brand: seedBrand || undefined }),
@@ -63,6 +70,11 @@ const Sowings = () => {
           <h1 className="text-2xl font-bold flex items-center gap-2"><Sprout className="h-6 w-6" /> Sålogg</h1>
           <p className="text-muted-foreground">Alla dina sådder den här säsongen</p>
         </div>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Sök sort eller märke…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 w-44 sm:w-56 h-9 text-sm" />
+          </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2"><Plus className="h-4 w-4" /> Ny sådning</Button>
@@ -93,6 +105,7 @@ const Sowings = () => {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {isLoading ? (
