@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sprout, Carrot, LayoutGrid, Plus, Thermometer, CalendarDays, Leaf, Snowflake, AlertTriangle, CheckCircle, Info, Droplets, Flower2 } from 'lucide-react';
+import { Sprout, Carrot, LayoutGrid, Plus, Thermometer, CalendarDays, Leaf, Snowflake, AlertTriangle, CheckCircle, Info, Droplets, Flower2, CloudRain } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
@@ -65,6 +65,13 @@ const Dashboard = () => {
   const { data: weather } = useQuery({
     queryKey: ['weather', climateZone],
     queryFn: () => api.getWeather(climateZone),
+    staleTime: 600_000,
+    retry: 1,
+  });
+
+  const { data: rainData } = useQuery({
+    queryKey: ['rain-history', climateZone],
+    queryFn: () => api.getRainHistory(climateZone),
     staleTime: 600_000,
     retry: 1,
   });
@@ -159,6 +166,34 @@ const Dashboard = () => {
           <CheckCircle className="h-4 w-4 shrink-0" />
           <span>Sista frosten har passerat – säkert att plantera ut frostkänsliga grödor! 🌿</span>
         </div>
+      )}
+
+      {/* Rain-based watering alert */}
+      {rainData && rainData.dryDays >= 3 && (
+        <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/30">
+          <CardContent className="p-4 flex items-start gap-3">
+            <CloudRain className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-foreground">
+                Inget regn på {rainData.dryDays} dagar – dags att vattna! 💧
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {rainData.totalPrecipitation < 1
+                  ? 'Ingen nederbörd alls den senaste veckan.'
+                  : `Bara ${rainData.totalPrecipitation.toFixed(1)} mm nederbörd senaste 7 dagarna.`}
+                {' '}Ge dina bäddar och krukväxter extra kärlek.
+              </p>
+              <div className="flex gap-2 mt-2">
+                <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => navigate('/app/my-plants')}>
+                  <Flower2 className="h-3.5 w-3.5" /> Mina växter
+                </Button>
+                <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => navigate('/app/beds')}>
+                  <LayoutGrid className="h-3.5 w-3.5" /> Mina bäddar
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Season wrap-up banner */}
