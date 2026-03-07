@@ -16,6 +16,8 @@ import { useAuth } from '@/hooks/useAuth';
 const FREE_BED_LIMIT = 3;
 
 const Beds = () => {
+  const { user } = useAuth();
+  const isPremium = user?.subscription_status === 'premium';
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
