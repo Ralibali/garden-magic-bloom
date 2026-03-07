@@ -89,6 +89,7 @@ const Beds = () => {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </FadeIn>
 
       {isLoading ? (
