@@ -72,7 +72,7 @@ export function useSeo({ title, description, path, ogType = 'website', ogImage, 
     setMeta('property', 'og:description', description);
     setMeta('property', 'og:url', fullUrl);
     setMeta('property', 'og:type', ogType);
-    setMeta('property', 'og:site_name', 'Hönsgården');
+    setMeta('property', 'og:site_name', 'Odlingsdagboken');
     setMeta('property', 'og:locale', 'sv_SE');
     if (ogImage) {
       const imgUrl = ogImage.startsWith('http') ? ogImage : `${BASE}${ogImage}`;
