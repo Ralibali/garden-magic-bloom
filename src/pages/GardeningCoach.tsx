@@ -2,10 +2,38 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Leaf, Send, RefreshCw } from 'lucide-react';
+import { Leaf, Send, RefreshCw, Crown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from '@/hooks/use-toast';
 import { FadeIn } from '@/components/animations';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+
+const FREE_DAILY_LIMIT = 3;
+const COACH_USAGE_KEY = 'gro-daily-usage';
+
+function getDailyUsage(): { count: number; date: string } {
+  try {
+    const raw = localStorage.getItem(COACH_USAGE_KEY);
+    if (!raw) return { count: 0, date: '' };
+    return JSON.parse(raw);
+  } catch { return { count: 0, date: '' }; }
+}
+
+function incrementUsage(): number {
+  const today = new Date().toISOString().split('T')[0];
+  const usage = getDailyUsage();
+  const newCount = usage.date === today ? usage.count + 1 : 1;
+  localStorage.setItem(COACH_USAGE_KEY, JSON.stringify({ count: newCount, date: today }));
+  return newCount;
+}
+
+function getRemainingToday(): number {
+  const today = new Date().toISOString().split('T')[0];
+  const usage = getDailyUsage();
+  if (usage.date !== today) return FREE_DAILY_LIMIT;
+  return Math.max(0, FREE_DAILY_LIMIT - usage.count);
+}
 
 const COACH_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gardening-coach`;
 
