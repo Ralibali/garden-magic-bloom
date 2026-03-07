@@ -3,6 +3,7 @@ import { NavLink } from '@/components/NavLink';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useGardenProfile } from '@/hooks/useGardenProfile';
 
 const primaryItems = [
   { title: 'Hem', url: '/app', icon: Home },
@@ -32,13 +33,19 @@ export function MobileNav() {
   const [showMore, setShowMore] = useState(false);
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
+  const { isVisible } = useGardenProfile();
 
   useEffect(() => {
     if (!user?.id) return;
     supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' }).then(({ data }) => setIsAdmin(!!data));
   }, [user?.id]);
 
-  const allMoreItems = isAdmin ? [...moreItems, { title: 'Admin', url: '/app/admin', icon: Shield }] : moreItems;
+  // Filter primary items (except 'Mer' which is always visible)
+  const filteredPrimary = primaryItems.filter(item => item.url === '#more' || isVisible(item.url));
+  
+  // Filter more items
+  const filteredMore = moreItems.filter(item => isVisible(item.url));
+  const allMoreItems = isAdmin ? [...filteredMore, { title: 'Admin', url: '/app/admin', icon: Shield }] : filteredMore;
 
   return (
     <>
@@ -60,7 +67,7 @@ export function MobileNav() {
 
       <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card/90 backdrop-blur-xl border-t border-border/50 pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center justify-around h-16 px-1">
-          {primaryItems.map((item) => (
+          {filteredPrimary.map((item) => (
             item.url === '#more' ? (
               <button key="more" onClick={() => setShowMore(!showMore)} className={`flex flex-col items-center gap-0.5 py-2 px-3 rounded-xl transition-all min-w-0 ${showMore ? 'text-primary bg-primary/8' : 'text-muted-foreground hover:text-foreground'}`}>
                 <item.icon className="h-5 w-5" />
