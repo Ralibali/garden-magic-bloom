@@ -148,6 +148,7 @@ const Sowings = () => {
           </DialogContent>
         </Dialog>
         </div>
+        </div>
       </FadeIn>
 
       {isLoading ? (
