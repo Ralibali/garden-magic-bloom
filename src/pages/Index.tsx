@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useSeo } from '@/hooks/useSeo';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Check, ChevronRight, Sprout, Carrot, CalendarDays, RefreshCw, TrendingUp, BarChart3, Zap, Star, ArrowDown } from 'lucide-react';
+import { ArrowRight, Check, ChevronRight, Sprout, Carrot, CalendarDays, RefreshCw, BarChart3, Zap } from 'lucide-react';
 import heroFlatlay from '@/assets/hero-flatlay.jpg';
 import heroHands from '@/assets/hero-harvest-hands.jpg';
 import heroAerial from '@/assets/hero-beds-aerial.jpg';
@@ -79,12 +79,6 @@ const capabilities = [
     color: 'bg-warning/10 text-warning',
   },
   {
-    icon: TrendingUp,
-    title: 'Ekonomi',
-    desc: 'Spåra kostnader för frön, jord och verktyg. Se intäkter från försäljning. Går odlingen plus?',
-    color: 'bg-primary/10 text-primary',
-  },
-  {
     icon: BarChart3,
     title: 'Statistik & trender',
     desc: 'Jämför säsonger. Hitta dina bästa sorter. Se hur odlingen utvecklas över tid.',
@@ -96,23 +90,16 @@ const comparisons = [
   { feature: 'Klimatzonanpassning (1–8)', us: true, them: false },
   { feature: 'Skördlogg med vikt (kg)', us: true, them: false },
   { feature: 'Växtföljd bädd-för-bädd', us: true, them: false },
-  { feature: 'Ekonomi & kostnadsanalys', us: true, them: false },
   { feature: 'Såkalender per zon', us: true, them: false },
   { feature: 'Pris per år', us: '99 kr', them: '349 kr' },
 ];
 
-const testimonials = [
-  { text: 'Äntligen kan jag hålla koll på vad jag odlade var förra året! Växtföljden hade jag aldrig lyckats med innan.', name: 'Maria L.', zone: 'Zon 1 · Skåne' },
-  { text: 'Perfekt för oss som har pallkragar och vill veta exakt hur mycket vi skördar. Enkelt och snyggt.', name: 'Anders K.', zone: 'Zon 4 · Dalarna' },
-  { text: 'Jag säljer lite grönsaker till grannar och nu ser jag vilka sorter som ger bäst.', name: 'Eva S.', zone: 'Zon 2 · Halland' },
-];
-
 const faqs = [
-  { q: 'Kostar det något?', a: 'Grundversionen är helt gratis – för alltid. Med Plus (99 kr/år) får du obegränsade bäddar, smarta påminnelser, växtföljdshistorik och CSV-export. Nya användare får dessutom 7 dagars gratis Plus automatiskt.' },
+  { q: 'Kostar det något?', a: 'Grundversionen är helt gratis – för alltid. Med Plus (99 kr/år) får du obegränsade bäddar, smarta påminnelser, växtföljdshistorik och CSV-export. Alla nya konton får 7 dagars Plus gratis.' },
   { q: 'Behöver jag ladda ner en app?', a: 'Nej! Odlingsdagboken fungerar direkt i webbläsaren på mobil och dator. Lägg till den på hemskärmen så känns det som en app.' },
-  { q: 'Hur skiljer ni er från Gardenize?', a: 'Gardenize fokuserar brett – krukväxter, träd, inspiration. Vi fokuserar 100 % på grönsaksodling med konkreta verktyg: såkalender per klimatzon, skördlogg med vikt, växtföljd per bädd och ekonomispårning. Vi kostar 99 kr/år mot deras 349 kr/år.' },
+  { q: 'Hur skiljer ni er från Gardenize?', a: 'Gardenize fokuserar brett – krukväxter, träd, inspiration. Vi fokuserar 100 % på grönsaksodling med konkreta verktyg: såkalender per klimatzon, skördlogg med vikt och växtföljd per bädd. Vi kostar 99 kr/år mot deras 349 kr/år.' },
   { q: 'Är mina data säkra?', a: 'Absolut. All data lagras krypterat inom EU. Vi följer GDPR och du kan radera allt när du vill.' },
-  { q: 'Hur många bäddar kan jag ha gratis?', a: 'Upp till 3 bäddar och 20 sådder per år. Nya konton får 7 dagars Plus automatiskt så du kan testa allt.' },
+  { q: 'Hur många bäddar kan jag ha gratis?', a: 'Upp till 3 bäddar och 20 sådder per år. Alla nya konton får 7 dagars Plus gratis så du kan testa allt.' },
 ];
 
 /* ─── Component ─── */
@@ -147,11 +134,10 @@ export default function Index() {
         </div>
       </nav>
 
-      {/* ═══════════════════════ HERO — editorial split ═══════════════════════ */}
+      {/* ═══════════════════════ HERO ═══════════════════════ */}
       <section className="pt-14">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left — copy */}
             <div>
               <Reveal>
                 <div className="inline-flex items-center gap-2 bg-primary/8 border border-primary/15 text-primary px-3.5 py-1.5 rounded-full text-xs font-medium mb-6">
@@ -183,31 +169,21 @@ export default function Index() {
                     <a href="#funktioner">Se hur det funkar</a>
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">Helt gratis · 7 dagars Plus ingår · Inget kreditkort</p>
+                <p className="text-xs text-muted-foreground">Lanserar våren 2026 – var med från start 🌱</p>
               </Reveal>
             </div>
 
-            {/* Right — image mosaic */}
+            {/* Image mosaic */}
             <Reveal delay={200} className="relative">
               <div className="grid grid-cols-5 grid-rows-4 gap-3 h-[360px] sm:h-[420px] lg:h-[480px]">
                 <div className="col-span-3 row-span-4 rounded-2xl overflow-hidden shadow-lg">
                   <img src={heroFlatlay} alt="Odlingsplanering med fröpåsar, plantor och anteckningsblock" className="w-full h-full object-cover" loading="eager" />
                 </div>
                 <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden shadow-md">
-                  <img src={heroHands} alt="Händer med nyskördade grönsaker" className="w-full h-full object-cover" loading="eager" />
+                  <img src={heroHands} alt="Händer med nyskördade grönsaker från pallkrage" className="w-full h-full object-cover" loading="eager" />
                 </div>
                 <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden shadow-md">
-                  <img src={heroAerial} alt="Odlingsbäddar ovanifrån" className="w-full h-full object-cover" loading="eager" />
-                </div>
-              </div>
-              {/* Floating stat pill */}
-              <div className="absolute -bottom-4 left-4 sm:left-8 bg-card border border-border rounded-xl shadow-lg px-4 py-2.5 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center">
-                  <Carrot className="h-4 w-4 text-success" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Total skörd i år</p>
-                  <p className="text-sm font-bold text-foreground tabular-nums">127,4 kg</p>
+                  <img src={heroAerial} alt="Pallkragar i en svensk bakgårdsträdgård" className="w-full h-full object-cover" loading="eager" />
                 </div>
               </div>
             </Reveal>
@@ -221,7 +197,7 @@ export default function Index() {
           <Reveal>
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Problemet</p>
             <h2 className="font-serif text-2xl sm:text-3xl text-foreground mb-4 max-w-2xl">
-              De flesta hobbyodlare gör samma misstag – år efter år
+              De flesta hemmaodlare gör samma misstag – år efter år
             </h2>
             <p className="text-muted-foreground max-w-xl mb-10">
               Vad odlade jag i den här bädden förra året? Vilka sorter gav bäst? Ska jag så tomaterna nu eller vänta?
@@ -249,7 +225,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ═══════════════════════ CAPABILITIES — bento grid ═══════════════════════ */}
+      {/* ═══════════════════════ CAPABILITIES ═══════════════════════ */}
       <section id="funktioner" className="scroll-mt-20">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
           <Reveal className="mb-12">
@@ -275,7 +251,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ═══════════════════════ COMPARISON — vs Gardenize ═══════════════════════ */}
+      {/* ═══════════════════════ COMPARISON ═══════════════════════ */}
       <section className="bg-card border-y border-border">
         <div className="max-w-3xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
           <Reveal className="text-center mb-10">
@@ -314,37 +290,8 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ═══════════════════════ TESTIMONIALS — horizontal cards ═══════════════════════ */}
+      {/* ═══════════════════════ PRICING ═══════════════════════ */}
       <section>
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
-          <Reveal className="mb-10">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Odlare berättar</p>
-            <h2 className="font-serif text-2xl sm:text-3xl text-foreground">
-              Från anteckningsblock till data
-            </h2>
-          </Reveal>
-
-          <div className="grid sm:grid-cols-3 gap-4">
-            {testimonials.map((t, i) => (
-              <Reveal key={t.name} delay={i * 100}>
-                <div className="p-6 rounded-2xl border border-border bg-card h-full flex flex-col">
-                  <div className="flex gap-0.5 mb-4">
-                    {[1, 2, 3, 4, 5].map(s => <Star key={s} className="h-3.5 w-3.5 text-warning fill-warning" />)}
-                  </div>
-                  <p className="text-sm text-foreground/90 leading-relaxed flex-1 mb-5">"{t.text}"</p>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.zone}</p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════ PRICING — single centered ═══════════════════════ */}
-      <section className="bg-card border-y border-border">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
           <Reveal className="text-center mb-12">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Prissättning</p>
@@ -352,13 +299,13 @@ export default function Index() {
               Börja gratis. Uppgradera när du vill.
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto text-sm">
-              Ingen bindning. Inget kreditkort. Dina data finns alltid kvar.
+              Alla nya konton får 7 dagars Plus gratis.
             </p>
           </Reveal>
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
             <Reveal>
-              <div className="p-6 sm:p-8 rounded-2xl border border-border bg-background h-full">
+              <div className="p-6 sm:p-8 rounded-2xl border border-border bg-card h-full">
                 <h3 className="font-serif text-xl text-foreground mb-1">Gratis</h3>
                 <div className="flex items-baseline gap-1 mb-5">
                   <span className="text-4xl font-bold text-foreground">0</span>
@@ -377,7 +324,7 @@ export default function Index() {
             </Reveal>
 
             <Reveal delay={100}>
-              <div className="relative p-6 sm:p-8 rounded-2xl border-2 border-primary bg-background h-full">
+              <div className="relative p-6 sm:p-8 rounded-2xl border-2 border-primary bg-card h-full">
                 <div className="absolute -top-3 right-6 bg-primary text-primary-foreground text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
                   Populärast
                 </div>
@@ -386,12 +333,12 @@ export default function Index() {
                   <span className="text-4xl font-bold text-foreground">99</span>
                   <span className="text-muted-foreground">kr/år</span>
                 </div>
-                <p className="text-xs text-muted-foreground mb-5">~8 kr/mån · 7 dagar gratis</p>
+                <p className="text-xs text-muted-foreground mb-5">~8 kr/mån · 7 dagars gratis provperiod</p>
                 <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
                   <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Obegränsade bäddar & sådder</li>
                   <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Smarta påminnelser per zon</li>
                   <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Full växtföljdshistorik</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Ekonomi & export (CSV/PDF)</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Export (CSV/PDF)</li>
                   <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Säsongsanteckningar</li>
                 </ul>
                 <Button asChild className="w-full">
@@ -404,7 +351,7 @@ export default function Index() {
       </section>
 
       {/* ═══════════════════════ FAQ ═══════════════════════ */}
-      <section>
+      <section className="bg-card border-y border-border">
         <div className="max-w-2xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
           <Reveal className="mb-8">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">FAQ</p>
@@ -418,15 +365,15 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ═══════════════════════ FINAL CTA — asymmetric ═══════════════════════ */}
+      {/* ═══════════════════════ FINAL CTA ═══════════════════════ */}
       <section className="bg-foreground text-background">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-24">
-          <div className="grid lg:grid-cols-2 gap-10 items-center">
+          <div className="max-w-2xl mx-auto text-center">
             <Reveal>
               <h2 className="font-serif text-3xl sm:text-4xl leading-[1.1] mb-4">
                 Redo att veta vad som funkar i din trädgård?
               </h2>
-              <p className="text-background/70 mb-8 max-w-md">
+              <p className="text-background/70 mb-8 max-w-md mx-auto">
                 Skapa ett konto på 10 sekunder. Börja logga. Se resultat redan efter första säsongen.
               </p>
               <Button asChild size="lg" variant="secondary" className="h-13 px-8 text-base gap-2">
@@ -434,21 +381,7 @@ export default function Index() {
                   Kom igång gratis <ArrowRight className="h-4 w-4" />
                 </a>
               </Button>
-            </Reveal>
-            <Reveal delay={200}>
-              <div className="grid grid-cols-2 gap-4 text-center">
-                {[
-                  { value: '20+', label: 'grönsaker i\nsåkalendern' },
-                  { value: '8', label: 'klimatzoner\nstöds' },
-                  { value: '99 kr', label: 'per år för\nallt i Plus' },
-                  { value: '10s', label: 'att skapa\nett konto' },
-                ].map((stat) => (
-                  <div key={stat.label} className="p-5 rounded-xl bg-background/5 border border-background/10">
-                    <p className="text-2xl sm:text-3xl font-bold text-background mb-1">{stat.value}</p>
-                    <p className="text-xs text-background/50 whitespace-pre-line">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
+              <p className="text-xs text-background/50 mt-4">Alla nya konton får 7 dagars Plus gratis</p>
             </Reveal>
           </div>
         </div>

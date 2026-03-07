@@ -16,9 +16,6 @@ const Statistics = () => {
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Bäddar</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats?.active_beds ?? 0}</p></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Sådder i år</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats?.sowings_this_year ?? 0}</p></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Skörd i år</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{(stats?.harvest_kg ?? 0).toFixed(1)} kg</p></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Intäkter</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats?.total_income ?? 0} kr</p></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Kostnader</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats?.total_expense ?? 0} kr</p></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Resultat</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats?.profit ?? 0} kr</p></CardContent></Card>
       </div>
     </div>
   );
