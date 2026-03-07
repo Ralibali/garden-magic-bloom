@@ -124,7 +124,7 @@ export default function Index() {
             <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm">
               <a href="/blogg">Blogg</a>
             </Button>
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm hidden sm:inline-flex">
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm">
               <a href="/login?mode=login">Logga in</a>
             </Button>
             <Button asChild size="sm" className="h-8 px-4 text-sm">
