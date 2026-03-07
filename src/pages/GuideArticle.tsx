@@ -432,7 +432,7 @@ export default function GuideArticle() {
           </Link>
           <Link to="/login">
             <Button size="sm" className="rounded-xl text-xs gap-1">
-              <Egg className="h-3 w-3" /> Kom igång
+              <Sprout className="h-3 w-3" /> Kom igång
             </Button>
           </Link>
         </div>
