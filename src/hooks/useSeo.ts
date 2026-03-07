@@ -109,7 +109,7 @@ export function useSeo({ title, description, path, ogType = 'website', ogImage, 
 
     // AI citation meta
     setMeta('name', 'citation_title', title);
-    setMeta('name', 'citation_author', 'Hönsgården');
+    setMeta('name', 'citation_author', 'Odlingsdagboken');
     setMeta('name', 'citation_language', 'sv');
 
     // JSON-LD
