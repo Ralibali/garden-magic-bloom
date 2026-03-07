@@ -104,6 +104,7 @@ const Sowings = () => {
               </Button>
             </div>
           </DialogContent>
+        </Dialog>
         </div>
       </div>
 
