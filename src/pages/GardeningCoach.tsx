@@ -1,132 +1,225 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Sparkles, RefreshCw, Leaf } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Leaf, Send, RefreshCw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from '@/hooks/use-toast';
+import { FadeIn } from '@/components/animations';
 
 const COACH_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gardening-coach`;
 
-const GardeningCoach = () => {
-  const [tips, setTips] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(false);
+type Msg = { role: 'user' | 'assistant'; content: string };
 
-  const fetchTips = useCallback(async () => {
+async function streamChat({
+  messages,
+  accessToken,
+  onDelta,
+  onDone,
+  signal,
+}: {
+  messages: Msg[];
+  accessToken: string;
+  onDelta: (text: string) => void;
+  onDone: () => void;
+  signal?: AbortSignal;
+}) {
+  const resp = await fetch(COACH_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    },
+    body: JSON.stringify({ messages }),
+    signal,
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error || `Fel ${resp.status}`);
+  }
+  if (!resp.body) throw new Error('No stream');
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    let idx: number;
+    while ((idx = buffer.indexOf('\n')) !== -1) {
+      let line = buffer.slice(0, idx);
+      buffer = buffer.slice(idx + 1);
+      if (line.endsWith('\r')) line = line.slice(0, -1);
+      if (!line.startsWith('data: ')) continue;
+      const jsonStr = line.slice(6).trim();
+      if (jsonStr === '[DONE]') { onDone(); return; }
+      try {
+        const parsed = JSON.parse(jsonStr);
+        const content = parsed.choices?.[0]?.delta?.content;
+        if (content) onDelta(content);
+      } catch { /* partial */ }
+    }
+  }
+  onDone();
+}
+
+const GardeningCoach = () => {
+  const [messages, setMessages] = useState<Msg[]>([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const scrollToBottom = () => {
+    setTimeout(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }), 50);
+  };
+
+  const getSession = async () => {
+    const { supabase } = await import('@/integrations/supabase/client');
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Inte inloggad');
+    return session;
+  };
+
+  const sendMessages = useCallback(async (msgs: Msg[]) => {
     setLoading(true);
-    setTips('');
-    setHasLoaded(true);
+    abortRef.current = new AbortController();
+    let accumulated = '';
+
+    const upsertAssistant = (chunk: string) => {
+      accumulated += chunk;
+      setMessages(prev => {
+        const last = prev[prev.length - 1];
+        if (last?.role === 'assistant') {
+          return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: accumulated } : m);
+        }
+        return [...prev, { role: 'assistant', content: accumulated }];
+      });
+      scrollToBottom();
+    };
 
     try {
-      const { supabase } = await import('@/integrations/supabase/client');
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Inte inloggad');
-
-      const resp = await fetch(COACH_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        },
-        body: JSON.stringify({}),
+      const session = await getSession();
+      await streamChat({
+        messages: msgs,
+        accessToken: session.access_token,
+        onDelta: upsertAssistant,
+        onDone: () => setLoading(false),
+        signal: abortRef.current.signal,
       });
-
-      if (!resp.ok) {
-        const err = await resp.json().catch(() => ({}));
-        throw new Error(err.error || 'Kunde inte hämta tips');
-      }
-
-      const reader = resp.body?.getReader();
-      if (!reader) throw new Error('No stream');
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let accumulated = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-
-        let newlineIdx: number;
-        while ((newlineIdx = buffer.indexOf('\n')) !== -1) {
-          let line = buffer.slice(0, newlineIdx);
-          buffer = buffer.slice(newlineIdx + 1);
-          if (line.endsWith('\r')) line = line.slice(0, -1);
-          if (!line.startsWith('data: ')) continue;
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === '[DONE]') break;
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content;
-            if (content) {
-              accumulated += content;
-              setTips(accumulated);
-            }
-          } catch { /* partial json */ }
-        }
-      }
     } catch (e: any) {
-      toast({ title: 'Fel', description: e.message, variant: 'destructive' });
-    } finally {
+      if (e.name !== 'AbortError') {
+        toast({ title: 'Fel', description: e.message, variant: 'destructive' });
+      }
       setLoading(false);
     }
   }, []);
 
+  // Auto-load greeting on mount
+  useEffect(() => {
+    if (!initialized) {
+      setInitialized(true);
+      sendMessages([]); // empty = triggers proactive greeting
+    }
+  }, [initialized, sendMessages]);
+
+  const handleSend = async () => {
+    const text = input.trim();
+    if (!text || loading) return;
+    setInput('');
+    const userMsg: Msg = { role: 'user', content: text };
+    const newMsgs = [...messages.filter(m => m.content), userMsg];
+    setMessages(prev => [...prev, userMsg]);
+    scrollToBottom();
+    await sendMessages(newMsgs);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-primary" /> Odlingscoachen
-          </h1>
-          <p className="text-muted-foreground text-sm">Personliga tips baserat på din odling och klimatzon</p>
+    <div className="flex flex-col h-[calc(100vh-8rem)] md:h-[calc(100vh-6rem)] max-w-3xl mx-auto">
+      {/* Header */}
+      <FadeIn>
+        <div className="flex items-center gap-3 pb-4 border-b border-border/60">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Leaf className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Gro</h1>
+            <p className="text-xs text-muted-foreground">Din personliga odlingscoach</p>
+          </div>
         </div>
-        <Button onClick={fetchTips} disabled={loading} className="gap-2">
-          {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-          {loading ? 'Tänker...' : hasLoaded ? 'Nya tips' : 'Hämta tips'}
-        </Button>
+      </FadeIn>
+
+      {/* Messages */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto py-4 space-y-4 scroll-smooth">
+        {messages.map((msg, i) => (
+          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+              msg.role === 'user'
+                ? 'bg-primary text-primary-foreground rounded-br-md'
+                : 'bg-muted/60 text-foreground rounded-bl-md'
+            }`}>
+              {msg.role === 'assistant' ? (
+                <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-foreground/90 prose-li:text-foreground/90 prose-strong:text-foreground prose-p:my-1 prose-ul:my-1 prose-headings:my-2">
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                </div>
+              ) : (
+                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {loading && messages[messages.length - 1]?.role !== 'assistant' && (
+          <div className="flex justify-start">
+            <div className="bg-muted/60 rounded-2xl rounded-bl-md px-4 py-3">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                <span className="text-sm">Gro tänker...</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {!hasLoaded && (
-        <Card className="border-dashed">
-          <CardContent className="py-16 text-center space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-              <Leaf className="h-8 w-8 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold">Din personliga odlingsrådgivare</h2>
-              <p className="text-muted-foreground text-sm max-w-md mx-auto mt-1">
-                Odlingscoachen analyserar dina sådder, krukväxter och klimatzon för att ge dig skräddarsydda tips – just nu.
-              </p>
-            </div>
-            <Button onClick={fetchTips} size="lg" className="gap-2">
-              <Sparkles className="h-4 w-4" /> Hämta mina tips
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {hasLoaded && (
-        <Card>
-          <CardContent className="py-6">
-            {loading && !tips && (
-              <div className="flex items-center gap-3 text-muted-foreground">
-                <RefreshCw className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Analyserar din odling...</span>
-              </div>
-            )}
-            <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-foreground/90 prose-li:text-foreground/90 prose-strong:text-foreground">
-              <ReactMarkdown>{tips}</ReactMarkdown>
-            </div>
-            {!loading && tips && (
-              <p className="text-[11px] text-muted-foreground mt-6 pt-4 border-t">
-                💡 Tipsen är AI-genererade och baserade på din odlingsdata. Dubbelkolla alltid med lokala förhållanden.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      {/* Input */}
+      <div className="border-t border-border/60 pt-3 pb-1">
+        <div className="flex gap-2">
+          <Input
+            ref={inputRef}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ställ en fråga till Gro..."
+            disabled={loading}
+            className="flex-1 rounded-xl bg-muted/40 border-border/60"
+          />
+          <Button
+            onClick={handleSend}
+            disabled={loading || !input.trim()}
+            size="icon"
+            className="rounded-xl shrink-0"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+        <p className="text-[10px] text-muted-foreground text-center mt-2">
+          Gro ger AI-genererade råd baserade på din odlingsdata. Dubbelkolla alltid med lokala förhållanden.
+        </p>
+      </div>
     </div>
   );
 };
