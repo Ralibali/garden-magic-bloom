@@ -570,7 +570,7 @@ export default function GuideArticle() {
       {/* Footer */}
       <footer className="border-t border-border/50 mt-16 py-8 px-4">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} Hönsgården</span>
+          <span>© {new Date().getFullYear()} Odlingsdagboken</span>
           <div className="flex gap-4">
             <Link to="/" className="hover:text-foreground transition-colors">Startsidan</Link>
             <Link to="/blogg" className="hover:text-foreground transition-colors">Blogg</Link>
