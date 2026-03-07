@@ -158,7 +158,7 @@ export default function GuideArticle() {
         .select('display_name')
         .eq('user_id', data.author_id)
         .single();
-      return { ...data, author_name: profile?.display_name || 'Hönsgården' };
+      return { ...data, author_name: profile?.display_name || 'Odlingsdagboken' };
     },
     enabled: !!slug,
   });
