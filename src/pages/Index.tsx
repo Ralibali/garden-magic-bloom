@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useSeo } from '@/hooks/useSeo';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Check, ChevronRight, Sprout, Carrot, CalendarDays, RefreshCw, BarChart3, Zap, Star } from 'lucide-react';
+import { ArrowRight, Check, ChevronRight, Sprout, Carrot, CalendarDays, RefreshCw, BarChart3, Zap, Flower2, X } from 'lucide-react';
 import heroFlatlay from '@/assets/hero-flatlay.jpg';
 import heroHands from '@/assets/hero-harvest-hands.jpg';
 import heroAerial from '@/assets/hero-beds-aerial.jpg';
@@ -52,6 +52,28 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   );
 }
 
+/* ─── Seasonal banner ─── */
+function SeasonalBanner() {
+  const [dismissed, setDismissed] = useState(false);
+  const month = new Date().getMonth(); // 0-indexed
+  const isSowSeason = month >= 1 && month <= 4; // Feb–May
+
+  if (!isSowSeason || dismissed) return null;
+
+  return (
+    <div className="bg-primary text-primary-foreground text-center text-xs sm:text-sm py-2.5 px-4 relative">
+      <span>Det är såsäsong! 🌱 Kom igång med din odlingsdagbok innan säsongen sätter igång.</span>
+      <button
+        onClick={() => setDismissed(true)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-70 transition-opacity"
+        aria-label="Stäng"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
 /* ─── Data ─── */
 const capabilities = [
   {
@@ -90,6 +112,12 @@ const capabilities = [
     desc: 'Ställ odlingsfrågor och få personliga svar baserat på din zon.',
     color: 'bg-primary/10 text-primary',
   },
+  {
+    icon: Flower2,
+    title: 'Krukväxter & inomhusväxter',
+    desc: 'Håll koll på vattning, gödsling och skötsel för alla dina inomhusväxter.',
+    color: 'bg-success/10 text-success',
+  },
 ];
 
 const comparisons = [
@@ -97,15 +125,23 @@ const comparisons = [
   { feature: 'Skördlogg med vikt', us: true, them: false },
   { feature: 'Växtföljd bädd-för-bädd', us: true, them: false },
   { feature: 'Såkalender per zon', us: true, them: false },
-  { feature: 'Pris per år', us: '99 kr', them: '349 kr' },
+  { feature: 'Krukväxter & inomhusväxter', us: true, them: false },
+  { feature: 'AI-odlingscoach', us: true, them: false },
+  { feature: 'Pris per år', us: '99 kr', them: '470 kr' },
 ];
 
 const faqs = [
-  { q: 'Kostar det något?', a: 'Grundversionen är helt gratis – för alltid. Med Plus (99 kr/år) får du obegränsade bäddar, smarta påminnelser, växtföljdshistorik och CSV-export. Alla nya konton får 7 dagars Plus gratis.' },
+  { q: 'Kostar det något?', a: 'Grundversionen är helt gratis – för alltid. Med Plus (99 kr/år) får du obegränsade bäddar, smarta påminnelser, växtföljdshistorik och CSV-export. Alla nya konton får sju dagars Plus gratis.' },
   { q: 'Behöver jag ladda ner en app?', a: 'Nej! Odlingsdagboken fungerar direkt i webbläsaren på mobil och dator. Lägg till den på hemskärmen så känns det som en app.' },
-  { q: 'Hur skiljer ni er från Gardenize?', a: 'Gardenize fokuserar brett – krukväxter, träd, inspiration. Vi fokuserar 100 % på grönsaksodling med konkreta verktyg: såkalender per klimatzon, skördlogg med vikt och växtföljd per bädd.' },
+  { q: 'Hur skiljer ni er från Gardenize?', a: 'Gardenize fokuserar brett – krukväxter, träd, inspiration. Vi fokuserar 100 % på grönsaksodling med konkreta verktyg: såkalender per klimatzon, skördlogg med vikt och växtföljd per bädd. Vi har även ett komplett system för krukväxter och inomhusväxter – något Gardenize saknar helt.' },
   { q: 'Är mina data säkra?', a: 'Absolut. All data lagras krypterat inom EU. Vi följer GDPR och du kan radera allt när du vill.' },
-  { q: 'Hur många bäddar kan jag ha gratis?', a: 'Upp till 3 bäddar och 10 sådder. Alla nya konton får 7 dagars Plus gratis så du kan testa allt.' },
+  { q: 'Hur många bäddar kan jag ha gratis?', a: 'Upp till tre bäddar och tio sådder. Alla nya konton får sju dagars Plus gratis så du kan testa allt.' },
+];
+
+const howItWorksSteps = [
+  { num: '1', title: 'Skapa konto på tio sekunder', desc: 'Helt gratis, ingen betalinfo krävs.' },
+  { num: '2', title: 'Lägg till dina bäddar och växter', desc: 'Odlingsbäddar, krukväxter – allt på ett ställe.' },
+  { num: '3', title: 'Logga sådder och skördar', desc: 'Se vad som funkar år efter år.' },
 ];
 
 /* ─── Component ─── */
@@ -119,8 +155,11 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
 
+      {/* ═══════════════════════ SEASONAL BANNER ═══════════════════════ */}
+      <SeasonalBanner />
+
       {/* ═══════════════════════ NAV ═══════════════════════ */}
-      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
+      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-8 h-14">
           <a href="/" className="flex items-center gap-2">
             <span className="text-lg">🌱</span>
@@ -141,15 +180,13 @@ export default function Index() {
       </nav>
 
       {/* ═══════════════════════ HERO ═══════════════════════ */}
-      <section className="pt-14 relative">
-        {/* Background gradient accent */}
+      <section className="relative">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-1/2 -right-1/4 w-[600px] h-[600px] rounded-full bg-primary/[0.04] blur-3xl" />
           <div className="absolute -bottom-1/4 -left-1/4 w-[400px] h-[400px] rounded-full bg-accent/[0.04] blur-3xl" />
         </div>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-10 pb-8 sm:py-20 lg:py-28 relative">
-          {/* Mobile: stacked layout, Desktop: side by side */}
           <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <div className="text-center lg:text-left">
               <Reveal>
@@ -184,26 +221,17 @@ export default function Index() {
                     <a href="#funktioner">Se hur det funkar</a>
                   </Button>
                 </div>
-                <div className="flex items-center justify-center lg:justify-start gap-3 text-xs text-muted-foreground">
-                  <div className="flex -space-x-1">
-                    {['🧑‍🌾', '👩‍🌾', '🌻'].map((e, i) => (
-                      <span key={i} className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-[10px] border-2 border-background">{e}</span>
-                    ))}
-                  </div>
-                  <span>Hundratals odlare använder redan Odlingsdagboken</span>
-                </div>
+                <p className="text-xs text-muted-foreground text-center lg:text-left">Byggd för svenska förhållanden 🇸🇪</p>
               </Reveal>
             </div>
 
-            {/* Hero image — single clean image on mobile, mosaic on desktop */}
+            {/* Hero image */}
             <Reveal delay={200} className="w-full">
-              {/* Mobile: single image */}
               <div className="block lg:hidden">
                 <div className="rounded-2xl overflow-hidden shadow-xl aspect-[4/3] max-w-md mx-auto">
                   <img src={heroFlatlay} alt="Odlingsplanering med fröpåsar, plantor och anteckningsblock" className="w-full h-full object-cover" loading="eager" />
                 </div>
               </div>
-              {/* Desktop: mosaic */}
               <div className="hidden lg:grid grid-cols-5 grid-rows-4 gap-3 h-[480px]">
                 <div className="col-span-3 row-span-4 rounded-2xl overflow-hidden shadow-lg">
                   <img src={heroFlatlay} alt="Odlingsplanering med fröpåsar, plantor och anteckningsblock" className="w-full h-full object-cover" loading="eager" />
@@ -220,19 +248,15 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ═══════════════════════ SOCIAL PROOF BAR ═══════════════════════ */}
+      {/* ═══════════════════════ TRUST BAR ═══════════════════════ */}
       <section className="border-y border-border bg-card/50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-5 sm:py-6">
           <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <Star className="h-4 w-4 text-warning fill-warning" />
-              <span className="font-medium text-foreground">4.9/5</span>
-              <span>betyg</span>
-            </div>
+            <span className="flex items-center gap-1.5">🇸🇪 <span className="font-medium text-foreground">Byggd för Sverige</span></span>
             <div className="hidden sm:block w-px h-5 bg-border" />
-            <span>100% svensk data inom EU</span>
+            <span className="flex items-center gap-1.5">🔒 GDPR – data inom EU</span>
             <div className="hidden sm:block w-px h-5 bg-border" />
-            <span>Gratis att börja</span>
+            <span className="flex items-center gap-1.5">🌱 Gratis att börja</span>
           </div>
         </div>
       </section>
@@ -270,8 +294,34 @@ export default function Index() {
         </div>
       </section>
 
+      {/* ═══════════════════════ HOW IT WORKS ═══════════════════════ */}
+      <section>
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
+          <Reveal className="text-center mb-10">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Så här funkar det</p>
+            <h2 className="font-serif text-2xl sm:text-3xl text-foreground">
+              Kom igång på tre enkla steg
+            </h2>
+          </Reveal>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            {howItWorksSteps.map((step, i) => (
+              <Reveal key={step.num} delay={i * 120}>
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 text-primary font-serif text-xl font-bold flex items-center justify-center mx-auto mb-4">
+                    {step.num}
+                  </div>
+                  <h3 className="font-serif text-base sm:text-lg text-foreground mb-1">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground">{step.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════════════════ CAPABILITIES ═══════════════════════ */}
-      <section id="funktioner" className="scroll-mt-20">
+      <section id="funktioner" className="scroll-mt-20 bg-card border-y border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <Reveal className="mb-10">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Funktioner</p>
@@ -283,7 +333,7 @@ export default function Index() {
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {capabilities.map((cap, i) => (
               <Reveal key={cap.title} delay={i * 80}>
-                <div className="group p-4 sm:p-6 rounded-2xl border border-border bg-card hover:shadow-lg transition-all duration-300 h-full">
+                <div className="group p-4 sm:p-6 rounded-2xl border border-border bg-background hover:shadow-lg transition-all duration-300 h-full">
                   <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${cap.color} flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform`}>
                     <cap.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
@@ -297,7 +347,7 @@ export default function Index() {
       </section>
 
       {/* ═══════════════════════ COMPARISON ═══════════════════════ */}
-      <section className="bg-card border-y border-border">
+      <section>
         <div className="max-w-3xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <Reveal className="text-center mb-8 sm:mb-10">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Jämförelse</p>
@@ -307,7 +357,7 @@ export default function Index() {
           </Reveal>
 
           <Reveal delay={100}>
-            <div className="rounded-2xl border border-border overflow-hidden bg-background">
+            <div className="rounded-2xl border border-border overflow-hidden bg-card">
               <div className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-3 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
                 <div className="p-3 sm:p-4">Funktion</div>
                 <div className="p-3 sm:p-4 text-center bg-primary/5 text-primary whitespace-nowrap">Oss</div>
@@ -336,7 +386,7 @@ export default function Index() {
       </section>
 
       {/* ═══════════════════════ PRICING ═══════════════════════ */}
-      <section>
+      <section className="bg-card border-y border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <Reveal className="text-center mb-10">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Prissättning</p>
@@ -344,21 +394,21 @@ export default function Index() {
               Börja gratis. Uppgradera när du vill.
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto text-sm">
-              Alla nya konton får 7 dagars Plus gratis.
+              Alla nya konton får sju dagars Plus gratis.
             </p>
           </Reveal>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto">
             <Reveal>
-              <div className="p-5 sm:p-8 rounded-2xl border border-border bg-card h-full">
+              <div className="p-5 sm:p-8 rounded-2xl border border-border bg-background h-full">
                 <h3 className="font-serif text-xl text-foreground mb-1">Gratis</h3>
                 <div className="flex items-baseline gap-1 mb-4 sm:mb-5">
                   <span className="text-3xl sm:text-4xl font-bold text-foreground">0</span>
                   <span className="text-muted-foreground text-sm">kr/år</span>
                 </div>
                 <ul className="space-y-2 text-sm text-muted-foreground mb-5 sm:mb-6">
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Max 3 bäddar</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Max 10 sådder</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Max tre bäddar</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Max tio sådder</li>
                   <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Skördlogg med vikt</li>
                   <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Såkalender per zon</li>
                 </ul>
@@ -369,7 +419,7 @@ export default function Index() {
             </Reveal>
 
             <Reveal delay={100}>
-              <div className="relative p-5 sm:p-8 rounded-2xl border-2 border-primary bg-card h-full">
+              <div className="relative p-5 sm:p-8 rounded-2xl border-2 border-primary bg-background h-full">
                 <div className="absolute -top-3 right-4 sm:right-6 bg-primary text-primary-foreground text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
                   Populärast
                 </div>
@@ -378,7 +428,7 @@ export default function Index() {
                   <span className="text-3xl sm:text-4xl font-bold text-foreground">99</span>
                   <span className="text-muted-foreground text-sm">kr/år</span>
                 </div>
-                <p className="text-xs text-muted-foreground mb-4 sm:mb-5">~8 kr/mån · 7 dagars gratis provperiod</p>
+                <p className="text-xs text-muted-foreground mb-4 sm:mb-5">Bara ~åtta kr/månad · sju dagars gratis provperiod</p>
                 <ul className="space-y-2 text-sm text-muted-foreground mb-5 sm:mb-6">
                   <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Obegränsade bäddar & sådder</li>
                   <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> AI-coach Gro utan gräns</li>
@@ -396,7 +446,7 @@ export default function Index() {
       </section>
 
       {/* ═══════════════════════ FAQ ═══════════════════════ */}
-      <section className="bg-card border-y border-border">
+      <section>
         <div className="max-w-2xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <Reveal className="mb-8">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">FAQ</p>
@@ -421,14 +471,14 @@ export default function Index() {
                 Redo att veta vad som funkar i din trädgård?
               </h2>
               <p className="text-background/70 mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-base">
-                Skapa ett konto på 10 sekunder. Börja logga. Se resultat redan efter första säsongen.
+                Skapa ett konto på tio sekunder. Börja logga. Se resultat redan efter första säsongen.
               </p>
               <Button asChild size="lg" variant="secondary" className="h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base gap-2">
                 <a href="/login?mode=register">
                   Kom igång gratis <ArrowRight className="h-4 w-4" />
                 </a>
               </Button>
-              <p className="text-xs text-background/50 mt-4">Alla nya konton får 7 dagars Plus gratis</p>
+              <p className="text-xs text-background/50 mt-4">Alla nya konton får sju dagars Plus gratis</p>
             </Reveal>
           </div>
         </div>
@@ -443,11 +493,17 @@ export default function Index() {
             <span className="text-border mx-2">|</span>
             <span>© {new Date().getFullYear()}</span>
           </div>
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-5">
             <a href="/terms" className="hover:text-foreground transition-colors">Villkor</a>
             <a href="/blogg" className="hover:text-foreground transition-colors">Blogg</a>
             <a href="mailto:hej@odlingsdagboken.se" className="hover:text-foreground transition-colors">Kontakt</a>
             <a href="/login" className="hover:text-foreground transition-colors">Logga in</a>
+            <a href="https://instagram.com/odlingsdagboken" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Instagram">
+              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C16.67.014 16.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            </a>
+            <a href="https://facebook.com/odlingsdagboken" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Facebook">
+              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </a>
           </div>
         </div>
       </footer>
