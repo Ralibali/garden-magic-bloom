@@ -102,7 +102,8 @@ const Beds = () => {
               </Button>
             </div>
           </DialogContent>
-        </Dialog>
+            </Dialog>
+          </div>
         </div>
       </FadeIn>
 
