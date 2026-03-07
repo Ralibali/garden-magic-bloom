@@ -14,6 +14,10 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { useLocation } from 'react-router-dom';
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
+import { FreeLimitBadge } from '@/components/PremiumGate';
+import { useAuth } from '@/hooks/useAuth';
+
+const FREE_SOWING_LIMIT = 10;
 
 const SEED_BRAND_SUGGESTIONS = ['Impecta', 'Nelson Garden', 'Runåbergs fröer', 'Lindbloms frö', 'Pelargonia', 'Blomsterlandet', 'Egna frön', 'Annat'];
 
