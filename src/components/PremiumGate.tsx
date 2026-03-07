@@ -77,7 +77,7 @@ function PremiumUpsellCard({ feature }: { feature?: string }) {
           Prova Premium gratis
           <ArrowRight className="h-4 w-4" />
         </Button>
-        <p className="text-[10px] text-muted-foreground">Ingen bindningstid · Avbryt när du vill</p>
+        <p className="text-[10px] text-muted-foreground">Ingen bindningstid · 99 kr/år</p>
       </div>
     </div>
   );
