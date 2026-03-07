@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { useLocation } from 'react-router-dom';
+import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 
 const SEED_BRAND_SUGGESTIONS = ['Impecta', 'Nelson Garden', 'Runåbergs fröer', 'Lindbloms frö', 'Pelargonia', 'Blomsterlandet', 'Egna frön', 'Annat'];
 
@@ -89,11 +90,12 @@ const Sowings = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2"><Sprout className="h-6 w-6" /> Sålogg</h1>
-          <p className="text-muted-foreground">Alla dina sådder den här säsongen</p>
-        </div>
+      <FadeIn>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2"><Sprout className="h-6 w-6" /> Sålogg</h1>
+            <p className="text-muted-foreground">Alla dina sådder den här säsongen</p>
+          </div>
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -146,7 +148,8 @@ const Sowings = () => {
           </DialogContent>
         </Dialog>
         </div>
-      </div>
+        </div>
+      </FadeIn>
 
       {isLoading ? (
         <div className="space-y-3">{[1, 2, 3].map(i => <Skeleton key={i} className="h-16" />)}</div>
@@ -155,27 +158,29 @@ const Sowings = () => {
           Inga sådder ännu den här säsongen. Dags att komma igång! 🌱
         </CardContent></Card>
       ) : (
-        <div className="space-y-3">
+        <StaggerContainer className="space-y-3">
           {sowings.map((s: any) => (
-            <Card key={s.id}>
-              <CardContent className="py-3 flex items-center justify-between">
-                <div>
-                  <p className="font-medium">{s.variety}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {s.sow_date} · {(s as any).beds?.name || 'Ingen bädd'}
-                    {s.seed_brand && <span> · {s.seed_brand}</span>}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{STATUS_LABELS[s.status] || s.status}</Badge>
-                  <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(s.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <StaggerItem key={s.id}>
+              <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                <CardContent className="py-3 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{s.variety}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {s.sow_date} · {(s as any).beds?.name || 'Ingen bädd'}
+                      {s.seed_brand && <span> · {s.seed_brand}</span>}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{STATUS_LABELS[s.status] || s.status}</Badge>
+                    <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(s.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       )}
     </div>
   );

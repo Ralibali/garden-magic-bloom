@@ -9,6 +9,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 
 const Beds = () => {
   const queryClient = useQueryClient();
@@ -67,11 +68,12 @@ const Beds = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-serif flex items-center gap-2"><LayoutGrid className="h-6 w-6 text-primary" /> Mina bäddar</h1>
-          <p className="text-muted-foreground text-sm mt-1">Hantera dina odlingsbäddar och säsongsanteckningar</p>
-        </div>
+      <FadeIn>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-serif flex items-center gap-2"><LayoutGrid className="h-6 w-6 text-primary" /> Mina bäddar</h1>
+            <p className="text-muted-foreground text-sm mt-1">Hantera dina odlingsbäddar och säsongsanteckningar</p>
+          </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2"><Plus className="h-4 w-4" /> Ny bädd</Button>
@@ -87,7 +89,8 @@ const Beds = () => {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
+        </div>
+      </FadeIn>
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -98,66 +101,56 @@ const Beds = () => {
           Inga bäddar ännu. Skapa din första bädd för att komma igång! 🌱
         </CardContent></Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {beds.map((bed: any) => {
             const isEditing = editingNotes[bed.id] !== undefined;
             const notesValue = isEditing ? editingNotes[bed.id] : (bed.season_notes || '');
             const lastSummary = getLatestSummary(bed.id);
             return (
-              <Card key={bed.id} className="bg-card border-border shadow-sm">
-                <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg font-serif">{bed.name}</CardTitle>
-                  <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(bed.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {bed.description && <p className="text-sm text-muted-foreground">{bed.description}</p>}
-
-                  {/* Last season summary */}
-                  {lastSummary && (
-                    <div className="bg-accent/5 border border-accent/20 rounded-lg p-2.5">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <Leaf className="h-3 w-3 text-accent" />
-                        <span className="text-[10px] font-semibold text-accent uppercase tracking-wide">Förra säsongen ({lastSummary.year})</span>
+              <StaggerItem key={bed.id}>
+                <Card className="bg-card border-border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                  <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                    <CardTitle className="text-lg font-serif">{bed.name}</CardTitle>
+                    <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(bed.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {bed.description && <p className="text-sm text-muted-foreground">{bed.description}</p>}
+                    {lastSummary && (
+                      <div className="bg-accent/5 border border-accent/20 rounded-lg p-2.5">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <Leaf className="h-3 w-3 text-accent" />
+                          <span className="text-[10px] font-semibold text-accent uppercase tracking-wide">Förra säsongen ({lastSummary.year})</span>
+                        </div>
+                        {lastSummary.went_well && <p className="text-xs text-foreground line-clamp-2">✓ {lastSummary.went_well}</p>}
+                        {lastSummary.learnings && <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">💡 {lastSummary.learnings}</p>}
                       </div>
-                      {lastSummary.went_well && (
-                        <p className="text-xs text-foreground line-clamp-2">✓ {lastSummary.went_well}</p>
-                      )}
-                      {lastSummary.learnings && (
-                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">💡 {lastSummary.learnings}</p>
-                      )}
-                    </div>
-                  )}
-
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <BookOpen className="h-3.5 w-3.5 text-primary" />
-                      <span className="text-xs font-medium text-foreground">Säsongsanteckningar</span>
-                    </div>
-                    <Textarea
-                      placeholder="Vad lärde du dig i år? Vad funkade bra?"
-                      className="text-xs min-h-[60px] resize-none"
-                      value={notesValue}
-                      onChange={e => setEditingNotes(prev => ({ ...prev, [bed.id]: e.target.value }))}
-                    />
-                    {isEditing && (
-                      <Button
-                        size="sm"
-                        className="mt-2 gap-1.5 w-full"
-                        onClick={() => handleSaveNotes(bed.id)}
-                        disabled={savingNotes === bed.id}
-                      >
-                        {savingNotes === bed.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                        Spara anteckningar
-                      </Button>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <BookOpen className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-xs font-medium text-foreground">Säsongsanteckningar</span>
+                      </div>
+                      <Textarea
+                        placeholder="Vad lärde du dig i år? Vad funkade bra?"
+                        className="text-xs min-h-[60px] resize-none"
+                        value={notesValue}
+                        onChange={e => setEditingNotes(prev => ({ ...prev, [bed.id]: e.target.value }))}
+                      />
+                      {isEditing && (
+                        <Button size="sm" className="mt-2 gap-1.5 w-full" onClick={() => handleSaveNotes(bed.id)} disabled={savingNotes === bed.id}>
+                          {savingNotes === bed.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+                          Spara anteckningar
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerContainer>
       )}
     </div>
   );
