@@ -49,7 +49,7 @@ export default function InstallAppCard() {
                 <Smartphone className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0 pr-4">
-                <p className="font-serif text-sm text-foreground mb-1">Installera Hönsgården</p>
+                <p className="font-serif text-sm text-foreground mb-1">Installera Odlingsdagboken</p>
                 <p className="text-xs text-muted-foreground leading-relaxed mb-3">
                   Få appen direkt på din hemskärm – fungerar som en vanlig app, utan App Store!
                 </p>
