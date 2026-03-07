@@ -168,6 +168,32 @@ const Dashboard = () => {
         </div>
       )}
 
+      {/* Rain-based watering alert */}
+      {rainData && rainData.dryDays >= 3 && (
+        <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/30">
+          <CardContent className="p-4 flex items-start gap-3">
+            <CloudRain className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-foreground">
+                Inget regn på {rainData.dryDays} dagar – dags att vattna! 💧
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {rainData.totalPrecipitation < 1
+                  ? 'Ingen nederbörd alls den senaste veckan.'
+                  : `Bara ${rainData.totalPrecipitation.toFixed(1)} mm nederbörd senaste 7 dagarna.`}
+                {' '}Ge dina bäddar och krukväxter extra kärlek.
+              </p>
+              <div className="flex gap-2 mt-2">
+                <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => navigate('/app/my-plants')}>
+                  <Flower2 className="h-3.5 w-3.5" /> Mina växter
+                </Button>
+                <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => navigate('/app/beds')}>
+                  <LayoutGrid className="h-3.5 w-3.5" /> Mina bäddar
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       {/* Season wrap-up banner */}
       {showSeasonWrap && (
         <Card className="bg-accent/5 border-accent/30 shadow-sm">
