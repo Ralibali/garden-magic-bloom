@@ -106,6 +106,7 @@ const Statistics = () => {
   const isEmpty = stats?.active_beds === 0 && stats?.sowings_this_year === 0 && stats?.harvest_kg === 0;
 
   return (
+    <PremiumGate feature="Statistik & trender">
     <div className="space-y-6">
       <FadeIn>
         <h1 className="text-2xl font-bold flex items-center gap-2"><BarChart3 className="h-6 w-6" /> Statistik {currentYear}</h1>
