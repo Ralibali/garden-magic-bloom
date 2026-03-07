@@ -288,7 +288,7 @@ export default function GuideArticle() {
         image: { '@type': 'ImageObject', url: imageUrl },
         datePublished: post.published_at,
         dateModified: post.updated_at || post.published_at,
-        author: { '@type': 'Organization', name: 'Hönsgården', url: BASE, '@id': `${BASE}/#organization` },
+        author: { '@type': 'Organization', name: 'Odlingsdagboken', url: BASE, '@id': `${BASE}/#organization` },
         publisher: {
           '@type': 'Organization',
           name: 'Hönsgården',
