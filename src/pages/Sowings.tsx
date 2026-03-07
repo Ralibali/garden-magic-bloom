@@ -26,14 +26,35 @@ const STATUS_LABELS: Record<string, string> = {
 
 const Sowings = () => {
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [variety, setVariety] = useState('');
+  const location = useLocation();
+  const prefill = (location.state as any)?.prefill;
+
+  const [open, setOpen] = useState(!!prefill);
+  const [variety, setVariety] = useState(prefill?.variety || '');
   const [bedId, setBedId] = useState('');
   const [sowDate, setSowDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [type, setType] = useState('direct');
   const [notes, setNotes] = useState('');
   const [seedBrand, setSeedBrand] = useState('');
   const [search, setSearch] = useState('');
+  const [showBrandSuggestions, setShowBrandSuggestions] = useState(false);
+  const brandRef = useRef<HTMLDivElement>(null);
+
+  // Clear prefill state
+  useEffect(() => {
+    if (prefill) window.history.replaceState({}, document.title);
+  }, [prefill]);
+
+  // Close brand suggestions on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (brandRef.current && !brandRef.current.contains(e.target as Node)) setShowBrandSuggestions(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const filteredBrands = SEED_BRAND_SUGGESTIONS.filter(b => !seedBrand || b.toLowerCase().includes(seedBrand.toLowerCase()));
 
   const { data: sowingsRaw, isLoading } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const { data: beds } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
