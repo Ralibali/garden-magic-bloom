@@ -27,6 +27,7 @@ const Terms = React.lazy(() => import("./pages/Terms"));
 const Guides = React.lazy(() => import("./pages/Guides"));
 const GuideArticle = React.lazy(() => import("./pages/GuideArticle"));
 const SowingCalendar = React.lazy(() => import("./pages/SowingCalendar"));
+const CropRotation = React.lazy(() => import("./pages/CropRotation"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,6 +91,7 @@ const AppRoutes = () => (
           <Route path="premium" element={<Premium />} />
           <Route path="admin" element={<Admin />} />
           <Route path="calendar" element={<SowingCalendar />} />
+          <Route path="rotation" element={<CropRotation />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
