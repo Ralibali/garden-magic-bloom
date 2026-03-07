@@ -4,6 +4,7 @@ import { NavLink } from '@/components/NavLink';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useGardenProfile } from '@/hooks/useGardenProfile';
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, useSidebar,
@@ -40,6 +41,7 @@ export function AppSidebar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const { isVisible } = useGardenProfile();
 
   useEffect(() => {
     if (!user?.id) return;
@@ -47,6 +49,11 @@ export function AppSidebar() {
   }, [user?.id]);
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
+
+  const filteredMain = mainNav.filter(item => isVisible(item.url));
+  const filteredSecondary = secondaryNav
+    .filter(item => !(item as any).adminOnly || isAdmin)
+    .filter(item => isVisible(item.url));
 
   return (
     <Sidebar collapsible="icon" className="hidden md:flex border-r border-sidebar-border bg-sidebar">
@@ -67,7 +74,7 @@ export function AppSidebar() {
           {!collapsed && <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.14em] px-5 mb-1 font-medium">Odling</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainNav.map((item) => (
+              {filteredMain.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end={item.url === '/app'} className="flex items-center gap-3 px-5 py-2 mx-2 rounded-xl text-sidebar-foreground hover:text-foreground hover:bg-sidebar-accent/70 transition-all duration-200" activeClassName="bg-primary/12 text-primary font-medium shadow-sm">
@@ -85,7 +92,7 @@ export function AppSidebar() {
           {!collapsed && <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.14em] px-5 mt-3 mb-1 font-medium">Verktyg</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {secondaryNav.filter(item => !(item as any).adminOnly || isAdmin).map((item) => (
+              {filteredSecondary.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className="flex items-center gap-3 px-5 py-2 mx-2 rounded-xl text-sidebar-foreground hover:text-foreground hover:bg-sidebar-accent/70 transition-all duration-200" activeClassName="bg-primary/12 text-primary font-medium shadow-sm">
