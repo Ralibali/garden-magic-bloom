@@ -67,7 +67,8 @@ const Dashboard = () => {
     select: (data) => data?.slice(0, 5),
   });
 
-  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'odlare';
+  const rawName = profile?.display_name?.trim();
+  const displayName = rawName || '';
   const temp = weather?.current?.temperature_2m;
 
   return (
