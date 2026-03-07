@@ -30,6 +30,7 @@ const Sowings = () => {
   const [type, setType] = useState('direct');
   const [notes, setNotes] = useState('');
   const [seedBrand, setSeedBrand] = useState('');
+  const [search, setSearch] = useState('');
 
   const { data: sowings, isLoading } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const { data: beds } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
