@@ -32,8 +32,14 @@ const Sowings = () => {
   const [seedBrand, setSeedBrand] = useState('');
   const [search, setSearch] = useState('');
 
-  const { data: sowings, isLoading } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const { data: sowingsRaw, isLoading } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const { data: beds } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
+
+  const sowings = sowingsRaw?.filter((s: any) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return s.variety?.toLowerCase().includes(q) || s.seed_brand?.toLowerCase().includes(q);
+  });
 
   const createMutation = useMutation({
     mutationFn: () => api.createSowing({ variety, bed_id: bedId || undefined, sow_date: sowDate, type, notes: notes || undefined, seed_brand: seedBrand || undefined }),
