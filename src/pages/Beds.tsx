@@ -131,7 +131,7 @@ const Beds = () => {
                       <div className="flex items-center gap-1.5 mb-1.5">
                         <BookOpen className="h-3.5 w-3.5 text-primary" />
                         <span className="text-xs font-medium text-foreground">Säsongsanteckningar</span>
-        </StaggerContainer>
+                      </div>
                       <Textarea
                         placeholder="Vad lärde du dig i år? Vad funkade bra?"
                         className="text-xs min-h-[60px] resize-none"
