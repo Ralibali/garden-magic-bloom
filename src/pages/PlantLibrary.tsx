@@ -40,11 +40,10 @@ const PlantLibrary = () => {
   });
 
   const filtered = plants?.filter(p => {
-    if (p.category !== tab) return true && false; // type guard
     if (p.category !== tab) return false;
     if (!search.trim()) return true;
     return p.name_sv.toLowerCase().includes(search.toLowerCase());
-  }).filter(p => p.category === tab);
+  });
 
   // Group by subcategory
   const grouped = filtered?.reduce<Record<string, any[]>>((acc, p) => {
