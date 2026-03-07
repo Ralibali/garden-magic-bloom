@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sprout, Carrot, LayoutGrid, Plus, Thermometer, CalendarDays, Leaf, Snowflake, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { Sprout, Carrot, LayoutGrid, Plus, Thermometer, CalendarDays, Leaf, Snowflake, AlertTriangle, CheckCircle, Info, Droplets, Flower2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
@@ -80,8 +80,24 @@ const Dashboard = () => {
     select: (data) => data?.slice(0, 5),
   });
 
+  const { data: overduePlants } = useQuery({
+    queryKey: ['overdue-plants'],
+    queryFn: async () => {
+      const { data, error } = await (await import('@/integrations/supabase/client')).supabase
+        .from('my_plants').select('*, plants(name_sv)').order('created_at', { ascending: false });
+      if (error) return [];
+      return (data || []).filter((p: any) => {
+        if (!p.last_watered) return true;
+        const ago = Math.floor((Date.now() - new Date(p.last_watered).getTime()) / 86400000);
+        return ago >= (p.watering_interval_days || 7);
+      });
+    },
+  });
+
+  // Use first name only from display_name
   const rawName = profile?.display_name?.trim();
-  const displayName = rawName || '';
+  const firstName = rawName ? rawName.split(' ')[0] : '';
+  const displayName = firstName;
   const temp = weather?.current?.temperature_2m;
 
   // Temperature-based tips
@@ -96,6 +112,7 @@ const Dashboard = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold text-foreground">{displayName ? `God säsong, ${displayName}!` : 'God säsong!'} 🌱</h1>
+
           <p className="text-muted-foreground">Klimatzon {climateZone} · {MONTH_TIPS[currentMonth]}</p>
         </div>
         {temp !== undefined && (
@@ -217,6 +234,31 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Overdue watering alert */}
+      {overduePlants && overduePlants.length > 0 && (
+        <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2 text-blue-700 dark:text-blue-300">
+              <Droplets className="h-4 w-4" /> Behöver vatten idag 💧
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1.5">
+              {overduePlants.slice(0, 5).map((p: any) => (
+                <div key={p.id} className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-foreground">{p.custom_name || (p.plants as any)?.name_sv}</span>
+                  <span className="text-xs text-muted-foreground">{p.location}</span>
+                </div>
+              ))}
+              {overduePlants.length > 5 && <p className="text-xs text-muted-foreground">+{overduePlants.length - 5} till</p>}
+            </div>
+            <Button size="sm" variant="outline" className="mt-3 gap-1.5" onClick={() => navigate('/app/my-plants')}>
+              <Flower2 className="h-3.5 w-3.5" /> Visa alla växter
+            </Button>
           </CardContent>
         </Card>
       )}

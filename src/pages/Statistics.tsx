@@ -1,13 +1,18 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, Sprout } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const Statistics = () => {
+  const navigate = useNavigate();
   const { data: stats, isLoading } = useQuery({ queryKey: ['summary-stats'], queryFn: api.getSummaryStats });
   if (isLoading) return <div className="space-y-4"><Skeleton className="h-8 w-48" /><Skeleton className="h-64" /></div>;
+
+  const isEmpty = stats?.active_beds === 0 && stats?.sowings_this_year === 0 && stats?.harvest_kg === 0;
 
   return (
     <div className="space-y-6">
@@ -18,10 +23,13 @@ const Statistics = () => {
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Skörd i år</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{(stats?.harvest_kg ?? 0).toFixed(1)} kg</p></CardContent></Card>
       </div>
 
-      {(stats?.active_beds === 0 && stats?.sowings_this_year === 0 && stats?.harvest_kg === 0) && (
+      {isEmpty && (
         <Card className="bg-primary/5 border-primary/15">
-          <CardContent className="py-8 text-center">
-            <p className="text-muted-foreground">Börja logga sådder så fylls statistiken på! 🌱</p>
+          <CardContent className="py-8 text-center space-y-3">
+            <p className="text-muted-foreground">Börja logga sådder och skördar så fylls statistiken på automatiskt! 🌱</p>
+            <Button onClick={() => navigate('/app/sowings')} className="gap-2">
+              <Sprout className="h-4 w-4" /> Lägg till din första sådning
+            </Button>
           </CardContent>
         </Card>
       )}

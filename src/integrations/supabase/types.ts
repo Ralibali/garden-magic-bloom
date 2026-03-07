@@ -206,6 +206,56 @@ export type Database = {
         }
         Relationships: []
       }
+      my_plants: {
+        Row: {
+          created_at: string | null
+          custom_name: string | null
+          fertilizing_interval_days: number | null
+          id: string
+          last_fertilized: string | null
+          last_watered: string | null
+          location: string | null
+          notes: string | null
+          plant_id: string | null
+          user_id: string
+          watering_interval_days: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          custom_name?: string | null
+          fertilizing_interval_days?: number | null
+          id?: string
+          last_fertilized?: string | null
+          last_watered?: string | null
+          location?: string | null
+          notes?: string | null
+          plant_id?: string | null
+          user_id: string
+          watering_interval_days?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          custom_name?: string | null
+          fertilizing_interval_days?: number | null
+          id?: string
+          last_fertilized?: string | null
+          last_watered?: string | null
+          location?: string | null
+          notes?: string | null
+          plant_id?: string | null
+          user_id?: string
+          watering_interval_days?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "my_plants_plant_id_fkey"
+            columns: ["plant_id"]
+            isOneToOne: false
+            referencedRelation: "plants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pest_logs: {
         Row: {
           bed_id: string | null
@@ -249,6 +299,41 @@ export type Database = {
             columns: ["bed_id"]
             isOneToOne: false
             referencedRelation: "beds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plant_logs: {
+        Row: {
+          created_at: string | null
+          id: string
+          log_type: string
+          note: string | null
+          plant_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          log_type: string
+          note?: string | null
+          plant_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          log_type?: string
+          note?: string | null
+          plant_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plant_logs_plant_id_fkey"
+            columns: ["plant_id"]
+            isOneToOne: false
+            referencedRelation: "my_plants"
             referencedColumns: ["id"]
           },
         ]
@@ -300,6 +385,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      plants: {
+        Row: {
+          category: string
+          harvest_month: string | null
+          id: string
+          light: string | null
+          name_sv: string
+          plant_out_month: string | null
+          sow_month: string | null
+          subcategory: string | null
+          temp_max: number | null
+          temp_min: number | null
+          water: string | null
+          watering_interval_days: number | null
+        }
+        Insert: {
+          category: string
+          harvest_month?: string | null
+          id?: string
+          light?: string | null
+          name_sv: string
+          plant_out_month?: string | null
+          sow_month?: string | null
+          subcategory?: string | null
+          temp_max?: number | null
+          temp_min?: number | null
+          water?: string | null
+          watering_interval_days?: number | null
+        }
+        Update: {
+          category?: string
+          harvest_month?: string | null
+          id?: string
+          light?: string | null
+          name_sv?: string
+          plant_out_month?: string | null
+          sow_month?: string | null
+          subcategory?: string | null
+          temp_max?: number | null
+          temp_min?: number | null
+          water?: string | null
+          watering_interval_days?: number | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -595,6 +725,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      watering_log: {
+        Row: {
+          id: string
+          plant_id: string | null
+          user_id: string
+          watered_at: string | null
+        }
+        Insert: {
+          id?: string
+          plant_id?: string | null
+          user_id: string
+          watered_at?: string | null
+        }
+        Update: {
+          id?: string
+          plant_id?: string | null
+          user_id?: string
+          watered_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watering_log_plant_id_fkey"
+            columns: ["plant_id"]
+            isOneToOne: false
+            referencedRelation: "my_plants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

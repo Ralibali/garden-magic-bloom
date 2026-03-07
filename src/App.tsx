@@ -33,6 +33,8 @@ const Timeline = React.lazy(() => import("./pages/Timeline"));
 const CompanionPlanting = React.lazy(() => import("./pages/CompanionPlanting"));
 const PestLog = React.lazy(() => import("./pages/PestLog"));
 const PhotoDiary = React.lazy(() => import("./pages/PhotoDiary"));
+const PlantLibrary = React.lazy(() => import("./pages/PlantLibrary"));
+const MyPlants = React.lazy(() => import("./pages/MyPlants"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -102,6 +104,8 @@ const AppRoutes = () => (
           <Route path="companion" element={<CompanionPlanting />} />
           <Route path="pests" element={<PestLog />} />
           <Route path="photos" element={<PhotoDiary />} />
+          <Route path="plants" element={<PlantLibrary />} />
+          <Route path="my-plants" element={<MyPlants />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
