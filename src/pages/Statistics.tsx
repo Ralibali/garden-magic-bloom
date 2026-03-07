@@ -249,6 +249,7 @@ const Statistics = () => {
         </>
       )}
     </div>
+    </PremiumGate>
   );
 };
 
