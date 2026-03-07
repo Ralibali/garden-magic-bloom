@@ -17,6 +17,8 @@ const mainNav = [
   { title: 'Skördlogg', url: '/app/harvests', icon: Carrot },
   { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
   { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
+  { title: 'Fröförråd', url: '/app/seeds', icon: Package },
+  { title: 'Fotodagbok', url: '/app/photos', icon: Camera },
 ];
 
 const secondaryNav = [
