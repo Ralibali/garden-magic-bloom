@@ -245,7 +245,7 @@ export default function GuideArticle() {
     setMeta('property', 'og:description', pageDesc);
     setMeta('property', 'og:url', fullUrl);
     setMeta('property', 'og:type', 'article');
-    setMeta('property', 'og:site_name', 'Hönsgården');
+    setMeta('property', 'og:site_name', 'Odlingsdagboken');
     setMeta('property', 'og:locale', 'sv_SE');
     setMeta('property', 'og:image', imageUrl);
     setMeta('property', 'og:image:alt', post.title);
