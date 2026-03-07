@@ -13,6 +13,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from '@/hooks/use-toast';
 import { getTemperatureTips, getFrostCountdown } from '@/lib/weatherTips';
 import { Progress } from '@/components/ui/progress';
+import OnboardingFlow from '@/components/OnboardingFlow';
+import GettingStartedGuide from '@/components/GettingStartedGuide';
+import { GardenCategory } from '@/lib/gardenModules';
 
 const MONTH_TIPS: Record<number, string> = {
   1: 'Beställ frön och planera årets odling. Rita en bäddplan!',
@@ -55,10 +58,29 @@ const Dashboard = () => {
     queryFn: api.getSummaryStats,
   });
 
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: api.getProfile,
   });
+
+  const showOnboarding = !profileLoading && profile && !(profile as any).onboarding_completed;
+
+  const handleOnboardingComplete = async (data: { categories: GardenCategory[]; climateZone: number }) => {
+    const currentPrefs = (profile?.preferences as any) || {};
+    await api.updateProfile({
+      climate_zone: data.climateZone,
+      preferences: { ...currentPrefs, garden_categories: data.categories },
+      onboarding_completed: true,
+    });
+    queryClient.invalidateQueries({ queryKey: ['profile'] });
+  };
+
+  // Show onboarding if not completed
+  if (showOnboarding) {
+    return <OnboardingFlow onComplete={handleOnboardingComplete} />;
+  }
+
+  const isNewUser = !isLoading && stats && (stats.active_beds ?? 0) === 0 && (stats.sowings_this_year ?? 0) === 0;
 
   const climateZone = profile?.climate_zone ?? 3;
 
@@ -214,39 +236,43 @@ const Dashboard = () => {
         </Card>
       )}
 
-      {/* Stats cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {isLoading ? (
-          <>{[1, 2, 3].map(i => <Skeleton key={i} className="h-28" />)}</>
-        ) : (
-          <>
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/app/beds')}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <LayoutGrid className="h-4 w-4" /> Aktiva bäddar
-                </CardTitle>
-              </CardHeader>
-              <CardContent><p className="text-3xl font-bold">{stats?.active_beds ?? 0}</p></CardContent>
-            </Card>
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/app/sowings')}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Sprout className="h-4 w-4" /> Sådder i år
-                </CardTitle>
-              </CardHeader>
-              <CardContent><p className="text-3xl font-bold">{stats?.sowings_this_year ?? 0}</p></CardContent>
-            </Card>
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/app/harvests')}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Carrot className="h-4 w-4" /> Skörd i år
-                </CardTitle>
-              </CardHeader>
-              <CardContent><p className="text-3xl font-bold">{(stats?.harvest_kg ?? 0).toFixed(1)} kg</p></CardContent>
-            </Card>
-          </>
-        )}
-      </div>
+      {/* Getting started guide for new users OR Stats cards */}
+      {isNewUser ? (
+        <GettingStartedGuide />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {isLoading ? (
+            <>{[1, 2, 3].map(i => <Skeleton key={i} className="h-28" />)}</>
+          ) : (
+            <>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/app/beds')}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <LayoutGrid className="h-4 w-4" /> Aktiva bäddar
+                  </CardTitle>
+                </CardHeader>
+                <CardContent><p className="text-3xl font-bold">{stats?.active_beds ?? 0}</p></CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/app/sowings')}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Sprout className="h-4 w-4" /> Sådder i år
+                  </CardTitle>
+                </CardHeader>
+                <CardContent><p className="text-3xl font-bold">{stats?.sowings_this_year ?? 0}</p></CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/app/harvests')}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Carrot className="h-4 w-4" /> Skörd i år
+                  </CardTitle>
+                </CardHeader>
+                <CardContent><p className="text-3xl font-bold">{(stats?.harvest_kg ?? 0).toFixed(1)} kg</p></CardContent>
+              </Card>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Recent sowings */}
       {recentSowings && recentSowings.length > 0 && (
