@@ -244,19 +244,33 @@ const GardeningCoach = () => {
 
       {/* Input */}
       <div className="border-t border-border/60 pt-3 pb-1">
+        {!isPremium && (
+          <div className="flex items-center justify-between mb-2 px-1">
+            <span className="text-[10px] text-muted-foreground">
+              {remaining > 0
+                ? `${remaining} av ${FREE_DAILY_LIMIT} gratisfrågor kvar idag`
+                : 'Inga gratisfrågor kvar idag'}
+            </span>
+            {remaining <= 0 && (
+              <button onClick={() => navigate('/app/premium')} className="text-[10px] font-medium text-primary hover:underline flex items-center gap-1">
+                <Crown className="h-3 w-3" /> Uppgradera till Plus
+              </button>
+            )}
+          </div>
+        )}
         <div className="flex gap-2">
           <Input
             ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ställ en fråga till Gro..."
-            disabled={loading}
+            placeholder={!isPremium && remaining <= 0 ? 'Uppgradera till Plus för fler frågor...' : 'Ställ en fråga till Gro...'}
+            disabled={loading || (!isPremium && remaining <= 0)}
             className="flex-1 rounded-xl bg-muted/40 border-border/60"
           />
           <Button
             onClick={handleSend}
-            disabled={loading || !input.trim()}
+            disabled={loading || !input.trim() || (!isPremium && remaining <= 0)}
             size="icon"
             className="rounded-xl shrink-0"
           >
