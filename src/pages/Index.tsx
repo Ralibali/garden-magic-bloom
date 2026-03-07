@@ -75,11 +75,11 @@ const testimonials = [
 ];
 
 const faqs = [
-  { q: 'Kostar det något?', a: 'Grundversionen är helt gratis. Med Plus (99 kr/år) får du obegränsade bäddar, full växtföljdshistorik och CSV-export.' },
+  { q: 'Kostar det något?', a: 'Grundversionen är helt gratis – för alltid. Med Plus (99 kr/år) får du obegränsade bäddar, smarta påminnelser, full växtföljdshistorik och säsongsanteckningar. Nya användare får dessutom 7 dagars gratis Plus automatiskt.' },
   { q: 'Behöver jag ladda ner en app?', a: 'Nej! Odlingsdagboken fungerar direkt i webbläsaren. Du kan lägga till den på hemskärmen så känns det som en app.' },
-  { q: 'Vad skiljer er från Gardenize?', a: 'Vi fokuserar helt på grönsaksodling med inbyggda klimatzoner, skördvikter per sort och växtföljdsvy – funktioner som Gardenize saknar.' },
+  { q: 'Vad skiljer er från Gardenize?', a: 'Gardenize är brett och täcker allt från krukväxter till träd. Vi gör en sak och gör den riktigt bra: grönsaksodling. Konkret innebär det: inbyggda svenska klimatzoner som styr dina såtider, skördvikter per sort så du ser vilka som faktiskt presterar, växtföljdsvy bädd-för-bädd år efter år, och smarta påminnelser som säger till när det är dags att så eller plantera ut – anpassat efter just din zon. Allt det saknas i Gardenize.' },
   { q: 'Är mina data säkra?', a: 'Absolut. All data lagras krypterat inom EU. Vi följer GDPR och du kan radera allt när du vill.' },
-  { q: 'Hur många bäddar kan jag ha gratis?', a: 'I gratisversionen kan du ha upp till 3 bäddar och 20 sådder per år.' },
+  { q: 'Hur många bäddar kan jag ha gratis?', a: 'I gratisversionen kan du ha upp till 3 bäddar och 20 sådder per år. Nya konton får 7 dagars Plus automatiskt så du kan testa allt.' },
 ];
 
 export default function Index() {
