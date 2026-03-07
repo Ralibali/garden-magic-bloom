@@ -139,20 +139,21 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       {/* Greeting + weather */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">{displayName ? `God säsong, ${displayName}!` : 'God säsong!'} 🌱</h1>
-
-          <p className="text-muted-foreground">Klimatzon {climateZone} · {MONTH_TIPS[currentMonth]}</p>
-        </div>
-        {temp !== undefined && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-card border border-border rounded-xl px-4 py-2 w-fit">
-            <Thermometer className="h-4 w-4 text-primary" />
-            <span className="font-medium text-foreground">{Math.round(temp)}°C</span>
-            <span>just nu</span>
+      <FadeIn>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">{displayName ? `God säsong, ${displayName}!` : 'God säsong!'} 🌱</h1>
+            <p className="text-muted-foreground">Klimatzon {climateZone} · {MONTH_TIPS[currentMonth]}</p>
           </div>
-        )}
-      </div>
+          {temp !== undefined && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-card border border-border rounded-xl px-4 py-2 w-fit">
+              <Thermometer className="h-4 w-4 text-primary" />
+              <span className="font-medium text-foreground">{Math.round(temp)}°C</span>
+              <span>just nu</span>
+            </div>
+          )}
+        </div>
+      </FadeIn>
 
       {/* Temperature-based sowing tips */}
       {weatherTips.length > 0 && (
