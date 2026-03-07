@@ -1,4 +1,4 @@
-import { Home, Sprout, LayoutGrid, Carrot, MoreHorizontal, Coins, BarChart3, Settings, Crown, Shield, CalendarDays } from 'lucide-react';
+import { Home, Sprout, LayoutGrid, Carrot, MoreHorizontal, BarChart3, Settings, Crown, Shield, CalendarDays } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,7 +14,6 @@ const primaryItems = [
 
 const moreItems = [
   { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
-  { title: 'Ekonomi', url: '/app/finance', icon: Coins },
   { title: 'Statistik', url: '/app/statistics', icon: BarChart3 },
   { title: 'Premium', url: '/app/premium', icon: Crown },
   { title: 'Inställningar', url: '/app/settings', icon: Settings },

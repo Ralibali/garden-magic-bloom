@@ -1,29 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Sprout, Shovel, Droplets, Calendar, Check, Bell, AlertTriangle } from 'lucide-react';
+import { Plus, Sprout, Shovel, Droplets, Calendar, Check, Bell, AlertTriangle, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/lib/api';
+import { toast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Reminder {
-  id: number;
+  id: string;
   title: string;
   type: 'sowing' | 'transplant' | 'watering' | 'other';
   date: string;
   done: boolean;
   bed?: string;
 }
-
-const initialReminders: Reminder[] = [
-  { id: 1, title: 'Förodla tomater inomhus', type: 'sowing', date: '2026-03-15', done: false },
-  { id: 2, title: 'Plantera ut squash', type: 'transplant', date: '2026-05-20', done: false, bed: 'Bädd 1' },
-  { id: 3, title: 'Så morötter direkt', type: 'sowing', date: '2026-04-15', done: false, bed: 'Bädd 3' },
-  { id: 4, title: 'Vattna växthuset', type: 'watering', date: '2026-03-10', done: false },
-  { id: 5, title: 'Förodla paprika', type: 'sowing', date: '2026-02-01', done: true },
-  { id: 6, title: 'Plantera ut sallat', type: 'transplant', date: '2026-04-10', done: true, bed: 'Bädd 2' },
-];
 
 const typeConfig = {
   sowing: { icon: Sprout, label: 'Sådd', color: 'text-primary' },
@@ -38,29 +33,60 @@ function daysUntil(dateStr: string) {
 }
 
 export default function Reminders() {
-  const [reminders, setReminders] = useState(initialReminders);
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newType, setNewType] = useState<string>('sowing');
   const [newDate, setNewDate] = useState('');
 
+  // Load reminder settings from Supabase – we store reminders in the settings JSON
+  const { data: settingsData, isLoading } = useQuery({
+    queryKey: ['reminder-settings'],
+    queryFn: api.getReminderSettings,
+  });
+
+  const reminders: Reminder[] = (settingsData?.settings as any)?.reminders || [];
+
+  const saveReminders = useMutation({
+    mutationFn: (newReminders: Reminder[]) =>
+      api.updateReminderSettings({ settings: { reminders: newReminders } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reminder-settings'] });
+    },
+  });
+
   const upcoming = reminders.filter(r => !r.done).sort((a, b) => a.date.localeCompare(b.date));
   const completed = reminders.filter(r => r.done);
 
-  const toggleDone = (id: number) => {
-    setReminders(reminders.map(r => r.id === id ? { ...r, done: !r.done } : r));
+  const toggleDone = (id: string) => {
+    const updated = reminders.map(r => r.id === id ? { ...r, done: !r.done } : r);
+    saveReminders.mutate(updated);
   };
 
   const handleAdd = () => {
     if (!newTitle || !newDate) return;
-    setReminders([
-      ...reminders,
-      { id: Date.now(), title: newTitle, type: newType as Reminder['type'], date: newDate, done: false },
-    ]);
+    const newReminder: Reminder = {
+      id: crypto.randomUUID(),
+      title: newTitle,
+      type: newType as Reminder['type'],
+      date: newDate,
+      done: false,
+    };
+    saveReminders.mutate([...reminders, newReminder]);
     setNewTitle('');
     setNewDate('');
     setOpen(false);
+    toast({ title: 'Påminnelse sparad! 🌱' });
   };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-5xl mx-auto space-y-4">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-64" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6 animate-fade-in">
@@ -121,54 +147,60 @@ export default function Reminders() {
           <CardTitle className="font-serif text-base sm:text-lg">Kommande ({upcoming.length})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="divide-y divide-border">
-            {upcoming.map((r) => {
-              const config = typeConfig[r.type];
-              const days = daysUntil(r.date);
-              return (
-                <div key={r.id} className="flex items-center gap-3 px-4 sm:px-6 py-3 hover:bg-secondary/50 transition-colors">
-                  <button onClick={() => toggleDone(r.id)} className="shrink-0 w-6 h-6 rounded-full border-2 border-border hover:border-primary flex items-center justify-center transition-colors">
-                  </button>
-                  <config.icon className={`h-4 w-4 shrink-0 ${config.color}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm font-medium text-foreground truncate">{r.title}</p>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">{r.date} {r.bed && `· ${r.bed}`}</p>
+          {upcoming.length === 0 ? (
+            <p className="px-6 py-8 text-center text-sm text-muted-foreground">Inga kommande påminnelser. Skapa din första! 🌿</p>
+          ) : (
+            <div className="divide-y divide-border">
+              {upcoming.map((r) => {
+                const config = typeConfig[r.type];
+                const days = daysUntil(r.date);
+                return (
+                  <div key={r.id} className="flex items-center gap-3 px-4 sm:px-6 py-3 hover:bg-secondary/50 transition-colors">
+                    <button onClick={() => toggleDone(r.id)} className="shrink-0 w-6 h-6 rounded-full border-2 border-border hover:border-primary flex items-center justify-center transition-colors">
+                    </button>
+                    <config.icon className={`h-4 w-4 shrink-0 ${config.color}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-foreground truncate">{r.title}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">{r.date} {r.bed && `· ${r.bed}`}</p>
+                    </div>
+                    <Badge variant={days <= 3 ? 'destructive' : days <= 7 ? 'default' : 'secondary'} className="text-[10px] shrink-0">
+                      {days < 0 ? 'Försenad' : days === 0 ? 'Idag' : `${days} dagar`}
+                    </Badge>
                   </div>
-                  <Badge variant={days <= 3 ? 'destructive' : days <= 7 ? 'default' : 'secondary'} className="text-[10px] shrink-0">
-                    {days < 0 ? 'Försenad' : days === 0 ? 'Idag' : `${days} dagar`}
-                  </Badge>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Completed */}
-      <Card className="bg-card border-border shadow-sm">
-        <CardHeader className="px-4 sm:px-6">
-          <CardTitle className="font-serif text-base sm:text-lg text-muted-foreground">Avklarade ({completed.length})</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="divide-y divide-border">
-            {completed.map((r) => {
-              const config = typeConfig[r.type];
-              return (
-                <div key={r.id} className="flex items-center gap-3 px-4 sm:px-6 py-3 opacity-60">
-                  <button onClick={() => toggleDone(r.id)} className="shrink-0 w-6 h-6 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
-                    <Check className="h-3 w-3 text-primary" />
-                  </button>
-                  <config.icon className={`h-4 w-4 shrink-0 ${config.color}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm font-medium text-foreground line-through truncate">{r.title}</p>
-                    <p className="text-[10px] text-muted-foreground">{r.date}</p>
+      {completed.length > 0 && (
+        <Card className="bg-card border-border shadow-sm">
+          <CardHeader className="px-4 sm:px-6">
+            <CardTitle className="font-serif text-base sm:text-lg text-muted-foreground">Avklarade ({completed.length})</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border">
+              {completed.map((r) => {
+                const config = typeConfig[r.type];
+                return (
+                  <div key={r.id} className="flex items-center gap-3 px-4 sm:px-6 py-3 opacity-60">
+                    <button onClick={() => toggleDone(r.id)} className="shrink-0 w-6 h-6 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
+                      <Check className="h-3 w-3 text-primary" />
+                    </button>
+                    <config.icon className={`h-4 w-4 shrink-0 ${config.color}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-foreground line-through truncate">{r.title}</p>
+                      <p className="text-[10px] text-muted-foreground">{r.date}</p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

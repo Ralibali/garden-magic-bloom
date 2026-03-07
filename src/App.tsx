@@ -17,7 +17,6 @@ const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 const Beds = React.lazy(() => import("./pages/Beds"));
 const Sowings = React.lazy(() => import("./pages/Sowings"));
 const Harvests = React.lazy(() => import("./pages/Harvests"));
-const Finance = React.lazy(() => import("./pages/Finance"));
 const Statistics = React.lazy(() => import("./pages/Statistics"));
 const Reminders = React.lazy(() => import("./pages/Reminders"));
 const SettingsPage = React.lazy(() => import("./pages/Settings"));
@@ -85,7 +84,6 @@ const AppRoutes = () => (
           <Route path="beds" element={<Beds />} />
           <Route path="sowings" element={<Sowings />} />
           <Route path="harvests" element={<Harvests />} />
-          <Route path="finance" element={<Finance />} />
           <Route path="statistics" element={<Statistics />} />
           <Route path="reminders" element={<Reminders />} />
           <Route path="settings" element={<SettingsPage />} />
