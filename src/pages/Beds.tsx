@@ -101,7 +101,7 @@ const Beds = () => {
           Inga bäddar ännu. Skapa din första bädd för att komma igång! 🌱
         </CardContent></Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {beds.map((bed: any) => {
             const isEditing = editingNotes[bed.id] !== undefined;
             const notesValue = isEditing ? editingNotes[bed.id] : (bed.season_notes || '');
