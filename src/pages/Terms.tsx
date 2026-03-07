@@ -83,7 +83,15 @@ export default function Terms() {
           <ul className="text-sm text-foreground space-y-1 list-disc pl-5">
             <li><strong>Lovable Cloud</strong> (databas, autentisering, backend) – EU/EES</li>
             <li><strong>Stripe</strong> (betalningshantering) – USA, med EU Standard Contractual Clauses</li>
+            <li><strong>AI-tjänst (Lovable AI)</strong> – Odlingscoachen "Gro" använder AI för att ge personliga råd. Din odlingsdata (bäddar, sådder, skördar, krukväxter, klimatzon) skickas till AI-modellen för att generera tips. Ingen data lagras av AI-tjänsten utanför sessionen. Rättslig grund: berättigat intresse (förbättring av tjänsten).</li>
           </ul>
+
+          <h3 className="font-serif text-base text-foreground mt-4 mb-1">AI-behandling:</h3>
+          <p className="text-sm text-foreground leading-relaxed">
+            Funktionen "Gro" (Odlingscoachen) analyserar din odlingsdata i realtid med hjälp av AI för att ge dig personliga odlingsråd. 
+            Data som behandlas inkluderar: namn, klimatzon, bäddar, sådder, skördar och krukväxter. 
+            AI-genererade svar lagras inte – varje session börjar från noll. Du kan välja att inte använda funktionen.
+          </p>
 
           <h3 className="font-serif text-base text-foreground mt-4 mb-1">Lagringstid:</h3>
           <p className="text-sm text-foreground leading-relaxed">
