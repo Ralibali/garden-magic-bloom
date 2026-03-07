@@ -68,11 +68,12 @@ const Beds = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-serif flex items-center gap-2"><LayoutGrid className="h-6 w-6 text-primary" /> Mina bäddar</h1>
-          <p className="text-muted-foreground text-sm mt-1">Hantera dina odlingsbäddar och säsongsanteckningar</p>
-        </div>
+      <FadeIn>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-serif flex items-center gap-2"><LayoutGrid className="h-6 w-6 text-primary" /> Mina bäddar</h1>
+            <p className="text-muted-foreground text-sm mt-1">Hantera dina odlingsbäddar och säsongsanteckningar</p>
+          </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2"><Plus className="h-4 w-4" /> Ny bädd</Button>
