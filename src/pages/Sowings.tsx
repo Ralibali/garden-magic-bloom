@@ -157,27 +157,29 @@ const Sowings = () => {
           Inga sådder ännu den här säsongen. Dags att komma igång! 🌱
         </CardContent></Card>
       ) : (
-        <div className="space-y-3">
+        <StaggerContainer className="space-y-3">
           {sowings.map((s: any) => (
-            <Card key={s.id}>
-              <CardContent className="py-3 flex items-center justify-between">
-                <div>
-                  <p className="font-medium">{s.variety}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {s.sow_date} · {(s as any).beds?.name || 'Ingen bädd'}
-                    {s.seed_brand && <span> · {s.seed_brand}</span>}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{STATUS_LABELS[s.status] || s.status}</Badge>
-                  <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(s.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <StaggerItem key={s.id}>
+              <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                <CardContent className="py-3 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{s.variety}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {s.sow_date} · {(s as any).beds?.name || 'Ingen bädd'}
+                      {s.seed_brand && <span> · {s.seed_brand}</span>}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{STATUS_LABELS[s.status] || s.status}</Badge>
+                    <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(s.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       )}
     </div>
   );
