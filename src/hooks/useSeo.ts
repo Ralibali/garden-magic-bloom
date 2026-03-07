@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const BASE = 'https://honsgarden.se';
+const BASE = 'https://odlingsdagboken.se';
 
 interface SeoOptions {
   title: string;
@@ -72,7 +72,7 @@ export function useSeo({ title, description, path, ogType = 'website', ogImage, 
     setMeta('property', 'og:description', description);
     setMeta('property', 'og:url', fullUrl);
     setMeta('property', 'og:type', ogType);
-    setMeta('property', 'og:site_name', 'Hönsgården');
+    setMeta('property', 'og:site_name', 'Odlingsdagboken');
     setMeta('property', 'og:locale', 'sv_SE');
     if (ogImage) {
       const imgUrl = ogImage.startsWith('http') ? ogImage : `${BASE}${ogImage}`;
@@ -109,7 +109,7 @@ export function useSeo({ title, description, path, ogType = 'website', ogImage, 
 
     // AI citation meta
     setMeta('name', 'citation_title', title);
-    setMeta('name', 'citation_author', 'Hönsgården');
+    setMeta('name', 'citation_author', 'Odlingsdagboken');
     setMeta('name', 'citation_language', 'sv');
 
     // JSON-LD
@@ -129,7 +129,7 @@ export function useSeo({ title, description, path, ogType = 'website', ogImage, 
     }
 
     return () => {
-      document.title = 'Hönsgården – Din digitala äggloggare';
+      document.title = 'Odlingsdagboken – Din digitala odlingsdagbok';
       createdElements.forEach(el => el.remove());
     };
   }, [title, description, path, ogType, ogImage, ogImageAlt, noindex, jsonLd, articleMeta]);

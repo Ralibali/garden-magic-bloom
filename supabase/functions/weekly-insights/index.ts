@@ -27,17 +27,16 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const prompt = `Du är en kunnig hönsgårdsrådgivare. Analysera denna veckodata för en svensk hobbyhönsägare och ge 2-3 korta, personliga insikter på svenska. Var uppmuntrande men konkret. Max 100 ord totalt.
+    const prompt = `Du är en kunnig trädgårdsrådgivare. Analysera denna veckodata för en svensk hobbyodlare och ge 2-3 korta, personliga insikter på svenska. Var uppmuntrande men konkret. Max 100 ord totalt.
 
 Veckodata:
-- Ägg denna vecka: ${weekData.weekEggs}
-- Ägg förra veckan: ${weekData.prevWeekEggs}
-- Genomsnitt per dag: ${weekData.avgPerDay}
-- Antal hönor: ${weekData.henCount}
-- Bästa dag: ${weekData.bestDay}
-- Foderkostnad veckan: ${weekData.feedCost} kr
-- Streak (dagar i rad med loggning): ${weekData.streak}
-- Säsong: ${weekData.season}
+- Nya sådder denna vecka: ${weekData.newSowings ?? 0}
+- Skördar denna vecka: ${weekData.harvestsThisWeek ?? 0}
+- Total skörd i kg: ${weekData.totalHarvestKg ?? 0}
+- Antal aktiva bäddar: ${weekData.activeBeds ?? 0}
+- Klimatzon: ${weekData.climateZone ?? 3}
+- Kostnader veckan: ${weekData.weekCost ?? 0} kr
+- Säsong: ${weekData.season ?? 'okänd'}
 
 Svara med exakt JSON-format: {"insights": ["insikt 1", "insikt 2", "insikt 3"]}`;
 
@@ -70,7 +69,6 @@ Svara med exakt JSON-format: {"insights": ["insikt 1", "insikt 2", "insikt 3"]}`
     const aiData = await aiResponse.json();
     const content = aiData.choices?.[0]?.message?.content || "";
 
-    // Parse JSON from response
     let insights: string[] = [];
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -79,7 +77,6 @@ Svara med exakt JSON-format: {"insights": ["insikt 1", "insikt 2", "insikt 3"]}`
         insights = parsed.insights || [];
       }
     } catch {
-      // Fallback: split by newlines
       insights = content.split("\n").filter((l: string) => l.trim().length > 10).slice(0, 3);
     }
 

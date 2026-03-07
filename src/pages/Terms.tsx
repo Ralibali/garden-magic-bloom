@@ -9,8 +9,8 @@ export default function Terms() {
   const navigate = useNavigate();
 
   useSeo({
-    title: 'Användarvillkor & Integritetspolicy | Hönsgården',
-    description: 'Läs Hönsgårdens användarvillkor och integritetspolicy. Information om dataskydd, cookies och dina rättigheter.',
+    title: 'Användarvillkor & Integritetspolicy | Odlingsdagboken',
+    description: 'Läs Odlingsdagbokens användarvillkor och integritetspolicy. Information om dataskydd, cookies och dina rättigheter.',
     path: '/terms',
   });
 
@@ -23,11 +23,11 @@ export default function Terms() {
       <Card className="border-border/50 shadow-sm">
         <CardContent className="p-6 sm:p-8 prose prose-sm max-w-none">
           <h1 className="font-serif text-2xl sm:text-3xl text-foreground mb-1">Användarvillkor & Integritetspolicy</h1>
-          <p className="text-xs text-muted-foreground mb-6">honsgarden.se | Senast uppdaterad: 2026-03-06</p>
+          <p className="text-xs text-muted-foreground mb-6">odlingsdagboken.se | Senast uppdaterad: 2026-03-07</p>
 
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">1. Allmänt</h2>
           <p className="text-sm text-foreground leading-relaxed">
-            Dessa villkor gäller när du skapar ett konto och använder tjänsten honsgarden.se ("vi", "oss", "tjänsten").
+            Dessa villkor gäller när du skapar ett konto och använder tjänsten odlingsdagboken.se ("vi", "oss", "tjänsten").
             Genom att registrera dig bekräftar du att du har läst, förstått och godkänt dessa villkor.
           </p>
           <p className="text-sm text-foreground leading-relaxed">
@@ -45,7 +45,7 @@ export default function Terms() {
           <h3 className="font-serif text-base text-foreground mt-4 mb-1">Vilka uppgifter vi samlar in:</h3>
           <ul className="text-sm text-foreground space-y-1 list-disc pl-5">
             <li>Namn och e-postadress vid registrering</li>
-            <li>Uppgifter du själv lämnar i tjänsten (hönsdata, äggregistreringar, ekonomi)</li>
+            <li>Uppgifter du själv lämnar i tjänsten (odlingsdata, sådder, skördar, ekonomi)</li>
             <li>Tekniska data (t.ex. IP-adress, enhetstyp, cookies)</li>
           </ul>
 
@@ -66,13 +66,13 @@ export default function Terms() {
             <li>Rätt att återkalla samtycke när som helst</li>
           </ul>
           <p className="text-sm text-foreground leading-relaxed mt-2">
-            Du kan utöva rätten till radering och dataportabilitet direkt i appen under Inställningar. För övriga förfrågningar, kontakta oss på: <a href="mailto:info@honsgarden.se" className="text-primary hover:underline">info@honsgarden.se</a>
+            Du kan utöva rätten till radering och dataportabilitet direkt i appen under Inställningar. För övriga förfrågningar, kontakta oss på: <a href="mailto:info@odlingsdagboken.se" className="text-primary hover:underline">info@odlingsdagboken.se</a>
           </p>
 
           <h3 className="font-serif text-base text-foreground mt-4 mb-1">Personuppgiftsansvarig:</h3>
           <p className="text-sm text-foreground leading-relaxed">
-            Hönsgården / honsgarden.se<br />
-            E-post: <a href="mailto:info@honsgarden.se" className="text-primary hover:underline">info@honsgarden.se</a><br />
+            Odlingsdagboken / odlingsdagboken.se<br />
+            E-post: <a href="mailto:info@odlingsdagboken.se" className="text-primary hover:underline">info@odlingsdagboken.se</a><br />
             Du har rätt att lämna klagomål till Integritetsskyddsmyndigheten (IMY): <a href="https://www.imy.se" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">www.imy.se</a>
           </p>
 
@@ -90,16 +90,13 @@ export default function Terms() {
             Dina uppgifter lagras så länge ditt konto är aktivt eller så länge det krävs enligt lag.
             Vid avslut av konto raderas personuppgifter inom 30 dagar, om inget annat krävs enligt lag.
           </p>
-          <p className="text-sm text-foreground leading-relaxed">
-            Du har rätt att lämna klagomål till Integritetsskyddsmyndigheten (IMY): <a href="https://www.imy.se" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">www.imy.se</a>
-          </p>
 
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">3. E-postkommunikation & Marknadsföring</h2>
           <p className="text-sm text-foreground leading-relaxed">
-            Genom att godkänna villkoren ger du ditt samtycke till att honsgarden.se får kontakta dig via e-post med:
+            Genom att godkänna villkoren ger du ditt samtycke till att odlingsdagboken.se får kontakta dig via e-post med:
           </p>
           <ul className="text-sm text-foreground space-y-1 list-disc pl-5">
-            <li><strong>Nyhetsbrev</strong> – nyheter, tips och information om hönsuppfödning</li>
+            <li><strong>Nyhetsbrev</strong> – nyheter, tips och inspiration om grönsaksodling</li>
             <li><strong>Erbjudanden</strong> – kampanjer, rabatter och relevanta produkter</li>
             <li><strong>Produktuppdateringar</strong> – information om nya funktioner och förbättringar</li>
           </ul>
@@ -123,7 +120,7 @@ export default function Terms() {
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">6. Ansvarsbegränsning</h2>
           <p className="text-sm text-foreground leading-relaxed">
             Tjänsten tillhandahålls "i befintligt skick". Vi garanterar inte oavbruten eller felfri drift.
-            honsgarden.se ansvarar inte för indirekt skada, utebliven vinst eller dataförlust.
+            odlingsdagboken.se ansvarar inte för indirekt skada, utebliven vinst eller dataförlust.
           </p>
 
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">7. Tillämplig lag & Tvistelösning</h2>
@@ -134,9 +131,9 @@ export default function Terms() {
 
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">8. Kontakt</h2>
           <p className="text-sm text-foreground leading-relaxed">
-            honsgarden.se<br />
-            E-post: <a href="mailto:info@honsgarden.se" className="text-primary hover:underline">info@honsgarden.se</a><br />
-            Webbplats: <a href="https://www.honsgarden.se" className="text-primary hover:underline">www.honsgarden.se</a>
+            odlingsdagboken.se<br />
+            E-post: <a href="mailto:info@odlingsdagboken.se" className="text-primary hover:underline">info@odlingsdagboken.se</a><br />
+            Webbplats: <a href="https://www.odlingsdagboken.se" className="text-primary hover:underline">www.odlingsdagboken.se</a>
           </p>
         </CardContent>
       </Card>

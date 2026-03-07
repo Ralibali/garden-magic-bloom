@@ -52,8 +52,8 @@ export default function ReferralCard() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Prova Hönsgården!',
-          text: `Använd min värvningskod ${code} och få 7 dagars gratis Premium! 🐔`,
+          title: 'Prova Odlingsdagboken!',
+          text: `Använd min värvningskod ${code} och få 7 dagars gratis Plus! 🌱`,
           url: shareUrl,
         });
       } catch {

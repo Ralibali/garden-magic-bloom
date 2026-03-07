@@ -11,168 +11,128 @@ interface AffiliateProduct {
   price: string;
   image: string;
   affiliateUrl: string;
-  category: 'foder' | 'hälsa' | 'utrustning' | 'kläckning' | 'böcker';
+  category: 'frön' | 'jord' | 'verktyg' | 'växthus' | 'böcker';
   reason: string;
   badge?: string;
 }
 
-// Smart product catalog – matched to farm signals
 const productCatalog: AffiliateProduct[] = [
-  // Foder
   {
-    id: 'foder-premium',
-    name: 'Granngården Premium Hönsfoder',
-    description: 'Ekologiskt hönsfoder med optimal kalcium- och proteinhalt för maximal äggproduktion.',
-    price: '189 kr / 15 kg',
-    image: '🌾',
+    id: 'fro-tomat',
+    name: 'Nelson Garden Tomatfrön Mix',
+    description: 'Blandning av 5 populära tomatsorten anpassade för svenskt klimat.',
+    price: '49 kr',
+    image: '🍅',
     affiliateUrl: '#',
-    category: 'foder',
-    reason: 'Baserat på din förbrukning',
-    badge: 'Populärast',
+    category: 'frön',
+    reason: 'Populärast bland odlare',
+    badge: 'Bästsäljare',
   },
   {
-    id: 'foder-vinter',
-    name: 'Vinterblandning Extra Energi',
-    description: 'Hög fetthalt för kalla vintermånader. Hjälper dina hönor hålla värmen.',
-    price: '219 kr / 10 kg',
-    image: '❄️',
+    id: 'fro-sallat',
+    name: 'Runåbergs Fröer Sallatsmix',
+    description: 'Ekologiska sallatsfrön – så i omgångar för skörd hela säsongen.',
+    price: '39 kr',
+    image: '🥬',
     affiliateUrl: '#',
-    category: 'foder',
-    reason: 'Rekommenderat för säsongen',
-  },
-  {
-    id: 'kalcium-skal',
-    name: 'Ostronskal Kalciumtillskott',
-    description: 'Starkare äggskal och friskare höns. Fri utfodring vid sidan av vanligt foder.',
-    price: '79 kr / 2 kg',
-    image: '🦪',
-    affiliateUrl: '#',
-    category: 'foder',
-    reason: 'Förbättrar äggskalskvalitén',
-  },
-  // Hälsa
-  {
-    id: 'avmask-flubenol',
-    name: 'Flubenol Avmaskningsmedel',
-    description: 'Licensfritt avmaskningsmedel för höns. Enkel dosering i fodret.',
-    price: '149 kr',
-    image: '💊',
-    affiliateUrl: '#',
-    category: 'hälsa',
-    reason: 'Dags för avmaskning snart',
-    badge: 'Viktigt',
-  },
-  {
-    id: 'kvalster-pulver',
-    name: 'Diatom Kvalsterpulver',
-    description: 'Naturligt skydd mot kvalster och löss. Strö i hönshuset regelbundet.',
-    price: '99 kr / 1 kg',
-    image: '🛡️',
-    affiliateUrl: '#',
-    category: 'hälsa',
-    reason: 'Förebygg kvalster i hönshuset',
-  },
-  // Utrustning
-  {
-    id: 'auto-lucka',
-    name: 'Automatisk Hönslucka',
-    description: 'Öppnar och stänger baserat på ljus. Slipp oroa dig för räven!',
-    price: '1 490 kr',
-    image: '🚪',
-    affiliateUrl: '#',
-    category: 'utrustning',
-    reason: 'Spara tid varje dag',
-    badge: 'Favorit',
-  },
-  {
-    id: 'varme-vatten',
-    name: 'Värmeplatta Vattenskål',
-    description: 'Hindrar vattnet från att frysa. Termostatreglerad, energisnål.',
-    price: '349 kr',
-    image: '🔥',
-    affiliateUrl: '#',
-    category: 'utrustning',
-    reason: 'Perfekt för vintern',
-  },
-  // Kläckning
-  {
-    id: 'klackmaskin',
-    name: 'Brinsea Mini II Kläckmaskin',
-    description: 'Automatisk vändning och temperaturkontroll. Plats för 7 ägg.',
-    price: '2 490 kr',
-    image: '🐣',
-    affiliateUrl: '#',
-    category: 'kläckning',
+    category: 'frön',
     reason: 'Perfekt för nybörjare',
   },
   {
-    id: 'lyslampa',
-    name: 'Ägglampa / Candling Light',
-    description: 'Kontrollera embryots utveckling under ruvningen. LED, stark och smidig.',
-    price: '129 kr',
-    image: '🔦',
+    id: 'jord-plantjord',
+    name: 'Hasselfors Plantjord Eko',
+    description: 'Torvfri ekologisk plantjord för förodling och omplantning.',
+    price: '89 kr / 40L',
+    image: '🌍',
     affiliateUrl: '#',
-    category: 'kläckning',
-    reason: 'Kläckningssäsongen närmar sig',
+    category: 'jord',
+    reason: 'Torvfritt alternativ',
   },
-  // Böcker
   {
-    id: 'bok-hons',
-    name: 'Boken om Höns – Allt du behöver veta',
-    description: 'Komplett guide till hönsägande. Raser, skötsel, hälsa och äggproduktion.',
-    price: '249 kr',
+    id: 'godsel-honsgo',
+    name: 'Granngården Hönsgödsel',
+    description: 'Naturligt gödselmedel. Perfekt för grönsaksland och pallkragar.',
+    price: '79 kr / 10 kg',
+    image: '🌿',
+    affiliateUrl: '#',
+    category: 'jord',
+    reason: 'Bra allroundgödsel',
+    badge: 'Eko',
+  },
+  {
+    id: 'verktyg-sapa',
+    name: 'Fiskars Planteringsspade',
+    description: 'Ergonomisk planteringsspade i rostfritt stål.',
+    price: '149 kr',
+    image: '🛠️',
+    affiliateUrl: '#',
+    category: 'verktyg',
+    reason: 'Håller i många säsonger',
+  },
+  {
+    id: 'vaxthus-mini',
+    name: 'Nelson Garden Miniväxthus',
+    description: 'Kompakt miniväxthus för förodling på fönsterbrädan.',
+    price: '199 kr',
+    image: '🏠',
+    affiliateUrl: '#',
+    category: 'växthus',
+    reason: 'Rekommenderat för säsongen',
+    badge: 'Favorit',
+  },
+  {
+    id: 'bok-odla',
+    name: 'Odla! av Sara Bäckmo',
+    description: 'Sveriges mest populära odlingsbok. Steg för steg genom hela säsongen.',
+    price: '229 kr',
     image: '📖',
     affiliateUrl: '#',
     category: 'böcker',
-    reason: 'Bästsäljare bland hönsägare',
+    reason: 'Bästsäljare bland odlare',
+  },
+  {
+    id: 'bok-pallkrage',
+    name: 'Pallkrageodling av Helena Sjögren',
+    description: 'Allt om odling i pallkragar – perfekt för dig med liten trädgård.',
+    price: '189 kr',
+    image: '📗',
+    affiliateUrl: '#',
+    category: 'böcker',
+    reason: 'Perfekt för pallkragar',
   },
 ];
 
-interface FarmSignals {
-  henCount?: number;
-  eggAverage?: number;
-  season?: 'spring' | 'summer' | 'autumn' | 'winter';
-  hasHatching?: boolean;
-  feedCostHigh?: boolean;
-  isPremium?: boolean;
-}
-
-function getSmartRecommendations(signals: FarmSignals): AffiliateProduct[] {
+function getSmartRecommendations(): AffiliateProduct[] {
   const month = new Date().getMonth();
-  const season = month >= 2 && month <= 4 ? 'spring' : month >= 5 && month <= 7 ? 'summer' : month >= 8 && month <= 10 ? 'autumn' : 'winter';
-
   const picks: AffiliateProduct[] = [];
 
-  // Always recommend based on season
-  if (season === 'winter') {
-    picks.push(productCatalog.find(p => p.id === 'foder-vinter')!);
-    picks.push(productCatalog.find(p => p.id === 'varme-vatten')!);
-  }
-  if (season === 'spring') {
-    picks.push(productCatalog.find(p => p.id === 'klackmaskin')!);
-    picks.push(productCatalog.find(p => p.id === 'kvalster-pulver')!);
-  }
-  if (season === 'summer') {
-    picks.push(productCatalog.find(p => p.id === 'kvalster-pulver')!);
-    picks.push(productCatalog.find(p => p.id === 'kalcium-skal')!);
-  }
-  if (season === 'autumn') {
-    picks.push(productCatalog.find(p => p.id === 'foder-premium')!);
-    picks.push(productCatalog.find(p => p.id === 'avmask-flubenol')!);
+  if (month >= 0 && month <= 2) {
+    // Winter/early spring: seeds + indoor growing
+    picks.push(productCatalog.find(p => p.id === 'fro-tomat')!);
+    picks.push(productCatalog.find(p => p.id === 'vaxthus-mini')!);
+    picks.push(productCatalog.find(p => p.id === 'jord-plantjord')!);
+  } else if (month >= 3 && month <= 5) {
+    // Spring: soil, seeds, tools
+    picks.push(productCatalog.find(p => p.id === 'jord-plantjord')!);
+    picks.push(productCatalog.find(p => p.id === 'godsel-honsgo')!);
+    picks.push(productCatalog.find(p => p.id === 'fro-sallat')!);
+  } else if (month >= 6 && month <= 8) {
+    // Summer: tools, fertilizer
+    picks.push(productCatalog.find(p => p.id === 'godsel-honsgo')!);
+    picks.push(productCatalog.find(p => p.id === 'verktyg-sapa')!);
+    picks.push(productCatalog.find(p => p.id === 'bok-odla')!);
+  } else {
+    // Autumn: books, planning
+    picks.push(productCatalog.find(p => p.id === 'bok-odla')!);
+    picks.push(productCatalog.find(p => p.id === 'bok-pallkrage')!);
+    picks.push(productCatalog.find(p => p.id === 'fro-tomat')!);
   }
 
-  // Always push the automatic door – high value
-  if (!picks.find(p => p.id === 'auto-lucka')) {
-    picks.push(productCatalog.find(p => p.id === 'auto-lucka')!);
-  }
-
-  // Cap at 3 for widget, 6 for full page
   return picks.filter(Boolean).slice(0, 6);
 }
 
-// Compact widget for daily summary / dashboard
 export function AffiliateWidget({ maxItems = 2 }: { maxItems?: number }) {
-  const picks = getSmartRecommendations({});
+  const picks = getSmartRecommendations();
 
   return (
     <div className="space-y-2">
@@ -181,13 +141,7 @@ export function AffiliateWidget({ maxItems = 2 }: { maxItems?: number }) {
         <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Rekommenderat för dig</span>
       </div>
       {picks.slice(0, maxItems).map((product) => (
-        <a
-          key={product.id}
-          href={product.affiliateUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 p-2.5 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-colors group"
-        >
+        <a key={product.id} href={product.affiliateUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-2.5 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-colors group">
           <span className="text-xl shrink-0">{product.image}</span>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-foreground truncate">{product.name}</p>
@@ -200,22 +154,18 @@ export function AffiliateWidget({ maxItems = 2 }: { maxItems?: number }) {
   );
 }
 
-// Premium upsell banner – used in daily summary and dashboard
 export function PremiumUpsellBanner({ variant = 'compact' }: { variant?: 'compact' | 'full' }) {
   const navigate = useNavigate();
 
   if (variant === 'compact') {
     return (
-      <button
-        onClick={() => navigate('/app/premium')}
-        className="w-full flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-primary/10 via-accent/10 to-warning/10 border border-primary/20 hover:border-primary/40 transition-all group"
-      >
+      <button onClick={() => navigate('/app/premium')} className="w-full flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-primary/10 via-accent/10 to-warning/10 border border-primary/20 hover:border-primary/40 transition-all group">
         <div className="w-8 h-8 rounded-lg bg-warning/15 flex items-center justify-center shrink-0">
           <Crown className="h-4 w-4 text-warning" />
         </div>
         <div className="flex-1 text-left">
           <p className="text-xs font-semibold text-foreground">Lås upp hela potentialen</p>
-          <p className="text-[10px] text-muted-foreground">Premium från bara 19 kr/mån</p>
+          <p className="text-[10px] text-muted-foreground">Plus för bara 99 kr/år</p>
         </div>
         <Sparkles className="h-4 w-4 text-warning group-hover:scale-110 transition-transform shrink-0" />
       </button>
@@ -230,23 +180,16 @@ export function PremiumUpsellBanner({ variant = 'compact' }: { variant?: 'compac
             <Crown className="h-6 w-6 text-warning" />
           </div>
           <div className="flex-1">
-            <h3 className="font-serif text-lg text-foreground mb-1">Din hönsgård förtjänar mer</h3>
+            <h3 className="font-serif text-lg text-foreground mb-1">Din odling förtjänar mer</h3>
             <p className="text-xs text-muted-foreground mb-3">
-              Med Premium får du smarta prognoser, avmaskningspåminnelser, kostnad per ägg och mycket mer.
+              Med Plus får du obegränsade bäddar, smarta påminnelser per klimatzon, full växtföljdshistorik och CSV-export.
             </p>
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-xs bg-success/10 text-success px-2 py-0.5 rounded-full font-medium">
-                ✓ 7 dagar gratis
-              </span>
-              <span className="text-xs text-muted-foreground">sedan 19 kr/mån</span>
+              <span className="text-xs bg-success/10 text-success px-2 py-0.5 rounded-full font-medium">✓ 7 dagar gratis</span>
+              <span className="text-xs text-muted-foreground">sedan 99 kr/år</span>
             </div>
-            <Button
-              onClick={() => navigate('/app/premium')}
-              size="sm"
-              className="gap-1.5 active:scale-95 transition-transform shadow-[0_2px_8px_0_hsl(var(--primary)/0.2)]"
-            >
-              <Crown className="h-3.5 w-3.5" />
-              Prova Premium gratis
+            <Button onClick={() => navigate('/app/premium')} size="sm" className="gap-1.5 active:scale-95 transition-transform shadow-[0_2px_8px_0_hsl(var(--primary)/0.2)]">
+              <Crown className="h-3.5 w-3.5" /> Prova Plus gratis
             </Button>
           </div>
         </div>
@@ -255,29 +198,22 @@ export function PremiumUpsellBanner({ variant = 'compact' }: { variant?: 'compac
   );
 }
 
-// Full affiliate page/section
 export default function AffiliateRecommendations() {
-  const picks = getSmartRecommendations({});
+  const picks = getSmartRecommendations();
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <ShoppingBag className="h-5 w-5 text-accent" />
-        <h2 className="font-serif text-lg text-foreground">Utvalt för din gård</h2>
+        <h2 className="font-serif text-lg text-foreground">Utvalt för din odling</h2>
       </div>
       <p className="text-xs text-muted-foreground -mt-2">
-        Produkter baserade på din gårds behov och årstid. Vi kan få ersättning vid köp.
+        Produkter baserade på säsong och dina behov. Vi kan få ersättning vid köp.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {picks.map((product) => (
-          <a
-            key={product.id}
-            href={product.affiliateUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block"
-          >
+          <a key={product.id} href={product.affiliateUrl} target="_blank" rel="noopener noreferrer" className="block">
             <Card className="h-full border-border hover:border-primary/30 hover:shadow-md transition-all group">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
@@ -286,9 +222,7 @@ export default function AffiliateRecommendations() {
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="text-sm font-medium text-foreground truncate">{product.name}</h3>
                       {product.badge && (
-                        <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium shrink-0">
-                          {product.badge}
-                        </span>
+                        <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium shrink-0">{product.badge}</span>
                       )}
                     </div>
                     <p className="text-[11px] text-muted-foreground line-clamp-2 mb-2">{product.description}</p>

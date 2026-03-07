@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Egg, Loader2, BookOpen, CalendarDays } from 'lucide-react';
+import { ArrowLeft, Sprout, Loader2, BookOpen, CalendarDays } from 'lucide-react';
 
 const categoryLabels: Record<string, string> = {
   guide: 'Guide',
@@ -158,7 +158,7 @@ export default function GuideArticle() {
         .select('display_name')
         .eq('user_id', data.author_id)
         .single();
-      return { ...data, author_name: profile?.display_name || 'Hönsgården' };
+      return { ...data, author_name: profile?.display_name || 'Odlingsdagboken' };
     },
     enabled: !!slug,
   });
@@ -197,13 +197,13 @@ export default function GuideArticle() {
   // SEO - full OG, Twitter, hreflang, JSON-LD with Article + FAQ + Product + BreadcrumbList
   React.useEffect(() => {
     if (!post) return;
-    const BASE = 'https://honsgarden.se';
+    const BASE = 'https://odlingsdagboken.se';
     const fullUrl = `${BASE}/blogg/${post.slug}`;
-    const pageTitle = post.meta_title || post.title + ' | Hönsgården';
+    const pageTitle = post.meta_title || post.title + ' | Odlingsdagboken';
     const pageDesc = post.meta_description || post.excerpt || '';
     const imageUrl = post.cover_image_url
       ? (post.cover_image_url.startsWith('http') ? post.cover_image_url : `${BASE}${post.cover_image_url}`)
-      : `${BASE}/blog-images/hens-garden.jpg`;
+      : `${BASE}/blog-images/spring-garden.jpg`;
 
     const createdElements: HTMLElement[] = [];
 
@@ -245,7 +245,7 @@ export default function GuideArticle() {
     setMeta('property', 'og:description', pageDesc);
     setMeta('property', 'og:url', fullUrl);
     setMeta('property', 'og:type', 'article');
-    setMeta('property', 'og:site_name', 'Hönsgården');
+    setMeta('property', 'og:site_name', 'Odlingsdagboken');
     setMeta('property', 'og:locale', 'sv_SE');
     setMeta('property', 'og:image', imageUrl);
     setMeta('property', 'og:image:alt', post.title);
@@ -253,7 +253,7 @@ export default function GuideArticle() {
     // Article meta
     if (post.published_at) setMeta('property', 'article:published_time', post.published_at);
     if (post.updated_at) setMeta('property', 'article:modified_time', post.updated_at);
-    setMeta('property', 'article:author', 'Hönsgården');
+    setMeta('property', 'article:author', 'Odlingsdagboken');
     if (post.category) setMeta('property', 'article:section', post.category);
     if (post.tags) {
       post.tags.forEach((tag: string) => {
@@ -274,7 +274,7 @@ export default function GuideArticle() {
 
     // AI citation meta
     setMeta('name', 'citation_title', post.title);
-    setMeta('name', 'citation_author', 'Hönsgården');
+    setMeta('name', 'citation_author', 'Odlingsdagboken');
     setMeta('name', 'citation_language', 'sv');
     if (post.published_at) setMeta('name', 'citation_date', post.published_at.split('T')[0]);
 
@@ -288,10 +288,10 @@ export default function GuideArticle() {
         image: { '@type': 'ImageObject', url: imageUrl },
         datePublished: post.published_at,
         dateModified: post.updated_at || post.published_at,
-        author: { '@type': 'Organization', name: 'Hönsgården', url: BASE, '@id': `${BASE}/#organization` },
+        author: { '@type': 'Organization', name: 'Odlingsdagboken', url: BASE, '@id': `${BASE}/#organization` },
         publisher: {
           '@type': 'Organization',
-          name: 'Hönsgården',
+          name: 'Odlingsdagboken',
           url: BASE,
           '@id': `${BASE}/#organization`,
           logo: { '@type': 'ImageObject', url: `${BASE}/favicon.ico` },
@@ -397,7 +397,7 @@ export default function GuideArticle() {
     script.textContent = JSON.stringify(jsonLd);
 
     return () => {
-      document.title = 'Hönsgården';
+      document.title = 'Odlingsdagboken';
       createdElements.forEach(el => el.remove());
       document.getElementById('json-ld-article')?.remove();
     };
@@ -432,7 +432,7 @@ export default function GuideArticle() {
           </Link>
           <Link to="/login">
             <Button size="sm" className="rounded-xl text-xs gap-1">
-              <Egg className="h-3 w-3" /> Kom igång
+              <Sprout className="h-3 w-3" /> Kom igång
             </Button>
           </Link>
         </div>
@@ -502,16 +502,16 @@ export default function GuideArticle() {
 
         {/* Inline CTA */}
         <div className="mt-12 bg-gradient-to-br from-primary/5 via-card to-accent/5 rounded-2xl p-6 sm:p-8 border border-border/30 text-center">
-          <span className="text-2xl mb-2 block">🐔</span>
+          <span className="text-2xl mb-2 block">🌱</span>
           <h3 className="font-serif text-lg text-foreground mb-2">
-            Vill du hålla koll på dina höns?
+            Vill du odla smartare?
           </h3>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4">
-            Logga ägg, foder och hälsa med Hönsgården – helt kostnadsfritt.
+            Logga sådder, skördar och växtföljd med Odlingsdagboken – helt kostnadsfritt.
           </p>
           <Link to="/login">
             <Button className="rounded-xl gap-2">
-              <Egg className="h-4 w-4" /> Skapa ett konto
+              <Sprout className="h-4 w-4" /> Skapa ett konto
             </Button>
           </Link>
         </div>
@@ -570,7 +570,7 @@ export default function GuideArticle() {
       {/* Footer */}
       <footer className="border-t border-border/50 mt-16 py-8 px-4">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} Hönsgården</span>
+          <span>© {new Date().getFullYear()} Odlingsdagboken</span>
           <div className="flex gap-4">
             <Link to="/" className="hover:text-foreground transition-colors">Startsidan</Link>
             <Link to="/blogg" className="hover:text-foreground transition-colors">Blogg</Link>

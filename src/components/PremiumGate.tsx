@@ -149,7 +149,7 @@ export function PremiumNudge() {
   );
 }
 
-/** Limit counter – e.g. "3 av 3 hönor (gratis)" */
+/** Limit counter – e.g. "3 av 3 bäddar (gratis)" */
 export function FreeLimitBadge({ current, limit, label }: { current: number; limit: number; label: string }) {
   const { user } = useAuth();
   const isPremium = user?.subscription_status === 'premium';
