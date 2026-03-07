@@ -106,33 +106,41 @@ const Statistics = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold flex items-center gap-2"><BarChart3 className="h-6 w-6" /> Statistik {currentYear}</h1>
+      <FadeIn>
+        <h1 className="text-2xl font-bold flex items-center gap-2"><BarChart3 className="h-6 w-6" /> Statistik {currentYear}</h1>
+      </FadeIn>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-2"><LayoutGrid className="h-4 w-4" /> Bäddar</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-bold">{stats?.active_beds ?? 0}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-2"><Sprout className="h-4 w-4" /> Sådder i år</CardTitle></CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats?.sowings_this_year ?? 0}</p>
-            {yoyComparison?.sowingsDiff !== null && yoyComparison?.sowingsDiff !== undefined && (
-              <DiffBadge diff={yoyComparison.sowingsDiff} label={`vs ${prevYear}`} />
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-2"><Carrot className="h-4 w-4" /> Skörd i år</CardTitle></CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{(stats?.harvest_kg ?? 0).toFixed(1)} kg</p>
-            {yoyComparison?.harvestDiff !== null && yoyComparison?.harvestDiff !== undefined && (
-              <DiffBadge diff={yoyComparison.harvestDiff} label={`vs ${prevYear}`} />
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <StaggerContainer className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StaggerItem>
+          <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+            <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-2"><LayoutGrid className="h-4 w-4" /> Bäddar</CardTitle></CardHeader>
+            <CardContent><p className="text-3xl font-bold">{stats?.active_beds ?? 0}</p></CardContent>
+          </Card>
+        </StaggerItem>
+        <StaggerItem>
+          <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+            <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-2"><Sprout className="h-4 w-4" /> Sådder i år</CardTitle></CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold">{stats?.sowings_this_year ?? 0}</p>
+              {yoyComparison?.sowingsDiff !== null && yoyComparison?.sowingsDiff !== undefined && (
+                <DiffBadge diff={yoyComparison.sowingsDiff} label={`vs ${prevYear}`} />
+              )}
+            </CardContent>
+          </Card>
+        </StaggerItem>
+        <StaggerItem>
+          <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+            <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-2"><Carrot className="h-4 w-4" /> Skörd i år</CardTitle></CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold">{(stats?.harvest_kg ?? 0).toFixed(1)} kg</p>
+              {yoyComparison?.harvestDiff !== null && yoyComparison?.harvestDiff !== undefined && (
+                <DiffBadge diff={yoyComparison.harvestDiff} label={`vs ${prevYear}`} />
+              )}
+            </CardContent>
+          </Card>
+        </StaggerItem>
+      </StaggerContainer>
 
       {isEmpty ? (
         <Card className="bg-primary/5 border-primary/15">
