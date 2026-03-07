@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 Deno.serve(async (req) => {
@@ -19,7 +19,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Create client with user's token to verify identity
     const supabaseUser = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -36,7 +35,6 @@ Deno.serve(async (req) => {
 
     const userId = user.id;
 
-    // Use service role to delete all user data
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -44,31 +42,32 @@ Deno.serve(async (req) => {
 
     // Delete all user data from all tables (order matters for FK constraints)
     const tables = [
-      "chore_completions",
-      "achievement_rewards",
-      "health_logs",
-      "egg_logs",
-      "feed_records",
+      "watering_log",
+      "plant_logs",
+      "plant_photos",
+      "pest_logs",
+      "harvests",
+      "sowings",
+      "seed_inventory",
+      "season_summaries",
       "transactions",
-      "hatchings",
-      "daily_chores",
+      "my_plants",
+      "beds",
       "feedback",
-      "referrals",
       "reminder_settings",
-      "coop_settings",
-      "hens",
-      "flocks",
       "user_roles",
       "profiles",
     ];
 
     for (const table of tables) {
-      if (table === "referrals") {
-        await supabaseAdmin.from(table).delete().or(`referrer_user_id.eq.${userId},referred_user_id.eq.${userId}`);
-      } else {
-        await supabaseAdmin.from(table).delete().eq("user_id", userId);
+      const { error } = await supabaseAdmin.from(table).delete().eq("user_id", userId);
+      if (error) {
+        console.error(`Error deleting from ${table}:`, error.message);
       }
     }
+
+    // Handle referrals separately (has two user_id columns)
+    await supabaseAdmin.from("referrals").delete().or(`referrer_user_id.eq.${userId},referred_user_id.eq.${userId}`);
 
     // Delete the auth user
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
