@@ -36,6 +36,8 @@ const PhotoDiary = React.lazy(() => import("./pages/PhotoDiary"));
 const PlantLibrary = React.lazy(() => import("./pages/PlantLibrary"));
 const PlantProfilePage = React.lazy(() => import("./pages/PlantProfilePage"));
 const MyPlants = React.lazy(() => import("./pages/MyPlants"));
+const GardeningCoach = React.lazy(() => import("./pages/GardeningCoach"));
+const Install = React.lazy(() => import("./pages/Install"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -108,7 +110,9 @@ const AppRoutes = () => (
           <Route path="plants" element={<PlantLibrary />} />
           <Route path="plants/:id" element={<PlantProfilePage />} />
           <Route path="my-plants" element={<MyPlants />} />
+          <Route path="coach" element={<GardeningCoach />} />
         </Route>
+        <Route path="/install" element={<Install />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

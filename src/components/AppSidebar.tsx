@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Home, Sprout, LayoutGrid, Carrot, BarChart3, Settings, LogOut, Crown, Shield, CalendarDays, RefreshCw, Package, Clock, Heart, Bug, Camera, Flower2, BookOpen } from 'lucide-react';
+import { Home, Sprout, LayoutGrid, Carrot, BarChart3, Settings, LogOut, Crown, Shield, CalendarDays, RefreshCw, Package, Clock, Heart, Bug, Camera, Flower2, BookOpen, Sparkles } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 
 const mainNav = [
   { title: 'Hem', url: '/app', icon: Home },
+  { title: 'Odlingscoach', url: '/app/coach', icon: Sparkles },
   { title: 'Mina bäddar', url: '/app/beds', icon: LayoutGrid },
   { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
   { title: 'Skördlogg', url: '/app/harvests', icon: Carrot },
