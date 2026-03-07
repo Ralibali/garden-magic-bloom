@@ -63,7 +63,7 @@ const features = [
 ];
 
 const steps = [
-  { num: '1', title: 'Skapa konto', desc: 'Det tar 10 sekunder. Helt gratis.' },
+  { num: '1', title: 'Skapa konto', desc: 'Det tar 10 sekunder. 7 dagars Plus ingår.' },
   { num: '2', title: 'Lägg till bäddar', desc: 'Namnge dina odlingsbäddar, pallkragar och växthus.' },
   { num: '3', title: 'Börja logga', desc: 'Registrera sådder och skördar. Se allt i din dagbok.' },
 ];
@@ -75,11 +75,11 @@ const testimonials = [
 ];
 
 const faqs = [
-  { q: 'Kostar det något?', a: 'Grundversionen är helt gratis. Med Plus (99 kr/år) får du obegränsade bäddar, full växtföljdshistorik och CSV-export.' },
+  { q: 'Kostar det något?', a: 'Grundversionen är helt gratis – för alltid. Med Plus (99 kr/år) får du obegränsade bäddar, smarta påminnelser, full växtföljdshistorik och säsongsanteckningar. Nya användare får dessutom 7 dagars gratis Plus automatiskt.' },
   { q: 'Behöver jag ladda ner en app?', a: 'Nej! Odlingsdagboken fungerar direkt i webbläsaren. Du kan lägga till den på hemskärmen så känns det som en app.' },
-  { q: 'Vad skiljer er från Gardenize?', a: 'Vi fokuserar helt på grönsaksodling med inbyggda klimatzoner, skördvikter per sort och växtföljdsvy – funktioner som Gardenize saknar.' },
+  { q: 'Vad skiljer er från Gardenize?', a: 'Gardenize är brett och täcker allt från krukväxter till träd. Vi gör en sak och gör den riktigt bra: grönsaksodling. Konkret innebär det: inbyggda svenska klimatzoner som styr dina såtider, skördvikter per sort så du ser vilka som faktiskt presterar, växtföljdsvy bädd-för-bädd år efter år, och smarta påminnelser som säger till när det är dags att så eller plantera ut – anpassat efter just din zon. Allt det saknas i Gardenize.' },
   { q: 'Är mina data säkra?', a: 'Absolut. All data lagras krypterat inom EU. Vi följer GDPR och du kan radera allt när du vill.' },
-  { q: 'Hur många bäddar kan jag ha gratis?', a: 'I gratisversionen kan du ha upp till 3 bäddar och 20 sådder per år.' },
+  { q: 'Hur många bäddar kan jag ha gratis?', a: 'I gratisversionen kan du ha upp till 3 bäddar och 20 sådder per år. Nya konton får 7 dagars Plus automatiskt så du kan testa allt.' },
 ];
 
 export default function Index() {
@@ -301,14 +301,16 @@ export default function Index() {
                 <h3 className="font-serif text-xl text-foreground mb-1">Plus</h3>
                 <p className="text-3xl font-bold text-foreground mb-4">99 kr<span className="text-sm font-normal text-muted-foreground">/år</span></p>
                 <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Obegränsade bäddar</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Obegränsade sådder</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Full växtföljdshistorik</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Exportera till CSV</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Obegränsade bäddar & sådder</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Smarta påminnelser per klimatzon</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Full växtföljdshistorik (alla år)</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Säsongsanteckningar per bädd</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> CSV-export</li>
                 </ul>
                 <Button asChild className="w-full">
-                  <a href="/login?mode=register">Prova Plus</a>
+                  <a href="/login?mode=register">Prova Plus – 7 dagar gratis</a>
                 </Button>
+                <p className="text-xs text-muted-foreground text-center mt-2">Inget kreditkort krävs</p>
               </div>
             </FadeUp>
           </div>
