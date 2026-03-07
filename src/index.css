@@ -7,58 +7,58 @@
 
 @layer base {
   :root {
-    /* Lantlig Modern — varma jordtoner med grön accent */
-    --background: 34 28% 94%;
-    --foreground: 22 18% 12%;
+    /* Odlingsdagboken — warm cream, forest green, terracotta */
+    --background: 38 33% 95%;
+    --foreground: 100 22% 13%;
 
-    --card: 35 32% 97%;
-    --card-foreground: 22 18% 12%;
+    --card: 38 36% 98%;
+    --card-foreground: 100 22% 13%;
 
-    --popover: 35 32% 97%;
-    --popover-foreground: 22 18% 12%;
+    --popover: 38 36% 98%;
+    --popover-foreground: 100 22% 13%;
 
-    --primary: 142 32% 34%;
-    --primary-foreground: 35 32% 97%;
+    --primary: 142 27% 38%;
+    --primary-foreground: 38 36% 98%;
 
-    --secondary: 30 26% 88%;
-    --secondary-foreground: 22 18% 28%;
+    --secondary: 34 26% 88%;
+    --secondary-foreground: 100 22% 22%;
 
-    --muted: 30 22% 86%;
-    --muted-foreground: 22 12% 44%;
+    --muted: 34 20% 86%;
+    --muted-foreground: 30 12% 44%;
 
-    --accent: 26 58% 40%;
-    --accent-foreground: 35 32% 97%;
+    --accent: 20 65% 45%;
+    --accent-foreground: 38 36% 98%;
 
     --destructive: 0 58% 48%;
-    --destructive-foreground: 35 32% 97%;
+    --destructive-foreground: 38 36% 98%;
 
     --success: 142 42% 38%;
-    --success-foreground: 35 32% 97%;
+    --success-foreground: 38 36% 98%;
 
     --warning: 34 88% 50%;
-    --warning-foreground: 22 18% 12%;
+    --warning-foreground: 100 22% 13%;
 
-    --border: 30 22% 82%;
-    --input: 30 22% 82%;
-    --ring: 142 32% 34%;
+    --border: 34 22% 80%;
+    --input: 34 22% 80%;
+    --ring: 142 27% 38%;
 
     --radius: 0.875rem;
 
-    --sidebar-background: 30 28% 92%;
-    --sidebar-foreground: 22 12% 36%;
-    --sidebar-primary: 142 32% 34%;
-    --sidebar-primary-foreground: 35 32% 97%;
-    --sidebar-accent: 30 26% 86%;
-    --sidebar-accent-foreground: 22 18% 12%;
-    --sidebar-border: 30 22% 78%;
-    --sidebar-ring: 142 32% 34%;
+    --sidebar-background: 34 28% 92%;
+    --sidebar-foreground: 30 12% 36%;
+    --sidebar-primary: 142 27% 38%;
+    --sidebar-primary-foreground: 38 36% 98%;
+    --sidebar-accent: 34 26% 86%;
+    --sidebar-accent-foreground: 100 22% 13%;
+    --sidebar-border: 34 22% 78%;
+    --sidebar-ring: 142 27% 38%;
 
     /* Extended tokens */
-    --surface: 34 24% 91%;
-    --surface-highlight: 30 20% 76%;
-    --hero-gradient: linear-gradient(160deg, hsl(142 32% 34%), hsl(26 58% 40%));
-    --card-shadow: 0 1px 3px 0 hsl(22 18% 12% / 0.05), 0 1px 2px -1px hsl(22 18% 12% / 0.04);
-    --card-shadow-hover: 0 10px 30px -8px hsl(22 18% 12% / 0.10), 0 4px 6px -4px hsl(22 18% 12% / 0.05);
+    --surface: 38 24% 91%;
+    --surface-highlight: 34 20% 76%;
+    --hero-gradient: linear-gradient(160deg, hsl(142 27% 38%), hsl(20 65% 45%));
+    --card-shadow: 0 1px 3px 0 hsl(100 22% 13% / 0.05), 0 1px 2px -1px hsl(100 22% 13% / 0.04);
+    --card-shadow-hover: 0 10px 30px -8px hsl(100 22% 13% / 0.10), 0 4px 6px -4px hsl(100 22% 13% / 0.05);
   }
 
   .dark {
