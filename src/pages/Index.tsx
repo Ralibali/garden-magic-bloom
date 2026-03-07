@@ -301,14 +301,16 @@ export default function Index() {
                 <h3 className="font-serif text-xl text-foreground mb-1">Plus</h3>
                 <p className="text-3xl font-bold text-foreground mb-4">99 kr<span className="text-sm font-normal text-muted-foreground">/år</span></p>
                 <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Obegränsade bäddar</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Obegränsade sådder</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Full växtföljdshistorik</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Exportera till CSV</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Obegränsade bäddar & sådder</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Smarta påminnelser per klimatzon</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Full växtföljdshistorik (alla år)</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Säsongsanteckningar per bädd</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> CSV-export</li>
                 </ul>
                 <Button asChild className="w-full">
-                  <a href="/login?mode=register">Prova Plus</a>
+                  <a href="/login?mode=register">Prova Plus – 7 dagar gratis</a>
                 </Button>
+                <p className="text-xs text-muted-foreground text-center mt-2">Inget kreditkort krävs</p>
               </div>
             </FadeUp>
           </div>
