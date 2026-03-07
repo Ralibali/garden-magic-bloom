@@ -3,8 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { MobileNav } from './MobileNav';
-import { QuickEggFAB } from './QuickEggFAB';
-import { Menu, Feather } from 'lucide-react';
+import { Menu, Sprout } from 'lucide-react';
 
 export default function AppLayout() {
   return (
@@ -22,8 +21,8 @@ export default function AppLayout() {
 
           {/* Mobile header */}
           <header className="h-14 flex md:hidden items-center justify-center gap-2 border-b border-border/60 px-4 bg-background/70 backdrop-blur-xl sticky top-0 z-30">
-            <Feather className="h-4 w-4 text-primary" />
-            <span className="font-serif text-lg text-foreground">Hönsgården</span>
+            <Sprout className="h-4 w-4 text-primary" />
+            <span className="font-serif text-lg text-foreground">Odlingsdagboken</span>
           </header>
 
           <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-8 relative z-10">
@@ -32,7 +31,6 @@ export default function AppLayout() {
         </div>
 
         <MobileNav />
-        <QuickEggFAB />
       </div>
     </SidebarProvider>
   );
