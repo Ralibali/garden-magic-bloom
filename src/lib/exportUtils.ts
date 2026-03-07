@@ -43,7 +43,7 @@ export function downloadPDF(title: string, headers: string[], rows: string[][], 
     </head>
     <body>
       <h1>${title}</h1>
-      <p class="subtitle">Exporterad ${new Date().toLocaleDateString('sv-SE')} · Hönsgården</p>
+      <p class="subtitle">Exporterad ${new Date().toLocaleDateString('sv-SE')} · Odlingsdagboken</p>
       <table>
         <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
         <tbody>${tableRows}</tbody>
