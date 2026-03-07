@@ -198,9 +198,8 @@ const Statistics = () => {
                         paddingAngle={3}
                         dataKey="value"
                         nameKey="name"
-                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                        label={false}
                         labelLine={false}
-                        style={{ fontSize: 11 }}
                       >
                         {sowingsByVariety.map((_, i) => (
                           <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
@@ -210,6 +209,7 @@ const Statistics = () => {
                         contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 13 }}
                         formatter={(value: number) => [`${value} sådder`]}
                       />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
                     </PieChart>
                   </ResponsiveContainer>
                 </CardContent>

@@ -293,13 +293,13 @@ const Dashboard = () => {
           <CardContent>
             <div className="space-y-2">
               {recentSowings.map((s: any) => (
-                <div key={s.id} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <Sprout className="h-3.5 w-3.5 text-primary" />
-                    <span className="font-medium text-foreground">{s.variety}</span>
-                    {s.beds?.name && <span className="text-muted-foreground">· {s.beds.name}</span>}
+                <div key={s.id} className="flex items-center justify-between text-sm gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Sprout className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <span className="font-medium text-foreground truncate">{s.variety}</span>
+                    {s.beds?.name && <span className="text-muted-foreground shrink-0">· {s.beds.name}</span>}
                   </div>
-                  <span className="text-muted-foreground text-xs">{s.sow_date}</span>
+                  <span className="text-muted-foreground text-xs shrink-0">{s.sow_date}</span>
                 </div>
               ))}
             </div>

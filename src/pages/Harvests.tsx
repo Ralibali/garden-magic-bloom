@@ -56,10 +56,10 @@ const Harvests = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2"><Carrot className="h-6 w-6" /> Skördlogg</h1>
-          <p className="text-muted-foreground">Totalt skördat i år: {totalKg.toFixed(1)} kg</p>
+          <p className="text-muted-foreground text-sm">Totalt skördat i år: {totalKg.toFixed(1)} kg</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
