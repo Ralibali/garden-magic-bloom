@@ -27,6 +27,7 @@ const Admin = React.lazy(() => import("./pages/Admin"));
 const Terms = React.lazy(() => import("./pages/Terms"));
 const Guides = React.lazy(() => import("./pages/Guides"));
 const GuideArticle = React.lazy(() => import("./pages/GuideArticle"));
+const SowingCalendar = React.lazy(() => import("./pages/SowingCalendar"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
