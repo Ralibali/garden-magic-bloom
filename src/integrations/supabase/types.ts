@@ -206,6 +206,101 @@ export type Database = {
         }
         Relationships: []
       }
+      pest_logs: {
+        Row: {
+          bed_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          observed_date: string
+          pest_name: string
+          resolved: boolean | null
+          severity: string | null
+          treatment: string | null
+          user_id: string
+        }
+        Insert: {
+          bed_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          observed_date?: string
+          pest_name: string
+          resolved?: boolean | null
+          severity?: string | null
+          treatment?: string | null
+          user_id: string
+        }
+        Update: {
+          bed_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          observed_date?: string
+          pest_name?: string
+          resolved?: boolean | null
+          severity?: string | null
+          treatment?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pest_logs_bed_id_fkey"
+            columns: ["bed_id"]
+            isOneToOne: false
+            referencedRelation: "beds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plant_photos: {
+        Row: {
+          bed_id: string | null
+          caption: string | null
+          created_at: string
+          id: string
+          photo_url: string
+          sowing_id: string | null
+          taken_at: string
+          user_id: string
+        }
+        Insert: {
+          bed_id?: string | null
+          caption?: string | null
+          created_at?: string
+          id?: string
+          photo_url: string
+          sowing_id?: string | null
+          taken_at?: string
+          user_id: string
+        }
+        Update: {
+          bed_id?: string | null
+          caption?: string | null
+          created_at?: string
+          id?: string
+          photo_url?: string
+          sowing_id?: string | null
+          taken_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plant_photos_bed_id_fkey"
+            columns: ["bed_id"]
+            isOneToOne: false
+            referencedRelation: "beds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plant_photos_sowing_id_fkey"
+            columns: ["sowing_id"]
+            isOneToOne: false
+            referencedRelation: "sowings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           climate_zone: number | null
@@ -360,6 +455,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      seed_inventory: {
+        Row: {
+          brand: string | null
+          created_at: string
+          expiry_date: string | null
+          id: string
+          notes: string | null
+          quantity: string | null
+          updated_at: string
+          user_id: string
+          variety: string
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          quantity?: string | null
+          updated_at?: string
+          user_id: string
+          variety: string
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          quantity?: string | null
+          updated_at?: string
+          user_id?: string
+          variety?: string
+        }
+        Relationships: []
       }
       sowings: {
         Row: {

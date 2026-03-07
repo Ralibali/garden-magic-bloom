@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sprout, Carrot, LayoutGrid, Plus, Thermometer, CalendarDays, Leaf, X } from 'lucide-react';
+import { Sprout, Carrot, LayoutGrid, Plus, Thermometer, CalendarDays, Leaf, Snowflake, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
+import { getTemperatureTips, getFrostCountdown } from '@/lib/weatherTips';
+import { Progress } from '@/components/ui/progress';
 
 const MONTH_TIPS: Record<number, string> = {
   1: 'Beställ frön och planera årets odling. Rita en bäddplan!',
@@ -19,12 +21,23 @@ const MONTH_TIPS: Record<number, string> = {
   4: 'Direktså rädisor, spenat och ärtor utomhus. Plantera ut lök.',
   5: 'Plantera ut tomater (efter sista frost). Så bönor och gurka.',
   6: 'Gallra, vattna och börja skörda sallat och rädisor.',
-  7: 'Full skördesäsong! Så höstgrönsaker som grönkål och rödbetor.',
+  7: 'Full skördesäsong! Bra tid för gallring, ogräsrensning och successionssådd.',
   8: 'Skörda och konservera. Så vintervicker som gröngödsling.',
   9: 'Sista skördarna. Plantera vitlök och höstlök.',
   10: 'Rensa bäddar. Täck med löv eller halm för vintern.',
   11: 'Kompostera och planera nästa säsong. Beställ frökataloger.',
   12: 'Vila! Bläddra i frökataloger och drömma om våren.',
+};
+
+const TIP_ICONS = {
+  warning: AlertTriangle,
+  success: CheckCircle,
+  info: Info,
+};
+const TIP_COLORS = {
+  warning: 'text-orange-600 bg-orange-50 border-orange-200 dark:bg-orange-950 dark:border-orange-800 dark:text-orange-300',
+  success: 'text-green-700 bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800 dark:text-green-300',
+  info: 'text-blue-700 bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-300',
 };
 
 const Dashboard = () => {
@@ -71,6 +84,12 @@ const Dashboard = () => {
   const displayName = rawName || '';
   const temp = weather?.current?.temperature_2m;
 
+  // Temperature-based tips
+  const weatherTips = temp !== undefined ? getTemperatureTips(temp, climateZone, currentMonth) : [];
+
+  // Frost countdown
+  const frost = getFrostCountdown(climateZone);
+
   return (
     <div className="space-y-6">
       {/* Greeting + weather */}
@@ -87,6 +106,43 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Temperature-based sowing tips */}
+      {weatherTips.length > 0 && (
+        <div className="space-y-2">
+          {weatherTips.map((tip, i) => {
+            const Icon = TIP_ICONS[tip.type];
+            return (
+              <div key={i} className={`flex items-start gap-3 p-3 rounded-xl border text-sm ${TIP_COLORS[tip.type]}`}>
+                <Icon className="h-4 w-4 mt-0.5 shrink-0" />
+                <span>{tip.message}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Frost countdown */}
+      {frost && !frost.passed && (
+        <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/30">
+          <CardContent className="p-4 flex items-center gap-4">
+            <Snowflake className="h-5 w-5 text-blue-500 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">
+                Sista frost om ca <strong>{frost.daysUntil} dagar</strong>
+              </p>
+              <p className="text-xs text-muted-foreground">Beräknat datum: {frost.dateStr} (zon {climateZone})</p>
+              <Progress value={Math.max(0, 100 - (frost.daysUntil / 90 * 100))} className="mt-2 h-1.5" />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      {frost?.passed && currentMonth >= 5 && currentMonth <= 8 && (
+        <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl p-3">
+          <CheckCircle className="h-4 w-4 shrink-0" />
+          <span>Sista frosten har passerat – säkert att plantera ut frostkänsliga grödor! 🌿</span>
+        </div>
+      )}
 
       {/* Season wrap-up banner */}
       {showSeasonWrap && (

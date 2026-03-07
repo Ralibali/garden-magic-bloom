@@ -28,6 +28,11 @@ const Guides = React.lazy(() => import("./pages/Guides"));
 const GuideArticle = React.lazy(() => import("./pages/GuideArticle"));
 const SowingCalendar = React.lazy(() => import("./pages/SowingCalendar"));
 const CropRotation = React.lazy(() => import("./pages/CropRotation"));
+const SeedInventory = React.lazy(() => import("./pages/SeedInventory"));
+const Timeline = React.lazy(() => import("./pages/Timeline"));
+const CompanionPlanting = React.lazy(() => import("./pages/CompanionPlanting"));
+const PestLog = React.lazy(() => import("./pages/PestLog"));
+const PhotoDiary = React.lazy(() => import("./pages/PhotoDiary"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -92,6 +97,11 @@ const AppRoutes = () => (
           <Route path="admin" element={<Admin />} />
           <Route path="calendar" element={<SowingCalendar />} />
           <Route path="rotation" element={<CropRotation />} />
+          <Route path="seeds" element={<SeedInventory />} />
+          <Route path="timeline" element={<Timeline />} />
+          <Route path="companion" element={<CompanionPlanting />} />
+          <Route path="pests" element={<PestLog />} />
+          <Route path="photos" element={<PhotoDiary />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

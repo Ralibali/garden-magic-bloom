@@ -1,4 +1,4 @@
-import { Home, Sprout, LayoutGrid, Carrot, MoreHorizontal, BarChart3, Settings, Crown, Shield, CalendarDays, RefreshCw } from 'lucide-react';
+import { Home, Sprout, LayoutGrid, Carrot, MoreHorizontal, BarChart3, Settings, Crown, Shield, CalendarDays, RefreshCw, Package, Clock, Heart, Bug, Camera } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,6 +15,11 @@ const primaryItems = [
 const moreItems = [
   { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
   { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
+  { title: 'Fröförråd', url: '/app/seeds', icon: Package },
+  { title: 'Fotodagbok', url: '/app/photos', icon: Camera },
+  { title: 'Tidslinje', url: '/app/timeline', icon: Clock },
+  { title: 'Samplantering', url: '/app/companion', icon: Heart },
+  { title: 'Skadedjur', url: '/app/pests', icon: Bug },
   { title: 'Statistik', url: '/app/statistics', icon: BarChart3 },
   { title: 'Premium', url: '/app/premium', icon: Crown },
   { title: 'Inställningar', url: '/app/settings', icon: Settings },
