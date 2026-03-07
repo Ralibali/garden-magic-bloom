@@ -326,6 +326,7 @@ export const api = {
   upsertSeasonSummary,
   getSummaryStats,
   getWeather,
+  getRainHistory,
   getDailyTip,
   getPremiumStatus,
   createCheckoutSession,
