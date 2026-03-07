@@ -103,11 +103,18 @@ const Sowings = () => {
             <p className="text-muted-foreground">Alla dina sådder den här säsongen</p>
           </div>
         <div className="flex items-center gap-2">
+          <FreeLimitBadge current={sowingsRaw?.length || 0} limit={FREE_SOWING_LIMIT} label="sådder" />
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Sök sort eller märke…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 w-44 sm:w-56 h-9 text-sm" />
           </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(o) => {
+          if (o && !isPremium && (sowingsRaw?.length || 0) >= FREE_SOWING_LIMIT) {
+            toast({ title: 'Begränsning', description: `Max ${FREE_SOWING_LIMIT} sådder i gratisversionen. Uppgradera till Plus!`, variant: 'destructive' });
+            return;
+          }
+          setOpen(o);
+        }}>
           <DialogTrigger asChild>
             <Button className="gap-2"><Plus className="h-4 w-4" /> Ny sådning</Button>
           </DialogTrigger>
