@@ -49,9 +49,10 @@ export async function createSowing(record: {
   transplant_date?: string;
   status?: string;
   notes?: string;
+  seed_brand?: string;
 }) {
   const userId = await getUserId();
-  const { data, error } = await supabase.from('sowings').insert({ ...record, user_id: userId }).select().single();
+  const { data, error } = await supabase.from('sowings').insert({ ...record, user_id: userId } as any).select().single();
   if (error) throw new Error(error.message);
   return data;
 }

@@ -17,6 +17,14 @@ const Statistics = () => {
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Sådder i år</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats?.sowings_this_year ?? 0}</p></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Skörd i år</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{(stats?.harvest_kg ?? 0).toFixed(1)} kg</p></CardContent></Card>
       </div>
+
+      {(stats?.active_beds === 0 && stats?.sowings_this_year === 0 && stats?.harvest_kg === 0) && (
+        <Card className="bg-primary/5 border-primary/15">
+          <CardContent className="py-8 text-center">
+            <p className="text-muted-foreground">Börja logga sådder så fylls statistiken på! 🌱</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

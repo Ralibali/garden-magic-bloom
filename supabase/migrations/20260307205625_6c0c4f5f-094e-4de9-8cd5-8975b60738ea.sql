@@ -1,0 +1,1 @@
+ALTER TABLE public.sowings ADD COLUMN seed_brand text;

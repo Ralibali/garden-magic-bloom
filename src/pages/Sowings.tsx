@@ -29,12 +29,13 @@ const Sowings = () => {
   const [sowDate, setSowDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [type, setType] = useState('direct');
   const [notes, setNotes] = useState('');
+  const [seedBrand, setSeedBrand] = useState('');
 
   const { data: sowings, isLoading } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const { data: beds } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
 
   const createMutation = useMutation({
-    mutationFn: () => api.createSowing({ variety, bed_id: bedId || undefined, sow_date: sowDate, type, notes: notes || undefined }),
+    mutationFn: () => api.createSowing({ variety, bed_id: bedId || undefined, sow_date: sowDate, type, notes: notes || undefined, seed_brand: seedBrand || undefined }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sowings'] });
       queryClient.invalidateQueries({ queryKey: ['summary-stats'] });
@@ -42,6 +43,7 @@ const Sowings = () => {
       setVariety('');
       setBedId('');
       setNotes('');
+      setSeedBrand('');
       toast({ title: 'Sådning registrerad! 🌱' });
     },
   });
@@ -69,6 +71,7 @@ const Sowings = () => {
             <DialogHeader><DialogTitle>Lägg till sådning</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <Input placeholder="Sort (t.ex. Tomat – Sungold)" value={variety} onChange={e => setVariety(e.target.value)} />
+              <Input placeholder="Frömärke/leverantör (t.ex. Impecta, Nelson Garden)" value={seedBrand} onChange={e => setSeedBrand(e.target.value)} />
               <Select value={bedId} onValueChange={setBedId}>
                 <SelectTrigger><SelectValue placeholder="Välj bädd (valfritt)" /></SelectTrigger>
                 <SelectContent>
@@ -107,6 +110,7 @@ const Sowings = () => {
                   <p className="font-medium">{s.variety}</p>
                   <p className="text-sm text-muted-foreground">
                     {s.sow_date} · {(s as any).beds?.name || 'Ingen bädd'}
+                    {s.seed_brand && <span> · {s.seed_brand}</span>}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

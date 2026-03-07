@@ -67,7 +67,8 @@ const Dashboard = () => {
     select: (data) => data?.slice(0, 5),
   });
 
-  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'odlare';
+  const rawName = profile?.display_name?.trim();
+  const displayName = rawName || '';
   const temp = weather?.current?.temperature_2m;
 
   return (
@@ -75,7 +76,7 @@ const Dashboard = () => {
       {/* Greeting + weather */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">God säsong, {displayName}! 🌱</h1>
+          <h1 className="text-2xl font-bold text-foreground">{displayName ? `God säsong, ${displayName}!` : 'God säsong!'} 🌱</h1>
           <p className="text-muted-foreground">Klimatzon {climateZone} · {MONTH_TIPS[currentMonth]}</p>
         </div>
         {temp !== undefined && (
