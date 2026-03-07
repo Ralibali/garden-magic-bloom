@@ -13,6 +13,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from '@/hooks/use-toast';
 import { getTemperatureTips, getFrostCountdown } from '@/lib/weatherTips';
 import { Progress } from '@/components/ui/progress';
+import OnboardingFlow from '@/components/OnboardingFlow';
+import GettingStartedGuide from '@/components/GettingStartedGuide';
+import { GardenCategory } from '@/lib/gardenModules';
 
 const MONTH_TIPS: Record<number, string> = {
   1: 'Beställ frön och planera årets odling. Rita en bäddplan!',
