@@ -165,7 +165,22 @@ const GardeningCoach = () => {
   const handleSend = async () => {
     const text = input.trim();
     if (!text || loading) return;
+
+    // Check daily limit for free users
+    if (!isPremium && getRemainingToday() <= 0) {
+      toast({
+        title: 'Dagskvot uppnådd',
+        description: `Du har använt dina ${FREE_DAILY_LIMIT} gratisfrågor idag. Uppgradera till Plus för obegränsad tillgång!`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setInput('');
+    if (!isPremium) {
+      incrementUsage();
+      setRemaining(getRemainingToday());
+    }
     const userMsg: Msg = { role: 'user', content: text };
     const newMsgs = [...messages.filter(m => m.content), userMsg];
     setMessages(prev => [...prev, userMsg]);
