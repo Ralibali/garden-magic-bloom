@@ -91,7 +91,7 @@ const PlantLibrary = () => {
             <h2 className="text-sm font-semibold text-muted-foreground mb-2">{SUBCATEGORY_LABELS[sub] || sub}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {items.map((p: any) => (
-                <Card key={p.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelected(p)}>
+                <Card key={p.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/app/plants/${p.id}`)}>
                   <CardContent className="py-3">
                     <div className="flex items-center justify-between">
                       <p className="font-medium text-foreground">{p.name_sv}</p>
