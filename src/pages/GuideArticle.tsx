@@ -274,7 +274,7 @@ export default function GuideArticle() {
 
     // AI citation meta
     setMeta('name', 'citation_title', post.title);
-    setMeta('name', 'citation_author', 'Hönsgården');
+    setMeta('name', 'citation_author', 'Odlingsdagboken');
     setMeta('name', 'citation_language', 'sv');
     if (post.published_at) setMeta('name', 'citation_date', post.published_at.split('T')[0]);
 
