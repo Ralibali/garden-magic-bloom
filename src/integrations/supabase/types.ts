@@ -317,6 +317,50 @@ export type Database = {
         }
         Relationships: []
       }
+      season_summaries: {
+        Row: {
+          bed_id: string | null
+          created_at: string
+          didnt_work: string | null
+          grow_again: string | null
+          id: string
+          learnings: string | null
+          user_id: string
+          went_well: string | null
+          year: number
+        }
+        Insert: {
+          bed_id?: string | null
+          created_at?: string
+          didnt_work?: string | null
+          grow_again?: string | null
+          id?: string
+          learnings?: string | null
+          user_id: string
+          went_well?: string | null
+          year: number
+        }
+        Update: {
+          bed_id?: string | null
+          created_at?: string
+          didnt_work?: string | null
+          grow_again?: string | null
+          id?: string
+          learnings?: string | null
+          user_id?: string
+          went_well?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_summaries_bed_id_fkey"
+            columns: ["bed_id"]
+            isOneToOne: false
+            referencedRelation: "beds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sowings: {
         Row: {
           bed_id: string | null
