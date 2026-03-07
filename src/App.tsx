@@ -34,6 +34,7 @@ const CompanionPlanting = React.lazy(() => import("./pages/CompanionPlanting"));
 const PestLog = React.lazy(() => import("./pages/PestLog"));
 const PhotoDiary = React.lazy(() => import("./pages/PhotoDiary"));
 const PlantLibrary = React.lazy(() => import("./pages/PlantLibrary"));
+const PlantProfilePage = React.lazy(() => import("./pages/PlantProfilePage"));
 const MyPlants = React.lazy(() => import("./pages/MyPlants"));
 
 const queryClient = new QueryClient({
