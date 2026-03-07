@@ -63,7 +63,7 @@ const features = [
 ];
 
 const steps = [
-  { num: '1', title: 'Skapa konto', desc: 'Det tar 10 sekunder. Helt gratis.' },
+  { num: '1', title: 'Skapa konto', desc: 'Det tar 10 sekunder. 7 dagars Plus ingår.' },
   { num: '2', title: 'Lägg till bäddar', desc: 'Namnge dina odlingsbäddar, pallkragar och växthus.' },
   { num: '3', title: 'Börja logga', desc: 'Registrera sådder och skördar. Se allt i din dagbok.' },
 ];
