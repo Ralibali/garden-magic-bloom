@@ -127,7 +127,7 @@ export default function Premium() {
       {/* Single pricing card */}
       <Card className="bg-card border-2 border-primary shadow-lg relative overflow-hidden max-w-md mx-auto">
         <div className="absolute top-0 left-0 right-0 bg-primary text-primary-foreground text-xs font-semibold py-1.5 text-center tracking-wide uppercase">
-          7 dagar gratis · Inget kreditkort krävs
+          Alla nya konton får 7 dagars Plus gratis
         </div>
         <CardContent className="p-6 pt-10 text-center">
           <h3 className="font-serif text-lg text-foreground mb-1">Odlingsdagboken Plus</h3>

@@ -367,6 +367,7 @@ export type Database = {
           created_at: string
           id: string
           notes: string | null
+          seed_brand: string | null
           sow_date: string
           status: string
           transplant_date: string | null
@@ -380,6 +381,7 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          seed_brand?: string | null
           sow_date: string
           status?: string
           transplant_date?: string | null
@@ -393,6 +395,7 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          seed_brand?: string | null
           sow_date?: string
           status?: string
           transplant_date?: string | null
