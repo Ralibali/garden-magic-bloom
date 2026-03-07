@@ -253,7 +253,7 @@ export default function GuideArticle() {
     // Article meta
     if (post.published_at) setMeta('property', 'article:published_time', post.published_at);
     if (post.updated_at) setMeta('property', 'article:modified_time', post.updated_at);
-    setMeta('property', 'article:author', 'Hönsgården');
+    setMeta('property', 'article:author', 'Odlingsdagboken');
     if (post.category) setMeta('property', 'article:section', post.category);
     if (post.tags) {
       post.tags.forEach((tag: string) => {
