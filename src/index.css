@@ -249,7 +249,7 @@
 .prose-custom h3,
 .prose-custom h4 {
   color: hsl(var(--foreground)) !important;
-  font-family: 'Young Serif', serif;
+  font-family: 'Fraunces', serif;
 }
 
 .prose-custom h2 {
