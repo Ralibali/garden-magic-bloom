@@ -163,7 +163,7 @@ export default function Index() {
           { '@type': 'Offer', price: '0', priceCurrency: 'SEK', description: 'Gratis grundversion' },
           { '@type': 'Offer', price: '99', priceCurrency: 'SEK', description: 'Plus – obegränsade bäddar, AI-coach, statistik' },
         ],
-        aggregateRating: undefined,
+        
       },
       {
         '@type': 'FAQPage',
@@ -177,7 +177,7 @@ export default function Index() {
         '@type': 'Organization',
         name: 'Odlingsdagboken',
         url: 'https://odlingsdagboken.se',
-        logo: 'https://odlingsdagboken.se/logo-honsgarden.png',
+        logo: 'https://odlingsdagboken.se/logo-odlingsdagboken.png',
         sameAs: [
           'https://instagram.com/odlingsdagboken',
           'https://facebook.com/odlingsdagboken',
@@ -531,7 +531,7 @@ export default function Index() {
             <a href="/terms" className="hover:text-foreground transition-colors">Villkor</a>
             <a href="/blogg" className="hover:text-foreground transition-colors">Blogg</a>
             <a href="/guider" className="hover:text-foreground transition-colors">Guider</a>
-            <a href="/premium" className="hover:text-foreground transition-colors">Premium</a>
+            <a href="/login?mode=register" className="hover:text-foreground transition-colors">Skapa konto</a>
             <a href="mailto:hej@odlingsdagboken.se" className="hover:text-foreground transition-colors">Kontakt</a>
             <a href="/login" className="hover:text-foreground transition-colors">Logga in</a>
             <a href="https://instagram.com/odlingsdagboken" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Instagram">
