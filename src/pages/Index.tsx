@@ -150,6 +150,40 @@ export default function Index() {
     title: 'Odlingsdagboken – Digital odlingsdagbok för svenska odlare',
     description: 'Logga sådder, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis att börja!',
     path: '/',
+    jsonLd: [
+      {
+        '@type': 'SoftwareApplication',
+        name: 'Odlingsdagboken',
+        applicationCategory: 'LifestyleApplication',
+        operatingSystem: 'Web',
+        description: 'Digital odlingsdagbok för svenska grönsaksodlare. Logga sådder, skördar och växtföljd – anpassat per klimatzon.',
+        url: 'https://odlingsdagboken.se',
+        inLanguage: 'sv',
+        offers: [
+          { '@type': 'Offer', price: '0', priceCurrency: 'SEK', description: 'Gratis grundversion' },
+          { '@type': 'Offer', price: '99', priceCurrency: 'SEK', description: 'Plus – obegränsade bäddar, AI-coach, statistik' },
+        ],
+        aggregateRating: undefined,
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: faqs.map(f => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      },
+      {
+        '@type': 'Organization',
+        name: 'Odlingsdagboken',
+        url: 'https://odlingsdagboken.se',
+        logo: 'https://odlingsdagboken.se/logo-honsgarden.png',
+        sameAs: [
+          'https://instagram.com/odlingsdagboken',
+          'https://facebook.com/odlingsdagboken',
+        ],
+      },
+    ],
   });
 
   return (
@@ -496,6 +530,8 @@ export default function Index() {
           <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-5">
             <a href="/terms" className="hover:text-foreground transition-colors">Villkor</a>
             <a href="/blogg" className="hover:text-foreground transition-colors">Blogg</a>
+            <a href="/guider" className="hover:text-foreground transition-colors">Guider</a>
+            <a href="/premium" className="hover:text-foreground transition-colors">Premium</a>
             <a href="mailto:hej@odlingsdagboken.se" className="hover:text-foreground transition-colors">Kontakt</a>
             <a href="/login" className="hover:text-foreground transition-colors">Logga in</a>
             <a href="https://instagram.com/odlingsdagboken" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Instagram">
