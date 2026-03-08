@@ -163,7 +163,7 @@ export default function Index() {
           { '@type': 'Offer', price: '0', priceCurrency: 'SEK', description: 'Gratis grundversion' },
           { '@type': 'Offer', price: '99', priceCurrency: 'SEK', description: 'Plus – obegränsade bäddar, AI-coach, statistik' },
         ],
-        aggregateRating: undefined,
+        
       },
       {
         '@type': 'FAQPage',
