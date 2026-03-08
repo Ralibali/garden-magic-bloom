@@ -150,6 +150,40 @@ export default function Index() {
     title: 'Odlingsdagboken – Digital odlingsdagbok för svenska odlare',
     description: 'Logga sådder, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis att börja!',
     path: '/',
+    jsonLd: [
+      {
+        '@type': 'SoftwareApplication',
+        name: 'Odlingsdagboken',
+        applicationCategory: 'LifestyleApplication',
+        operatingSystem: 'Web',
+        description: 'Digital odlingsdagbok för svenska grönsaksodlare. Logga sådder, skördar och växtföljd – anpassat per klimatzon.',
+        url: 'https://odlingsdagboken.se',
+        inLanguage: 'sv',
+        offers: [
+          { '@type': 'Offer', price: '0', priceCurrency: 'SEK', description: 'Gratis grundversion' },
+          { '@type': 'Offer', price: '99', priceCurrency: 'SEK', description: 'Plus – obegränsade bäddar, AI-coach, statistik' },
+        ],
+        aggregateRating: undefined,
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: faqs.map(f => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      },
+      {
+        '@type': 'Organization',
+        name: 'Odlingsdagboken',
+        url: 'https://odlingsdagboken.se',
+        logo: 'https://odlingsdagboken.se/logo-honsgarden.png',
+        sameAs: [
+          'https://instagram.com/odlingsdagboken',
+          'https://facebook.com/odlingsdagboken',
+        ],
+      },
+    ],
   });
 
   return (
