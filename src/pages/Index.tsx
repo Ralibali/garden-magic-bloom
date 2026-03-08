@@ -530,6 +530,8 @@ export default function Index() {
           <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-5">
             <a href="/terms" className="hover:text-foreground transition-colors">Villkor</a>
             <a href="/blogg" className="hover:text-foreground transition-colors">Blogg</a>
+            <a href="/guider" className="hover:text-foreground transition-colors">Guider</a>
+            <a href="/premium" className="hover:text-foreground transition-colors">Premium</a>
             <a href="mailto:hej@odlingsdagboken.se" className="hover:text-foreground transition-colors">Kontakt</a>
             <a href="/login" className="hover:text-foreground transition-colors">Logga in</a>
             <a href="https://instagram.com/odlingsdagboken" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors" aria-label="Instagram">
