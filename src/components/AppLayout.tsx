@@ -29,6 +29,7 @@ const pageVariants = {
 
 export default function AppLayout() {
   const location = useLocation();
+  useNoIndex();
 
   return (
     <SidebarProvider>
