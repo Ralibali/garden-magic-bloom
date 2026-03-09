@@ -92,7 +92,7 @@ export default function ShareCard({ totalHarvestKg, sowingsCount, bedsCount, use
     if (navigator.share && navigator.canShare({ files: [file] })) {
       await navigator.share({ title: 'Min odling 🌱', text: `Jag har skördat ${totalHarvestKg.toFixed(1)} kg i år! 🥕`, files: [file] });
     } else {
-      await navigator.clipboard.writeText(`Jag har skördat ${totalHarvestKg.toFixed(1)} kg i år! 🥕🌱\nodlingsdagboken.se`);
+      await navigator.clipboard.writeText(`Jag har skördat ${totalHarvestKg.toFixed(1)} kg i år! 🥕🌱\nodlingsdagboken.com`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
