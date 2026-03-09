@@ -27,7 +27,7 @@ export default function Terms() {
 
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">1. Allmänt</h2>
           <p className="text-sm text-foreground leading-relaxed">
-            Dessa villkor gäller när du skapar ett konto och använder tjänsten odlingsdagboken.se ("vi", "oss", "tjänsten").
+            Dessa villkor gäller när du skapar ett konto och använder tjänsten odlingsdagboken.com ("vi", "oss", "tjänsten").
             Genom att registrera dig bekräftar du att du har läst, förstått och godkänt dessa villkor.
           </p>
           <p className="text-sm text-foreground leading-relaxed">
