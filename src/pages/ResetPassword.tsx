@@ -11,6 +11,14 @@ import { toast } from '@/hooks/use-toast';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
+
+  useSeo({
+    title: 'Återställ lösenord | Odlingsdagboken',
+    description: 'Ange ditt nya lösenord för Odlingsdagboken.',
+    path: '/reset-password',
+    noindex: true,
+  });
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);

@@ -16,6 +16,29 @@ const Install = () => {
   const [isIOS, setIsIOS] = useState(false);
   const navigate = useNavigate();
 
+  useSeo({
+    title: 'Installera Odlingsdagboken – hämta appen gratis',
+    description: 'Installera Odlingsdagboken som app direkt på din hemskärm. Fungerar offline, laddar snabbt och kräver ingen appbutik.',
+    path: '/install',
+    ogImage: '/og-image.png',
+    ogImageAlt: 'Odlingsdagboken – digital odlingsdagbok',
+    jsonLd: [
+      {
+        '@type': 'WebPage',
+        name: 'Installera Odlingsdagboken',
+        description: 'Hämta Odlingsdagboken som app direkt på din hemskärm.',
+        url: 'https://odlingsdagboken.com/install',
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://odlingsdagboken.com' },
+          { '@type': 'ListItem', position: 2, name: 'Installera', item: 'https://odlingsdagboken.com/install' },
+        ],
+      },
+    ],
+  });
+
   useEffect(() => {
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
     setIsIOS(isIOSDevice);
