@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 import { sv } from 'date-fns/locale';
 
 const PRICES = {
-  yearly: 'price_1T3jwRHzffTezY829aWQVXZr',
+  yearly: 'price_1T99UJHzffTezY826uLS56sV',
 };
 
 const premiumFeatures = [
