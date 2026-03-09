@@ -123,43 +123,45 @@ function CacheClearer() {
 const AppRoutes = () => (
   <BrowserRouter>
     <TrackingProvider />
-    <Suspense fallback={<LoadingFallback />}>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/guider" element={<Guides />} />
-        <Route path="/guider/:slug" element={<GuideArticle />} />
-        <Route path="/blogg" element={<Guides />} />
-        <Route path="/blogg/tagg/:tag" element={<Guides />} />
-        <Route path="/blogg/:slug" element={<GuideArticle />} />
-        <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-          <Route index element={<Dashboard />} />
-          <Route path="beds" element={<Beds />} />
-          <Route path="sowings" element={<Sowings />} />
-          <Route path="harvests" element={<Harvests />} />
-          <Route path="statistics" element={<Statistics />} />
-          <Route path="reminders" element={<Reminders />} />
-          <Route path="settings" element={<SettingsPage />} />
-          <Route path="premium" element={<Premium />} />
-          <Route path="admin" element={<Admin />} />
-          <Route path="calendar" element={<SowingCalendar />} />
-          <Route path="rotation" element={<CropRotation />} />
-          <Route path="seeds" element={<SeedInventory />} />
-          <Route path="timeline" element={<Timeline />} />
-          <Route path="companion" element={<CompanionPlanting />} />
-          <Route path="pests" element={<PestLog />} />
-          <Route path="photos" element={<PhotoDiary />} />
-          <Route path="plants" element={<PlantLibrary />} />
-          <Route path="plants/:id" element={<PlantProfilePage />} />
-          <Route path="my-plants" element={<MyPlants />} />
-          <Route path="coach" element={<GardeningCoach />} />
-        </Route>
-        <Route path="/install" element={<Install />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingFallback />}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/guider" element={<Guides />} />
+          <Route path="/guider/:slug" element={<GuideArticle />} />
+          <Route path="/blogg" element={<Guides />} />
+          <Route path="/blogg/tagg/:tag" element={<Guides />} />
+          <Route path="/blogg/:slug" element={<GuideArticle />} />
+          <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+            <Route index element={<Dashboard />} />
+            <Route path="beds" element={<Beds />} />
+            <Route path="sowings" element={<Sowings />} />
+            <Route path="harvests" element={<Harvests />} />
+            <Route path="statistics" element={<Statistics />} />
+            <Route path="reminders" element={<Reminders />} />
+            <Route path="settings" element={<SettingsPage />} />
+            <Route path="premium" element={<Premium />} />
+            <Route path="admin" element={<Admin />} />
+            <Route path="calendar" element={<SowingCalendar />} />
+            <Route path="rotation" element={<CropRotation />} />
+            <Route path="seeds" element={<SeedInventory />} />
+            <Route path="timeline" element={<Timeline />} />
+            <Route path="companion" element={<CompanionPlanting />} />
+            <Route path="pests" element={<PestLog />} />
+            <Route path="photos" element={<PhotoDiary />} />
+            <Route path="plants" element={<PlantLibrary />} />
+            <Route path="plants/:id" element={<PlantProfilePage />} />
+            <Route path="my-plants" element={<MyPlants />} />
+            <Route path="coach" element={<GardeningCoach />} />
+          </Route>
+          <Route path="/install" element={<Install />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   </BrowserRouter>
 );
 
