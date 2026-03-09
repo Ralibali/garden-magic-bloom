@@ -71,8 +71,8 @@ export default function Terms() {
 
           <h3 className="font-serif text-base text-foreground mt-4 mb-1">Personuppgiftsansvarig:</h3>
           <p className="text-sm text-foreground leading-relaxed">
-            Odlingsdagboken / odlingsdagboken.se<br />
-            E-post: <a href="mailto:info@odlingsdagboken.se" className="text-primary hover:underline">info@odlingsdagboken.se</a><br />
+            Odlingsdagboken / odlingsdagboken.com<br />
+            E-post: <a href="mailto:info@odlingsdagboken.com" className="text-primary hover:underline">info@odlingsdagboken.com</a><br />
             Du har rätt att lämna klagomål till Integritetsskyddsmyndigheten (IMY): <a href="https://www.imy.se" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">www.imy.se</a>
           </p>
 
