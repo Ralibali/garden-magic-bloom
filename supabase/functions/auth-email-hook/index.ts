@@ -38,7 +38,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 const SITE_NAME = "garden-magic-bloom"
 const SENDER_DOMAIN = "notify.odlingsdagboken.com"
 const ROOT_DOMAIN = "odlingsdagboken.com"
-const FROM_DOMAIN = "odlingsdagboken.com" // Domain shown in From address (may be root or sender subdomain)
+const FROM_DOMAIN = "odlingsdagboken.com"
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.
@@ -251,7 +251,7 @@ async function handleWebhook(req: Request): Promise<Response> {
       {
         run_id,
         to: payload.data.email,
-        from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+        from: `Kajsa @ Odlingsdagboken <kajsa@${FROM_DOMAIN}>`,
         sender_domain: SENDER_DOMAIN,
         subject: EMAIL_SUBJECTS[emailType] || 'Notification',
         html,
