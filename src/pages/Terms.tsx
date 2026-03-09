@@ -66,7 +66,7 @@ export default function Terms() {
             <li>Rätt att återkalla samtycke när som helst</li>
           </ul>
           <p className="text-sm text-foreground leading-relaxed mt-2">
-            Du kan utöva rätten till radering och dataportabilitet direkt i appen under Inställningar. För övriga förfrågningar, kontakta oss på: <a href="mailto:info@odlingsdagboken.se" className="text-primary hover:underline">info@odlingsdagboken.se</a>
+            Du kan utöva rätten till radering och dataportabilitet direkt i appen under Inställningar. För övriga förfrågningar, kontakta oss på: <a href="mailto:info@odlingsdagboken.com" className="text-primary hover:underline">info@odlingsdagboken.com</a>
           </p>
 
           <h3 className="font-serif text-base text-foreground mt-4 mb-1">Personuppgiftsansvarig:</h3>
