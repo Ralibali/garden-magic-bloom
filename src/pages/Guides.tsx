@@ -3,11 +3,11 @@ import VisitorWelcomePopup from '@/components/VisitorWelcomePopup';
 import { useSeo } from '@/hooks/useSeo';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BookOpen, Loader2, Sprout } from 'lucide-react';
+import { ArrowRight, BookOpen, Loader2, Sprout, X } from 'lucide-react';
 
 const categoryLabels: Record<string, string> = {
   guide: 'Guide',
@@ -21,6 +21,8 @@ const categoryLabels: Record<string, string> = {
 };
 
 export default function Guides() {
+  const { tag } = useParams<{ tag?: string }>();
+  const activeTag = tag ? decodeURIComponent(tag) : null;
   useSeo({
     title: 'Blogg – Guider, tips & odlingskunskap | Odlingsdagboken',
     description: 'Guider, tips och inspiration för dig som odlar grönsaker. Såtider, växtföljd, jordförbättring och mer – testat av svenska odlare.',
@@ -116,9 +118,26 @@ export default function Guides() {
             <BookOpen className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
             <p className="text-muted-foreground">Inga guider publicerade ännu. Kom tillbaka snart!</p>
           </div>
-        ) : (
+        ) : (() => {
+          const filtered = activeTag ? posts.filter(p => (p.tags || []).includes(activeTag)) : posts;
+          return (
+            <>
+              {activeTag && (
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge variant="secondary" className="text-xs gap-1">#{activeTag}</Badge>
+                  <Link to="/blogg">
+                    <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 text-muted-foreground"><X className="h-3 w-3" /> Rensa filter</Button>
+                  </Link>
+                </div>
+              )}
+              {filtered.length === 0 ? (
+                <div className="text-center py-16">
+                  <BookOpen className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
+                  <p className="text-muted-foreground">Inga artiklar med taggen "{activeTag}".</p>
+                </div>
+              ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {posts.map(post => (
+            {filtered.map(post => (
               <Link key={post.id} to={`/blogg/${post.slug}`} className="group">
                 <Card className="border-border/50 overflow-hidden hover:shadow-md transition-all duration-300 h-full">
                   {post.cover_image_url ? (
@@ -143,7 +162,10 @@ export default function Guides() {
               </Link>
             ))}
           </div>
-        )}
+              )}
+            </>
+          );
+        })()}
 
         <div className="mt-16 text-center bg-gradient-to-br from-primary/5 via-card to-accent/5 rounded-2xl p-8 sm:p-12 border border-border/30">
           <span className="text-3xl mb-3 block">🌱</span>

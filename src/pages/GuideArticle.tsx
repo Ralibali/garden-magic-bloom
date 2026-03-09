@@ -7,6 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Sprout, Loader2, BookOpen, CalendarDays } from 'lucide-react';
+import ShareButtons from '@/components/ShareButtons';
+import BlogComments from '@/components/BlogComments';
 
 const categoryLabels: Record<string, string> = {
   guide: 'Guide',
@@ -491,14 +493,22 @@ export default function GuideArticle() {
           }}
         />
 
-        {/* Tags */}
-        {post.tags && post.tags.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap mt-8 pt-6 border-t border-border/50">
-            {post.tags.map(tag => (
-              <Badge key={tag} variant="outline" className="text-[10px]">#{tag}</Badge>
-            ))}
-          </div>
-        )}
+        {/* Share + Tags */}
+        <div className="mt-8 pt-6 border-t border-border/50 space-y-4">
+          <ShareButtons url={`https://odlingsdagboken.com/blogg/${post.slug}`} title={post.title} />
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {post.tags.map((tag: string) => (
+                <Link key={tag} to={`/blogg/tagg/${encodeURIComponent(tag)}`}>
+                  <Badge variant="outline" className="text-[10px] hover:bg-primary/10 transition-colors cursor-pointer">#{tag}</Badge>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Comments */}
+        <BlogComments postId={post.id} />
 
         {/* Inline CTA */}
         <div className="mt-12 bg-gradient-to-br from-primary/5 via-card to-accent/5 rounded-2xl p-6 sm:p-8 border border-border/30 text-center">

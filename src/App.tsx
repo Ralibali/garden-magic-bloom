@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import React, { Suspense } from "react";
 import CookieConsent from "./components/CookieConsent";
+import { TrackingProvider } from "./components/TrackingProvider";
 
 // Eager: landing + login (critical path)
 import Index from "./pages/Index";
@@ -92,6 +93,7 @@ function CacheClearer() {
 
 const AppRoutes = () => (
   <BrowserRouter>
+    <TrackingProvider />
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
         <Route path="/" element={<Index />} />
@@ -100,6 +102,7 @@ const AppRoutes = () => (
         <Route path="/guider" element={<Guides />} />
         <Route path="/guider/:slug" element={<GuideArticle />} />
         <Route path="/blogg" element={<Guides />} />
+        <Route path="/blogg/tagg/:tag" element={<Guides />} />
         <Route path="/blogg/:slug" element={<GuideArticle />} />
         <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route index element={<Dashboard />} />
