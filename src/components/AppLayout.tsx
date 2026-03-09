@@ -1,10 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { MobileNav } from './MobileNav';
 import { Menu, Sprout } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Prevent all /app/* pages from being indexed
+function useNoIndex() {
+  useEffect(() => {
+    let el = document.querySelector('meta[name="robots"]') as HTMLMetaElement;
+    const prevContent = el?.getAttribute('content') || '';
+    if (!el) {
+      el = document.createElement('meta');
+      el.setAttribute('name', 'robots');
+      document.head.appendChild(el);
+    }
+    el.setAttribute('content', 'noindex, nofollow');
+    return () => { if (el) el.setAttribute('content', prevContent || 'index, follow'); };
+  }, []);
+}
 
 const pageVariants = {
   initial: { opacity: 0, y: 12 },
