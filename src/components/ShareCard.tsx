@@ -65,7 +65,7 @@ function drawShareCard(canvas: HTMLCanvasElement, props: ShareCardProps) {
   ctx.fillText('Logga din odling gratis!', w / 2, 660);
   ctx.fillStyle = '#8b9a88';
   ctx.font = '20px system-ui';
-  ctx.fillText('odlingsdagboken.se', w / 2, 700);
+  ctx.fillText('odlingsdagboken.com', w / 2, 700);
 
   ctx.fillStyle = '#3d7a4a';
   ctx.fillRect(0, h - 8, w, 8);
@@ -92,7 +92,7 @@ export default function ShareCard({ totalHarvestKg, sowingsCount, bedsCount, use
     if (navigator.share && navigator.canShare({ files: [file] })) {
       await navigator.share({ title: 'Min odling 🌱', text: `Jag har skördat ${totalHarvestKg.toFixed(1)} kg i år! 🥕`, files: [file] });
     } else {
-      await navigator.clipboard.writeText(`Jag har skördat ${totalHarvestKg.toFixed(1)} kg i år! 🥕🌱\nodlingsdagboken.se`);
+      await navigator.clipboard.writeText(`Jag har skördat ${totalHarvestKg.toFixed(1)} kg i år! 🥕🌱\nodlingsdagboken.com`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -103,7 +103,7 @@ export default function ShareCard({ totalHarvestKg, sowingsCount, bedsCount, use
       <canvas ref={canvasRef} className="w-full rounded-xl shadow-lg border border-border" style={{ maxWidth: 400 }} />
       <div className="flex gap-2">
         <Button onClick={handleShare} className="flex-1 gap-2"><Share2 className="h-4 w-4" /> Dela</Button>
-        <Button variant="outline" onClick={() => { navigator.clipboard.writeText(`Skördat ${totalHarvestKg.toFixed(1)} kg! odlingsdagboken.se`); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="gap-2">
+        <Button variant="outline" onClick={() => { navigator.clipboard.writeText(`Skördat ${totalHarvestKg.toFixed(1)} kg! odlingsdagboken.com`); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="gap-2">
           {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
           {copied ? 'Kopierat!' : 'Kopiera'}
         </Button>

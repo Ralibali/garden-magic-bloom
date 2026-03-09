@@ -30,18 +30,18 @@ export default function Guides() {
     jsonLd: [
       {
         '@type': 'CollectionPage',
-        '@id': 'https://odlingsdagboken.se/blogg',
+        '@id': 'https://odlingsdagboken.com/blogg',
         name: 'Bloggen – Guider & tips om grönsaksodling',
         description: 'Guider, tips och inspiration för svenska hobbyodlare.',
-        url: 'https://odlingsdagboken.se/blogg',
-        isPartOf: { '@id': 'https://odlingsdagboken.se/#website' },
+        url: 'https://odlingsdagboken.com/blogg',
+        isPartOf: { '@id': 'https://odlingsdagboken.com/#website' },
         inLanguage: 'sv-SE',
       },
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://odlingsdagboken.se' },
-          { '@type': 'ListItem', position: 2, name: 'Blogg', item: 'https://odlingsdagboken.se/blogg' },
+          { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://odlingsdagboken.com' },
+          { '@type': 'ListItem', position: 2, name: 'Blogg', item: 'https://odlingsdagboken.com/blogg' },
         ],
       },
     ],
@@ -74,7 +74,7 @@ export default function Guides() {
               itemListElement: posts.map((p, i) => ({
                 '@type': 'ListItem',
                 position: i + 1,
-                url: `https://odlingsdagboken.se/blogg/${p.slug}`,
+                url: `https://odlingsdagboken.com/blogg/${p.slug}`,
                 name: p.title,
               })),
             }),
