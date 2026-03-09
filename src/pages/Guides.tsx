@@ -162,7 +162,10 @@ export default function Guides() {
               </Link>
             ))}
           </div>
-        )}
+              )}
+            </>
+          );
+        })()}
 
         <div className="mt-16 text-center bg-gradient-to-br from-primary/5 via-card to-accent/5 rounded-2xl p-8 sm:p-12 border border-border/30">
           <span className="text-3xl mb-3 block">🌱</span>
