@@ -139,9 +139,9 @@ export default function Terms() {
 
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">8. Kontakt</h2>
           <p className="text-sm text-foreground leading-relaxed">
-            odlingsdagboken.se<br />
-            E-post: <a href="mailto:info@odlingsdagboken.se" className="text-primary hover:underline">info@odlingsdagboken.se</a><br />
-            Webbplats: <a href="https://www.odlingsdagboken.se" className="text-primary hover:underline">www.odlingsdagboken.se</a>
+            odlingsdagboken.com<br />
+            E-post: <a href="mailto:info@odlingsdagboken.com" className="text-primary hover:underline">info@odlingsdagboken.com</a><br />
+            Webbplats: <a href="https://www.odlingsdagboken.com" className="text-primary hover:underline">www.odlingsdagboken.com</a>
           </p>
         </CardContent>
       </Card>
