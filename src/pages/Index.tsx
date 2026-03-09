@@ -157,7 +157,7 @@ export default function Index() {
         applicationCategory: 'LifestyleApplication',
         operatingSystem: 'Web',
         description: 'Digital odlingsdagbok för svenska grönsaksodlare. Logga sådder, skördar och växtföljd – anpassat per klimatzon.',
-        url: 'https://odlingsdagboken.se',
+        url: 'https://odlingsdagboken.com',
         inLanguage: 'sv',
         offers: [
           { '@type': 'Offer', price: '0', priceCurrency: 'SEK', description: 'Gratis grundversion' },
