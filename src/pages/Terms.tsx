@@ -23,7 +23,7 @@ export default function Terms() {
       <Card className="border-border/50 shadow-sm">
         <CardContent className="p-6 sm:p-8 prose prose-sm max-w-none">
           <h1 className="font-serif text-2xl sm:text-3xl text-foreground mb-1">Användarvillkor & Integritetspolicy</h1>
-          <p className="text-xs text-muted-foreground mb-6">odlingsdagboken.se | Senast uppdaterad: 2026-03-07</p>
+          <p className="text-xs text-muted-foreground mb-6">odlingsdagboken.com | Senast uppdaterad: 2026-03-07</p>
 
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">1. Allmänt</h2>
           <p className="text-sm text-foreground leading-relaxed">
