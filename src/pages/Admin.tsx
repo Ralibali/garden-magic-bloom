@@ -78,6 +78,9 @@ export default function Admin() {
 }
 
 function AdminUsers() {
+  const queryClient = useQueryClient();
+  const [grantDays, setGrantDays] = useState<Record<string, string>>({});
+
   const { data: users, isLoading } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
@@ -85,6 +88,30 @@ function AdminUsers() {
       if (error) throw error;
       return data;
     },
+  });
+
+  const grantMutation = useMutation({
+    mutationFn: async ({ userId, days }: { userId: string; days: number }) => {
+      const { error } = await supabase.rpc('grant_premium_days', { _user_id: userId, _days: days });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast.success('Premium beviljat!');
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const { error } = await supabase.from('profiles').update({ subscription_status: 'free', premium_expires_at: null }).eq('user_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast.success('Premium borttaget.');
+    },
+    onError: (e: any) => toast.error(e.message),
   });
 
   if (isLoading) return <Skeleton className="h-64" />;
@@ -99,25 +126,67 @@ function AdminUsers() {
               <tr className="border-b border-border">
                 <th className="text-left p-3 text-muted-foreground font-medium">Namn</th>
                 <th className="text-left p-3 text-muted-foreground font-medium">E-post</th>
-                <th className="text-left p-3 text-muted-foreground font-medium">Zon</th>
                 <th className="text-left p-3 text-muted-foreground font-medium">Status</th>
-                <th className="text-left p-3 text-muted-foreground font-medium">Registrerad</th>
+                <th className="text-left p-3 text-muted-foreground font-medium">Går ut</th>
+                <th className="text-left p-3 text-muted-foreground font-medium">Hantera premium</th>
               </tr>
             </thead>
             <tbody>
-              {(users || []).map((u: any) => (
-                <tr key={u.id} className="border-b border-border/50 hover:bg-secondary/30">
-                  <td className="p-3">{u.display_name || '–'}</td>
-                  <td className="p-3 text-muted-foreground">{u.email || '–'}</td>
-                  <td className="p-3">{u.climate_zone || '–'}</td>
-                  <td className="p-3">
-                    <Badge variant={u.subscription_status === 'premium' ? 'default' : 'secondary'} className="text-xs">
-                      {u.subscription_status}
-                    </Badge>
-                  </td>
-                  <td className="p-3 text-muted-foreground">{new Date(u.created_at).toLocaleDateString('sv-SE')}</td>
-                </tr>
-              ))}
+              {(users || []).map((u: any) => {
+                const isPremium = u.subscription_status === 'premium';
+                const expiresAt = u.premium_expires_at ? new Date(u.premium_expires_at) : null;
+                const isExpired = expiresAt && expiresAt < new Date();
+                return (
+                  <tr key={u.id} className="border-b border-border/50 hover:bg-secondary/30">
+                    <td className="p-3">
+                      <div>{u.display_name || '–'}</div>
+                      <div className="text-xs text-muted-foreground">{u.climate_zone ? `Zon ${u.climate_zone}` : ''}</div>
+                    </td>
+                    <td className="p-3 text-muted-foreground text-xs">{u.email || '–'}</td>
+                    <td className="p-3">
+                      <Badge variant={isPremium && !isExpired ? 'default' : 'secondary'} className="text-xs">
+                        {isPremium && !isExpired ? 'premium' : 'free'}
+                      </Badge>
+                    </td>
+                    <td className="p-3 text-xs text-muted-foreground">
+                      {expiresAt ? expiresAt.toLocaleDateString('sv-SE') : '–'}
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-1.5">
+                        <Select value={grantDays[u.user_id] || '30'} onValueChange={(v) => setGrantDays(prev => ({ ...prev, [u.user_id]: v }))}>
+                          <SelectTrigger className="h-7 w-20 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="7">7 dagar</SelectItem>
+                            <SelectItem value="30">30 dagar</SelectItem>
+                            <SelectItem value="90">90 dagar</SelectItem>
+                            <SelectItem value="365">1 år</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs gap-1"
+                          disabled={grantMutation.isPending}
+                          onClick={() => grantMutation.mutate({ userId: u.user_id, days: parseInt(grantDays[u.user_id] || '30') })}
+                        >
+                          <Crown className="h-3 w-3" /> Ge
+                        </Button>
+                        {isPremium && !isExpired && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 text-xs text-destructive gap-1"
+                            disabled={revokeMutation.isPending}
+                            onClick={() => revokeMutation.mutate(u.user_id)}
+                          >
+                            <MinusCircle className="h-3 w-3" /> Ta bort
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
