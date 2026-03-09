@@ -21,6 +21,8 @@ const categoryLabels: Record<string, string> = {
 };
 
 export default function Guides() {
+  const { tag } = useParams<{ tag?: string }>();
+  const activeTag = tag ? decodeURIComponent(tag) : null;
   useSeo({
     title: 'Blogg – Guider, tips & odlingskunskap | Odlingsdagboken',
     description: 'Guider, tips och inspiration för dig som odlar grönsaker. Såtider, växtföljd, jordförbättring och mer – testat av svenska odlare.',
