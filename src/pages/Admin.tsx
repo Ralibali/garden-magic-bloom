@@ -15,6 +15,7 @@ import GlossaryManager from '@/components/admin/GlossaryManager';
 
 const AnalyticsDashboard = React.lazy(() => import('@/components/admin/AnalyticsDashboard'));
 const KeywordExplorer = React.lazy(() => import('@/components/admin/KeywordExplorer'));
+const PlatformOverview = React.lazy(() => import('@/components/admin/PlatformOverview'));
 
 export default function Admin() {
   const { user } = useAuth();
