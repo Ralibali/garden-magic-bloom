@@ -65,7 +65,7 @@ function drawShareCard(canvas: HTMLCanvasElement, props: ShareCardProps) {
   ctx.fillText('Logga din odling gratis!', w / 2, 660);
   ctx.fillStyle = '#8b9a88';
   ctx.font = '20px system-ui';
-  ctx.fillText('odlingsdagboken.se', w / 2, 700);
+  ctx.fillText('odlingsdagboken.com', w / 2, 700);
 
   ctx.fillStyle = '#3d7a4a';
   ctx.fillRect(0, h - 8, w, 8);
