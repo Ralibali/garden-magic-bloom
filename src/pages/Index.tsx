@@ -176,8 +176,8 @@ export default function Index() {
       {
         '@type': 'Organization',
         name: 'Odlingsdagboken',
-        url: 'https://odlingsdagboken.se',
-        logo: 'https://odlingsdagboken.se/logo-odlingsdagboken.png',
+        url: 'https://odlingsdagboken.com',
+        logo: 'https://odlingsdagboken.com/logo-odlingsdagboken.png',
         sameAs: [
           'https://instagram.com/odlingsdagboken',
           'https://facebook.com/odlingsdagboken',
