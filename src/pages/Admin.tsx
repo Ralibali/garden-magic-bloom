@@ -49,9 +49,10 @@ export default function Admin() {
     <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
       <h1 className="text-2xl sm:text-3xl font-serif flex items-center gap-2"><Shield className="h-6 w-6" /> Admin</h1>
 
-      <Tabs defaultValue="analytics" className="space-y-4">
+      <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="flex-wrap">
-          <TabsTrigger value="analytics" className="gap-1.5"><BarChart3 className="h-4 w-4" /> Analys</TabsTrigger>
+          <TabsTrigger value="overview" className="gap-1.5"><LayoutDashboard className="h-4 w-4" /> Översikt</TabsTrigger>
+          <TabsTrigger value="analytics" className="gap-1.5"><BarChart3 className="h-4 w-4" /> Trafik</TabsTrigger>
           <TabsTrigger value="users" className="gap-1.5"><Users className="h-4 w-4" /> Användare</TabsTrigger>
           <TabsTrigger value="feedback" className="gap-1.5"><MessageSquare className="h-4 w-4" /> Feedback</TabsTrigger>
           <TabsTrigger value="blog" className="gap-1.5"><FileText className="h-4 w-4" /> Blogg</TabsTrigger>
@@ -59,6 +60,11 @@ export default function Admin() {
           <TabsTrigger value="keywords" className="gap-1.5"><Search className="h-4 w-4" /> Nyckelord</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="overview">
+          <React.Suspense fallback={<Skeleton className="h-64" />}>
+            <PlatformOverview />
+          </React.Suspense>
+        </TabsContent>
         <TabsContent value="analytics">
           <React.Suspense fallback={<Skeleton className="h-64" />}>
             <AnalyticsDashboard />
