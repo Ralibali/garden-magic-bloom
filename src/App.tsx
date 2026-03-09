@@ -70,8 +70,37 @@ const LoadingFallback = () => (
   </div>
 );
 
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error?: Error }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('[ErrorBoundary]', error, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background p-6">
+          <div className="max-w-md text-center space-y-4">
+            <span className="text-4xl">⚠️</span>
+            <h1 className="text-xl font-bold text-foreground">Något gick fel</h1>
+            <p className="text-sm text-muted-foreground">{this.state.error?.message}</p>
+            <button onClick={() => window.location.reload()} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm">Ladda om</button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
+  console.log('[ProtectedRoute] loading:', loading, 'isAuthenticated:', isAuthenticated);
   if (loading) return <LoadingFallback />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return <>{children}</>;
@@ -94,43 +123,45 @@ function CacheClearer() {
 const AppRoutes = () => (
   <BrowserRouter>
     <TrackingProvider />
-    <Suspense fallback={<LoadingFallback />}>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/guider" element={<Guides />} />
-        <Route path="/guider/:slug" element={<GuideArticle />} />
-        <Route path="/blogg" element={<Guides />} />
-        <Route path="/blogg/tagg/:tag" element={<Guides />} />
-        <Route path="/blogg/:slug" element={<GuideArticle />} />
-        <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-          <Route index element={<Dashboard />} />
-          <Route path="beds" element={<Beds />} />
-          <Route path="sowings" element={<Sowings />} />
-          <Route path="harvests" element={<Harvests />} />
-          <Route path="statistics" element={<Statistics />} />
-          <Route path="reminders" element={<Reminders />} />
-          <Route path="settings" element={<SettingsPage />} />
-          <Route path="premium" element={<Premium />} />
-          <Route path="admin" element={<Admin />} />
-          <Route path="calendar" element={<SowingCalendar />} />
-          <Route path="rotation" element={<CropRotation />} />
-          <Route path="seeds" element={<SeedInventory />} />
-          <Route path="timeline" element={<Timeline />} />
-          <Route path="companion" element={<CompanionPlanting />} />
-          <Route path="pests" element={<PestLog />} />
-          <Route path="photos" element={<PhotoDiary />} />
-          <Route path="plants" element={<PlantLibrary />} />
-          <Route path="plants/:id" element={<PlantProfilePage />} />
-          <Route path="my-plants" element={<MyPlants />} />
-          <Route path="coach" element={<GardeningCoach />} />
-        </Route>
-        <Route path="/install" element={<Install />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingFallback />}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/guider" element={<Guides />} />
+          <Route path="/guider/:slug" element={<GuideArticle />} />
+          <Route path="/blogg" element={<Guides />} />
+          <Route path="/blogg/tagg/:tag" element={<Guides />} />
+          <Route path="/blogg/:slug" element={<GuideArticle />} />
+          <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+            <Route index element={<Dashboard />} />
+            <Route path="beds" element={<Beds />} />
+            <Route path="sowings" element={<Sowings />} />
+            <Route path="harvests" element={<Harvests />} />
+            <Route path="statistics" element={<Statistics />} />
+            <Route path="reminders" element={<Reminders />} />
+            <Route path="settings" element={<SettingsPage />} />
+            <Route path="premium" element={<Premium />} />
+            <Route path="admin" element={<Admin />} />
+            <Route path="calendar" element={<SowingCalendar />} />
+            <Route path="rotation" element={<CropRotation />} />
+            <Route path="seeds" element={<SeedInventory />} />
+            <Route path="timeline" element={<Timeline />} />
+            <Route path="companion" element={<CompanionPlanting />} />
+            <Route path="pests" element={<PestLog />} />
+            <Route path="photos" element={<PhotoDiary />} />
+            <Route path="plants" element={<PlantLibrary />} />
+            <Route path="plants/:id" element={<PlantProfilePage />} />
+            <Route path="my-plants" element={<MyPlants />} />
+            <Route path="coach" element={<GardeningCoach />} />
+          </Route>
+          <Route path="/install" element={<Install />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   </BrowserRouter>
 );
 
