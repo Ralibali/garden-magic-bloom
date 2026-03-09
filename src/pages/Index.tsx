@@ -150,6 +150,8 @@ export default function Index() {
     title: 'Odlingsdagboken – Digital odlingsdagbok för svenska odlare',
     description: 'Logga sådder, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis att börja!',
     path: '/',
+    ogImage: '/og-image.png',
+    ogImageAlt: 'Odlingsdagboken – digital odlingsdagbok för svenska odlare',
     jsonLd: [
       {
         '@type': 'SoftwareApplication',

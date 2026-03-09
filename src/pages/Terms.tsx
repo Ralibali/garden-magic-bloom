@@ -12,6 +12,21 @@ export default function Terms() {
     title: 'Användarvillkor & Integritetspolicy | Odlingsdagboken',
     description: 'Läs Odlingsdagbokens användarvillkor och integritetspolicy. Information om dataskydd, cookies och dina rättigheter.',
     path: '/terms',
+    jsonLd: [
+      {
+        '@type': 'WebPage',
+        name: 'Användarvillkor & Integritetspolicy',
+        url: 'https://odlingsdagboken.com/terms',
+        isPartOf: { '@id': 'https://odlingsdagboken.com/#website' },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://odlingsdagboken.com' },
+          { '@type': 'ListItem', position: 2, name: 'Villkor', item: 'https://odlingsdagboken.com/terms' },
+        ],
+      },
+    ],
   });
 
   return (

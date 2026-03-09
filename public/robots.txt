@@ -55,5 +55,6 @@ User-agent: *
 Allow: /
 Disallow: /app/
 Disallow: /login
+Disallow: /reset-password
 
 Sitemap: https://odlingsdagboken.com/sitemap.xml
