@@ -118,7 +118,24 @@ export default function Guides() {
             <BookOpen className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
             <p className="text-muted-foreground">Inga guider publicerade ännu. Kom tillbaka snart!</p>
           </div>
-        ) : (
+        ) : (() => {
+          const filtered = activeTag ? posts.filter(p => (p.tags || []).includes(activeTag)) : posts;
+          return (
+            <>
+              {activeTag && (
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge variant="secondary" className="text-xs gap-1">#{activeTag}</Badge>
+                  <Link to="/blogg">
+                    <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 text-muted-foreground"><X className="h-3 w-3" /> Rensa filter</Button>
+                  </Link>
+                </div>
+              )}
+              {filtered.length === 0 ? (
+                <div className="text-center py-16">
+                  <BookOpen className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
+                  <p className="text-muted-foreground">Inga artiklar med taggen "{activeTag}".</p>
+                </div>
+              ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {posts.map(post => (
               <Link key={post.id} to={`/blogg/${post.slug}`} className="group">
