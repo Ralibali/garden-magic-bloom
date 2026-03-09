@@ -64,25 +64,6 @@ const Dashboard = () => {
     queryFn: api.getProfile,
   });
 
-  const showOnboarding = !profileLoading && profile && !(profile as any).onboarding_completed;
-
-  const handleOnboardingComplete = async (data: { categories: GardenCategory[]; climateZone: number }) => {
-    const currentPrefs = (profile?.preferences as any) || {};
-    await api.updateProfile({
-      climate_zone: data.climateZone,
-      preferences: { ...currentPrefs, garden_categories: data.categories },
-      onboarding_completed: true,
-    });
-    queryClient.invalidateQueries({ queryKey: ['profile'] });
-  };
-
-  // Show onboarding if not completed
-  if (showOnboarding) {
-    return <OnboardingFlow onComplete={handleOnboardingComplete} />;
-  }
-
-  const isNewUser = !isLoading && stats && (stats.active_beds ?? 0) === 0 && (stats.sowings_this_year ?? 0) === 0;
-
   const climateZone = profile?.climate_zone ?? 3;
 
   const { data: weather } = useQuery({
@@ -123,6 +104,25 @@ const Dashboard = () => {
       });
     },
   });
+
+  const showOnboarding = !profileLoading && profile && !(profile as any).onboarding_completed;
+
+  const handleOnboardingComplete = async (data: { categories: GardenCategory[]; climateZone: number }) => {
+    const currentPrefs = (profile?.preferences as any) || {};
+    await api.updateProfile({
+      climate_zone: data.climateZone,
+      preferences: { ...currentPrefs, garden_categories: data.categories },
+      onboarding_completed: true,
+    });
+    queryClient.invalidateQueries({ queryKey: ['profile'] });
+  };
+
+  // Show onboarding if not completed
+  if (showOnboarding) {
+    return <OnboardingFlow onComplete={handleOnboardingComplete} />;
+  }
+
+  const isNewUser = !isLoading && stats && (stats.active_beds ?? 0) === 0 && (stats.sowings_this_year ?? 0) === 0;
 
   // Use first name only from display_name
   const rawName = profile?.display_name?.trim();
