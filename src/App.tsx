@@ -143,7 +143,6 @@ const App = () => (
         <CacheClearer />
         <AppRoutes />
         <CookieConsent />
-        <TrackingProvider />
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
