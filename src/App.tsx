@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import React, { Suspense } from "react";
 import CookieConsent from "./components/CookieConsent";
+import { TrackingProvider } from "./components/TrackingProvider";
 
 // Eager: landing + login (critical path)
 import Index from "./pages/Index";
