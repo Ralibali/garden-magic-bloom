@@ -197,7 +197,7 @@ export default function GuideArticle() {
   // SEO - full OG, Twitter, hreflang, JSON-LD with Article + FAQ + Product + BreadcrumbList
   React.useEffect(() => {
     if (!post) return;
-    const BASE = 'https://odlingsdagboken.se';
+    const BASE = 'https://odlingsdagboken.com';
     const fullUrl = `${BASE}/blogg/${post.slug}`;
     const pageTitle = post.meta_title || post.title + ' | Odlingsdagboken';
     const pageDesc = post.meta_description || post.excerpt || '';

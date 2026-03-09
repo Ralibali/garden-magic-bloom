@@ -74,7 +74,7 @@ export default function Guides() {
               itemListElement: posts.map((p, i) => ({
                 '@type': 'ListItem',
                 position: i + 1,
-                url: `https://odlingsdagboken.se/blogg/${p.slug}`,
+                url: `https://odlingsdagboken.com/blogg/${p.slug}`,
                 name: p.title,
               })),
             }),

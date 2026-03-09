@@ -103,7 +103,7 @@ export default function ShareCard({ totalHarvestKg, sowingsCount, bedsCount, use
       <canvas ref={canvasRef} className="w-full rounded-xl shadow-lg border border-border" style={{ maxWidth: 400 }} />
       <div className="flex gap-2">
         <Button onClick={handleShare} className="flex-1 gap-2"><Share2 className="h-4 w-4" /> Dela</Button>
-        <Button variant="outline" onClick={() => { navigator.clipboard.writeText(`Skördat ${totalHarvestKg.toFixed(1)} kg! odlingsdagboken.se`); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="gap-2">
+        <Button variant="outline" onClick={() => { navigator.clipboard.writeText(`Skördat ${totalHarvestKg.toFixed(1)} kg! odlingsdagboken.com`); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="gap-2">
           {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
           {copied ? 'Kopierat!' : 'Kopiera'}
         </Button>
