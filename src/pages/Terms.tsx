@@ -128,7 +128,7 @@ export default function Terms() {
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">6. Ansvarsbegränsning</h2>
           <p className="text-sm text-foreground leading-relaxed">
             Tjänsten tillhandahålls "i befintligt skick". Vi garanterar inte oavbruten eller felfri drift.
-            odlingsdagboken.se ansvarar inte för indirekt skada, utebliven vinst eller dataförlust.
+            odlingsdagboken.com ansvarar inte för indirekt skada, utebliven vinst eller dataförlust.
           </p>
 
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">7. Tillämplig lag & Tvistelösning</h2>
