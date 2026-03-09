@@ -3,11 +3,11 @@ import VisitorWelcomePopup from '@/components/VisitorWelcomePopup';
 import { useSeo } from '@/hooks/useSeo';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BookOpen, Loader2, Sprout } from 'lucide-react';
+import { ArrowRight, BookOpen, Loader2, Sprout, X } from 'lucide-react';
 
 const categoryLabels: Record<string, string> = {
   guide: 'Guide',
