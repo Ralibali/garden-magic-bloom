@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSeo } from '@/hooks/useSeo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Download, Smartphone, CheckCircle2, ArrowLeft } from 'lucide-react';
