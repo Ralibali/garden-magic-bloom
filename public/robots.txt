@@ -57,4 +57,4 @@ Disallow: /app/
 Disallow: /login
 Disallow: /reset-password
 
-Sitemap: https://odlingsdagboken.com/sitemap.xml
+Sitemap: https://ysonnvbkrwajacvdkqut.supabase.co/functions/v1/sitemap
