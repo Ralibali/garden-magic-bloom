@@ -101,7 +101,7 @@ export default function Terms() {
 
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">3. E-postkommunikation & Marknadsföring</h2>
           <p className="text-sm text-foreground leading-relaxed">
-            Genom att godkänna villkoren ger du ditt samtycke till att odlingsdagboken.se får kontakta dig via e-post med:
+            Genom att godkänna villkoren ger du ditt samtycke till att odlingsdagboken.com får kontakta dig via e-post med:
           </p>
           <ul className="text-sm text-foreground space-y-1 list-disc pl-5">
             <li><strong>Nyhetsbrev</strong> – nyheter, tips och inspiration om grönsaksodling</li>
