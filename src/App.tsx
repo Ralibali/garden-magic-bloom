@@ -93,6 +93,7 @@ function CacheClearer() {
 
 const AppRoutes = () => (
   <BrowserRouter>
+    <TrackingProvider />
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
         <Route path="/" element={<Index />} />
