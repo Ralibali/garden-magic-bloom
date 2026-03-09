@@ -56,4 +56,4 @@ Allow: /
 Disallow: /app/
 Disallow: /login
 
-Sitemap: https://odlingsdagboken.se/sitemap.xml
+Sitemap: https://odlingsdagboken.com/sitemap.xml
