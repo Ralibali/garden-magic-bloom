@@ -7,6 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Sprout, Loader2, BookOpen, CalendarDays } from 'lucide-react';
+import ShareButtons from '@/components/ShareButtons';
+import BlogComments from '@/components/BlogComments';
 
 const categoryLabels: Record<string, string> = {
   guide: 'Guide',
