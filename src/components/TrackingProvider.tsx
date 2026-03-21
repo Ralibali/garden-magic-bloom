@@ -1,7 +1,8 @@
-import { usePageTracking, useAutoClickTracking } from '@/hooks/useTracking';
+import { usePageTracking, useAutoClickTracking, useScrollDepthTracking } from '@/hooks/useTracking';
 
 export function TrackingProvider() {
   usePageTracking();
   useAutoClickTracking();
+  useScrollDepthTracking();
   return null;
 }
