@@ -23,7 +23,6 @@ export function usePageTracking() {
   const location = useLocation();
 
   useEffect(() => {
-    // Skip tracking in app routes for privacy, only track public pages
     const path = location.pathname;
 
     supabase.from('page_views').insert({
@@ -39,7 +38,7 @@ export function usePageTracking() {
 const CTA_KEYWORDS = new Set([
   'kom igång', 'skapa konto', 'registrera', 'logga in', 'uppgradera',
   'köp', 'testa gratis', 'prova', 'ladda ner', 'boka', 'prenumerera',
-  'läs mer', 'visa mer', 'börja nu', 'starta',
+  'läs mer', 'visa mer', 'börja nu', 'starta', 'prova plus',
 ]);
 
 function isCta(text: string): boolean {
@@ -50,6 +49,17 @@ function isCta(text: string): boolean {
   return false;
 }
 
+/** Fire gtag conversion event */
+function trackConversion(eventName: string, label?: string) {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'conversion', {
+      send_to: 'AW-10941540384',
+      event_category: 'engagement',
+      event_label: label || eventName,
+    });
+  }
+}
+
 /** Auto-track clicks on links, buttons, and interactive elements */
 export function useAutoClickTracking() {
   useEffect(() => {
@@ -57,7 +67,6 @@ export function useAutoClickTracking() {
       let el = e.target as HTMLElement | null;
       let depth = 0;
 
-      // Walk up to find clickable element
       while (el && depth < 6) {
         const tag = el.tagName?.toLowerCase();
         const role = el.getAttribute('role');
@@ -77,6 +86,12 @@ export function useAutoClickTracking() {
       let eventName = 'button_click';
       if (ctaMatch) {
         eventName = 'cta_click';
+        // Track CTA clicks as conversions
+        if (text.toLowerCase().includes('skapa') || text.toLowerCase().includes('kom igång') || text.toLowerCase().includes('registrera')) {
+          trackConversion('signup_click', text);
+        } else if (text.toLowerCase().includes('prova plus') || text.toLowerCase().includes('uppgradera')) {
+          trackConversion('upgrade_click', text);
+        }
       } else if (tag === 'a' && href.startsWith('/blogg/')) {
         eventName = 'blog_link_click';
       } else if (tag === 'a' && (href.startsWith('http') || href.startsWith('//'))) {
@@ -98,4 +113,48 @@ export function useAutoClickTracking() {
     document.addEventListener('click', handler, { capture: true, passive: true });
     return () => document.removeEventListener('click', handler, true);
   }, []);
+}
+
+/** Track scroll depth on landing page (25%, 50%, 75%, 100%) */
+export function useScrollDepthTracking() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname !== '/') return;
+
+    const thresholds = [25, 50, 75, 100];
+    const tracked = new Set<number>();
+
+    const handler = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight <= 0) return;
+      const pct = Math.round((scrollTop / docHeight) * 100);
+
+      for (const t of thresholds) {
+        if (pct >= t && !tracked.has(t)) {
+          tracked.add(t);
+          supabase.from('click_events').insert({
+            event_name: 'scroll_depth',
+            element_id: `${t}%`,
+            element_text: null,
+            path: '/',
+            session_id: getSessionId(),
+            metadata: { depth: t },
+          } as any).then(() => {});
+
+          if (typeof (window as any).gtag === 'function') {
+            (window as any).gtag('event', 'scroll_depth', {
+              event_category: 'engagement',
+              event_label: `${t}%`,
+              value: t,
+            });
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
+  }, [location.pathname]);
 }
