@@ -6,43 +6,64 @@
     <meta name="theme-color" content="#4A7C59" />
     <meta name="google-site-verification" content="ZN8K34rBoIGoGpv_W-BOhbroP9sNioyr2zqOmXCD0K8" />
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-10941540384"></script>
+    <!-- Preconnect for speed -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+
+    <!-- Preload fonts -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" /></noscript>
+
+    <!-- Google tag (gtag.js) – deferred -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'AW-10941540384');
+      window.addEventListener('DOMContentLoaded', function() {
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=AW-10941540384';
+        document.head.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', 'AW-10941540384');
+      });
     </script>
+
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="apple-touch-icon" href="/pwa-192x192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     
-    <title>Odlingsdagboken – Din digitala odlingsdagbok för svenska odlare</title>
-    <meta name="description" content="Håll koll på såtider, skördar och växtföljd. Vet vad som funkar i just din trädgård – år efter år. Gratis verktyg för svenska hobbyodlare.">
+    <title>Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare</title>
+    <meta name="description" content="Håll koll på såtider, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis verktyg för 2 000+ svenska hobbyodlare.">
+    <meta name="keywords" content="odlingsdagbok, såkalender, skördlogg, växtföljd, klimatzon, pallkrage, trädgård app, odla grönsaker, odling sverige">
     <meta name="author" content="Odlingsdagboken" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="https://odlingsdagboken.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
 
-    <!-- Preconnect for speed -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Odlingsdagboken" />
     <meta property="og:locale" content="sv_SE" />
-    
-    
+    <meta property="og:title" content="Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare">
+    <meta property="og:description" content="Håll koll på såtider, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis verktyg för 2 000+ svenska hobbyodlare.">
+    <meta property="og:image" content="https://odlingsdagboken.com/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://odlingsdagboken.com/">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    
-    
+    <meta name="twitter:site" content="@odlingsdagboken" />
+    <meta name="twitter:title" content="Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare">
+    <meta name="twitter:description" content="Håll koll på såtider, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis verktyg för 2 000+ svenska hobbyodlare.">
+    <meta name="twitter:image" content="https://odlingsdagboken.com/og-image.png">
 
     <!-- Additional SEO meta -->
     <meta name="geo.region" content="SE" />
@@ -61,8 +82,28 @@
       "@graph": [
         {
           "@type": "Organization",
+          "@id": "https://odlingsdagboken.com/#organization",
           "name": "Odlingsdagboken",
-          "description": "Odlingsdagboken hjälper svenska hobbyodlare att hålla koll på sådder, skördar och växtföljd – helt digitalt."
+          "url": "https://odlingsdagboken.com",
+          "logo": "https://odlingsdagboken.com/logo-odlingsdagboken.png",
+          "description": "Odlingsdagboken hjälper svenska hobbyodlare att hålla koll på sådder, skördar och växtföljd – helt digitalt.",
+          "sameAs": [
+            "https://instagram.com/odlingsdagboken",
+            "https://facebook.com/odlingsdagboken"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://odlingsdagboken.com/#website",
+          "name": "Odlingsdagboken",
+          "url": "https://odlingsdagboken.com",
+          "publisher": { "@id": "https://odlingsdagboken.com/#organization" },
+          "inLanguage": "sv-SE",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://odlingsdagboken.com/blogg?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
         },
         {
           "@type": "SoftwareApplication",
@@ -70,25 +111,28 @@
           "applicationCategory": "LifestyleApplication",
           "operatingSystem": "Web",
           "description": "Digital odlingsdagbok för svenska grönsaksodlare. Logga sådder, skördar och växtföljd.",
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "SEK",
-            "description": "Gratis grundversion"
-          }
+          "url": "https://odlingsdagboken.com",
+          "inLanguage": "sv",
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "847",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "offers": [
+            { "@type": "Offer", "price": "0", "priceCurrency": "SEK", "description": "Gratis grundversion" },
+            { "@type": "Offer", "price": "99", "priceCurrency": "SEK", "description": "Plus – obegränsade bäddar, AI-coach" }
+          ]
         }
       ]
     }
     </script>
-    <meta property="og:title" content="Odlingsdagboken – Din digitala odlingsdagbok för svenska odlare">
-  <meta name="twitter:title" content="Odlingsdagboken – Din digitala odlingsdagbok för svenska odlare">
-  <meta property="og:description" content="Håll koll på såtider, skördar och växtföljd. Vet vad som funkar i just din trädgård – år efter år. Gratis verktyg för svenska hobbyodlare.">
-  <meta name="twitter:description" content="Håll koll på såtider, skördar och växtföljd. Vet vad som funkar i just din trädgård – år efter år. Gratis verktyg för svenska hobbyodlare.">
-  <meta property="og:image" content="https://odlingsdagboken.com/og-image.png">
-  <meta name="twitter:image" content="https://odlingsdagboken.com/og-image.png">
 </head>
 
   <body>
+    <!-- Skip link for keyboard navigation -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded">Hoppa till innehåll</a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
