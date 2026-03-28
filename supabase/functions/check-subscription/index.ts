@@ -53,6 +53,25 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
     if (customers.data.length === 0) {
+      // No Stripe customer – check if premium was granted manually via DB
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('subscription_status, premium_expires_at')
+        .eq('user_id', user.id)
+        .single();
+
+      const manualPremium = profile?.subscription_status === 'premium' &&
+        (!profile?.premium_expires_at || new Date(profile.premium_expires_at) > new Date());
+
+      if (manualPremium) {
+        return new Response(JSON.stringify({
+          subscribed: true,
+          subscription_end: profile?.premium_expires_at,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       await supabaseClient.from('profiles').update({ subscription_status: 'free' }).eq('user_id', user.id);
       return new Response(JSON.stringify({ subscribed: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
