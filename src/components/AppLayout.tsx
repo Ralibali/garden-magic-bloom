@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -27,6 +27,22 @@ const pageVariants = {
   exit: { opacity: 0, y: -8 },
 };
 
+/* Inline spinner that stays inside the content area – sidebar stays visible */
+function ContentLoader() {
+  return (
+    <div className="flex items-center justify-center py-24">
+      <div className="flex flex-col items-center gap-3">
+        <span className="text-3xl animate-[pulse_1.5s_ease-in-out_infinite]">🌱</span>
+        <div className="flex gap-1">
+          <div className="w-1.5 h-1.5 rounded-full bg-primary animate-[bounce_1s_ease-in-out_infinite]" />
+          <div className="w-1.5 h-1.5 rounded-full bg-primary animate-[bounce_1s_ease-in-out_0.15s_infinite]" />
+          <div className="w-1.5 h-1.5 rounded-full bg-primary animate-[bounce_1s_ease-in-out_0.3s_infinite]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AppLayout() {
   const location = useLocation();
   useNoIndex();
@@ -51,18 +67,20 @@ export default function AppLayout() {
           </header>
 
           <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-8 relative z-10">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={location.pathname}
-                variants={pageVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-              >
-                <Outlet />
-              </motion.div>
-            </AnimatePresence>
+            <Suspense fallback={<ContentLoader />}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={location.pathname}
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                >
+                  <Outlet />
+                </motion.div>
+              </AnimatePresence>
+            </Suspense>
           </main>
         </div>
 
