@@ -141,7 +141,7 @@ function TestimonialCard({ name, zone, quote, stars }: { name: string; zone: num
 /* ─── Botanical SVG decoration ─── */
 function BotanicalDecoration() {
   return (
-    <svg className="absolute right-0 top-1/2 -translate-y-1/2 w-[400px] h-[500px] opacity-[0.06] pointer-events-none hidden lg:block" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className="absolute right-0 top-1/2 -translate-y-1/2 w-[400px] h-[500px] opacity-[0.06] pointer-events-none hidden lg:block" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Botanisk dekoration – digital odlingsdagbok">
       <path d="M200 450 C200 350, 250 300, 300 250 C350 200, 350 150, 300 100 C250 50, 200 80, 200 150" stroke="currentColor" strokeWidth="2" className="text-primary" />
       <path d="M200 450 C200 380, 150 320, 100 270 C50 220, 50 170, 100 130 C150 90, 200 110, 200 170" stroke="currentColor" strokeWidth="2" className="text-primary" />
       <ellipse cx="300" cy="95" rx="40" ry="55" stroke="currentColor" strokeWidth="1.5" className="text-primary" transform="rotate(-20 300 95)" />
@@ -342,9 +342,7 @@ export default function Index() {
           <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0 }}>
               <h1 id="hero-heading" className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground leading-[1.08] tracking-tight mb-5">
-                Din trädgård –{' '}
-                <span className="gradient-text">dokumenterad</span>
-                , år efter år
+                Din digitala <span className="gradient-text">odlingsdagbok</span> – dokumenterad, år efter år
               </h1>
             </motion.div>
 
@@ -451,7 +449,7 @@ export default function Index() {
                 </div>
                 <div className="w-[42px]" />
               </div>
-              <img src={dashboardPreview} alt="Odlingsdagbokens dashboard med översikt av bäddar, sådder, skördar och statistik" width={1280} height={800} className="w-full h-auto block" loading="lazy" />
+              <img src={dashboardPreview} alt="Såkalender och växtföljdsplanering i Odlingsdagboken – digital odlingsdagbok för svenska hobbyodlare" width={1280} height={800} className="w-full h-auto block" loading="lazy" />
             </div>
             <div className="hidden sm:flex justify-center gap-3 mt-6 flex-wrap">
               {['Skördlogg', 'Såkalender', 'Växtföljd', 'AI-coach Gro', 'Statistik'].map(label => (
@@ -469,7 +467,7 @@ export default function Index() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <div className="mb-10 text-center sm:text-left">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Funktioner</p>
-            <h2 id="features-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Allt du behöver för att odla smartare</h2>
+            <h2 id="features-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Gratis såkalender, växtföljd och mer</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -514,7 +512,7 @@ export default function Index() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <div className="text-center mb-8">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Prissättning</p>
-            <h2 id="pricing-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">Välj din plan</h2>
+            <h2 id="pricing-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">Kom igång gratis – uppgradera när du vill</h2>
             <p className="text-muted-foreground max-w-md mx-auto text-sm">Börja gratis. Uppgradera när du vill.</p>
           </div>
 
@@ -691,7 +689,9 @@ export default function Index() {
               <ul className="space-y-2 text-sm">
                 <li><a href="#funktioner" className="hover:text-white transition-colors">Funktioner</a></li>
                 <li><a href="#priser" className="hover:text-white transition-colors">Priser</a></li>
-                <li><Link to="/blogg" className="hover:text-white transition-colors">Blogg</Link></li>
+                <li><Link to="/blogg" className="hover:text-white transition-colors">Odlingstips & guider</Link></li>
+                <li><Link to="/blogg/satider-tomater-2026" className="hover:text-white transition-colors">Såtider tomater</Link></li>
+                <li><Link to="/blogg/vaxtfoljd-gronsakslandet" className="hover:text-white transition-colors">Växtföljd guide</Link></li>
                 <li><a href="/install" className="hover:text-white transition-colors">Installera</a></li>
               </ul>
             </div>
