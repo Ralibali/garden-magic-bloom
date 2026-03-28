@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Loader2, Users, MessageSquare, FileText, BarChart3, Search, Link2, Crown, MinusCircle, LayoutDashboard, Trash2, CheckCircle2, XCircle, Clock, CalendarDays } from 'lucide-react';
+import { Shield, Loader2, Users, MessageSquare, FileText, BarChart3, Search, Link2, Crown, MinusCircle, LayoutDashboard, Trash2, CheckCircle2, XCircle, Clock, CalendarDays, Sprout, Carrot, Camera, Bug } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
