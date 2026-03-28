@@ -24,18 +24,32 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [sessionReady, setSessionReady] = useState(false);
+  const [linkExpired, setLinkExpired] = useState(false);
 
   useEffect(() => {
-    // Supabase sets the session from the URL hash automatically
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
         setSessionReady(true);
       }
     });
 
-    // Also check if we already have a session (user clicked link)
+    // Check if we already have a session (user clicked link and was auto-logged in)
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setSessionReady(true);
+      if (session) {
+        setSessionReady(true);
+      } else {
+        // If no session after a few seconds, show error
+        setTimeout(() => {
+          supabase.auth.getSession().then(({ data: { session: s } }) => {
+            if (s) {
+              setSessionReady(true);
+            } else {
+              setSessionReady(false);
+              setLinkExpired(true);
+            }
+          });
+        }, 4000);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -83,6 +97,15 @@ export default function ResetPassword() {
                 <CheckCircle className="h-12 w-12 text-primary mx-auto" />
                 <h2 className="text-lg font-semibold text-foreground">Lösenord uppdaterat!</h2>
                 <p className="text-sm text-muted-foreground">Du skickas till inloggningen...</p>
+              </div>
+            ) : linkExpired ? (
+              <div className="text-center space-y-3 py-4">
+                <Lock className="h-12 w-12 text-destructive mx-auto" />
+                <h2 className="text-lg font-semibold text-foreground">Länken har gått ut</h2>
+                <p className="text-sm text-muted-foreground">Återställningslänken är inte längre giltig. Begär en ny via inloggningssidan.</p>
+                <Button variant="outline" onClick={() => navigate('/login', { replace: true })} className="mt-2">
+                  Till inloggningen
+                </Button>
               </div>
             ) : !sessionReady ? (
               <div className="text-center space-y-3 py-4">
