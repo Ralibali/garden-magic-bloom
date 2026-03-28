@@ -5,6 +5,7 @@ import { ArrowRight, Check, ChevronRight, Sprout, Carrot, CalendarDays, RefreshC
 import heroFlatlay from '@/assets/hero-flatlay.jpg';
 import heroHands from '@/assets/hero-harvest-hands.jpg';
 import heroAerial from '@/assets/hero-beds-aerial.jpg';
+import dashboardPreview from '@/assets/dashboard-preview.jpg';
 import { Link } from 'react-router-dom';
 
 /* ─── Scroll-triggered fade ─── */
