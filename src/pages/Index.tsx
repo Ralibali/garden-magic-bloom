@@ -625,12 +625,12 @@ export default function Index() {
           </div>
           <div className="flex flex-wrap justify-center gap-3">
             {[
+              { title: 'Såtider tomater 2026', slug: 'satider-tomater-2026' },
+              { title: 'Växtföljd nybörjarguide', slug: 'vaxtfoljd-gronsakslandet' },
+              { title: 'Pallkrage storlek', slug: 'pallkrage-storlek-guide' },
+              { title: 'Bästa grönsakerna', slug: 'basta-gronsakerna-odla-sverige' },
+              { title: 'Så squash inomhus', slug: 'nar-sa-squash-inomhus' },
               { title: 'Odla tomater', slug: 'odla-tomater' },
-              { title: 'Odla i pallkrage', slug: 'odla-pallkrage' },
-              { title: 'Odla på balkong', slug: 'odla-pa-balkong' },
-              { title: 'Odla chili', slug: 'odla-chili' },
-              { title: 'Odla potatis', slug: 'odla-potatis' },
-              { title: 'Odla gurka', slug: 'odla-gurka' },
             ].map(p => (
               <Link key={p.slug} to={`/blogg/${p.slug}`} className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-primary hover:text-primary transition-colors">
                 {p.title}
