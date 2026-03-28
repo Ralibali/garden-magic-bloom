@@ -26,16 +26,29 @@ export default function ResetPassword() {
   const [sessionReady, setSessionReady] = useState(false);
 
   useEffect(() => {
-    // Supabase sets the session from the URL hash automatically
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
         setSessionReady(true);
       }
     });
 
-    // Also check if we already have a session (user clicked link)
+    // Check if we already have a session (user clicked link and was auto-logged in)
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setSessionReady(true);
+      if (session) {
+        setSessionReady(true);
+      } else {
+        // If no session after a few seconds, show error
+        setTimeout(() => {
+          supabase.auth.getSession().then(({ data: { session: s } }) => {
+            if (s) {
+              setSessionReady(true);
+            } else {
+              setSessionReady(false);
+              setLinkExpired(true);
+            }
+          });
+        }, 4000);
+      }
     });
 
     return () => subscription.unsubscribe();
