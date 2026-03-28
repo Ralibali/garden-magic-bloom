@@ -136,6 +136,22 @@ const Dashboard = () => {
   // Frost countdown
   const frost = getFrostCountdown(climateZone);
 
+  // Welcome back banner for inactive users (7+ days since last profile update)
+  const daysSinceLastActivity = (() => {
+    if (!profile?.updated_at) return null;
+    const last = new Date(profile.updated_at);
+    const now = new Date();
+    return Math.floor((now.getTime() - last.getTime()) / 86400000);
+  })();
+  const showWelcomeBack = daysSinceLastActivity !== null && daysSinceLastActivity >= 7;
+
+  const welcomeBackMessages = [
+    { tip: 'Kolla vad som är säsong att så just nu!', action: '/app/sowing-calendar', cta: 'Visa såkalender' },
+    { tip: 'Dina växter kanske behöver vatten – kika till dem!', action: '/app/my-plants', cta: 'Mina växter' },
+    { tip: 'Lägg till en ny skörd eller kolla din statistik.', action: '/app/statistics', cta: 'Visa statistik' },
+  ];
+  const welcomeMsg = welcomeBackMessages[currentMonth % welcomeBackMessages.length];
+
   // Trial expiry calculation
   const trialDaysLeft = (() => {
     if (!profile?.premium_expires_at || (profile as any).subscription_status !== 'premium') return null;
