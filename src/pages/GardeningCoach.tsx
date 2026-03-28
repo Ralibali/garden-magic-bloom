@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Leaf, Send, RefreshCw, Crown } from 'lucide-react';
+import { Leaf, Send, RefreshCw, Crown, Sparkles, Lock, MessageCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from '@/hooks/use-toast';
 import { FadeIn } from '@/components/animations';
@@ -94,6 +94,68 @@ async function streamChat({
     }
   }
   onDone();
+}
+
+/* ─── Upsell overlay for free users at limit ─── */
+function GroUpsell({ onClose }: { onClose?: () => void }) {
+  const navigate = useNavigate();
+  const exampleQuestions = [
+    'Varför gulnar mina tomatblad?',
+    'När ska jag plantera ut squashen?',
+    'Vilken bädd passar bäst för morötter i år?',
+    'Hur ofta ska jag vattna mina chiliplantorr?',
+    'Vad kan jag så i juni i zon 3?',
+  ];
+
+  return (
+    <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-2xl">
+      <div className="max-w-sm w-full mx-4 text-center space-y-5">
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
+          <span className="text-3xl">🌿</span>
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="font-serif text-xl font-semibold text-foreground">
+            Lås upp obegränsad tillgång till Gro
+          </h3>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Dina {FREE_DAILY_LIMIT} gratisfrågor för idag är slut. Med Plus kan du chatta obegränsat med Gro – din personliga odlingscoach som känner till just din trädgård.
+          </p>
+        </div>
+
+        <div className="space-y-2 text-left">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+            <MessageCircle className="h-3.5 w-3.5" />
+            Exempel på frågor du kan ställa
+          </p>
+          <div className="space-y-1.5">
+            {exampleQuestions.map((q) => (
+              <div
+                key={q}
+                className="text-sm text-foreground/80 bg-muted/50 border border-border/40 rounded-xl px-3.5 py-2.5 italic"
+              >
+                "{q}"
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2 pt-1">
+          <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+            <Lock className="h-3 w-3" />
+            Tillgänglig för Plus-medlemmar · 99 kr/år
+          </div>
+          <Button
+            onClick={() => navigate('/app/premium')}
+            className="w-full gap-2"
+          >
+            <Sparkles className="h-4 w-4" />
+            Uppgradera till Plus
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const GardeningCoach = () => {
@@ -196,7 +258,7 @@ const GardeningCoach = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-6rem)] max-w-3xl mx-auto">
+    <div className="flex flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-6rem)] max-w-3xl mx-auto relative">
       {/* Header */}
       <FadeIn>
         <div className="flex items-center gap-3 pb-4 border-b border-border/60">
@@ -209,6 +271,9 @@ const GardeningCoach = () => {
           </div>
         </div>
       </FadeIn>
+
+      {/* Upsell overlay when free user hits limit */}
+      {!isPremium && remaining <= 0 && <GroUpsell />}
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto py-4 space-y-4 scroll-smooth">
