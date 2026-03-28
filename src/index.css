@@ -1,5 +1,19 @@
 /* Fonts loaded via index.html preload for better CWV */
 
+@font-face {
+  font-family: 'Fraunces';
+  font-display: swap;
+  size-adjust: 105%;
+  ascent-override: 90%;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  font-display: swap;
+  size-adjust: 100%;
+  ascent-override: 95%;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
