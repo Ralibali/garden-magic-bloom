@@ -258,7 +258,7 @@ const GardeningCoach = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-6rem)] max-w-3xl mx-auto">
+    <div className="flex flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-6rem)] max-w-3xl mx-auto relative">
       {/* Header */}
       <FadeIn>
         <div className="flex items-center gap-3 pb-4 border-b border-border/60">
