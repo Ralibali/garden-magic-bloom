@@ -1,8 +1,3 @@
-// TODO: Stripe webhook handler behöver implementeras för att verifiera att betalningsstatus
-// synkroniseras korrekt till profiles-tabellen i Supabase vid subscription events (invoice.paid,
-// customer.subscription.deleted etc). Just nu pollas Stripe via check-subscription, men en
-// webhook ger snabbare och mer pålitlig synk.
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
