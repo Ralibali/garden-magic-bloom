@@ -248,7 +248,7 @@ export default function Premium() {
             Prova gratis i 7 dagar – 99 kr/år
           </Button>
           <p className="text-xs text-muted-foreground mt-3">
-            Frågor? <a href="mailto:hej@odlingsdagboken.com" className="text-primary hover:underline">hej@odlingsdagboken.com</a>
+            Frågor? <a href="mailto:info@auroramedia.se" className="text-primary hover:underline">info@auroramedia.se</a>
           </p>
         </div>
       )}
