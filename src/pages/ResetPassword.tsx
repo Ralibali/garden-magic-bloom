@@ -98,6 +98,15 @@ export default function ResetPassword() {
                 <h2 className="text-lg font-semibold text-foreground">Lösenord uppdaterat!</h2>
                 <p className="text-sm text-muted-foreground">Du skickas till inloggningen...</p>
               </div>
+            ) : linkExpired ? (
+              <div className="text-center space-y-3 py-4">
+                <Lock className="h-12 w-12 text-destructive mx-auto" />
+                <h2 className="text-lg font-semibold text-foreground">Länken har gått ut</h2>
+                <p className="text-sm text-muted-foreground">Återställningslänken är inte längre giltig. Begär en ny via inloggningssidan.</p>
+                <Button variant="outline" onClick={() => navigate('/login', { replace: true })} className="mt-2">
+                  Till inloggningen
+                </Button>
+              </div>
             ) : !sessionReady ? (
               <div className="text-center space-y-3 py-4">
                 <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
