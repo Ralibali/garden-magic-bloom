@@ -205,15 +205,23 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
-  // Rewrite confirmation URL to use our custom domain instead of Lovable/Supabase default
+  // Rewrite only the redirect_to parameter inside the confirmation URL
+  // The base URL must remain pointing to the auth verification endpoint
   const rawUrl = payload.data.url || ''
-  const rewrittenUrl = rawUrl.replace(
-    /https?:\/\/[^/]*\.lovable\.app/,
-    `https://${ROOT_DOMAIN}`
-  ).replace(
-    /https?:\/\/[^/]*\.supabase\.co/,
-    `https://${ROOT_DOMAIN}`
-  )
+  let rewrittenUrl = rawUrl
+  try {
+    const parsed = new URL(rawUrl)
+    const redirectTo = parsed.searchParams.get('redirect_to')
+    if (redirectTo) {
+      const rewrittenRedirect = redirectTo
+        .replace(/https?:\/\/[^/]*\.lovable\.app/, `https://${ROOT_DOMAIN}`)
+        .replace(/https?:\/\/[^/]*\.lovableproject\.com/, `https://${ROOT_DOMAIN}`)
+      parsed.searchParams.set('redirect_to', rewrittenRedirect)
+      rewrittenUrl = parsed.toString()
+    }
+  } catch {
+    // If URL parsing fails, use raw URL as-is
+  }
 
   const templateProps = {
     siteName: SITE_NAME,
