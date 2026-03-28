@@ -232,4 +232,44 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://odlingsdagboken.com/blogg/satider-tomater-2026</loc>
+    <lastmod>2026-03-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="sv" href="https://odlingsdagboken.com/blogg/satider-tomater-2026" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://odlingsdagboken.com/blogg/satider-tomater-2026" />
+  </url>
+  <url>
+    <loc>https://odlingsdagboken.com/blogg/vaxtfoljd-gronsakslandet</loc>
+    <lastmod>2026-03-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="sv" href="https://odlingsdagboken.com/blogg/vaxtfoljd-gronsakslandet" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://odlingsdagboken.com/blogg/vaxtfoljd-gronsakslandet" />
+  </url>
+  <url>
+    <loc>https://odlingsdagboken.com/blogg/pallkrage-storlek-guide</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="sv" href="https://odlingsdagboken.com/blogg/pallkrage-storlek-guide" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://odlingsdagboken.com/blogg/pallkrage-storlek-guide" />
+  </url>
+  <url>
+    <loc>https://odlingsdagboken.com/blogg/basta-gronsakerna-odla-sverige</loc>
+    <lastmod>2026-03-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="sv" href="https://odlingsdagboken.com/blogg/basta-gronsakerna-odla-sverige" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://odlingsdagboken.com/blogg/basta-gronsakerna-odla-sverige" />
+  </url>
+  <url>
+    <loc>https://odlingsdagboken.com/blogg/nar-sa-squash-inomhus</loc>
+    <lastmod>2026-03-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="sv" href="https://odlingsdagboken.com/blogg/nar-sa-squash-inomhus" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://odlingsdagboken.com/blogg/nar-sa-squash-inomhus" />
+  </url>
 </urlset>
