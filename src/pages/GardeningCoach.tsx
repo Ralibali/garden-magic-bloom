@@ -158,7 +158,7 @@ function GroUpsell({ onClose }: { onClose?: () => void }) {
   );
 }
 
-
+const GardeningCoach = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isPremium = user?.subscription_status === 'premium';
