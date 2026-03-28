@@ -980,6 +980,19 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: undefined
       }
+      get_user_activity_stats: {
+        Args: never
+        Returns: {
+          beds_count: number
+          harvests_count: number
+          last_activity: string
+          pest_logs_count: number
+          photos_count: number
+          seeds_count: number
+          sowings_count: number
+          user_id: string
+        }[]
+      }
       grant_premium_days: {
         Args: { _days: number; _user_id: string }
         Returns: undefined
