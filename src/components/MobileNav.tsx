@@ -14,7 +14,7 @@ const primaryItems = [
 ];
 
 const moreItems = [
-  { title: 'Odlingscoach', url: '/app/coach', icon: Sparkles },
+  { title: 'Gro', url: '/app/gro', icon: Sparkles },
   { title: 'Skörd', url: '/app/harvests', icon: Carrot },
   { title: 'Växtbibliotek', url: '/app/plants', icon: BookOpen },
   { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },

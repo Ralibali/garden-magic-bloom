@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 
 const mainNav = [
   { title: 'Hem', url: '/app', icon: Home },
-  { title: 'Odlingscoach', url: '/app/coach', icon: Sparkles },
+  { title: 'Gro', url: '/app/gro', icon: Sparkles },
   { title: 'Mina bäddar', url: '/app/beds', icon: LayoutGrid },
   { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
   { title: 'Skördlogg', url: '/app/harvests', icon: Carrot },
