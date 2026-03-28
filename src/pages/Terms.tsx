@@ -81,13 +81,13 @@ export default function Terms() {
             <li>Rätt att återkalla samtycke när som helst</li>
           </ul>
           <p className="text-sm text-foreground leading-relaxed mt-2">
-            Du kan utöva rätten till radering och dataportabilitet direkt i appen under Inställningar. För övriga förfrågningar, kontakta oss på: <a href="mailto:info@odlingsdagboken.com" className="text-primary hover:underline">info@odlingsdagboken.com</a>
+            Du kan utöva rätten till radering och dataportabilitet direkt i appen under Inställningar. För övriga förfrågningar, kontakta oss på: <a href="mailto:info@auroramedia.se" className="text-primary hover:underline">info@auroramedia.se</a>
           </p>
 
           <h3 className="font-serif text-base text-foreground mt-4 mb-1">Personuppgiftsansvarig:</h3>
           <p className="text-sm text-foreground leading-relaxed">
             Odlingsdagboken / odlingsdagboken.com<br />
-            E-post: <a href="mailto:info@odlingsdagboken.com" className="text-primary hover:underline">info@odlingsdagboken.com</a><br />
+            E-post: <a href="mailto:info@auroramedia.se" className="text-primary hover:underline">info@auroramedia.se</a><br />
             Du har rätt att lämna klagomål till Integritetsskyddsmyndigheten (IMY): <a href="https://www.imy.se" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">www.imy.se</a>
           </p>
 
@@ -155,7 +155,7 @@ export default function Terms() {
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">8. Kontakt</h2>
           <p className="text-sm text-foreground leading-relaxed">
             odlingsdagboken.com<br />
-            E-post: <a href="mailto:info@odlingsdagboken.com" className="text-primary hover:underline">info@odlingsdagboken.com</a><br />
+            E-post: <a href="mailto:info@auroramedia.se" className="text-primary hover:underline">info@auroramedia.se</a><br />
             Webbplats: <a href="https://www.odlingsdagboken.com" className="text-primary hover:underline">www.odlingsdagboken.com</a>
           </p>
         </CardContent>
