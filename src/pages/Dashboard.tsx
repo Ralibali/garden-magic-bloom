@@ -190,6 +190,31 @@ const Dashboard = () => {
           </Card>
         </FadeIn>
       )}
+      {/* Welcome back banner for inactive users */}
+      {showWelcomeBack && (
+        <FadeIn>
+          <Card className="border-primary/20 bg-gradient-to-r from-primary/8 via-accent/5 to-secondary/10 shadow-sm">
+            <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                  <Hand className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground text-sm">
+                    Välkommen tillbaka{displayName ? `, ${displayName}` : ''}! 👋
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Det har gått {daysSinceLastActivity} dagar sedan sist. {welcomeMsg.tip}
+                  </p>
+                </div>
+              </div>
+              <Button size="sm" variant="outline" className="gap-2 shrink-0" onClick={() => navigate(welcomeMsg.action)}>
+                <Leaf className="h-4 w-4" /> {welcomeMsg.cta}
+              </Button>
+            </CardContent>
+          </Card>
+        </FadeIn>
+      )}
       <FadeIn>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
