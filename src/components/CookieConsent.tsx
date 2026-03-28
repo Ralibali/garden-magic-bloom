@@ -39,7 +39,7 @@ export default function CookieConsent() {
             <p className="text-sm font-medium text-foreground mb-1">Vi använder cookies 🍪</p>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Vi sparar bara nödvändiga cookies för att appen ska fungera. Inga spårningscookies utan ditt samtycke.{' '}
-              <a href="/terms" className="text-primary hover:underline">Läs mer</a>
+              <a href="/terms" className="text-primary hover:underline">Läs om vår cookiepolicy</a>
             </p>
           </div>
         </div>
