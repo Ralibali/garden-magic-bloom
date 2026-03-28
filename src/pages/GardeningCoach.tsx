@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Leaf, Send, RefreshCw, Crown } from 'lucide-react';
+import { Leaf, Send, RefreshCw, Crown, Sparkles, Lock, MessageCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from '@/hooks/use-toast';
 import { FadeIn } from '@/components/animations';
