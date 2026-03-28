@@ -102,7 +102,19 @@ serve(async (req) => {
       productId = subscription.items.data[0].price.product;
       await supabaseClient.from('profiles').update({ subscription_status: 'premium' }).eq('user_id', user.id);
     } else {
-      await supabaseClient.from('profiles').update({ subscription_status: 'free' }).eq('user_id', user.id);
+      // No active Stripe sub – check manual premium before downgrading
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('subscription_status, premium_expires_at')
+        .eq('user_id', user.id)
+        .single();
+
+      const manualPremium = profile?.subscription_status === 'premium' &&
+        (!profile?.premium_expires_at || new Date(profile.premium_expires_at) > new Date());
+
+      if (!manualPremium) {
+        await supabaseClient.from('profiles').update({ subscription_status: 'free' }).eq('user_id', user.id);
+      }
     }
 
     return new Response(JSON.stringify({
