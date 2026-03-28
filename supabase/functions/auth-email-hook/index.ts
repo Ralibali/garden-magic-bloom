@@ -36,14 +36,14 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "Odlingsdagboken"
-const SENDER_DOMAIN = "notify.honsgarden.se"
-const ROOT_DOMAIN = "odlingsdagboken.com"
-const FROM_DOMAIN = "honsgarden.se" // Domain shown in From address (must match verified sender domain)
+const SITE_NAME = 'Odlingsdagboken'
+const SENDER_DOMAIN = 'notify.odlingsdagboken.com'
+const ROOT_DOMAIN = 'odlingsdagboken.com'
+const FROM_DOMAIN = 'notify.odlingsdagboken.com' // Must align with verified sender domain
 
 // Sample data for preview mode ONLY (not used in actual email sending).
-const SAMPLE_PROJECT_URL = "https://odlingsdagboken.com"
-const SAMPLE_EMAIL = "user@example.test"
+const SAMPLE_PROJECT_URL = 'https://odlingsdagboken.com'
+const SAMPLE_EMAIL = 'user@example.test'
 const SAMPLE_DATA: Record<string, object> = {
   signup: {
     siteName: SITE_NAME,
@@ -252,7 +252,7 @@ async function handleWebhook(req: Request): Promise<Response> {
       run_id,
       message_id: messageId,
       to: payload.data.email,
-      from: `Kajsa @ Odlingsdagboken <kajsa@${FROM_DOMAIN}>`,
+      from: `Odlingsdagboken <no-reply@${FROM_DOMAIN}>`,
       sender_domain: SENDER_DOMAIN,
       subject: EMAIL_SUBJECTS[emailType] || 'Notification',
       html,
