@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Loader2, Users, MessageSquare, FileText, BarChart3, Search, Link2, Crown, MinusCircle, LayoutDashboard, Trash2, CheckCircle2, XCircle, Clock, CalendarDays } from 'lucide-react';
+import { Shield, Loader2, Users, MessageSquare, FileText, BarChart3, Search, Link2, Crown, MinusCircle, LayoutDashboard, Trash2, CheckCircle2, XCircle, Clock, CalendarDays, Sprout, Carrot, Camera, Bug } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
@@ -101,6 +102,7 @@ function AdminUsers() {
   const queryClient = useQueryClient();
   const [userSearch, setUserSearch] = useState('');
   const [premiumDurations, setPremiumDurations] = useState<Record<string, string>>({});
+  const [expandedUser, setExpandedUser] = useState<string | null>(null);
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['admin-users'],
@@ -111,10 +113,24 @@ function AdminUsers() {
     },
   });
 
+  const { data: activityStats } = useQuery({
+    queryKey: ['admin-user-activity-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_user_activity_stats');
+      if (error) throw error;
+      return data as { user_id: string; beds_count: number; sowings_count: number; harvests_count: number; photos_count: number; seeds_count: number; pest_logs_count: number; last_activity: string | null }[];
+    },
+  });
+
+  const statsMap = useMemo(() => {
+    const map: Record<string, typeof activityStats extends (infer T)[] ? T : never> = {};
+    (activityStats || []).forEach(s => { map[s.user_id] = s; });
+    return map;
+  }, [activityStats]);
+
   const grantMutation = useMutation({
     mutationFn: async ({ userId, days }: { userId: string; days: string }) => {
       if (days === 'lifetime') {
-        // Set premium with no expiry
         const { error } = await supabase.from('profiles').update({
           subscription_status: 'premium',
           premium_expires_at: null,
@@ -188,123 +204,165 @@ function AdminUsers() {
             const expiresAt = user.premium_expires_at ? new Date(user.premium_expires_at) : null;
             const isExpired = expiresAt && expiresAt < new Date();
             const isLifetime = isPremium && !expiresAt;
+            const stats = statsMap[user.user_id];
+            const isExpanded = expandedUser === user.user_id;
 
             return (
               <Card key={user.id} className="border-border/50">
-                <CardContent className="p-3 sm:p-4 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <span className="text-sm font-bold text-primary">
-                      {(user.display_name || user.email || '?')[0].toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{user.display_name || 'Namnlös'}</p>
-                    <p className="text-[11px] text-muted-foreground truncate">{user.email || '–'}</p>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      {isPremium && !isExpired ? (
-                        <Badge variant="secondary" className="text-[9px] bg-warning/10 text-warning border-warning/20">
-                          <Crown className="h-2.5 w-2.5 mr-0.5" /> {isLifetime ? '♾️ Livstid' : 'Premium'}
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" className="text-[9px]">Gratis</Badge>
-                      )}
-                      {user.terms_accepted_at ? (
-                        <Badge variant="secondary" className="text-[9px] bg-green-500/10 text-green-600 border-green-500/20">
-                          <CheckCircle2 className="h-2.5 w-2.5 mr-0.5" /> Villkor
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" className="text-[9px] bg-destructive/10 text-destructive border-destructive/20">
-                          <XCircle className="h-2.5 w-2.5 mr-0.5" /> Ej godkänt
-                        </Badge>
-                      )}
-                      {user.climate_zone && (
-                        <span className="text-[10px] text-muted-foreground">Zon {user.climate_zone}</span>
-                      )}
-                      <span className="text-[10px] text-muted-foreground">
-                        {user.created_at ? new Date(user.created_at).toLocaleDateString('sv-SE') : '–'}
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setExpandedUser(isExpanded ? null : user.user_id)}
+                      className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0 hover:bg-primary/20 transition-colors"
+                    >
+                      <span className="text-sm font-bold text-primary">
+                        {(user.display_name || user.email || '?')[0].toUpperCase()}
                       </span>
+                    </button>
+                    <div className="flex-1 min-w-0">
+                      <button onClick={() => setExpandedUser(isExpanded ? null : user.user_id)} className="text-left w-full">
+                        <p className="text-sm font-medium text-foreground truncate">{user.display_name || 'Namnlös'}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{user.email || '–'}</p>
+                      </button>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        {isPremium && !isExpired ? (
+                          <Badge variant="secondary" className="text-[9px] bg-warning/10 text-warning border-warning/20">
+                            <Crown className="h-2.5 w-2.5 mr-0.5" /> {isLifetime ? '♾️ Livstid' : 'Premium'}
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-[9px]">Gratis</Badge>
+                        )}
+                        {user.terms_accepted_at ? (
+                          <Badge variant="secondary" className="text-[9px] bg-green-500/10 text-green-600 border-green-500/20">
+                            <CheckCircle2 className="h-2.5 w-2.5 mr-0.5" /> Villkor
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-[9px] bg-destructive/10 text-destructive border-destructive/20">
+                            <XCircle className="h-2.5 w-2.5 mr-0.5" /> Ej godkänt
+                          </Badge>
+                        )}
+                        {user.climate_zone && (
+                          <span className="text-[10px] text-muted-foreground">Zon {user.climate_zone}</span>
+                        )}
+                        {stats && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {stats.beds_count}B · {stats.sowings_count}S · {stats.harvests_count}H · {stats.photos_count}F
+                          </span>
+                        )}
+                        <span className="text-[10px] text-muted-foreground">
+                          {user.created_at ? new Date(user.created_at).toLocaleDateString('sv-SE') : '–'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-1 shrink-0 items-center">
+                      {isPremium && !isExpired ? (
+                        <div className="flex flex-col items-end gap-1">
+                          {expiresAt ? (
+                            <span className="text-[9px] text-muted-foreground flex items-center gap-1">
+                              <CalendarDays className="h-2.5 w-2.5" />
+                              Går ut {expiresAt.toLocaleDateString('sv-SE')}
+                            </span>
+                          ) : (
+                            <span className="text-[9px] text-green-600 font-medium">♾️ Livstid</span>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-[10px] h-7 text-destructive rounded-lg"
+                            disabled={revokeMutation.isPending}
+                            onClick={() => revokeMutation.mutate(user.user_id)}
+                          >
+                            Ta bort Premium
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <Select value={premiumDurations[user.user_id] || '30'} onValueChange={(v) => setPremiumDurations(prev => ({ ...prev, [user.user_id]: v }))}>
+                            <SelectTrigger className="h-7 w-[90px] text-[10px] rounded-lg">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="7">7 dagar</SelectItem>
+                              <SelectItem value="14">14 dagar</SelectItem>
+                              <SelectItem value="30">30 dagar</SelectItem>
+                              <SelectItem value="90">90 dagar</SelectItem>
+                              <SelectItem value="365">1 år</SelectItem>
+                              <SelectItem value="lifetime">♾️ Livstid</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-[10px] h-7 rounded-lg gap-1"
+                            disabled={grantMutation.isPending}
+                            onClick={() => grantMutation.mutate({ userId: user.user_id, days: premiumDurations[user.user_id] || '30' })}
+                          >
+                            <Crown className="h-3 w-3" /> Ge
+                          </Button>
+                        </>
+                      )}
+
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive/50 hover:text-destructive shrink-0">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="rounded-2xl">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="font-serif">Radera användare?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Detta raderar <strong>{user.email || user.display_name}</strong> och all deras data permanent.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel className="rounded-xl">Avbryt</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
+                              onClick={() => deleteMutation.mutate(user.user_id)}
+                            >
+                              Radera
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
 
-                  <div className="flex gap-1 shrink-0 items-center">
-                    {isPremium && !isExpired ? (
-                      <div className="flex flex-col items-end gap-1">
-                        {expiresAt ? (
-                          <span className="text-[9px] text-muted-foreground flex items-center gap-1">
-                            <CalendarDays className="h-2.5 w-2.5" />
-                            Går ut {expiresAt.toLocaleDateString('sv-SE')}
-                          </span>
-                        ) : (
-                          <span className="text-[9px] text-green-600 font-medium">♾️ Livstid</span>
-                        )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-[10px] h-7 text-destructive rounded-lg"
-                          disabled={revokeMutation.isPending}
-                          onClick={() => revokeMutation.mutate(user.user_id)}
-                        >
-                          Ta bort Premium
-                        </Button>
+                  {/* Expanded usage details */}
+                  {isExpanded && stats && (
+                    <div className="mt-3 pt-3 border-t border-border/50 grid grid-cols-2 sm:grid-cols-4 gap-3 animate-fade-in">
+                      <UsageStat icon={LayoutGrid} label="Bäddar" value={stats.beds_count} />
+                      <UsageStat icon={Sprout} label="Sådder" value={stats.sowings_count} />
+                      <UsageStat icon={Carrot} label="Skördar" value={stats.harvests_count} />
+                      <UsageStat icon={Camera} label="Foton" value={stats.photos_count} />
+                      <UsageStat icon={Sprout} label="Frölager" value={stats.seeds_count} />
+                      <UsageStat icon={Bug} label="Skadedjur" value={stats.pest_logs_count} />
+                      <div className="col-span-2 flex items-center gap-2 text-[11px] text-muted-foreground">
+                        <Clock className="h-3.5 w-3.5" />
+                        Senaste aktivitet: {stats.last_activity ? new Date(stats.last_activity).toLocaleDateString('sv-SE') : 'Ingen'}
                       </div>
-                    ) : (
-                      <>
-                        <Select value={premiumDurations[user.user_id] || '30'} onValueChange={(v) => setPremiumDurations(prev => ({ ...prev, [user.user_id]: v }))}>
-                          <SelectTrigger className="h-7 w-[90px] text-[10px] rounded-lg">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="7">7 dagar</SelectItem>
-                            <SelectItem value="14">14 dagar</SelectItem>
-                            <SelectItem value="30">30 dagar</SelectItem>
-                            <SelectItem value="90">90 dagar</SelectItem>
-                            <SelectItem value="365">1 år</SelectItem>
-                            <SelectItem value="lifetime">♾️ Livstid</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-[10px] h-7 rounded-lg gap-1"
-                          disabled={grantMutation.isPending}
-                          onClick={() => grantMutation.mutate({ userId: user.user_id, days: premiumDurations[user.user_id] || '30' })}
-                        >
-                          <Crown className="h-3 w-3" /> Ge
-                        </Button>
-                      </>
-                    )}
-
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive/50 hover:text-destructive shrink-0">
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent className="rounded-2xl">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle className="font-serif">Radera användare?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Detta raderar <strong>{user.email || user.display_name}</strong> och all deras data permanent.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel className="rounded-xl">Avbryt</AlertDialogCancel>
-                          <AlertDialogAction
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
-                            onClick={() => deleteMutation.mutate(user.user_id)}
-                          >
-                            Radera
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             );
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+function UsageStat({ icon: Icon, label, value }: { icon: any; label: string; value: number }) {
+  return (
+    <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+      <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+      <div>
+        <p className="text-sm font-bold text-foreground leading-tight">{value}</p>
+        <p className="text-[10px] text-muted-foreground">{label}</p>
+      </div>
     </div>
   );
 }
