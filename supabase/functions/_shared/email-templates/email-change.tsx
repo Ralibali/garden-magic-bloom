@@ -9,7 +9,6 @@ import {
   Head,
   Heading,
   Html,
-  Img,
   Link,
   Preview,
   Text,
@@ -30,24 +29,30 @@ export const EmailChangeEmail = ({
 }: EmailChangeEmailProps) => (
   <Html lang="sv" dir="ltr">
     <Head />
-    <Preview>Bekräfta byte av e-postadress</Preview>
+    <Preview>Bekräfta din nya e-postadress för {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://ysonnvbkrwajacvdkqut.supabase.co/storage/v1/object/public/email-assets/logo-odlingsdagboken.png" width="140" height="auto" alt="Odlingsdagboken" style={{ marginBottom: '24px' }} />
-        <Heading style={h1}>Bekräfta din nya e-postadress</Heading>
+        <Text style={logo}>🌱</Text>
+        <Heading style={h1}>Bekräfta e-postbyte</Heading>
         <Text style={text}>
-          Du har begärt att byta e-postadress från{' '}
-          <Link href={`mailto:${email}`} style={link}>{email}</Link> till{' '}
-          <Link href={`mailto:${newEmail}`} style={link}>{newEmail}</Link>.
+          Du har begärt att byta e-postadress för {siteName} från{' '}
+          <Link href={`mailto:${email}`} style={link}>
+            {email}
+          </Link>{' '}
+          till{' '}
+          <Link href={`mailto:${newEmail}`} style={link}>
+            {newEmail}
+          </Link>
+          .
         </Text>
         <Text style={text}>
           Klicka på knappen nedan för att bekräfta bytet:
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Bekräfta ny e-post
+          Bekräfta e-postbyte
         </Button>
         <Text style={footer}>
-          Om du inte begärde detta, säkra ditt konto omedelbart.
+          Om du inte begärde detta bör du säkra ditt konto omedelbart.
         </Text>
       </Container>
     </Body>
@@ -57,27 +62,27 @@ export const EmailChangeEmail = ({
 export default EmailChangeEmail
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'DM Sans', Arial, sans-serif" }
-const container = { padding: '32px 28px' }
+const container = { padding: '20px 25px' }
+const logo = { fontSize: '32px', margin: '0 0 10px' }
 const h1 = {
   fontSize: '22px',
   fontWeight: 'bold' as const,
-  color: '#242A30',
+  color: '#2d3b2d',
   margin: '0 0 20px',
 }
 const text = {
-  fontSize: '15px',
-  color: '#6B7280',
-  lineHeight: '1.6',
-  margin: '0 0 28px',
+  fontSize: '14px',
+  color: '#55575d',
+  lineHeight: '1.5',
+  margin: '0 0 25px',
 }
-const link = { color: 'inherit', textDecoration: 'underline' }
+const link = { color: '#4A7C59', textDecoration: 'underline' }
 const button = {
   backgroundColor: '#4A7C59',
-  color: '#FEFDFB',
-  fontSize: '15px',
+  color: '#ffffff',
+  fontSize: '14px',
   borderRadius: '12px',
-  padding: '14px 24px',
+  padding: '12px 24px',
   textDecoration: 'none',
-  fontWeight: '600' as const,
 }
-const footer = { fontSize: '12px', color: '#999999', margin: '32px 0 0' }
+const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
