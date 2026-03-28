@@ -512,13 +512,11 @@ export default function Index() {
       {/* ═══════════════════════ PRICING ═══════════════════════ */}
       <section id="priser" className="scroll-mt-20" aria-labelledby="pricing-heading">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
-          <div className="text-center mb-4">
+          <div className="text-center mb-8">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Prissättning</p>
             <h2 id="pricing-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">Välj din plan</h2>
             <p className="text-muted-foreground max-w-md mx-auto text-sm">Börja gratis. Uppgradera när du vill.</p>
           </div>
-
-          <PricingToggle yearly={yearly} setYearly={setYearly} />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto">
             <motion.div
@@ -562,11 +560,10 @@ export default function Index() {
               </motion.div>
               <h3 className="font-serif text-xl text-foreground mb-1">Plus</h3>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-3xl sm:text-4xl font-bold text-foreground">{yearly ? '799' : '99'}</span>
-                <span className="text-muted-foreground text-sm">kr/{yearly ? 'år' : 'mån'}</span>
+                <span className="text-3xl sm:text-4xl font-bold text-foreground">99</span>
+                <span className="text-muted-foreground text-sm">kr/år</span>
               </div>
-              {yearly && <p className="text-xs text-primary font-medium mb-4">~67 kr/mån · spara 33%</p>}
-              {!yearly && <p className="text-xs text-muted-foreground mb-4">Eller 799 kr/år (spara 33%)</p>}
+              <p className="text-xs text-muted-foreground mb-4">Bara ~åtta kr/månad</p>
               <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
                 <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Allt i Gratis</li>
                 <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Obegränsade bäddar</li>
