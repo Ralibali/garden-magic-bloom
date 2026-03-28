@@ -136,9 +136,44 @@ const Dashboard = () => {
   // Frost countdown
   const frost = getFrostCountdown(climateZone);
 
+  // Trial expiry calculation
+  const trialDaysLeft = (() => {
+    if (!profile?.premium_expires_at || (profile as any).subscription_status !== 'premium') return null;
+    const expires = new Date(profile.premium_expires_at);
+    const now = new Date();
+    const days = Math.ceil((expires.getTime() - now.getTime()) / 86400000);
+    return days >= 0 && days <= 5 ? days : null;
+  })();
+
   return (
     <div className="space-y-6">
-      {/* Greeting + weather */}
+      {/* Trial expiry upsell banner */}
+      {trialDaysLeft !== null && (
+        <FadeIn>
+          <Card className="border-warning/30 bg-gradient-to-r from-warning/8 via-accent/5 to-primary/8 shadow-sm">
+            <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-warning/15 flex items-center justify-center shrink-0">
+                  <Crown className="h-5 w-5 text-warning" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground text-sm">
+                    {trialDaysLeft === 0
+                      ? 'Din provperiod går ut idag!'
+                      : `Din provperiod går ut om ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dag' : 'dagar'}!`}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Uppgradera till Plus för 99 kr/år och behåll alla funktioner.
+                  </p>
+                </div>
+              </div>
+              <Button size="sm" className="gap-2 shrink-0 shadow-sm" onClick={() => navigate('/app/premium')}>
+                <Crown className="h-4 w-4" /> Uppgradera nu <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+            </CardContent>
+          </Card>
+        </FadeIn>
+      )}
       <FadeIn>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
