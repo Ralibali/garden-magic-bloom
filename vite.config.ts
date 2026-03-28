@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "logo-honsgarden.png"],
+      includeAssets: ["favicon.ico", "favicon.svg"],
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,webp,woff2}"],
         navigateFallbackDenylist: [/^\/~oauth/],
