@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sprout, Carrot, LayoutGrid, Plus, Thermometer, CalendarDays, Leaf, Snowflake, AlertTriangle, CheckCircle, Info, Droplets, Flower2, CloudRain, Crown, ArrowRight } from 'lucide-react';
+import { Sprout, Carrot, LayoutGrid, Plus, Thermometer, CalendarDays, Leaf, Snowflake, AlertTriangle, CheckCircle, Info, Droplets, Flower2, CloudRain, Crown, ArrowRight, Hand } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
@@ -136,6 +136,22 @@ const Dashboard = () => {
   // Frost countdown
   const frost = getFrostCountdown(climateZone);
 
+  // Welcome back banner for inactive users (7+ days since last profile update)
+  const daysSinceLastActivity = (() => {
+    if (!profile?.updated_at) return null;
+    const last = new Date(profile.updated_at);
+    const now = new Date();
+    return Math.floor((now.getTime() - last.getTime()) / 86400000);
+  })();
+  const showWelcomeBack = daysSinceLastActivity !== null && daysSinceLastActivity >= 7;
+
+  const welcomeBackMessages = [
+    { tip: 'Kolla vad som är säsong att så just nu!', action: '/app/sowing-calendar', cta: 'Visa såkalender' },
+    { tip: 'Dina växter kanske behöver vatten – kika till dem!', action: '/app/my-plants', cta: 'Mina växter' },
+    { tip: 'Lägg till en ny skörd eller kolla din statistik.', action: '/app/statistics', cta: 'Visa statistik' },
+  ];
+  const welcomeMsg = welcomeBackMessages[currentMonth % welcomeBackMessages.length];
+
   // Trial expiry calculation
   const trialDaysLeft = (() => {
     if (!profile?.premium_expires_at || (profile as any).subscription_status !== 'premium') return null;
@@ -169,6 +185,31 @@ const Dashboard = () => {
               </div>
               <Button size="sm" className="gap-2 shrink-0 shadow-sm" onClick={() => navigate('/app/premium')}>
                 <Crown className="h-4 w-4" /> Uppgradera nu <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+            </CardContent>
+          </Card>
+        </FadeIn>
+      )}
+      {/* Welcome back banner for inactive users */}
+      {showWelcomeBack && (
+        <FadeIn>
+          <Card className="border-primary/20 bg-gradient-to-r from-primary/8 via-accent/5 to-secondary/10 shadow-sm">
+            <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                  <Hand className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground text-sm">
+                    Välkommen tillbaka{displayName ? `, ${displayName}` : ''}! 👋
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Det har gått {daysSinceLastActivity} dagar sedan sist. {welcomeMsg.tip}
+                  </p>
+                </div>
+              </div>
+              <Button size="sm" variant="outline" className="gap-2 shrink-0" onClick={() => navigate(welcomeMsg.action)}>
+                <Leaf className="h-4 w-4" /> {welcomeMsg.cta}
               </Button>
             </CardContent>
           </Card>
