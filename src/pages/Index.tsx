@@ -668,6 +668,8 @@ export default function Index() {
         </div>
       </section>
 
+      </main>
+
       {/* ═══════════════════════ FOOTER ═══════════════════════ */}
       <footer className="bg-[hsl(150_30%_10%)] text-[hsl(152_20%_85%)] py-12 sm:py-16 px-4 sm:px-8" aria-label="Sidfot">
         <div className="max-w-6xl mx-auto">
