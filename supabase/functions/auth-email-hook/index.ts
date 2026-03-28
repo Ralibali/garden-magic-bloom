@@ -37,9 +37,9 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 
 // Configuration
 const SITE_NAME = "Odlingsdagboken"
-const SENDER_DOMAIN = "notify.odlingsdagboken.com"
+const SENDER_DOMAIN = "notify.honsgarden.se"
 const ROOT_DOMAIN = "odlingsdagboken.com"
-const FROM_DOMAIN = "odlingsdagboken.com" // Domain shown in From address (may be root or sender subdomain)
+const FROM_DOMAIN = "honsgarden.se" // Domain shown in From address (must match verified sender domain)
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 const SAMPLE_PROJECT_URL = "https://odlingsdagboken.com"
