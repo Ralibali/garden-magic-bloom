@@ -22,21 +22,21 @@ export const MagicLinkEmail = ({
   siteName,
   confirmationUrl,
 }: MagicLinkEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="sv" dir="ltr">
     <Head />
-    <Preview>Your login link for {siteName}</Preview>
+    <Preview>Din inloggningslänk för {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Your login link</Heading>
+        <Text style={logo}>🌱</Text>
+        <Heading style={h1}>Din inloggningslänk</Heading>
         <Text style={text}>
-          Click the button below to log in to {siteName}. This link will expire
-          shortly.
+          Klicka på knappen nedan för att logga in på {siteName}. Länken slutar gälla inom kort.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Log In
+          Logga in
         </Button>
         <Text style={footer}>
-          If you didn't request this link, you can safely ignore this email.
+          Om du inte begärde denna länk kan du lugnt ignorera detta mejl.
         </Text>
       </Container>
     </Body>
@@ -45,12 +45,13 @@ export const MagicLinkEmail = ({
 
 export default MagicLinkEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
+const main = { backgroundColor: '#ffffff', fontFamily: "'DM Sans', Arial, sans-serif" }
 const container = { padding: '20px 25px' }
+const logo = { fontSize: '32px', margin: '0 0 10px' }
 const h1 = {
   fontSize: '22px',
   fontWeight: 'bold' as const,
-  color: '#000000',
+  color: '#2d3b2d',
   margin: '0 0 20px',
 }
 const text = {
@@ -60,11 +61,11 @@ const text = {
   margin: '0 0 25px',
 }
 const button = {
-  backgroundColor: '#000000',
+  backgroundColor: '#4A7C59',
   color: '#ffffff',
   fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
+  borderRadius: '12px',
+  padding: '12px 24px',
   textDecoration: 'none',
 }
 const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
