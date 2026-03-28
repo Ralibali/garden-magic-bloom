@@ -379,29 +379,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ═══════════════════════ SOCIAL PROOF BAR ═══════════════════════ */}
-      <section className="border-y border-border bg-card/50" aria-label="Social proof">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl sm:text-3xl font-bold text-foreground"><AnimatedCounter target={2000} suffix="+" /></div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">svenska odlare</p>
-            </div>
-            <div>
-              <div className="text-2xl sm:text-3xl font-bold text-foreground"><AnimatedCounter target={85000} suffix="+" /></div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">loggade skördar</p>
-            </div>
-            <div>
-              <div className="flex items-center justify-center gap-1 text-2xl sm:text-3xl font-bold text-foreground">
-                <AnimatedCounter target={48} />
-                <span className="text-lg">/5</span>
-                <Star className="h-5 w-5 fill-warning text-warning" />
-              </div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">genomsnittligt betyg</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ═══════════════════════ TRUST BAR ═══════════════════════ */}
       <section className="border-b border-border bg-background">
