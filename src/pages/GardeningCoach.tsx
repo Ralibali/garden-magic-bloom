@@ -272,6 +272,9 @@ const GardeningCoach = () => {
         </div>
       </FadeIn>
 
+      {/* Upsell overlay when free user hits limit */}
+      {!isPremium && remaining <= 0 && <GroUpsell />}
+
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto py-4 space-y-4 scroll-smooth">
         {messages.map((msg, i) => (
