@@ -1,12 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useSeo } from '@/hooks/useSeo';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Check, ChevronRight, Sprout, Carrot, CalendarDays, RefreshCw, BarChart3, Zap, Flower2, X, Star } from 'lucide-react';
-import heroFlatlay from '@/assets/hero-flatlay.jpg';
-import heroHands from '@/assets/hero-harvest-hands.jpg';
-import heroAerial from '@/assets/hero-beds-aerial.jpg';
+import { ArrowRight, Check, ChevronRight, Sprout, BookOpen, Calendar, Bot, BarChart2, Smartphone, Star, X, Menu } from 'lucide-react';
 import dashboardPreview from '@/assets/dashboard-preview.jpg';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /* ─── Scroll-triggered fade ─── */
 function useInView(threshold = 0.15) {
@@ -23,19 +21,6 @@ function useInView(threshold = 0.15) {
     return () => obs.disconnect();
   }, [threshold]);
   return { ref, visible };
-}
-
-function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
-  const { ref, visible } = useInView();
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
 }
 
 /* ─── Animated counter ─── */
@@ -81,9 +66,7 @@ function SeasonalBanner() {
   const [dismissed, setDismissed] = useState(false);
   const month = new Date().getMonth();
   const isSowSeason = month >= 1 && month <= 4;
-
   if (!isSowSeason || dismissed) return null;
-
   return (
     <div className="bg-primary text-primary-foreground text-center text-xs sm:text-sm py-2.5 px-4 relative">
       <span>Det är såsäsong! 🌱 Kom igång med din odlingsdagbok innan säsongen sätter igång.</span>
@@ -117,10 +100,15 @@ function ExitIntentPopup() {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/50 backdrop-blur-sm p-4" onClick={dismiss}>
-      <div onClick={e => e.stopPropagation()} className="bg-card border border-border rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative">
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        onClick={e => e.stopPropagation()}
+        className="bg-card border border-border rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative"
+      >
         <button onClick={dismiss} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground" aria-label="Stäng"><X className="h-5 w-5" /></button>
         <div className="text-center">
-          <span className="text-4xl mb-3 block" role="img" aria-label="Växtplantor">🌱</span>
+          <span className="text-4xl mb-3 block">🌱</span>
           <h3 className="font-serif text-xl text-foreground mb-2">Vänta – missa inte din bästa säsong!</h3>
           <p className="text-sm text-muted-foreground mb-5">Skapa ett gratiskonto och börja logga dina sådder redan idag. 2 000+ odlare har redan börjat.</p>
           <Button asChild size="lg" className="w-full gap-2 mb-3">
@@ -128,15 +116,15 @@ function ExitIntentPopup() {
           </Button>
           <p className="text-xs text-muted-foreground">Inget betalkort krävs · Sju dagars Plus gratis</p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
 
 /* ─── Testimonial card ─── */
-function TestimonialCard({ name, location, zone, quote, stars }: { name: string; location: string; zone: number; quote: string; stars: number }) {
+function TestimonialCard({ name, zone, quote, stars }: { name: string; zone: number; quote: string; stars: number }) {
   return (
-    <div className="p-5 sm:p-6 rounded-2xl border border-border bg-background h-full flex flex-col">
+    <div className="p-5 sm:p-6 rounded-2xl border border-border bg-card h-full flex flex-col">
       <div className="flex gap-0.5 mb-3">
         {Array.from({ length: stars }).map((_, i) => <Star key={i} className="h-4 w-4 fill-warning text-warning" />)}
       </div>
@@ -144,52 +132,49 @@ function TestimonialCard({ name, location, zone, quote, stars }: { name: string;
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span className="font-medium text-foreground">{name}</span>
         <span>·</span>
-        <span>{location}</span>
-        <span>·</span>
-        <span>Zon {zone}</span>
+        <span>Klimatzon {zone}</span>
       </div>
     </div>
   );
 }
 
-/* ─── Data ─── */
-const capabilities = [
-  { icon: Sprout, title: 'Sålogg', desc: 'Logga sort, bädd, sådatum och typ. Håll koll på förodling och utplantering.', color: 'bg-primary/10 text-primary' },
-  { icon: Carrot, title: 'Skördlogg med vikt', desc: 'Registrera varje skörd i gram. Se vad som faktiskt presterar.', color: 'bg-accent/10 text-accent' },
-  { icon: CalendarDays, title: 'Såkalender per zon', desc: 'Rekommenderade tider för 20+ grönsaker, anpassade efter din klimatzon.', color: 'bg-success/10 text-success' },
-  { icon: RefreshCw, title: 'Växtföljd', desc: 'Se vad du odlat var, år för år. Planera smartare rotation.', color: 'bg-warning/10 text-warning' },
-  { icon: BarChart3, title: 'Statistik & trender', desc: 'Jämför säsonger och hitta dina bästa sorter över tid.', color: 'bg-accent/10 text-accent' },
-  { icon: Zap, title: 'AI-coach Gro', desc: 'Ställ odlingsfrågor och få personliga svar baserat på din zon.', color: 'bg-primary/10 text-primary' },
-  { icon: Flower2, title: 'Krukväxter & inomhusväxter', desc: 'Håll koll på vattning, gödsling och skötsel för alla dina inomhusväxter.', color: 'bg-success/10 text-success' },
-];
+/* ─── Botanical SVG decoration ─── */
+function BotanicalDecoration() {
+  return (
+    <svg className="absolute right-0 top-1/2 -translate-y-1/2 w-[400px] h-[500px] opacity-[0.06] pointer-events-none hidden lg:block" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M200 450 C200 350, 250 300, 300 250 C350 200, 350 150, 300 100 C250 50, 200 80, 200 150" stroke="currentColor" strokeWidth="2" className="text-primary" />
+      <path d="M200 450 C200 380, 150 320, 100 270 C50 220, 50 170, 100 130 C150 90, 200 110, 200 170" stroke="currentColor" strokeWidth="2" className="text-primary" />
+      <ellipse cx="300" cy="95" rx="40" ry="55" stroke="currentColor" strokeWidth="1.5" className="text-primary" transform="rotate(-20 300 95)" />
+      <ellipse cx="100" cy="125" rx="35" ry="50" stroke="currentColor" strokeWidth="1.5" className="text-primary" transform="rotate(20 100 125)" />
+      <circle cx="200" cy="200" r="8" fill="currentColor" className="text-primary" fillOpacity="0.3" />
+      <circle cx="280" cy="180" r="5" fill="currentColor" className="text-primary" fillOpacity="0.2" />
+      <circle cx="120" cy="210" r="6" fill="currentColor" className="text-primary" fillOpacity="0.2" />
+    </svg>
+  );
+}
 
-const comparisons = [
-  { feature: 'Klimatzonanpassning', us: true, them: false },
-  { feature: 'Skördlogg med vikt', us: true, them: false },
-  { feature: 'Växtföljd bädd-för-bädd', us: true, them: false },
-  { feature: 'Såkalender per zon', us: true, them: false },
-  { feature: 'Krukväxter & inomhusväxter', us: true, them: false },
-  { feature: 'AI-odlingscoach', us: true, them: false },
-  { feature: 'Pris per år', us: '99 kr', them: '470 kr' },
+/* ─── Data ─── */
+const features = [
+  { icon: BookOpen, title: 'Odlingsdagbok', desc: 'Logga varje sådd och skörd. Se mönster du aldrig visste fanns.', color: 'bg-primary/10 text-primary' },
+  { icon: Calendar, title: 'Såkalender', desc: 'Få påminnelser anpassade till din klimatzon och dina växter.', color: 'bg-success/10 text-success' },
+  { icon: Sprout, title: 'Växtföljd', desc: 'Planera rotationen automatiskt. Friskare jord, bättre skördar.', color: 'bg-accent/10 text-accent' },
+  { icon: Bot, title: 'AI-coach Gro', desc: 'Ställ frågor om dina växter. Få svar baserade på din egna odlingshistorik.', color: 'bg-warning/10 text-warning', badge: 'PLUS' },
+  { icon: BarChart2, title: 'Skördestatistik', desc: 'Visualisera dina bästa år och dina bästa bäddar.', color: 'bg-primary/10 text-primary' },
+  { icon: Smartphone, title: 'PWA – fungerar offline', desc: 'Installera som app. Logga direkt i trädgården utan internet.', color: 'bg-success/10 text-success' },
 ];
 
 const faqs = [
-  { q: 'Kostar det något?', a: 'Grundversionen är helt gratis – för alltid. Med Plus (99 kr/år) får du obegränsade bäddar, smarta påminnelser, växtföljdshistorik och CSV-export. Alla nya konton får sju dagars Plus gratis.' },
-  { q: 'Behöver jag ladda ner en app?', a: 'Nej! Odlingsdagboken fungerar direkt i webbläsaren på mobil och dator. Lägg till den på hemskärmen så känns det som en app.' },
-  { q: 'Hur skiljer ni er från Gardenize?', a: 'Gardenize fokuserar brett – krukväxter, träd, inspiration. Vi fokuserar 100 % på grönsaksodling med konkreta verktyg: såkalender per klimatzon, skördlogg med vikt och växtföljd per bädd. Vi har även ett komplett system för krukväxter och inomhusväxter – något Gardenize saknar helt.' },
-  { q: 'Är mina data säkra?', a: 'Absolut. All data lagras krypterat inom EU. Vi följer GDPR och du kan radera allt när du vill.' },
-  { q: 'Hur många bäddar kan jag ha gratis?', a: 'Upp till tre bäddar och tio sådder. Alla nya konton får sju dagars Plus gratis så du kan testa allt.' },
-  { q: 'Fungerar appen offline?', a: 'Odlingsdagboken fungerar som en PWA – lägg till den på hemskärmen så kan du använda de viktigaste funktionerna även utan uppkoppling.' },
-  { q: 'Kan jag exportera mina data?', a: 'Ja, med Plus kan du exportera till CSV och PDF. Du äger alltid dina data.' },
+  { q: 'Är Odlingsdagboken verkligen gratis?', a: 'Ja, grundversionen är alltid gratis utan tidsbegränsning. Du kan logga sådder, skördar och använda såkalendern helt utan kostnad.' },
+  { q: 'Vad ingår i Plus?', a: 'Obegränsade bäddar, AI-coach Gro, avancerad statistik, export (CSV/PDF) och prioriterad support. Allt för 99 kr/år.' },
+  { q: 'Fungerar appen offline?', a: 'Ja, installera som PWA så fungerar loggning även utan internetuppkoppling. Datan synkas när du är online igen.' },
+  { q: 'Kan jag importera data från pappersanteckningar?', a: 'Du kan logga historisk data manuellt. CSV-import är på vår roadmap och kommer snart.' },
+  { q: 'Hur lång är gratisperioden för Plus?', a: '14 dagar, inget kreditkort krävs. Du kan avbryta när som helst.' },
 ];
 
 const testimonials = [
-  { name: 'Anna L.', location: 'Kalmar', zone: 2, stars: 5, quote: 'Äntligen en app som förstår svensk odling! Skördloggen har hjälpt mig förstå vilka sorter som verkligen presterar i min trädgård.' },
-  { name: 'Erik S.', location: 'Umeå', zone: 5, stars: 5, quote: 'Såkalendern anpassad efter zon 5 har gjort hela skillnaden. Missar aldrig rätt såtid längre.' },
-  { name: 'Maria K.', location: 'Göteborg', zone: 1, stars: 5, quote: 'AI-coachen Gro gav mig tipset att prova Matina-tomater. Bästa tomatskörden hittills!' },
-  { name: 'Jonas P.', location: 'Falun', zone: 4, stars: 4, quote: 'Växtföljdsfunktionen sparar mig massa tid. Jag vet exakt vad som odlades var, år för år.' },
-  { name: 'Lisa Å.', location: 'Lund', zone: 1, stars: 5, quote: 'Enkel att använda och gratis! Perfekt för nybörjare. Kom igång på fem minuter.' },
-  { name: 'Per W.', location: 'Sundsvall', zone: 5, stars: 5, quote: 'Pallkragarna har aldrig gett så bra skörd som efter att jag började logga allt i Odlingsdagboken.' },
+  { name: 'Anna K.', zone: 3, stars: 5, quote: 'Äntligen vet jag varför tomaterna misslyckades förra sommaren. Tre år av data – ovärderligt.' },
+  { name: 'Magnus L.', zone: 4, stars: 5, quote: 'AI-coachen Gro svarade på en fråga om mina ärtors gulnande blad på 10 sekunder. Imponerande.' },
+  { name: 'Sara W.', zone: 2, stars: 5, quote: 'Jag odlar i pallkrage på balkongen. Perfekt anpassat för mig.' },
 ];
 
 const howItWorksSteps = [
@@ -198,11 +183,66 @@ const howItWorksSteps = [
   { num: '3', title: 'Logga sådder och skördar', desc: 'Se vad som funkar år efter år.' },
 ];
 
+/* ─── Mobile nav ─── */
+function MobileMenu() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button onClick={() => setOpen(!open)} className="sm:hidden p-2 text-muted-foreground hover:text-foreground" aria-label="Meny">
+        <Menu className="h-5 w-5" />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            className="absolute top-full left-0 right-0 bg-card/95 backdrop-blur-xl border-b border-border sm:hidden overflow-hidden z-50"
+          >
+            <div className="flex flex-col p-4 gap-1">
+              <a href="#funktioner" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm text-foreground hover:text-primary rounded-lg hover:bg-muted/50 transition-colors">Funktioner</a>
+              <a href="#priser" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm text-foreground hover:text-primary rounded-lg hover:bg-muted/50 transition-colors">Priser</a>
+              <Link to="/blogg" className="px-3 py-2.5 text-sm text-foreground hover:text-primary rounded-lg hover:bg-muted/50 transition-colors">Blogg</Link>
+              <hr className="border-border my-1" />
+              <a href="/login?mode=login" className="px-3 py-2.5 text-sm text-foreground hover:text-primary rounded-lg hover:bg-muted/50 transition-colors">Logga in</a>
+              <Button asChild size="sm" className="mt-1">
+                <a href="/login?mode=register">Kom igång gratis</a>
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+/* ─── Pricing toggle ─── */
+function PricingToggle({ yearly, setYearly }: { yearly: boolean; setYearly: (v: boolean) => void }) {
+  return (
+    <div className="flex items-center justify-center gap-3 mb-8">
+      <span className={`text-sm font-medium transition-colors ${!yearly ? 'text-foreground' : 'text-muted-foreground'}`}>Månadsvis</span>
+      <button
+        onClick={() => setYearly(!yearly)}
+        className={`relative w-12 h-6 rounded-full transition-colors ${yearly ? 'bg-primary' : 'bg-muted'}`}
+        aria-label="Byt prisperiod"
+      >
+        <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-primary-foreground shadow-sm transition-transform ${yearly ? 'translate-x-6' : 'translate-x-0.5'}`} />
+      </button>
+      <span className={`text-sm font-medium transition-colors ${yearly ? 'text-foreground' : 'text-muted-foreground'}`}>
+        Årsvis <span className="text-xs text-primary font-semibold ml-1">spara 33%</span>
+      </span>
+    </div>
+  );
+}
+
 /* ─── Component ─── */
 export default function Index() {
+  const [yearly, setYearly] = useState(true);
+
   useSeo({
     title: 'Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare',
-    description: 'Logga sådder, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. 2 000+ odlare har redan börjat. Gratis!',
+    description: 'Håll koll på såtider, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis verktyg för 2 000+ svenska hobbyodlare.',
     path: '/',
     ogImage: '/og-image.png',
     ogImageAlt: 'Odlingsdagboken – digital odlingsdagbok för svenska odlare',
@@ -215,13 +255,6 @@ export default function Index() {
         description: 'Digital odlingsdagbok för svenska grönsaksodlare. Logga sådder, skördar och växtföljd – anpassat per klimatzon.',
         url: 'https://odlingsdagboken.com',
         inLanguage: 'sv',
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: '4.8',
-          ratingCount: '847',
-          bestRating: '5',
-          worstRating: '1',
-        },
         offers: [
           { '@type': 'Offer', price: '0', priceCurrency: 'SEK', description: 'Gratis grundversion' },
           { '@type': 'Offer', price: '99', priceCurrency: 'SEK', description: 'Plus – obegränsade bäddar, AI-coach, statistik' },
@@ -263,96 +296,85 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <ExitIntentPopup />
-
-      {/* ═══════════════════════ SEASONAL BANNER ═══════════════════════ */}
       <SeasonalBanner />
 
       {/* ═══════════════════════ NAV ═══════════════════════ */}
-      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50" aria-label="Huvudnavigation">
+      <motion.nav
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="sticky top-0 z-50 backdrop-blur-md bg-card/80 border-b border-border/40 relative"
+        aria-label="Huvudnavigation"
+      >
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-8 h-14">
           <a href="/" className="flex items-center gap-2">
-            <span className="text-lg" role="img" aria-label="Planta">🌱</span>
+            <Sprout className="h-5 w-5 text-primary" />
             <span className="font-serif text-base font-semibold text-foreground tracking-tight">Odlingsdagboken</span>
           </a>
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-xs sm:text-sm hidden sm:inline-flex">
-              <a href="/blogg">Blogg</a>
+          <div className="hidden sm:flex items-center gap-1">
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm">
+              <a href="#funktioner">Funktioner</a>
             </Button>
-            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-xs sm:text-sm">
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm">
+              <a href="#priser">Priser</a>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm">
+              <Link to="/blogg">Blogg</Link>
+            </Button>
+            <div className="w-px h-5 bg-border mx-1" />
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm">
               <a href="/login?mode=login">Logga in</a>
             </Button>
-            <Button asChild size="sm" className="h-8 px-3 sm:px-4 text-xs sm:text-sm">
-              <a href="/login?mode=register">Kom igång</a>
-            </Button>
+            <motion.div whileHover={{ scale: 1.02 }}>
+              <Button asChild size="sm" className="h-8 px-4 text-sm">
+                <a href="/login?mode=register">Kom igång gratis</a>
+              </Button>
+            </motion.div>
           </div>
+          <MobileMenu />
         </div>
-      </nav>
+      </motion.nav>
 
       {/* ═══════════════════════ HERO ═══════════════════════ */}
-      <section id="main-content" aria-labelledby="hero-heading" className="relative">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-1/2 -right-1/4 w-[600px] h-[600px] rounded-full bg-primary/[0.04] blur-3xl" />
-          <div className="absolute -bottom-1/4 -left-1/4 w-[400px] h-[400px] rounded-full bg-accent/[0.04] blur-3xl" />
-        </div>
+      <section id="main-content" aria-labelledby="hero-heading" className="relative bg-gradient-to-br from-[hsl(var(--background))] via-[hsl(152_36%_32%/0.03)] to-[hsl(36_40%_90%/0.3)]">
+        <BotanicalDecoration />
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-12 pb-10 sm:py-24 lg:py-32 relative">
+          <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0 }}>
+              <h1 id="hero-heading" className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground leading-[1.08] tracking-tight mb-5">
+                Din trädgård –{' '}
+                <span className="gradient-text">dokumenterad</span>
+                , år efter år
+              </h1>
+            </motion.div>
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-10 pb-8 sm:py-20 lg:py-28 relative">
-          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-            <div className="text-center lg:text-left">
-              <Reveal>
-                <div className="inline-flex items-center gap-2 bg-primary/8 border border-primary/15 text-primary px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium mb-5">
-                  <Zap className="h-3 w-3" />
-                  2 000+ svenska odlare · Klimatzoner 1–8
-                </div>
-              </Reveal>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
+                Håll koll på såtider, skördar och växtföljd. Se vad som funkar i just din trädgård. Gratis för alltid – uppgradera när du vill.
+              </p>
+            </motion.div>
 
-              <Reveal delay={80}>
-                <h1 id="hero-heading" className="font-serif text-[2rem] sm:text-5xl lg:text-[3.5rem] text-foreground leading-[1.1] tracking-tight mb-4 sm:mb-5">
-                  Vet vad som{' '}
-                  <span className="gradient-text">funkar</span>
-                  {' '}i din trädgård
-                </h1>
-              </Reveal>
-
-              <Reveal delay={160}>
-                <p className="text-[15px] sm:text-lg text-muted-foreground leading-relaxed mb-6 sm:mb-8 max-w-lg mx-auto lg:mx-0">
-                  Logga sådder, mät skördar och spåra växtföljd — anpassat efter din klimatzon. Odla smartare, år efter år.
-                </p>
-              </Reveal>
-
-              <Reveal delay={240}>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-2">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-4">
+                <motion.div whileHover={{ scale: 1.02 }}>
                   <Button asChild size="lg" className="h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base gap-2 shadow-lg">
-                    <a href="/login?mode=register">
-                      Skapa gratis konto <ArrowRight className="h-4 w-4" />
-                    </a>
+                    <a href="/login?mode=register">Kom igång gratis <ArrowRight className="h-4 w-4" /></a>
                   </Button>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.02 }}>
                   <Button asChild variant="outline" size="lg" className="h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base">
-                    <a href="#funktioner">Se hur det funkar</a>
+                    <a href="#funktioner">Se hur det fungerar</a>
                   </Button>
-                </div>
-                <p className="text-xs text-muted-foreground text-center lg:text-left">Inget betalkort krävs · Byggd för svenska förhållanden 🇸🇪</p>
-              </Reveal>
-            </div>
+                </motion.div>
+              </div>
+            </motion.div>
 
-            {/* Hero image */}
-            <Reveal delay={200} className="w-full">
-              <div className="block lg:hidden">
-                <div className="rounded-2xl overflow-hidden shadow-xl aspect-[4/3] max-w-md mx-auto">
-                  <img src={heroFlatlay} alt="Odlingsplanering med fröpåsar, plantor och anteckningsblock på ett träbord" width={600} height={450} className="w-full h-full object-cover" loading="eager" />
-                </div>
-              </div>
-              <div className="hidden lg:grid grid-cols-5 grid-rows-4 gap-3 h-[480px]">
-                <div className="col-span-3 row-span-4 rounded-2xl overflow-hidden shadow-lg">
-                  <img src={heroFlatlay} alt="Odlingsplanering med fröpåsar, plantor och anteckningsblock på ett träbord" width={600} height={640} className="w-full h-full object-cover" loading="eager" />
-                </div>
-                <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden shadow-md">
-                  <img src={heroHands} alt="Händer som håller nyskördade grönsaker i en svensk trädgård" width={400} height={300} className="w-full h-full object-cover" loading="eager" />
-                </div>
-                <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden shadow-md">
-                  <img src={heroAerial} alt="Pallkragar med grönsaker i en välskött svensk trädgård" width={400} height={300} className="w-full h-full object-cover" loading="eager" />
-                </div>
-              </div>
-            </Reveal>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.6 }}>
+              <p className="text-sm text-muted-foreground flex items-center gap-2 justify-center lg:justify-start">
+                <Sprout className="h-4 w-4 text-primary" />
+                Används av 2 000+ svenska odlare
+              </p>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -362,20 +384,16 @@ export default function Index() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <div className="text-2xl sm:text-3xl font-bold text-foreground">
-                <AnimatedCounter target={2000} suffix="+" />
-              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-foreground"><AnimatedCounter target={2000} suffix="+" /></div>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1">svenska odlare</p>
             </div>
             <div>
-              <div className="text-2xl sm:text-3xl font-bold text-foreground">
-                <AnimatedCounter target={85000} suffix="+" />
-              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-foreground"><AnimatedCounter target={85000} suffix="+" /></div>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1">loggade skördar</p>
             </div>
             <div>
               <div className="flex items-center justify-center gap-1 text-2xl sm:text-3xl font-bold text-foreground">
-                <AnimatedCounter target={48} suffix="" />
+                <AnimatedCounter target={48} />
                 <span className="text-lg">/5</span>
                 <Star className="h-5 w-5 fill-warning text-warning" />
               </div>
@@ -393,40 +411,7 @@ export default function Index() {
             <div className="hidden sm:block w-px h-5 bg-border" />
             <span className="flex items-center gap-1.5">🔒 GDPR – data inom EU</span>
             <div className="hidden sm:block w-px h-5 bg-border" />
-            <span className="flex items-center gap-1.5" role="img" aria-label="Gratis att börja">🌱 Gratis att börja</span>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════ PROBLEM → SOLUTION ═══════════════════════ */}
-      <section className="bg-card border-b border-border" aria-labelledby="problem-heading">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
-          <Reveal>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Problemet</p>
-            <h2 id="problem-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3 max-w-xl">
-              De flesta hemmaodlare gör samma misstag – år efter år
-            </h2>
-            <p className="text-muted-foreground max-w-lg mb-8 text-sm sm:text-base">
-              Utan data odlar du på känsla. Med Odlingsdagboken odlar du på kunskap.
-            </p>
-          </Reveal>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { emoji: '📓', problem: '"Jag glömmer vad jag odlade var"', solution: 'Bädd-för-bädd logg med full historik' },
-              { emoji: '🤷', problem: '"Jag vet inte vilka sorter som ger bäst"', solution: 'Skördlogg med vikt per sort' },
-              { emoji: '📅', problem: '"Jag missar rätt såtider"', solution: 'Såkalender anpassad per klimatzon' },
-            ].map((item, i) => (
-              <Reveal key={item.problem} delay={i * 100}>
-                <div className="p-5 rounded-xl border border-border bg-background">
-                  <span className="text-2xl mb-3 block" role="img" aria-label="Problem">{item.emoji}</span>
-                  <p className="text-sm font-medium text-foreground mb-2">{item.problem}</p>
-                  <p className="text-xs text-primary font-medium flex items-center gap-1">
-                    <Check className="h-3 w-3 shrink-0" /> {item.solution}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
+            <span className="flex items-center gap-1.5">🌱 Gratis att börja</span>
           </div>
         </div>
       </section>
@@ -434,269 +419,239 @@ export default function Index() {
       {/* ═══════════════════════ HOW IT WORKS ═══════════════════════ */}
       <section aria-labelledby="how-heading">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
-          <Reveal className="text-center mb-10">
+          <div className="text-center mb-10">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Så här funkar det</p>
-            <h2 id="how-heading" className="font-serif text-2xl sm:text-3xl text-foreground">
-              Kom igång på tre enkla steg
-            </h2>
-          </Reveal>
-
+            <h2 id="how-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Kom igång på tre enkla steg</h2>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
             {howItWorksSteps.map((step, i) => (
-              <Reveal key={step.num} delay={i * 120}>
-                <div className="text-center">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 text-primary font-serif text-xl font-bold flex items-center justify-center mx-auto mb-4">
-                    {step.num}
-                  </div>
-                  <h3 className="font-serif text-base sm:text-lg text-foreground mb-1">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground">{step.desc}</p>
+              <motion.div
+                key={step.num}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="text-center"
+              >
+                <div className="w-12 h-12 rounded-full bg-primary/10 text-primary font-serif text-xl font-bold flex items-center justify-center mx-auto mb-4">
+                  {step.num}
                 </div>
-              </Reveal>
+                <h3 className="font-serif text-base sm:text-lg text-foreground mb-1">{step.title}</h3>
+                <p className="text-sm text-muted-foreground">{step.desc}</p>
+              </motion.div>
             ))}
           </div>
-
-          {/* CTA after how-it-works */}
-          <Reveal delay={400} className="text-center mt-10">
-            <Button asChild size="lg" className="h-12 px-8 gap-2">
-              <a href="/login?mode=register">Kom igång gratis <ArrowRight className="h-4 w-4" /></a>
-            </Button>
-            <p className="text-xs text-muted-foreground mt-2">Inget betalkort krävs</p>
-          </Reveal>
         </div>
       </section>
 
       {/* ═══════════════════════ APP DEMO ═══════════════════════ */}
       <section className="bg-card border-y border-border overflow-hidden" aria-labelledby="demo-heading">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
-          <Reveal className="text-center mb-8 sm:mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Se appen i aktion</p>
-            <h2 id="demo-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">
-              Din odling – samlad på ett ställe
-            </h2>
-            <p className="text-muted-foreground max-w-md mx-auto text-sm">
-              Bäddar, sådder, skördar och statistik – allt i en tydlig översikt anpassad efter din klimatzon.
-            </p>
-          </Reveal>
+            <h2 id="demo-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">Din odling – samlad på ett ställe</h2>
+            <p className="text-muted-foreground max-w-md mx-auto text-sm">Bäddar, sådder, skördar och statistik – allt i en tydlig översikt.</p>
+          </div>
 
-          <Reveal delay={150}>
-            <div className="max-w-4xl mx-auto">
-              {/* Browser mockup */}
-              <div className="rounded-xl sm:rounded-2xl border border-border shadow-2xl overflow-hidden bg-background">
-                {/* Title bar */}
-                <div className="flex items-center gap-2 px-4 py-2.5 bg-muted/60 border-b border-border">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-destructive/60" />
-                    <div className="w-3 h-3 rounded-full bg-warning/60" />
-                    <div className="w-3 h-3 rounded-full bg-success/60" />
-                  </div>
-                  <div className="flex-1 flex justify-center">
-                    <div className="bg-background border border-border rounded-md px-3 py-1 text-[10px] sm:text-xs text-muted-foreground font-mono max-w-xs w-full text-center truncate">
-                      odlingsdagboken.com/dashboard
-                    </div>
-                  </div>
-                  <div className="w-[42px]" />
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="rounded-xl sm:rounded-2xl border border-border shadow-2xl overflow-hidden bg-background">
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-muted/60 border-b border-border">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-destructive/60" />
+                  <div className="w-3 h-3 rounded-full bg-warning/60" />
+                  <div className="w-3 h-3 rounded-full bg-success/60" />
                 </div>
-                {/* Screenshot */}
-                <img
-                  src={dashboardPreview}
-                  alt="Odlingsdagbokens dashboard med översikt av bäddar, sådder, skördar och statistik"
-                  width={1280}
-                  height={800}
-                  className="w-full h-auto block"
-                  loading="lazy"
-                />
+                <div className="flex-1 flex justify-center">
+                  <div className="bg-background border border-border rounded-md px-3 py-1 text-[10px] sm:text-xs text-muted-foreground font-mono max-w-xs w-full text-center truncate">
+                    odlingsdagboken.com/dashboard
+                  </div>
+                </div>
+                <div className="w-[42px]" />
               </div>
-
-              {/* Floating badges */}
-              <div className="hidden sm:flex justify-center gap-3 mt-6 flex-wrap">
-                {['Skördlogg', 'Såkalender', 'Växtföljd', 'AI-coach Gro', 'Statistik'].map((label, i) => (
-                  <span key={label} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-xs font-medium">
-                    <Check className="h-3 w-3" /> {label}
-                  </span>
-                ))}
-              </div>
+              <img src={dashboardPreview} alt="Odlingsdagbokens dashboard med översikt av bäddar, sådder, skördar och statistik" width={1280} height={800} className="w-full h-auto block" loading="lazy" />
             </div>
-          </Reveal>
+            <div className="hidden sm:flex justify-center gap-3 mt-6 flex-wrap">
+              {['Skördlogg', 'Såkalender', 'Växtföljd', 'AI-coach Gro', 'Statistik'].map(label => (
+                <span key={label} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-xs font-medium">
+                  <Check className="h-3 w-3" /> {label}
+                </span>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* ═══════════════════════ CAPABILITIES ═══════════════════════ */}
+      {/* ═══════════════════════ FEATURES ═══════════════════════ */}
       <section id="funktioner" className="scroll-mt-20 bg-background border-b border-border" aria-labelledby="features-heading">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
-          <Reveal className="mb-10">
+          <div className="mb-10 text-center sm:text-left">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Funktioner</p>
-            <h2 id="features-heading" className="font-serif text-2xl sm:text-3xl text-foreground max-w-lg">
-              Allt du behöver för att odla smartare
-            </h2>
-          </Reveal>
+            <h2 id="features-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Allt du behöver för att odla smartare</h2>
+          </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {capabilities.map((cap, i) => (
-              <Reveal key={cap.title} delay={i * 80}>
-                <div className="group p-4 sm:p-6 rounded-2xl border border-border bg-background hover:shadow-lg transition-all duration-300 h-full">
-                  <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${cap.color} flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform`}>
-                    <cap.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {features.map((f, i) => (
+              <motion.div
+                key={f.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="group p-5 sm:p-6 rounded-2xl border border-border bg-card hover:shadow-lg transition-all duration-300 h-full"
+                whileHover={{ y: -2 }}
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`w-10 h-10 rounded-xl ${f.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                    <f.icon className="h-5 w-5" />
                   </div>
-                  <h3 className="font-serif text-sm sm:text-lg text-foreground mb-1 sm:mb-2">{cap.title}</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{cap.desc}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-serif text-base sm:text-lg text-foreground">{f.title}</h3>
+                      {f.badge && (
+                        <motion.span
+                          animate={{ scale: [1, 1.05, 1] }}
+                          transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                          className="px-1.5 py-0.5 text-[10px] font-bold bg-warning/20 text-warning rounded-md uppercase"
+                        >
+                          {f.badge}
+                        </motion.span>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                  </div>
                 </div>
-              </Reveal>
+              </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════ PRICING ═══════════════════════ */}
+      <section id="priser" className="scroll-mt-20" aria-labelledby="pricing-heading">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
+          <div className="text-center mb-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Prissättning</p>
+            <h2 id="pricing-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">Välj din plan</h2>
+            <p className="text-muted-foreground max-w-md mx-auto text-sm">Börja gratis. Uppgradera när du vill.</p>
+          </div>
+
+          <PricingToggle yearly={yearly} setYearly={setYearly} />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="p-5 sm:p-8 rounded-2xl border border-border bg-card h-full"
+            >
+              <h3 className="font-serif text-xl text-foreground mb-1">Gratis</h3>
+              <div className="flex items-baseline gap-1 mb-5">
+                <span className="text-3xl sm:text-4xl font-bold text-foreground">0</span>
+                <span className="text-muted-foreground text-sm">kr</span>
+              </div>
+              <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Obegränsade loggposter</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> 3 odlingsbäddar</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Såkalender</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Växtföljdsplanering</li>
+              </ul>
+              <motion.div whileHover={{ scale: 1.02 }}>
+                <Button asChild variant="outline" className="w-full">
+                  <a href="/login?mode=register">Kom igång gratis</a>
+                </Button>
+              </motion.div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="relative p-5 sm:p-8 rounded-2xl border-2 border-primary bg-[hsl(152_36%_32%/0.03)] h-full"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                className="absolute -top-3 right-4 sm:right-6 bg-primary text-primary-foreground text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider"
+              >
+                Populärast
+              </motion.div>
+              <h3 className="font-serif text-xl text-foreground mb-1">Plus</h3>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-3xl sm:text-4xl font-bold text-foreground">{yearly ? '799' : '99'}</span>
+                <span className="text-muted-foreground text-sm">kr/{yearly ? 'år' : 'mån'}</span>
+              </div>
+              {yearly && <p className="text-xs text-primary font-medium mb-4">~67 kr/mån · spara 33%</p>}
+              {!yearly && <p className="text-xs text-muted-foreground mb-4">Eller 799 kr/år (spara 33%)</p>}
+              <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Allt i Gratis</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Obegränsade bäddar</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> AI-coach Gro</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Avancerad statistik</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Prioriterad support</li>
+              </ul>
+              <motion.div whileHover={{ scale: 1.02 }}>
+                <Button asChild className="w-full">
+                  <a href="/login?mode=register">Prova Plus 14 dagar gratis</a>
+                </Button>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════ TESTIMONIALS ═══════════════════════ */}
-      <section aria-labelledby="testimonials-heading">
+      <section className="bg-[hsl(36_30%_94%)] dark:bg-muted/30 border-y border-border" aria-labelledby="testimonials-heading">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
-          <Reveal className="text-center mb-10">
+          <div className="text-center mb-10">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Omdömen</p>
-            <h2 id="testimonials-heading" className="font-serif text-2xl sm:text-3xl text-foreground">
-              Vad svenska odlare säger
-            </h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {testimonials.map((t, i) => (
-              <Reveal key={t.name} delay={i * 80}>
-                <TestimonialCard {...t} />
-              </Reveal>
-            ))}
+            <h2 id="testimonials-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Vad svenska odlare säger</h2>
           </div>
-
-          {/* CTA after testimonials */}
-          <Reveal delay={500} className="text-center mt-10">
-            <Button asChild size="lg" className="h-12 px-8 gap-2">
-              <a href="/login?mode=register">Prova själv – det är gratis <ArrowRight className="h-4 w-4" /></a>
-            </Button>
-            <p className="text-xs text-muted-foreground mt-2">Inget betalkort krävs · Sju dagars Plus gratis</p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ═══════════════════════ COMPARISON ═══════════════════════ */}
-      <section className="bg-card border-y border-border" aria-labelledby="compare-heading">
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
-          <Reveal className="text-center mb-8 sm:mb-10">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Jämförelse</p>
-            <h2 id="compare-heading" className="font-serif text-2xl sm:text-3xl text-foreground">
-              Odlingsdagboken vs Gardenize
-            </h2>
-          </Reveal>
-
-          <Reveal delay={100}>
-            <div className="rounded-2xl border border-border overflow-hidden bg-card">
-              <div className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-3 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
-                <div className="p-3 sm:p-4">Funktion</div>
-                <div className="p-3 sm:p-4 text-center bg-primary/5 text-primary whitespace-nowrap">Oss</div>
-                <div className="p-3 sm:p-4 text-center whitespace-nowrap">Gardenize</div>
-              </div>
-              {comparisons.map((row, i) => (
-                <div key={row.feature} className={`grid grid-cols-[1fr_auto_auto] sm:grid-cols-3 text-xs sm:text-sm ${i < comparisons.length - 1 ? 'border-b border-border' : ''}`}>
-                  <div className="p-3 sm:p-4 text-foreground">{row.feature}</div>
-                  <div className="p-3 sm:p-4 text-center bg-primary/5 font-medium min-w-[60px]">
-                    {typeof row.us === 'boolean'
-                      ? row.us ? <Check className="h-4 w-4 text-primary mx-auto" /> : '–'
-                      : <span className="text-primary font-bold">{row.us}</span>
-                    }
-                  </div>
-                  <div className="p-3 sm:p-4 text-center text-muted-foreground min-w-[60px]">
-                    {typeof row.them === 'boolean'
-                      ? row.them ? <Check className="h-4 w-4 mx-auto" /> : '–'
-                      : row.them
-                    }
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ═══════════════════════ PRICING ═══════════════════════ */}
-      <section aria-labelledby="pricing-heading">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
-          <Reveal className="text-center mb-10">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Prissättning</p>
-            <h2 id="pricing-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">
-              Börja gratis. Uppgradera när du vill.
-            </h2>
-            <p className="text-muted-foreground max-w-md mx-auto text-sm">
-              Alla nya konton får sju dagars Plus gratis.
-            </p>
-          </Reveal>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto">
-            <Reveal>
-              <div className="p-5 sm:p-8 rounded-2xl border border-border bg-card h-full">
-                <h3 className="font-serif text-xl text-foreground mb-1">Gratis</h3>
-                <div className="flex items-baseline gap-1 mb-4 sm:mb-5">
-                  <span className="text-3xl sm:text-4xl font-bold text-foreground">0</span>
-                  <span className="text-muted-foreground text-sm">kr/år</span>
-                </div>
-                <ul className="space-y-2 text-sm text-muted-foreground mb-5 sm:mb-6">
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Max tre bäddar</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Max tio sådder</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Skördlogg med vikt</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Såkalender per zon</li>
-                </ul>
-                <Button asChild variant="outline" className="w-full">
-                  <a href="/login?mode=register">Börja gratis</a>
-                </Button>
-              </div>
-            </Reveal>
-
-            <Reveal delay={100}>
-              <div className="relative p-5 sm:p-8 rounded-2xl border-2 border-primary bg-card h-full">
-                <div className="absolute -top-3 right-4 sm:right-6 bg-primary text-primary-foreground text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
-                  Populärast
-                </div>
-                <h3 className="font-serif text-xl text-foreground mb-1">Plus</h3>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-3xl sm:text-4xl font-bold text-foreground">99</span>
-                  <span className="text-muted-foreground text-sm">kr/år</span>
-                </div>
-                <p className="text-xs text-muted-foreground mb-4 sm:mb-5">Bara ~åtta kr/månad · sju dagars gratis provperiod</p>
-                <ul className="space-y-2 text-sm text-muted-foreground mb-5 sm:mb-6">
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Obegränsade bäddar & sådder</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> AI-coach Gro utan gräns</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Statistik & trender</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Export (CSV/PDF)</li>
-                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Säsongsanteckningar</li>
-                </ul>
-                <Button asChild className="w-full">
-                  <a href="/login?mode=register">Prova Plus gratis</a>
-                </Button>
-              </div>
-            </Reveal>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {testimonials.map((t, i) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <TestimonialCard {...t} />
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════ FAQ ═══════════════════════ */}
-      <section className="bg-card border-y border-border" aria-labelledby="faq-heading">
+      <section className="bg-card border-b border-border" aria-labelledby="faq-heading">
         <div className="max-w-2xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
-          <Reveal className="mb-8">
+          <div className="mb-8 text-center">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">FAQ</p>
             <h2 id="faq-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Vanliga frågor</h2>
-          </Reveal>
-          <Reveal delay={100}>
-            <div className="border-t border-border">
-              {faqs.map((f) => <FAQItem key={f.q} q={f.q} a={f.a} />)}
-            </div>
-          </Reveal>
+          </div>
+          <div className="border-t border-border">
+            {faqs.map(f => <FAQItem key={f.q} q={f.q} a={f.a} />)}
+          </div>
         </div>
       </section>
 
       {/* ═══════════════════════ BLOG TEASER ═══════════════════════ */}
       <section aria-labelledby="blog-heading">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
-          <Reveal className="text-center mb-8">
+          <div className="text-center mb-8">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Bloggen</p>
             <h2 id="blog-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Lär dig odla bättre</h2>
             <p className="text-muted-foreground text-sm mt-2 max-w-md mx-auto">Guider, tips och inspiration för svenska odlare – från sådd till skörd.</p>
-          </Reveal>
-          <Reveal delay={100} className="flex flex-wrap justify-center gap-3">
+          </div>
+          <div className="flex flex-wrap justify-center gap-3">
             {[
               { title: 'Odla tomater', slug: 'odla-tomater' },
               { title: 'Odla i pallkrage', slug: 'odla-pallkrage' },
@@ -709,12 +664,12 @@ export default function Index() {
                 {p.title}
               </Link>
             ))}
-          </Reveal>
-          <Reveal delay={200} className="text-center mt-6">
+          </div>
+          <div className="text-center mt-6">
             <Link to="/blogg" className="text-sm text-primary font-medium hover:underline inline-flex items-center gap-1">
               Alla artiklar <ArrowRight className="h-3 w-3" />
             </Link>
-          </Reveal>
+          </div>
         </div>
       </section>
 
@@ -724,88 +679,81 @@ export default function Index() {
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24 relative">
           <div className="max-w-2xl mx-auto text-center">
-            <Reveal>
-              <h2 id="cta-heading" className="font-serif text-2xl sm:text-4xl leading-[1.1] mb-4 text-background">
-                Redo att veta vad som funkar i din trädgård?
-              </h2>
-              <p className="text-background/70 mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-base">
-                Skapa ett konto på tio sekunder. Börja logga. Se resultat redan efter första säsongen.
-              </p>
+            <h2 id="cta-heading" className="font-serif text-2xl sm:text-4xl leading-[1.1] mb-4 text-background">
+              Redo att veta vad som funkar i din trädgård?
+            </h2>
+            <p className="text-background/70 mb-8 max-w-md mx-auto text-sm sm:text-base">
+              Skapa ett konto på tio sekunder. Börja logga. Se resultat redan efter första säsongen.
+            </p>
+            <motion.div whileHover={{ scale: 1.02 }}>
               <Button asChild size="lg" variant="secondary" className="h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base gap-2">
-                <a href="/login?mode=register">
-                  Kom igång gratis <ArrowRight className="h-4 w-4" />
-                </a>
+                <a href="/login?mode=register">Kom igång gratis <ArrowRight className="h-4 w-4" /></a>
               </Button>
-              <p className="text-xs text-background/50 mt-4">Alla nya konton får sju dagars Plus gratis · Inget betalkort krävs</p>
-            </Reveal>
+            </motion.div>
+            <p className="text-xs text-background/50 mt-4">Alla nya konton får Plus gratis i 14 dagar · Inget betalkort krävs</p>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════ FOOTER ═══════════════════════ */}
-      <footer className="border-t border-border bg-card py-10 sm:py-14 px-4 sm:px-8" aria-label="Sidfot">
+      <footer className="bg-[hsl(150_30%_10%)] text-[hsl(152_20%_85%)] py-12 sm:py-16 px-4 sm:px-8" aria-label="Sidfot">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-8">
-            {/* Kolumn 1: Produkt */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-10">
+            {/* Col 1: Brand */}
+            <div className="col-span-2 sm:col-span-1">
+              <div className="flex items-center gap-2 mb-3">
+                <Sprout className="h-5 w-5 text-[hsl(152_40%_55%)]" />
+                <span className="font-serif text-base font-semibold text-white">Odlingsdagboken</span>
+              </div>
+              <p className="text-sm text-[hsl(152_15%_60%)] leading-relaxed mb-4">
+                Digital odlingsdagbok för svenska hobbyodlare. Logga, lär och odla smartare.
+              </p>
+              <p className="text-xs text-[hsl(152_10%_45%)]">© {new Date().getFullYear()} Odlingsdagboken</p>
+            </div>
+
+            {/* Col 2: Produkt */}
             <div>
-              <h4 className="font-serif text-sm font-semibold text-foreground mb-3">Produkt</h4>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                <li><a href="#funktioner" className="hover:text-foreground transition-colors">Funktioner</a></li>
-                <li><a href="/login?mode=register" className="hover:text-foreground transition-colors">Skapa konto</a></li>
-                <li><a href="/login" className="hover:text-foreground transition-colors">Logga in</a></li>
-                <li><a href="/install" className="hover:text-foreground transition-colors">Installera</a></li>
+              <h4 className="text-sm font-semibold text-white mb-3">Produkt</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#funktioner" className="hover:text-white transition-colors">Funktioner</a></li>
+                <li><a href="#priser" className="hover:text-white transition-colors">Priser</a></li>
+                <li><Link to="/blogg" className="hover:text-white transition-colors">Blogg</Link></li>
+                <li><a href="/install" className="hover:text-white transition-colors">Installera</a></li>
               </ul>
             </div>
-            {/* Kolumn 2: Resurser */}
+
+            {/* Col 3: Support */}
             <div>
-              <h4 className="font-serif text-sm font-semibold text-foreground mb-3">Resurser</h4>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                <li><Link to="/blogg" className="hover:text-foreground transition-colors">Blogg</Link></li>
-                <li><Link to="/blogg/odla-tomater" className="hover:text-foreground transition-colors">Odla tomater</Link></li>
-                <li><Link to="/blogg/odla-pallkrage" className="hover:text-foreground transition-colors">Odla i pallkrage</Link></li>
-                <li><Link to="/blogg/odla-pa-balkong" className="hover:text-foreground transition-colors">Balkongodling</Link></li>
+              <h4 className="text-sm font-semibold text-white mb-3">Support</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="mailto:info@auroramedia.se" className="hover:text-white transition-colors">Kontakta oss</a></li>
+                <li><a href="/terms" className="hover:text-white transition-colors">Integritetspolicy</a></li>
+                <li><a href="/terms" className="hover:text-white transition-colors">Villkor</a></li>
               </ul>
             </div>
-            {/* Kolumn 3: Företag */}
+
+            {/* Col 4: Social */}
             <div>
-              <h4 className="font-serif text-sm font-semibold text-foreground mb-3">Företag</h4>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                <li><a href="/terms" className="hover:text-foreground transition-colors">Villkor & integritet</a></li>
-                <li><a href="mailto:hej@odlingsdagboken.com" className="hover:text-foreground transition-colors">Kontakt</a></li>
-              </ul>
-            </div>
-            {/* Kolumn 4: Socialt */}
-            <div>
-              <h4 className="font-serif text-sm font-semibold text-foreground mb-3">Följ oss</h4>
-              <ul className="space-y-2 text-xs text-muted-foreground">
+              <h4 className="text-sm font-semibold text-white mb-3">Följ oss</h4>
+              <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="https://instagram.com/odlingsdagboken" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1.5">
+                  <a href="https://instagram.com/odlingsdagboken" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1.5">
                     <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C16.67.014 16.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                    Instagram
+                    @odlingsdagboken
                   </a>
                 </li>
                 <li>
-                  <a href="https://facebook.com/odlingsdagboken" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1.5">
+                  <a href="https://facebook.com/odlingsdagboken" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1.5">
                     <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                    Facebook
+                    @odlingsdagboken
                   </a>
                 </li>
               </ul>
               <div className="flex gap-2 mt-4">
-                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-primary/8 text-primary font-medium">🔒 GDPR</span>
-                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-primary/8 text-primary font-medium">🇪🇺 Data i EU</span>
+                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-[hsl(152_30%_20%)] text-[hsl(152_30%_65%)] font-medium">🔒 GDPR</span>
+                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-[hsl(152_30%_20%)] text-[hsl(152_30%_65%)] font-medium">🇪🇺 Data i EU</span>
               </div>
             </div>
-          </div>
-
-          <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <span role="img" aria-label="Planta">🌱</span>
-              <span className="font-serif font-medium text-foreground">Odlingsdagboken</span>
-              <span className="text-border mx-1">|</span>
-              <span>© {new Date().getFullYear()}</span>
-            </div>
-            <Link to="/blogg" className="hover:text-foreground transition-colors">Alla bloggartiklar</Link>
           </div>
         </div>
       </footer>

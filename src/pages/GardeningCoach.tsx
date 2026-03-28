@@ -213,11 +213,16 @@ const GardeningCoach = () => {
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto py-4 space-y-4 scroll-smooth">
         {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+          <div key={i} className={`flex items-end gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            {msg.role === 'assistant' && (
+              <div className="w-8 h-8 rounded-full bg-[hsl(152_36%_32%/0.12)] flex items-center justify-center shrink-0 mb-1">
+                <span className="text-sm">🌿</span>
+              </div>
+            )}
+            <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
               msg.role === 'user'
                 ? 'bg-primary text-primary-foreground rounded-br-md'
-                : 'bg-muted/60 text-foreground rounded-bl-md'
+                : 'bg-[hsl(152_36%_32%/0.06)] dark:bg-muted/60 text-foreground rounded-bl-md border border-border/40'
             }`}>
               {msg.role === 'assistant' ? (
                 <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-foreground/90 prose-li:text-foreground/90 prose-strong:text-foreground prose-p:my-1 prose-ul:my-1 prose-headings:my-2">
@@ -231,8 +236,11 @@ const GardeningCoach = () => {
         ))}
 
         {loading && messages[messages.length - 1]?.role !== 'assistant' && (
-          <div className="flex justify-start">
-            <div className="bg-muted/60 rounded-2xl rounded-bl-md px-4 py-3">
+          <div className="flex items-end gap-2 justify-start">
+            <div className="w-8 h-8 rounded-full bg-[hsl(152_36%_32%/0.12)] flex items-center justify-center shrink-0 mb-1">
+              <span className="text-sm">🌿</span>
+            </div>
+            <div className="bg-[hsl(152_36%_32%/0.06)] dark:bg-muted/60 rounded-2xl rounded-bl-md px-4 py-3 border border-border/40">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                 <span className="text-sm">Gro tänker...</span>
