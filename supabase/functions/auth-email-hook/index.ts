@@ -205,11 +205,21 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
+  // Rewrite confirmation URL to use our custom domain instead of Lovable/Supabase default
+  const rawUrl = payload.data.url || ''
+  const rewrittenUrl = rawUrl.replace(
+    /https?:\/\/[^/]*\.lovable\.app/,
+    `https://${ROOT_DOMAIN}`
+  ).replace(
+    /https?:\/\/[^/]*\.supabase\.co/,
+    `https://${ROOT_DOMAIN}`
+  )
+
   const templateProps = {
     siteName: SITE_NAME,
     siteUrl: `https://${ROOT_DOMAIN}`,
     recipient: payload.data.email,
-    confirmationUrl: payload.data.url,
+    confirmationUrl: rewrittenUrl || `https://${ROOT_DOMAIN}`,
     token: payload.data.token,
     email: payload.data.email,
     newEmail: payload.data.new_email,
