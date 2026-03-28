@@ -24,8 +24,8 @@ export default function Guides() {
   const { tag } = useParams<{ tag?: string }>();
   const activeTag = tag ? decodeURIComponent(tag) : null;
   useSeo({
-    title: 'Blogg – Guider, tips & odlingskunskap | Odlingsdagboken',
-    description: 'Guider, tips och inspiration för dig som odlar grönsaker. Såtider, växtföljd, jordförbättring och mer – testat av svenska odlare.',
+    title: 'Odlingstips & Guider 2026 | Odlingsdagboken',
+    description: 'Guider, såtider och tips för svenska hobbyodlare. Lär dig mer om växtföljd, pallkrage och klassisk grönsaksodling.',
     path: '/blogg',
     ogImage: '/blog-images/spring-garden.jpg',
     ogImageAlt: 'Svensk köksträdgård – Odlingsdagbokens blogg',
@@ -104,10 +104,10 @@ export default function Guides() {
             <BookOpen className="h-3.5 w-3.5" /> Bloggen
           </div>
           <h1 className="text-3xl sm:text-4xl font-serif text-foreground mb-3">
-            Odling, trädgård & hållbarhet
+            Odlingstips & guider för svenska hobbyodlare
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Guider, tips och inspiration för dig som odlar grönsaker. Från sådd till skörd – anpassat för svenska förhållanden.
+            Guider, såtider och tips för dig som odlar grönsaker. Från sådd till skörd – anpassat för svenska förhållanden.
           </p>
         </div>
 
