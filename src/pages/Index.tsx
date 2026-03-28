@@ -158,7 +158,7 @@ const features = [
   { icon: BookOpen, title: 'Odlingsdagbok', desc: 'Logga varje sådd och skörd. Se mönster du aldrig visste fanns.', color: 'bg-primary/10 text-primary' },
   { icon: Calendar, title: 'Såkalender', desc: 'Få påminnelser anpassade till din klimatzon och dina växter.', color: 'bg-success/10 text-success' },
   { icon: Sprout, title: 'Växtföljd', desc: 'Planera rotationen automatiskt. Friskare jord, bättre skördar.', color: 'bg-accent/10 text-accent' },
-  { icon: Bot, title: 'AI-coach Gro', desc: 'Ställ frågor om dina växter. Få svar baserade på din egna odlingshistorik.', color: 'bg-warning/10 text-warning', badge: 'PLUS' },
+  { icon: Bot, title: 'AI-coach Gro', desc: 'Chatta med Gro om dina växter. Hon svarar baserat på din egna odlingshistorik – dina bäddar, sådder och skördar.', color: 'bg-warning/10 text-warning', badge: 'PLUS', cta: { label: 'Prova Gro →', href: '/app/gro' } },
   { icon: BarChart2, title: 'Skördestatistik', desc: 'Visualisera dina bästa år och dina bästa bäddar.', color: 'bg-primary/10 text-primary' },
   { icon: Smartphone, title: 'PWA – fungerar offline', desc: 'Installera som app. Logga direkt i trädgården utan internet.', color: 'bg-success/10 text-success' },
 ];
@@ -500,6 +500,11 @@ export default function Index() {
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                    {(f as any).cta && (
+                      <Link to={(f as any).cta.href} className="inline-block mt-3 text-sm font-medium text-primary hover:underline">
+                        {(f as any).cta.label}
+                      </Link>
+                    )}
                   </div>
                 </div>
               </motion.div>
