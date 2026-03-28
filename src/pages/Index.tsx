@@ -336,7 +336,8 @@ export default function Index() {
       </motion.nav>
 
       {/* ═══════════════════════ HERO ═══════════════════════ */}
-      <section id="main-content" aria-labelledby="hero-heading" className="relative bg-gradient-to-br from-[hsl(var(--background))] via-[hsl(152_36%_32%/0.03)] to-[hsl(36_40%_90%/0.3)]">
+      <main id="main-content">
+      <section aria-labelledby="hero-heading" className="relative bg-gradient-to-br from-[hsl(var(--background))] via-[hsl(152_36%_32%/0.03)] to-[hsl(36_40%_90%/0.3)]">
         <BotanicalDecoration />
         <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-12 pb-10 sm:py-24 lg:py-32 relative">
           <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
@@ -449,7 +450,7 @@ export default function Index() {
                 </div>
                 <div className="w-[42px]" />
               </div>
-              <img src={dashboardPreview} alt="Såkalender och växtföljdsplanering i Odlingsdagboken – digital odlingsdagbok för svenska hobbyodlare" width={1280} height={800} className="w-full h-auto block" loading="lazy" />
+              <img src={dashboardPreview} srcSet={`${dashboardPreview} 1280w`} sizes="(max-width: 768px) 100vw, 662px" alt="Såkalender och växtföljdsplanering i Odlingsdagboken – digital odlingsdagbok för svenska hobbyodlare" width={1280} height={800} className="w-full h-auto block" fetchPriority="high" />
             </div>
             <div className="hidden sm:flex justify-center gap-3 mt-6 flex-wrap">
               {['Skördlogg', 'Såkalender', 'Växtföljd', 'AI-coach Gro', 'Statistik'].map(label => (
@@ -685,7 +686,7 @@ export default function Index() {
 
             {/* Col 2: Produkt */}
             <div>
-              <h4 className="text-sm font-semibold text-white mb-3">Produkt</h4>
+              <h3 className="text-sm font-semibold text-white mb-3">Produkt</h3>
               <ul className="space-y-2 text-sm">
                 <li><a href="#funktioner" className="hover:text-white transition-colors">Funktioner</a></li>
                 <li><a href="#priser" className="hover:text-white transition-colors">Priser</a></li>
@@ -698,7 +699,7 @@ export default function Index() {
 
             {/* Col 3: Support */}
             <div>
-              <h4 className="text-sm font-semibold text-white mb-3">Support</h4>
+              <h3 className="text-sm font-semibold text-white mb-3">Support</h3>
               <ul className="space-y-2 text-sm">
                 <li><a href="mailto:info@auroramedia.se" className="hover:text-white transition-colors">Kontakta oss</a></li>
                 <li><a href="/terms" className="hover:text-white transition-colors">Integritetspolicy</a></li>
@@ -708,7 +709,7 @@ export default function Index() {
 
             {/* Col 4: Social */}
             <div>
-              <h4 className="text-sm font-semibold text-white mb-3">Följ oss</h4>
+              <h3 className="text-sm font-semibold text-white mb-3">Följ oss</h3>
               <ul className="space-y-2 text-sm">
                 <li>
                   <a href="https://instagram.com/odlingsdagboken" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1.5">

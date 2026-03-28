@@ -156,7 +156,7 @@ export default function Guides() {
                     </div>
                     <h2 className="font-serif text-lg text-foreground leading-snug group-hover:text-primary transition-colors">{post.title}</h2>
                     {post.excerpt && <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>}
-                    <span className="inline-flex items-center text-xs font-medium text-primary gap-1 pt-1">Läs mer <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" /></span>
+                    <span className="inline-flex items-center text-xs font-medium text-primary gap-1 pt-1">Läs artikeln <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" /></span>
                   </CardContent>
                 </Card>
               </Link>
