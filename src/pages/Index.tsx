@@ -465,8 +465,63 @@ export default function Index() {
         </div>
       </section>
 
+      {/* ═══════════════════════ APP DEMO ═══════════════════════ */}
+      <section className="bg-card border-y border-border overflow-hidden" aria-labelledby="demo-heading">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
+          <Reveal className="text-center mb-8 sm:mb-12">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Se appen i aktion</p>
+            <h2 id="demo-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">
+              Din odling – samlad på ett ställe
+            </h2>
+            <p className="text-muted-foreground max-w-md mx-auto text-sm">
+              Bäddar, sådder, skördar och statistik – allt i en tydlig översikt anpassad efter din klimatzon.
+            </p>
+          </Reveal>
+
+          <Reveal delay={150}>
+            <div className="max-w-4xl mx-auto">
+              {/* Browser mockup */}
+              <div className="rounded-xl sm:rounded-2xl border border-border shadow-2xl overflow-hidden bg-background">
+                {/* Title bar */}
+                <div className="flex items-center gap-2 px-4 py-2.5 bg-muted/60 border-b border-border">
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-destructive/60" />
+                    <div className="w-3 h-3 rounded-full bg-warning/60" />
+                    <div className="w-3 h-3 rounded-full bg-success/60" />
+                  </div>
+                  <div className="flex-1 flex justify-center">
+                    <div className="bg-background border border-border rounded-md px-3 py-1 text-[10px] sm:text-xs text-muted-foreground font-mono max-w-xs w-full text-center truncate">
+                      odlingsdagboken.com/dashboard
+                    </div>
+                  </div>
+                  <div className="w-[42px]" />
+                </div>
+                {/* Screenshot */}
+                <img
+                  src={dashboardPreview}
+                  alt="Odlingsdagbokens dashboard med översikt av bäddar, sådder, skördar och statistik"
+                  width={1280}
+                  height={800}
+                  className="w-full h-auto block"
+                  loading="lazy"
+                />
+              </div>
+
+              {/* Floating badges */}
+              <div className="hidden sm:flex justify-center gap-3 mt-6 flex-wrap">
+                {['Skördlogg', 'Såkalender', 'Växtföljd', 'AI-coach Gro', 'Statistik'].map((label, i) => (
+                  <span key={label} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/15 text-primary text-xs font-medium">
+                    <Check className="h-3 w-3" /> {label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* ═══════════════════════ CAPABILITIES ═══════════════════════ */}
-      <section id="funktioner" className="scroll-mt-20 bg-card border-y border-border" aria-labelledby="features-heading">
+      <section id="funktioner" className="scroll-mt-20 bg-background border-b border-border" aria-labelledby="features-heading">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <Reveal className="mb-10">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Funktioner</p>
