@@ -339,40 +339,76 @@ export default function Index() {
       <main id="main-content">
       <section aria-labelledby="hero-heading" className="relative bg-gradient-to-br from-[hsl(var(--background))] via-[hsl(152_36%_32%/0.03)] to-[hsl(36_40%_90%/0.3)]">
         <BotanicalDecoration />
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-12 pb-10 sm:py-24 lg:py-32 relative">
-          <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0 }}>
-              <h1 id="hero-heading" className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground leading-[1.08] tracking-tight mb-5">
-                Din digitala <span className="gradient-text">odlingsdagbok</span> – dokumenterad, år efter år
-              </h1>
-            </motion.div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-10 pb-10 sm:py-20 lg:py-28 relative">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* Text */}
+            <div className="text-center lg:text-left">
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                <div className="flex items-center gap-2 justify-center lg:justify-start mb-4">
+                  <div className="flex gap-0.5">
+                    {[1,2,3,4,5].map(i => <Star key={i} className="h-3.5 w-3.5 fill-warning text-warning" />)}
+                  </div>
+                  <span className="text-xs text-muted-foreground font-medium">Älskad av 2 000+ svenska odlare</span>
+                </div>
+              </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
-              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
-                Håll koll på såtider, skördar och växtföljd. Se vad som funkar i just din trädgård. Gratis för alltid – uppgradera när du vill.
-              </p>
-            </motion.div>
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.08 }}>
+                <h1 id="hero-heading" className="font-serif text-3xl sm:text-4xl lg:text-5xl text-foreground leading-[1.1] tracking-tight mb-4">
+                  Logga sådder, följ skördar – se vad som <span className="gradient-text">verkligen funkar</span> i din trädgård
+                </h1>
+              </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-4">
-                <motion.div whileHover={{ scale: 1.02 }}>
-                  <Button asChild size="lg" className="h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base gap-2 shadow-lg">
-                    <a href="/login?mode=register">Kom igång gratis <ArrowRight className="h-4 w-4" /></a>
-                  </Button>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.02 }}>
-                  <Button asChild variant="outline" size="lg" className="h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base">
-                    <a href="#funktioner">Se hur det fungerar</a>
-                  </Button>
-                </motion.div>
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}>
+                <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 max-w-lg mx-auto lg:mx-0">
+                  Odlingsdagboken hjälper dig hålla koll på såtider, skördar och växtföljd – anpassat efter din klimatzon. Helt gratis att börja.
+                </p>
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.22 }}>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-4">
+                  <motion.div whileHover={{ scale: 1.02 }}>
+                    <Button asChild size="lg" className="h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base gap-2 shadow-lg">
+                      <a href="/login?mode=register">Skapa gratis konto <ArrowRight className="h-4 w-4" /></a>
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.02 }}>
+                    <Button asChild variant="outline" size="lg" className="h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base">
+                      <a href="#funktioner">Se hur det fungerar</a>
+                    </Button>
+                  </motion.div>
+                </div>
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.3 }}>
+                <div className="flex flex-wrap items-center gap-4 justify-center lg:justify-start text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Inget betalkort krävs</span>
+                  <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Sju dagars Plus gratis</span>
+                  <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Fungerar offline</span>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Dashboard preview image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="relative mx-auto lg:mx-0 max-w-md lg:max-w-none"
+            >
+              <div className="rounded-xl overflow-hidden shadow-2xl border border-border/50 bg-card">
+                <img
+                  src={dashboardPreview}
+                  alt="Odlingsdagbokens dashboard – översikt av sådder, skördar och bäddar"
+                  width={600}
+                  height={400}
+                  fetchPriority="high"
+                  className="w-full h-auto"
+                />
               </div>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.6 }}>
-              <p className="text-sm text-muted-foreground flex items-center gap-2 justify-center lg:justify-start">
+              <div className="absolute -bottom-3 -right-3 bg-card border border-border rounded-lg px-3 py-2 shadow-lg hidden sm:flex items-center gap-2 text-xs">
                 <Sprout className="h-4 w-4 text-primary" />
-                Används av 2 000+ svenska odlare
-              </p>
+                <span className="text-foreground font-medium">AI-coach Gro ingår i Plus</span>
+              </div>
             </motion.div>
           </div>
         </div>
