@@ -31,7 +31,16 @@ const PhotoDiary = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from('plant_photos').select('*, beds(name)').order('taken_at', { ascending: false });
       if (error) throw error;
-      return data;
+      // Generate signed URLs for each photo
+      const withUrls = await Promise.all((data || []).map(async (photo: any) => {
+        // Handle legacy public URLs (already full URLs) and new path-only values
+        if (photo.photo_url?.startsWith('http')) {
+          return photo;
+        }
+        const { data: signedData } = await supabase.storage.from('plant-photos').createSignedUrl(photo.photo_url, 3600);
+        return { ...photo, photo_url: signedData?.signedUrl || photo.photo_url };
+      }));
+      return withUrls;
     },
   });
 
@@ -55,11 +64,10 @@ const PhotoDiary = () => {
       const { error: uploadError } = await supabase.storage.from('plant-photos').upload(path, selectedFile);
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage.from('plant-photos').getPublicUrl(path);
-
+      // Store just the storage path (bucket is now private)
       const { error } = await supabase.from('plant_photos').insert({
         user_id: userId,
-        photo_url: publicUrl,
+        photo_url: path,
         caption: caption || null,
         bed_id: bedId || null,
         taken_at: new Date().toISOString().split('T')[0],
