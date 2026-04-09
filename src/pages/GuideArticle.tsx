@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Sprout, Loader2, BookOpen, CalendarDays } from 'lucide-react';
 import ShareButtons from '@/components/ShareButtons';
 import BlogComments from '@/components/BlogComments';
+import { useSeo } from '@/hooks/useSeo';
 
 const categoryLabels: Record<string, string> = {
   guide: 'Guide',
