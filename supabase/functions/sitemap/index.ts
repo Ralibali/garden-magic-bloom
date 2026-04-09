@@ -27,6 +27,7 @@ Deno.serve(async (req) => {
   const staticPages = [
     { loc: "/", priority: "1.0", changefreq: "weekly" },
     { loc: "/blogg", priority: "0.9", changefreq: "daily" },
+    { loc: "/guider", priority: "0.8", changefreq: "weekly" },
     { loc: "/priser", priority: "0.7", changefreq: "monthly" },
     { loc: "/om", priority: "0.5", changefreq: "monthly" },
     { loc: "/install", priority: "0.6", changefreq: "monthly" },
