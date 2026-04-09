@@ -26,7 +26,7 @@ export default function Login() {
 
   const initialMode = searchParams.get('mode');
   const [authMode, setAuthMode] = useState<AuthMode>(
-    initialMode === 'register' ? 'register' : initialMode === 'login' ? 'login' : 'welcome'
+    initialMode === 'login' ? 'login' : initialMode === 'register' ? 'register' : 'register'
   );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -134,7 +134,7 @@ export default function Login() {
               <div className="space-y-4">
                 <div><Label htmlFor="name" className="text-muted-foreground">Namn</Label><div className="relative mt-1.5"><User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="name" type="text" placeholder="Ditt namn" value={name} onChange={(e) => setName(e.target.value)} className="pl-10 h-11" required /></div></div>
                 <div><Label htmlFor="reg-email" className="text-muted-foreground">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="reg-email" type="email" placeholder="din@email.se" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-11" required /></div></div>
-                <div><Label htmlFor="reg-password" className="text-muted-foreground">Lösenord</Label><div className="relative mt-1.5"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="reg-password" type="password" placeholder="Minst 6 tecken" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 h-11" minLength={6} required /></div></div>
+                <div><Label htmlFor="reg-password" className="text-muted-foreground">Lösenord</Label><div className="relative mt-1.5"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="reg-password" type="password" placeholder="Minst 8 tecken" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 h-11" minLength={8} required /></div></div>
                 <div><Label htmlFor="referral" className="text-muted-foreground">Värvningskod (valfritt)</Label><div className="relative mt-1.5"><Gift className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="referral" type="text" placeholder="T.ex. A1B2C3" value={referralCode} onChange={(e) => setReferralCode(e.target.value.toUpperCase())} className="pl-10 h-11 uppercase" maxLength={6} /></div><p className="text-[10px] text-muted-foreground mt-1">Har du en kod från en vän? Ni får båda 7 dagars Plus!</p></div>
                 <div className="flex items-start gap-2">
                   <input type="checkbox" id="terms" checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} className="mt-1 rounded border-border" required />
@@ -147,12 +147,12 @@ export default function Login() {
           )}
 
           {authMode === 'forgot' && (
-            <div className="animate-fade-in space-y-5">
+            <form onSubmit={(e) => { e.preventDefault(); handleForgotPassword(); }} className="animate-fade-in space-y-5">
               <div><h3 className="font-serif text-3xl text-foreground mb-2">Återställ lösenord</h3><p className="text-muted-foreground">Ange din e-post så skickar vi en länk.</p></div>
-              <div><Label htmlFor="forgot-email" className="text-muted-foreground">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="forgot-email" type="email" placeholder="din@email.se" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-11" /></div></div>
-              <Button className="w-full h-12 text-base font-medium" onClick={handleForgotPassword} disabled={loading}>{loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Skicka återställningslänk</Button>
+              <div><Label htmlFor="forgot-email" className="text-muted-foreground">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="forgot-email" type="email" placeholder="din@email.se" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-11" required /></div></div>
+              <Button type="submit" className="w-full h-12 text-base font-medium" disabled={loading}>{loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Skicka återställningslänk</Button>
               <button type="button" className="text-sm text-muted-foreground hover:text-foreground" onClick={() => setAuthMode('login')}>← Tillbaka till login</button>
-            </div>
+            </form>
           )}
         </div>
       </div>
