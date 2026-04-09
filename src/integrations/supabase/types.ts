@@ -969,7 +969,38 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      blog_comments_public: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string | null
+          post_id: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string | null
+          post_id?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string | null
+          post_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       delete_email: {
