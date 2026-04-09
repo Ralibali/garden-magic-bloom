@@ -69,9 +69,12 @@ export default defineConfig(({ mode }) => ({
     cssCodeSplit: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['@radix-ui/react-accordion', '@radix-ui/react-dialog'],
+        manualChunks(id) {
+          if (id.includes('node_modules/react-dom')) return 'vendor';
+          if (id.includes('node_modules/react-router')) return 'vendor';
+          if (id.includes('node_modules/@radix-ui')) return 'radix';
+          if (id.includes('node_modules/framer-motion')) return 'framer';
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3')) return 'charts';
         },
       },
     },
