@@ -11,28 +11,40 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 
-const mainNav = [
-  { title: 'Hem', url: '/app', icon: Home },
-  { title: 'Gro', url: '/app/gro', icon: Sparkles },
-  { title: 'Mina bäddar', url: '/app/beds', icon: LayoutGrid },
-  { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
-  { title: 'Skördlogg', url: '/app/harvests', icon: Carrot },
-  { title: 'Mina växter', url: '/app/my-plants', icon: Flower2 },
-  { title: 'Växtbibliotek', url: '/app/plants', icon: BookOpen },
-  { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
-  { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
-  { title: 'Fröförråd', url: '/app/seeds', icon: Package },
-  { title: 'Fotodagbok', url: '/app/photos', icon: Camera },
-];
-
-const secondaryNav = [
-  { title: 'Tidslinje', url: '/app/timeline', icon: Clock },
-  { title: 'Samplantering', url: '/app/companion', icon: Heart },
-  { title: 'Skadedjur', url: '/app/pests', icon: Bug },
-  { title: 'Statistik', url: '/app/statistics', icon: BarChart3 },
-  { title: 'Premium', url: '/app/premium', icon: Crown },
-  { title: 'Inställningar', url: '/app/settings', icon: Settings },
-  { title: 'Admin', url: '/app/admin', icon: Shield, adminOnly: true },
+const navGroups = [
+  {
+    label: 'Dagbok',
+    items: [
+      { title: 'Hem', url: '/app', icon: Home },
+      { title: 'Mina bäddar', url: '/app/beds', icon: LayoutGrid },
+      { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
+      { title: 'Skördlogg', url: '/app/harvests', icon: Carrot },
+      { title: 'Fotodagbok', url: '/app/photos', icon: Camera },
+      { title: 'Tidslinje', url: '/app/timeline', icon: Clock },
+    ],
+  },
+  {
+    label: 'Planering',
+    items: [
+      { title: 'Mina växter', url: '/app/my-plants', icon: Flower2 },
+      { title: 'Växtbibliotek', url: '/app/plants', icon: BookOpen },
+      { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
+      { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
+      { title: 'Samplantering', url: '/app/companion', icon: Heart },
+      { title: 'Fröförråd', url: '/app/seeds', icon: Package },
+    ],
+  },
+  {
+    label: 'Verktyg',
+    items: [
+      { title: 'Gro', url: '/app/gro', icon: Sparkles },
+      { title: 'Skadedjur', url: '/app/pests', icon: Bug },
+      { title: 'Statistik', url: '/app/statistics', icon: BarChart3 },
+      { title: 'Premium', url: '/app/premium', icon: Crown },
+      { title: 'Inställningar', url: '/app/settings', icon: Settings },
+      { title: 'Admin', url: '/app/admin', icon: Shield, adminOnly: true },
+    ],
+  },
 ];
 
 export function AppSidebar() {
