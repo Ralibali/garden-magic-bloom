@@ -1024,6 +1024,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_weekly_signup_count: { Args: never; Returns: number }
       grant_premium_days: {
         Args: { _days: number; _user_id: string }
         Returns: undefined

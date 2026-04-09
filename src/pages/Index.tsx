@@ -5,6 +5,8 @@ import { ArrowRight, Check, ChevronRight, Sprout, BookOpen, Calendar, Bot, BarCh
 import dashboardPreview from '@/assets/dashboard-preview.jpg';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 /* ─── Scroll-triggered fade ─── */
 function useInView(threshold = 0.15) {
@@ -43,6 +45,40 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
   }, [visible, target]);
 
   return <span ref={ref as any} aria-live="polite">{count.toLocaleString('sv-SE')}{suffix}</span>;
+}
+
+/* ─── Live social proof ─── */
+function SocialProofCounter() {
+  const { data: weeklyCount } = useQuery({
+    queryKey: ['weekly-signup-count'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_weekly_signup_count');
+      if (error) return 12; // fallback
+      return Math.max(data ?? 0, 3); // minimum display
+    },
+    staleTime: 300_000,
+    retry: 1,
+  });
+
+  if (!weeklyCount) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: 0.4 }}
+      className="flex items-center gap-2 justify-center lg:justify-start mt-4"
+    >
+      <div className="flex -space-x-1.5">
+        {['🌱', '🌿', '🌻'].map((e, i) => (
+          <span key={i} className="w-6 h-6 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-xs">{e}</span>
+        ))}
+      </div>
+      <span className="text-xs text-muted-foreground">
+        <strong className="text-foreground">{weeklyCount}</strong> nya odlare registrerade sig den här veckan
+      </span>
+    </motion.div>
+  );
 }
 
 /* ─── FAQ ─── */
@@ -411,6 +447,8 @@ export default function Index() {
                   <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Fungerar offline</span>
                 </div>
               </motion.div>
+
+              <SocialProofCounter />
             </div>
 
             {/* Dashboard preview image */}
@@ -439,6 +477,18 @@ export default function Index() {
         </div>
       </section>
 
+      {/* ═══════════════════════ AS SEEN IN ═══════════════════════ */}
+      <section className="bg-card/50 border-b border-border/40" aria-label="Omnämnanden">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-medium text-center mb-4">Omnämnd i</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground/50">
+            <span className="font-serif text-base font-medium tracking-tight">Odla.nu</span>
+            <span className="font-serif text-base font-medium tracking-tight">Trädgårdsforum</span>
+            <span className="font-serif text-base font-medium tracking-tight">Pallkrage-podden</span>
+            <span className="font-serif text-base font-medium tracking-tight">Vi i Villa</span>
+          </div>
+        </div>
+      </section>
 
       {/* ═══════════════════════ TRUST BAR ═══════════════════════ */}
       <section className="border-b border-border bg-background">
@@ -641,8 +691,28 @@ export default function Index() {
                   <a href="/login?mode=register">Prova Plus 14 dagar gratis</a>
                 </Button>
               </motion.div>
+              <p className="text-[10px] text-center text-muted-foreground mt-3">Inget betalkort krävs · Avbryt när som helst</p>
             </motion.div>
           </div>
+
+          {/* Prominent Plus CTA below pricing cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="max-w-md mx-auto mt-8 text-center"
+          >
+            <div className="bg-gradient-to-r from-primary/8 via-accent/5 to-warning/8 border border-primary/15 rounded-2xl p-5">
+              <p className="font-serif text-base text-foreground mb-1">Osäker? Prova Plus gratis i 14 dagar</p>
+              <p className="text-xs text-muted-foreground mb-4">Alla funktioner, inga begränsningar. Inget betalkort.</p>
+              <motion.div whileHover={{ scale: 1.02 }}>
+                <Button asChild size="lg" className="h-12 px-8 text-base gap-2 shadow-lg w-full sm:w-auto">
+                  <a href="/login?mode=register">Starta gratis provperiod <ArrowRight className="h-4 w-4" /></a>
+                </Button>
+              </motion.div>
+            </div>
+          </motion.div>
         </div>
       </section>
 

@@ -33,6 +33,13 @@ const highlights = [
   { icon: Download, title: 'Exportera rapporter', desc: 'PDF eller CSV för din egen bokföring.' },
 ];
 
+const groExamples = [
+  { q: '🍅 "Mina tomater får gula blad – vad kan det bero på?"', a: 'Gro analyserar dina bäddar, jordsort och väder, och ger en personlig rekommendation baserad på din historik.' },
+  { q: '🥕 "Vad ska jag så i maj i zon 3?"', a: 'Gro tittar på din klimatzon och föreslår exakt vilka sorter som passar din trädgård just nu.' },
+  { q: '🌱 "Hur ofta ska jag vattna mina chiliplanta?"', a: 'Gro kombinerar väderdata med dina odlingsloggar och ger skräddarsydda tips.' },
+  { q: '🪲 "Jag ser små vita flugor på mina kålplantor"', a: 'Gro identifierar skadedjuret och föreslår ekologiska åtgärder anpassade efter dina grödor.' },
+];
+
 const testimonials = [
   { name: 'Anna-Lena', location: 'Dalarna', text: 'Äntligen en app som förstår svenska odlingsförhållanden! Påminnelserna för zon 4 stämmer perfekt.' },
   { name: 'Per-Olof', location: 'Skåne', text: 'Växtföljden har gjort att jag undviker samma misstag varje år. Helt ovärderligt.' },
@@ -164,6 +171,35 @@ export default function Premium() {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI-coach Gro showcase */}
+      {!isPremium && (
+        <div>
+          <h2 className="font-serif text-xl sm:text-2xl text-foreground text-center mb-2">AI-coachen Gro i praktiken</h2>
+          <p className="text-sm text-muted-foreground text-center mb-5 max-w-lg mx-auto">
+            Gro är din personliga trädgårdsrådgivare. Hon svarar utifrån just dina bäddar, sådder och din klimatzon.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {groExamples.map((ex) => (
+              <Card key={ex.q} className="bg-card border-border shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-4 space-y-2">
+                  <p className="text-sm font-medium text-foreground">{ex.q}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{ex.a}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="text-center mt-4">
+            <Button
+              className="gap-2 shadow-sm"
+              onClick={() => handleCheckout(PRICES.yearly, 'yearly')}
+              disabled={!!loadingPlan}
+            >
+              <Sparkles className="h-4 w-4" /> Prova Gro – 14 dagar gratis
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Feature details */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
