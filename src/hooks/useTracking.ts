@@ -18,11 +18,12 @@ function getDeviceType(): string {
   return 'desktop';
 }
 
-/** Track page views on route change */
-export function usePageTracking() {
+/** Track page views on route change – only if consent given */
+export function usePageTracking(consent = true) {
   const location = useLocation();
 
   useEffect(() => {
+    if (!consent) return;
     const path = location.pathname;
 
     supabase.from('page_views').insert({
@@ -32,7 +33,7 @@ export function usePageTracking() {
       session_id: getSessionId(),
       device_type: getDeviceType(),
     } as any).then(() => {});
-  }, [location.pathname]);
+  }, [location.pathname, consent]);
 }
 
 const CTA_KEYWORDS = new Set([
@@ -60,9 +61,11 @@ function trackConversion(eventName: string, label?: string) {
   }
 }
 
-/** Auto-track clicks on links, buttons, and interactive elements */
-export function useAutoClickTracking() {
+/** Auto-track clicks on links, buttons, and interactive elements – only if consent given */
+export function useAutoClickTracking(consent = true) {
   useEffect(() => {
+    if (!consent) return;
+
     const handler = (e: MouseEvent) => {
       let el = e.target as HTMLElement | null;
       let depth = 0;
@@ -86,7 +89,6 @@ export function useAutoClickTracking() {
       let eventName = 'button_click';
       if (ctaMatch) {
         eventName = 'cta_click';
-        // Track CTA clicks as conversions
         if (text.toLowerCase().includes('skapa') || text.toLowerCase().includes('kom igång') || text.toLowerCase().includes('registrera')) {
           trackConversion('signup_click', text);
         } else if (text.toLowerCase().includes('prova plus') || text.toLowerCase().includes('uppgradera')) {
@@ -112,14 +114,15 @@ export function useAutoClickTracking() {
 
     document.addEventListener('click', handler, { capture: true, passive: true });
     return () => document.removeEventListener('click', handler, true);
-  }, []);
+  }, [consent]);
 }
 
-/** Track scroll depth on landing page (25%, 50%, 75%, 100%) */
-export function useScrollDepthTracking() {
+/** Track scroll depth on landing page (25%, 50%, 75%, 100%) – only if consent given */
+export function useScrollDepthTracking(consent = true) {
   const location = useLocation();
 
   useEffect(() => {
+    if (!consent) return;
     if (location.pathname !== '/') return;
 
     const thresholds = [25, 50, 75, 100];
@@ -156,5 +159,5 @@ export function useScrollDepthTracking() {
 
     window.addEventListener('scroll', handler, { passive: true });
     return () => window.removeEventListener('scroll', handler);
-  }, [location.pathname]);
+  }, [location.pathname, consent]);
 }

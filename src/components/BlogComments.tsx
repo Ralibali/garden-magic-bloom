@@ -97,7 +97,9 @@ export default function BlogComments({ postId }: BlogCommentsProps) {
       {/* Add comment */}
       {isAuthenticated ? (
         <div className="space-y-2">
+          <Label htmlFor="blog-comment" className="sr-only">Skriv en kommentar</Label>
           <Textarea
+            id="blog-comment"
             placeholder="Skriv en kommentar..."
             value={content}
             onChange={e => setContent(e.target.value)}

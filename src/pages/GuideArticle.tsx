@@ -136,7 +136,7 @@ function renderContent(
 
   return DOMPurify.sanitize(raw, {
     ADD_TAGS: ['iframe', 'video', 'source', 'picture', 'details', 'summary'],
-    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'loading', 'target', 'rel', 'style', 'title'],
+    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'loading', 'target', 'rel', 'title'],
   });
 }
 

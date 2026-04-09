@@ -134,13 +134,13 @@ export function PremiumNudge() {
               <span className="text-[9px] font-bold uppercase tracking-wider text-warning bg-warning/12 px-2 py-0.5 rounded-full">Nytt</span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-              Statistik, prognoser, kläckning, foderspårning och mycket mer. Prova 7 dagar helt gratis!
+              Obegränsade bäddar, AI-coachen Gro, statistik och mycket mer. Prova 14 dagar helt gratis!
             </p>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-primary group-hover:text-primary/80 transition-colors">
                 Prova gratis →
               </span>
-              <span className="text-[10px] text-muted-foreground">19 kr/mån</span>
+              <span className="text-[10px] text-muted-foreground">99 kr/år (ca 8 kr/mån)</span>
             </div>
           </div>
         </div>
