@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import VisitorWelcomePopup from '@/components/VisitorWelcomePopup';
 import { useParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
