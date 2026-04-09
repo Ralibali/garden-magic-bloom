@@ -62,11 +62,6 @@ export function AppSidebar() {
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
-  const filteredMain = mainNav.filter(item => isVisible(item.url));
-  const filteredSecondary = secondaryNav
-    .filter(item => !(item as any).adminOnly || isAdmin)
-    .filter(item => isVisible(item.url));
-
   return (
     <Sidebar collapsible="icon" className="hidden md:flex border-r border-sidebar-border bg-sidebar">
       <SidebarContent className="pt-5">
@@ -82,41 +77,31 @@ export function AppSidebar() {
           )}
         </div>
 
-        <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.14em] px-5 mb-1 font-medium">Odling</SidebarGroupLabel>}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {filteredMain.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end={item.url === '/app'} className="flex items-center gap-3 px-5 py-2 mx-2 rounded-xl text-sidebar-foreground hover:text-foreground hover:bg-sidebar-accent/70 transition-all duration-200" activeClassName="bg-primary/12 text-primary font-medium shadow-sm">
-                      <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && <span className="text-[13px]">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.14em] px-5 mt-3 mb-1 font-medium">Verktyg</SidebarGroupLabel>}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {filteredSecondary.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className="flex items-center gap-3 px-5 py-2 mx-2 rounded-xl text-sidebar-foreground hover:text-foreground hover:bg-sidebar-accent/70 transition-all duration-200" activeClassName="bg-primary/12 text-primary font-medium shadow-sm">
-                      <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && <span className="text-[13px]">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {navGroups.map((group) => {
+          const items = group.items
+            .filter(item => !(item as any).adminOnly || isAdmin)
+            .filter(item => isVisible(item.url));
+          if (items.length === 0) return null;
+          return (
+            <SidebarGroup key={group.label}>
+              {!collapsed && <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.14em] px-5 mb-1 font-medium">{group.label}</SidebarGroupLabel>}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {items.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <NavLink to={item.url} end={item.url === '/app'} className="flex items-center gap-3 px-5 py-2 mx-2 rounded-xl text-sidebar-foreground hover:text-foreground hover:bg-sidebar-accent/70 transition-all duration-200" activeClassName="bg-primary/12 text-primary font-medium shadow-sm">
+                          <item.icon className="h-[18px] w-[18px] shrink-0" />
+                          {!collapsed && <span className="text-[13px]">{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
       </SidebarContent>
 
       <SidebarFooter className="p-4 space-y-2 border-t border-sidebar-border">
