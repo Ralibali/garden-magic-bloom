@@ -12,12 +12,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 import { FreeLimitBadge } from '@/components/PremiumGate';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { Crown, ArrowRight } from 'lucide-react';
 
 const FREE_BED_LIMIT = 3;
 
 const Beds = () => {
   const { user } = useAuth();
   const isPremium = user?.subscription_status === 'premium';
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
@@ -32,13 +35,32 @@ const Beds = () => {
   });
 
   const createMutation = useMutation({
-    mutationFn: () => api.createBed({ name, description: description || undefined }),
+    mutationFn: () => {
+      if (!isPremium && (beds?.length ?? 0) >= FREE_BED_LIMIT) {
+        throw new Error('BED_LIMIT');
+      }
+      return api.createBed({ name, description: description || undefined });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['beds'] });
       setOpen(false);
       setName('');
       setDescription('');
       toast({ title: 'Bädd skapad! 🌱' });
+    },
+    onError: (err: any) => {
+      if (err.message === 'BED_LIMIT') {
+        toast({
+          title: '🔒 Du har nått gränsen för gratis',
+          description: 'Uppgradera till Plus för obegränsade bäddar – bara 99 kr/år.',
+          action: (
+            <Button size="sm" variant="outline" className="gap-1" onClick={() => navigate('/app/premium')}>
+              <Crown className="h-3 w-3" /> Uppgradera
+            </Button>
+          ),
+        });
+        setOpen(false);
+      }
     },
   });
 

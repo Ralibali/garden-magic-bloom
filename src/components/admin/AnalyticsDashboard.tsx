@@ -5,8 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Eye, Users, MousePointerClick, BarChart3, TrendingUp, TrendingDown, Monitor, Smartphone, Tablet } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { Eye, Users, MousePointerClick, BarChart3, TrendingUp, TrendingDown, Monitor, Smartphone, Tablet, ArrowDownRight, Crown } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, FunnelChart, Funnel, LabelList, Cell } from 'recharts';
 
 type Period = '24h' | '7d' | '30d' | '90d';
 
@@ -120,6 +120,44 @@ export default function AnalyticsDashboard() {
     return Object.entries(map).map(([device, count]) => ({ device, count })).sort((a, b) => b.count - a.count);
   }, [pageViews]);
 
+  // Conversion funnel data
+  const funnelData = useMemo(() => {
+    const visitors = new Set(pageViews.map((v: any) => v.session_id)).size;
+    const loginPageViews = pageViews.filter((v: any) => v.path === '/login').length;
+    const registerClicks = clickEvents.filter((e: any) =>
+      e.event_name === 'cta_click' && (e.element_text?.includes('Skapa') || e.element_text?.includes('Kom igång') || e.element_text?.includes('register'))
+    ).length;
+    const premiumClicks = clickEvents.filter((e: any) =>
+      e.event_name === 'cta_click' && (e.element_text?.includes('Plus') || e.element_text?.includes('Premium') || e.element_text?.includes('Uppgradera'))
+    ).length;
+
+    return [
+      { name: 'Besökare', value: visitors, fill: 'hsl(var(--primary))' },
+      { name: 'Loginsida', value: loginPageViews, fill: 'hsl(var(--primary) / 0.8)' },
+      { name: 'Registreringsklick', value: registerClicks, fill: 'hsl(var(--primary) / 0.6)' },
+      { name: 'Plus-intresse', value: premiumClicks, fill: 'hsl(var(--warning))' },
+    ];
+  }, [pageViews, clickEvents]);
+
+  // Churn points – where free users drop off
+  const dropOffStats = useMemo(() => {
+    const sessionPaths: Record<string, string[]> = {};
+    pageViews.forEach((v: any) => {
+      if (!sessionPaths[v.session_id]) sessionPaths[v.session_id] = [];
+      sessionPaths[v.session_id].push(v.path);
+    });
+    // Last page per session (potential drop-off point)
+    const lastPages: Record<string, number> = {};
+    Object.values(sessionPaths).forEach(paths => {
+      const last = paths[paths.length - 1];
+      lastPages[last] = (lastPages[last] || 0) + 1;
+    });
+    return Object.entries(lastPages)
+      .map(([path, count]) => ({ path, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+  }, [pageViews]);
+
   const isLoading = pvLoading || ceLoading;
 
   const DeviceIcon = ({ type }: { type: string }) => {
@@ -182,6 +220,8 @@ export default function AnalyticsDashboard() {
           <TabsTrigger value="cta">CTA</TabsTrigger>
           <TabsTrigger value="sources">Källor</TabsTrigger>
           <TabsTrigger value="devices">Enheter</TabsTrigger>
+        <TabsTrigger value="funnel">Tratt</TabsTrigger>
+        <TabsTrigger value="churn">Avhopp</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pages"><DataTable headers={['Sida', 'Visningar', 'Unika']} rows={pageStats.map(p => [p.path, p.views, p.unique])} /></TabsContent>
@@ -191,6 +231,55 @@ export default function AnalyticsDashboard() {
         <TabsContent value="sources"><DataTable headers={['Källa', 'Visningar']} rows={sourceStats.map(s => [s.source, s.count])} /></TabsContent>
         <TabsContent value="devices">
           <DataTable headers={['Enhet', 'Visningar']} rows={deviceStats.map(d => [d.device, d.count])} />
+        </TabsContent>
+        <TabsContent value="funnel">
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
+                <ArrowDownRight className="h-4 w-4 text-primary" /> Konverteringstratt
+              </p>
+              <div className="space-y-2">
+                {funnelData.map((item, i) => {
+                  const maxVal = Math.max(...funnelData.map(d => d.value), 1);
+                  const pct = Math.round((item.value / maxVal) * 100);
+                  return (
+                    <div key={item.name} className="flex items-center gap-3">
+                      <span className="text-xs text-muted-foreground w-32 shrink-0">{item.name}</span>
+                      <div className="flex-1 h-8 bg-muted/30 rounded-lg overflow-hidden relative">
+                        <div
+                          className="h-full rounded-lg transition-all duration-500"
+                          style={{ width: `${pct}%`, backgroundColor: item.fill }}
+                        />
+                        <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-foreground">
+                          {item.value}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 pt-3 border-t border-border/50">
+                <div className="flex gap-4 text-xs text-muted-foreground">
+                  {funnelData[0].value > 0 && funnelData[2].value > 0 && (
+                    <span>Registreringsrate: <strong className="text-foreground">{((funnelData[2].value / funnelData[0].value) * 100).toFixed(1)}%</strong></span>
+                  )}
+                  {funnelData[2].value > 0 && funnelData[3].value > 0 && (
+                    <span>Plus-konvertering: <strong className="text-foreground">{((funnelData[3].value / funnelData[2].value) * 100).toFixed(1)}%</strong></span>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="churn">
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+                <TrendingDown className="h-4 w-4 text-destructive" /> Avhoppspunkter (sista sidan per session)
+              </p>
+              <DataTable headers={['Sida', 'Sessioner avslutade här']} rows={dropOffStats.map(d => [d.path, d.count])} />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
