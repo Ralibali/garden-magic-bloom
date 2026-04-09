@@ -19,6 +19,10 @@ export default function CookieConsent() {
   const accept = () => {
     localStorage.setItem(CONSENT_KEY, 'accepted');
     setVisible(false);
+    // Trigger Google Ads loading
+    if (typeof (window as any).loadGoogleAds === 'function') {
+      (window as any).loadGoogleAds();
+    }
   };
 
   const decline = () => {
