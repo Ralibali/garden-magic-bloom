@@ -90,14 +90,33 @@ function ExitIntentPopup() {
 
   useEffect(() => {
     if (dismissed || localStorage.getItem('exit-intent-dismissed')) return;
-    const handler = (e: MouseEvent) => {
-      if (e.clientY < 10) {
-        setShow(true);
-        document.removeEventListener('mouseout', handler);
-      }
+
+    let triggered = false;
+    const trigger = () => { if (!triggered) { triggered = true; setShow(true); } };
+
+    // Desktop: mouseout at top
+    const mouseHandler = (e: MouseEvent) => {
+      if (e.clientY < 10) { trigger(); document.removeEventListener('mouseout', mouseHandler); }
     };
-    const timer = setTimeout(() => document.addEventListener('mouseout', handler), 5000);
-    return () => { clearTimeout(timer); document.removeEventListener('mouseout', handler); };
+
+    // Mobile: rapid scroll-up or 45s on page
+    let lastScrollY = window.scrollY;
+    const scrollHandler = () => {
+      const diff = lastScrollY - window.scrollY;
+      if (diff > 300 && window.scrollY < 200) trigger();
+      lastScrollY = window.scrollY;
+    };
+
+    const desktopTimer = setTimeout(() => document.addEventListener('mouseout', mouseHandler), 5000);
+    const mobileTimer = setTimeout(trigger, 45000);
+    window.addEventListener('scroll', scrollHandler, { passive: true });
+
+    return () => {
+      clearTimeout(desktopTimer);
+      clearTimeout(mobileTimer);
+      document.removeEventListener('mouseout', mouseHandler);
+      window.removeEventListener('scroll', scrollHandler);
+    };
   }, [dismissed]);
 
   const dismiss = () => { setShow(false); setDismissed(true); localStorage.setItem('exit-intent-dismissed', 'true'); };
