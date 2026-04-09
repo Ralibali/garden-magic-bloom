@@ -11,28 +11,40 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 
-const mainNav = [
-  { title: 'Hem', url: '/app', icon: Home },
-  { title: 'Gro', url: '/app/gro', icon: Sparkles },
-  { title: 'Mina bäddar', url: '/app/beds', icon: LayoutGrid },
-  { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
-  { title: 'Skördlogg', url: '/app/harvests', icon: Carrot },
-  { title: 'Mina växter', url: '/app/my-plants', icon: Flower2 },
-  { title: 'Växtbibliotek', url: '/app/plants', icon: BookOpen },
-  { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
-  { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
-  { title: 'Fröförråd', url: '/app/seeds', icon: Package },
-  { title: 'Fotodagbok', url: '/app/photos', icon: Camera },
-];
-
-const secondaryNav = [
-  { title: 'Tidslinje', url: '/app/timeline', icon: Clock },
-  { title: 'Samplantering', url: '/app/companion', icon: Heart },
-  { title: 'Skadedjur', url: '/app/pests', icon: Bug },
-  { title: 'Statistik', url: '/app/statistics', icon: BarChart3 },
-  { title: 'Premium', url: '/app/premium', icon: Crown },
-  { title: 'Inställningar', url: '/app/settings', icon: Settings },
-  { title: 'Admin', url: '/app/admin', icon: Shield, adminOnly: true },
+const navGroups = [
+  {
+    label: 'Dagbok',
+    items: [
+      { title: 'Hem', url: '/app', icon: Home },
+      { title: 'Mina bäddar', url: '/app/beds', icon: LayoutGrid },
+      { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
+      { title: 'Skördlogg', url: '/app/harvests', icon: Carrot },
+      { title: 'Fotodagbok', url: '/app/photos', icon: Camera },
+      { title: 'Tidslinje', url: '/app/timeline', icon: Clock },
+    ],
+  },
+  {
+    label: 'Planering',
+    items: [
+      { title: 'Mina växter', url: '/app/my-plants', icon: Flower2 },
+      { title: 'Växtbibliotek', url: '/app/plants', icon: BookOpen },
+      { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
+      { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
+      { title: 'Samplantering', url: '/app/companion', icon: Heart },
+      { title: 'Fröförråd', url: '/app/seeds', icon: Package },
+    ],
+  },
+  {
+    label: 'Verktyg',
+    items: [
+      { title: 'Gro', url: '/app/gro', icon: Sparkles },
+      { title: 'Skadedjur', url: '/app/pests', icon: Bug },
+      { title: 'Statistik', url: '/app/statistics', icon: BarChart3 },
+      { title: 'Premium', url: '/app/premium', icon: Crown },
+      { title: 'Inställningar', url: '/app/settings', icon: Settings },
+      { title: 'Admin', url: '/app/admin', icon: Shield, adminOnly: true },
+    ],
+  },
 ];
 
 export function AppSidebar() {
@@ -50,11 +62,6 @@ export function AppSidebar() {
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
-  const filteredMain = mainNav.filter(item => isVisible(item.url));
-  const filteredSecondary = secondaryNav
-    .filter(item => !(item as any).adminOnly || isAdmin)
-    .filter(item => isVisible(item.url));
-
   return (
     <Sidebar collapsible="icon" className="hidden md:flex border-r border-sidebar-border bg-sidebar">
       <SidebarContent className="pt-5">
@@ -70,41 +77,31 @@ export function AppSidebar() {
           )}
         </div>
 
-        <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.14em] px-5 mb-1 font-medium">Odling</SidebarGroupLabel>}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {filteredMain.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end={item.url === '/app'} className="flex items-center gap-3 px-5 py-2 mx-2 rounded-xl text-sidebar-foreground hover:text-foreground hover:bg-sidebar-accent/70 transition-all duration-200" activeClassName="bg-primary/12 text-primary font-medium shadow-sm">
-                      <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && <span className="text-[13px]">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          {!collapsed && <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.14em] px-5 mt-3 mb-1 font-medium">Verktyg</SidebarGroupLabel>}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {filteredSecondary.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className="flex items-center gap-3 px-5 py-2 mx-2 rounded-xl text-sidebar-foreground hover:text-foreground hover:bg-sidebar-accent/70 transition-all duration-200" activeClassName="bg-primary/12 text-primary font-medium shadow-sm">
-                      <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && <span className="text-[13px]">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {navGroups.map((group) => {
+          const items = group.items
+            .filter(item => !(item as any).adminOnly || isAdmin)
+            .filter(item => isVisible(item.url));
+          if (items.length === 0) return null;
+          return (
+            <SidebarGroup key={group.label}>
+              {!collapsed && <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.14em] px-5 mb-1 font-medium">{group.label}</SidebarGroupLabel>}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {items.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <NavLink to={item.url} end={item.url === '/app'} className="flex items-center gap-3 px-5 py-2 mx-2 rounded-xl text-sidebar-foreground hover:text-foreground hover:bg-sidebar-accent/70 transition-all duration-200" activeClassName="bg-primary/12 text-primary font-medium shadow-sm">
+                          <item.icon className="h-[18px] w-[18px] shrink-0" />
+                          {!collapsed && <span className="text-[13px]">{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
       </SidebarContent>
 
       <SidebarFooter className="p-4 space-y-2 border-t border-sidebar-border">

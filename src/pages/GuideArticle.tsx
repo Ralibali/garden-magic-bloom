@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import VisitorWelcomePopup from '@/components/VisitorWelcomePopup';
 import { useParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Sprout, Loader2, BookOpen, CalendarDays } from 'lucide-react';
 import ShareButtons from '@/components/ShareButtons';
 import BlogComments from '@/components/BlogComments';
+import { useSeo } from '@/hooks/useSeo';
 
 const categoryLabels: Record<string, string> = {
   guide: 'Guide',
@@ -196,112 +197,30 @@ export default function GuideArticle() {
     enabled: !!post,
   });
 
-  // SEO - full OG, Twitter, hreflang, JSON-LD with Article + FAQ + Product + BreadcrumbList
-  React.useEffect(() => {
-    if (!post) return;
+  // Build JSON-LD graph with memoization to avoid re-renders
+  const jsonLd = useMemo(() => {
+    if (!post) return undefined;
     const BASE = 'https://odlingsdagboken.com';
     const fullUrl = `${BASE}/blogg/${post.slug}`;
-    const pageTitle = post.meta_title || post.title + ' | Odlingsdagboken';
-    const pageDesc = post.meta_description || post.excerpt || '';
     const imageUrl = post.cover_image_url
       ? (post.cover_image_url.startsWith('http') ? post.cover_image_url : `${BASE}${post.cover_image_url}`)
       : `${BASE}/blog-images/spring-garden.jpg`;
 
-    const createdElements: HTMLElement[] = [];
-
-    const setMeta = (attr: string, key: string, content: string) => {
-      let el = document.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement;
-      if (!el) {
-        el = document.createElement('meta');
-        el.setAttribute(attr, key);
-        document.head.appendChild(el);
-        createdElements.push(el);
-      }
-      el.setAttribute('content', content);
-    };
-
-    const addLink = (rel: string, href: string, attrs?: Record<string, string>) => {
-      const el = document.createElement('link');
-      el.rel = rel;
-      el.href = href;
-      if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
-      document.head.appendChild(el);
-      createdElements.push(el);
-    };
-
-    // Title
-    document.title = pageTitle;
-
-    // Core meta
-    setMeta('name', 'description', pageDesc);
-    setMeta('name', 'robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
-
-    // Canonical + hreflang
-    document.querySelector('link[rel="canonical"]')?.remove();
-    addLink('canonical', fullUrl);
-    addLink('alternate', fullUrl, { hreflang: 'sv' });
-    addLink('alternate', fullUrl, { hreflang: 'x-default' });
-
-    // OG tags
-    setMeta('property', 'og:title', pageTitle);
-    setMeta('property', 'og:description', pageDesc);
-    setMeta('property', 'og:url', fullUrl);
-    setMeta('property', 'og:type', 'article');
-    setMeta('property', 'og:site_name', 'Odlingsdagboken');
-    setMeta('property', 'og:locale', 'sv_SE');
-    setMeta('property', 'og:image', imageUrl);
-    setMeta('property', 'og:image:alt', post.title);
-
-    // Article meta
-    if (post.published_at) setMeta('property', 'article:published_time', post.published_at);
-    if (post.updated_at) setMeta('property', 'article:modified_time', post.updated_at);
-    setMeta('property', 'article:author', 'Odlingsdagboken');
-    if (post.category) setMeta('property', 'article:section', post.category);
-    if (post.tags) {
-      post.tags.forEach((tag: string) => {
-        const el = document.createElement('meta');
-        el.setAttribute('property', 'article:tag');
-        el.setAttribute('content', tag);
-        document.head.appendChild(el);
-        createdElements.push(el);
-      });
-    }
-
-    // Twitter Card
-    setMeta('name', 'twitter:card', 'summary_large_image');
-    setMeta('name', 'twitter:title', pageTitle);
-    setMeta('name', 'twitter:description', pageDesc);
-    setMeta('name', 'twitter:image', imageUrl);
-    setMeta('name', 'twitter:image:alt', post.title);
-
-    // AI citation meta
-    setMeta('name', 'citation_title', post.title);
-    setMeta('name', 'citation_author', 'Odlingsdagboken');
-    setMeta('name', 'citation_language', 'sv');
-    if (post.published_at) setMeta('name', 'citation_date', post.published_at.split('T')[0]);
-
-    // JSON-LD @graph
     const graph: any[] = [
       {
         '@type': 'Article',
         '@id': `${fullUrl}#article`,
         headline: post.title,
-        description: pageDesc,
+        description: post.meta_description || post.excerpt || '',
         image: { '@type': 'ImageObject', url: imageUrl },
         datePublished: post.published_at,
         dateModified: post.updated_at || post.published_at,
         author: { '@type': 'Organization', name: 'Odlingsdagboken', url: BASE, '@id': `${BASE}/#organization` },
-        publisher: {
-          '@type': 'Organization',
-          name: 'Odlingsdagboken',
-          url: BASE,
-          '@id': `${BASE}/#organization`,
-          logo: { '@type': 'ImageObject', url: `${BASE}/favicon.ico` },
-        },
+        publisher: { '@type': 'Organization', name: 'Odlingsdagboken', url: BASE, '@id': `${BASE}/#organization`, logo: { '@type': 'ImageObject', url: `${BASE}/favicon.ico` } },
         mainEntityOfPage: { '@type': 'WebPage', '@id': fullUrl },
         isPartOf: { '@id': `${BASE}/#website` },
         inLanguage: 'sv-SE',
-        ...(post.tags && post.tags.length > 0 ? { keywords: post.tags.join(', ') } : {}),
+        ...(post.tags?.length ? { keywords: post.tags.join(', ') } : {}),
         wordCount: post.content.replace(/<[^>]+>/g, '').split(/\s+/).length,
       },
       {
@@ -312,20 +231,9 @@ export default function GuideArticle() {
           { '@type': 'ListItem', position: 3, name: post.title, item: fullUrl },
         ],
       },
-      {
-        '@type': 'WebPage',
-        '@id': fullUrl,
-        url: fullUrl,
-        name: pageTitle,
-        isPartOf: { '@id': `${BASE}/#website` },
-        primaryImageOfPage: { '@type': 'ImageObject', url: imageUrl },
-        datePublished: post.published_at,
-        dateModified: post.updated_at || post.published_at,
-        inLanguage: 'sv-SE',
-      },
     ];
 
-    // Extract FAQ pairs from HTML content
+    // Extract FAQ pairs
     const faqPairs: { q: string; a: string }[] = [];
     const faqRegex = /<(?:div|dt)[^>]*class="faq-q"[^>]*>([\s\S]*?)<\/(?:div|dt)>\s*<(?:div|dd)[^>]*class="faq-a"[^>]*>([\s\S]*?)<\/(?:div|dd)>/gi;
     let match;
@@ -340,70 +248,63 @@ export default function GuideArticle() {
       const a = match[2].replace(/<[^>]+>/g, '').trim();
       if (q && a) faqPairs.push({ q, a });
     }
-
     if (faqPairs.length > 0) {
       graph.push({
         '@type': 'FAQPage',
         mainEntity: faqPairs.map(({ q, a }) => ({
-          '@type': 'Question',
-          name: q,
+          '@type': 'Question', name: q,
           acceptedAnswer: { '@type': 'Answer', text: a },
         })),
       });
     }
 
-    // Extract Product schema from product cards/tables in content
-    const productRegex = /<(?:h4|span)[^>]*class="(?:product-card-title|pct-product-name)"[^>]*>([\s\S]*?)<\/(?:h4|span)>/gi;
-    const priceRegex = /<span[^>]*class="(?:product-card-price|pct-price)"[^>]*>([\s\S]*?)<\/span>/gi;
+    // Extract Product schema
+    const productRegex2 = /<(?:h4|span)[^>]*class="(?:product-card-title|pct-product-name)"[^>]*>([\s\S]*?)<\/(?:h4|span)>/gi;
+    const priceRegex2 = /<span[^>]*class="(?:product-card-price|pct-price)"[^>]*>([\s\S]*?)<\/span>/gi;
     const productNames: string[] = [];
     const productPrices: string[] = [];
-    while ((match = productRegex.exec(post.content)) !== null) {
-      productNames.push(match[1].replace(/<[^>]+>/g, '').trim());
-    }
-    while ((match = priceRegex.exec(post.content)) !== null) {
-      productPrices.push(match[1].replace(/<[^>]+>/g, '').trim());
-    }
+    while ((match = productRegex2.exec(post.content)) !== null) productNames.push(match[1].replace(/<[^>]+>/g, '').trim());
+    while ((match = priceRegex2.exec(post.content)) !== null) productPrices.push(match[1].replace(/<[^>]+>/g, '').trim());
     if (productNames.length > 0) {
-      const itemList = {
+      graph.push({
         '@type': 'ItemList',
         name: `Produkter i ${post.title}`,
         itemListElement: productNames.map((name, i) => ({
-          '@type': 'ListItem',
-          position: i + 1,
+          '@type': 'ListItem', position: i + 1,
           item: {
-            '@type': 'Product',
-            name,
-            ...(productPrices[i] ? {
-              offers: {
-                '@type': 'Offer',
-                priceCurrency: 'SEK',
-                price: productPrices[i].replace(/[^\d,]/g, '').replace(',', '.'),
-                availability: 'https://schema.org/InStock',
-              },
-            } : {}),
+            '@type': 'Product', name,
+            ...(productPrices[i] ? { offers: { '@type': 'Offer', priceCurrency: 'SEK', price: productPrices[i].replace(/[^\d,]/g, '').replace(',', '.'), availability: 'https://schema.org/InStock' } } : {}),
           },
         })),
-      };
-      graph.push(itemList);
+      });
     }
 
-    const jsonLd = { '@context': 'https://schema.org', '@graph': graph };
-    let script = document.getElementById('json-ld-article') as HTMLScriptElement;
-    if (!script) {
-      script = document.createElement('script');
-      script.id = 'json-ld-article';
-      script.type = 'application/ld+json';
-      document.head.appendChild(script);
-      createdElements.push(script);
-    }
-    script.textContent = JSON.stringify(jsonLd);
+    return graph;
+  }, [post]);
 
-    return () => {
-      document.title = 'Odlingsdagboken';
-      createdElements.forEach(el => el.remove());
-      document.getElementById('json-ld-article')?.remove();
+  const articleMeta = useMemo(() => {
+    if (!post) return undefined;
+    return {
+      publishedTime: post.published_at || undefined,
+      modifiedTime: post.updated_at || post.published_at || undefined,
+      author: 'Odlingsdagboken',
+      section: post.category || undefined,
+      tags: post.tags || undefined,
     };
   }, [post]);
+
+  const seoImage = post?.cover_image_url || '/blog-images/spring-garden.jpg';
+
+  useSeo({
+    title: post ? (post.meta_title || post.title + ' | Odlingsdagboken') : 'Odlingsdagboken',
+    description: post ? (post.meta_description || post.excerpt || '') : '',
+    path: `/blogg/${slug || ''}`,
+    ogType: 'article',
+    ogImage: seoImage,
+    ogImageAlt: post?.title,
+    jsonLd: jsonLd,
+    articleMeta,
+  });
 
   if (isLoading) {
     return (

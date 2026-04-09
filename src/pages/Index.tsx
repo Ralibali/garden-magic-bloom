@@ -42,7 +42,7 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
     requestAnimationFrame(step);
   }, [visible, target]);
 
-  return <span ref={ref as any}>{count.toLocaleString('sv-SE')}{suffix}</span>;
+  return <span ref={ref as any} aria-live="polite">{count.toLocaleString('sv-SE')}{suffix}</span>;
 }
 
 /* ─── FAQ ─── */
@@ -50,11 +50,17 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="border-b border-border last:border-0">
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-5 text-left group">
+      <button
+        onClick={() => setOpen(!open)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(!open); } }}
+        className="w-full flex items-center justify-between py-5 text-left group"
+        role="button"
+        aria-expanded={open}
+      >
         <span className="text-sm sm:text-base font-medium text-foreground pr-4 group-hover:text-primary transition-colors">{q}</span>
-        <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-300 ${open ? 'rotate-90' : ''}`} />
+        <ChevronRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-300 ${open ? 'rotate-90' : ''}`} aria-hidden="true" />
       </button>
-      <div className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-96 pb-5' : 'max-h-0'}`}>
+      <div className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-96 pb-5' : 'max-h-0'}`} role="region">
         <p className="text-sm text-muted-foreground leading-relaxed">{a}</p>
       </div>
     </div>
@@ -84,14 +90,33 @@ function ExitIntentPopup() {
 
   useEffect(() => {
     if (dismissed || localStorage.getItem('exit-intent-dismissed')) return;
-    const handler = (e: MouseEvent) => {
-      if (e.clientY < 10) {
-        setShow(true);
-        document.removeEventListener('mouseout', handler);
-      }
+
+    let triggered = false;
+    const trigger = () => { if (!triggered) { triggered = true; setShow(true); } };
+
+    // Desktop: mouseout at top
+    const mouseHandler = (e: MouseEvent) => {
+      if (e.clientY < 10) { trigger(); document.removeEventListener('mouseout', mouseHandler); }
     };
-    const timer = setTimeout(() => document.addEventListener('mouseout', handler), 5000);
-    return () => { clearTimeout(timer); document.removeEventListener('mouseout', handler); };
+
+    // Mobile: rapid scroll-up or 45s on page
+    let lastScrollY = window.scrollY;
+    const scrollHandler = () => {
+      const diff = lastScrollY - window.scrollY;
+      if (diff > 300 && window.scrollY < 200) trigger();
+      lastScrollY = window.scrollY;
+    };
+
+    const desktopTimer = setTimeout(() => document.addEventListener('mouseout', mouseHandler), 5000);
+    const mobileTimer = setTimeout(trigger, 45000);
+    window.addEventListener('scroll', scrollHandler, { passive: true });
+
+    return () => {
+      clearTimeout(desktopTimer);
+      clearTimeout(mobileTimer);
+      document.removeEventListener('mouseout', mouseHandler);
+      window.removeEventListener('scroll', scrollHandler);
+    };
   }, [dismissed]);
 
   const dismiss = () => { setShow(false); setDismissed(true); localStorage.setItem('exit-intent-dismissed', 'true'); };
