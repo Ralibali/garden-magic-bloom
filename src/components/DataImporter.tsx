@@ -79,8 +79,7 @@ export default function DataImporter() {
           user_id: user.id,
         }));
 
-        const { error: dbErr } = await supabase.from(target).insert(batch);
-        // @ts-ignore – dynamic row shape validated in mapRows
+        const { error: dbErr } = await (supabase.from(target) as any).insert(batch);
         if (dbErr) throw new Error(dbErr.message);
         imported += batch.length;
         setImportedCount(imported);
