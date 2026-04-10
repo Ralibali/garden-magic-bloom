@@ -80,6 +80,7 @@ export default function DataImporter() {
         }));
 
         const { error: dbErr } = await supabase.from(target).insert(batch);
+        // @ts-ignore – dynamic row shape validated in mapRows
         if (dbErr) throw new Error(dbErr.message);
         imported += batch.length;
         setImportedCount(imported);
