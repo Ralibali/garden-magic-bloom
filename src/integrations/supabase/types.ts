@@ -1185,6 +1185,24 @@ export type Database = {
         }
         Relationships: []
       }
+      soro_indexnow_state: {
+        Row: {
+          last_iso_date: string | null
+          last_pinged_at: string
+          slug: string
+        }
+        Insert: {
+          last_iso_date?: string | null
+          last_pinged_at?: string
+          slug: string
+        }
+        Update: {
+          last_iso_date?: string | null
+          last_pinged_at?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       sowings: {
         Row: {
           bed_id: string | null
