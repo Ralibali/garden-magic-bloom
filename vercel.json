@@ -1,18 +1,18 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
-    {
-      "source": "/guider",
-      "destination": "/blogg",
-      "permanent": true
-    },
-    {
-      "source": "/guider/:slug",
-      "destination": "/blogg/:slug",
-      "permanent": true
-    }
+    { "source": "/guider", "destination": "/blogg", "permanent": true },
+    { "source": "/guider/:slug", "destination": "/blogg/:slug", "permanent": true }
   ],
   "rewrites": [
+    {
+      "source": "/llms.txt",
+      "destination": "https://ysonnvbkrwajacvdkqut.supabase.co/functions/v1/llms-txt"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://ysonnvbkrwajacvdkqut.supabase.co/functions/v1/sitemap"
+    },
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"

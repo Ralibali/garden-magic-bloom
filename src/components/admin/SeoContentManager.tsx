@@ -41,11 +41,41 @@ async function generateOne(payload: { type: SeoType; name?: string; monthNumber?
 }
 
 export default function SeoContentManager() {
+  const [pinging, setPinging] = useState(false);
+  const repingAll = async () => {
+    setPinging(true);
+    try {
+      const tables = ["seo_plants", "seo_months", "seo_zones"] as const;
+      const prefixByTable: Record<string, string> = {
+        seo_plants: "/vaxter/", seo_months: "/manad/", seo_zones: "/zoner/",
+      };
+      const paths: string[] = [];
+      for (const t of tables) {
+        const { data } = await supabase.from(t).select("slug").eq("published", true);
+        (data || []).forEach((r: any) => paths.push(prefixByTable[t] + r.slug));
+      }
+      if (!paths.length) { toast.info("Inga publicerade sidor att pinga."); return; }
+      const { error } = await supabase.functions.invoke("indexnow-ping", { body: { paths } });
+      if (error) throw error;
+      toast.success(`Pingade Bing/Yandex för ${paths.length} sidor`);
+    } catch (e: any) {
+      toast.error(e.message || "Ping misslyckades");
+    } finally {
+      setPinging(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="font-serif text-xl text-foreground">SEO-innehåll</h2>
-        <p className="text-xs text-muted-foreground">Generera, granska och publicera programmatiska sidor.</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="font-serif text-xl text-foreground">SEO-innehåll</h2>
+          <p className="text-xs text-muted-foreground">Generera, granska och publicera programmatiska sidor.</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={repingAll} disabled={pinging} className="rounded-xl gap-2 shrink-0">
+          {pinging ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+          Pinga sökmotorer
+        </Button>
       </div>
       <Tabs defaultValue="plants" className="space-y-4">
         <TabsList>
