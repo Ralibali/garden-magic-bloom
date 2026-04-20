@@ -66,6 +66,30 @@ function validateSwedishContent(generated: any): { valid: boolean; errors: strin
     errors.push(`zone_max utanför svenska systemet: ${generated.zone_max}`);
   }
 
+  // Strukturkontroller
+  if (typeof generated.description_short === "string") {
+    const len = generated.description_short.trim().length;
+    if (len < 150 || len > 160) {
+      errors.push(`description_short ska vara 150–160 tecken (är ${len})`);
+    }
+  }
+
+  if (typeof generated.content_html === "string") {
+    const h2Count = (generated.content_html.match(/<h2\b[^>]*>/gi) || []).length;
+    if (h2Count < 4) {
+      errors.push(`content_html ska ha minst fyra h2-rubriker (har ${h2Count})`);
+    }
+  }
+
+  if (Array.isArray(generated.faq)) {
+    const validPairs = generated.faq.filter(
+      (p: any) => p && typeof p.question === "string" && typeof p.answer === "string" && p.question.trim() && p.answer.trim(),
+    ).length;
+    if (validPairs < 6) {
+      errors.push(`faq ska ha minst sex par (har ${validPairs})`);
+    }
+  }
+
   return { valid: errors.length === 0, errors };
 }
 
