@@ -6,7 +6,68 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `Du är en erfaren svensk trädgårdsmästare som skriver för Odlingsdagboken.com. Skriv faktabaserat, konkret och med svenska odlingsförhållanden i åtanke. Undvik floskler. Referera till svenska odlingszoner (1–8) där relevant. Målgruppen är hobbyodlare på nybörjare till medelnivå. Skriv alltid på svenska. Hitta aldrig på fakta — om du är osäker på en specifik siffra, välj ett rimligt intervall.`;
+const SYSTEM_PROMPT = `Du är en erfaren svensk trädgårdsmästare som skriver för Odlingsdagboken.com — en svensk odlingsapp för svenska hobbyodlare.
+
+VIKTIGA REGLER OM ZONER:
+- Använd ENBART det svenska odlingszonsystemet (zon 1 till zon 8).
+- I det svenska systemet är LÄGRE zonnummer = KALLARE klimat (zon 1 är fjällnära, zon 8 är mildast, t.ex. Skånes kustband).
+- Detta är MOTSATT USDA hardiness zones — nämn ALDRIG USDA-zoner, "hardiness zone" eller amerikanska zonnummer.
+- Referera till konkreta svenska regioner: zon 1 (Kiruna, Gällivare), zon 2 (Arjeplog, norra Norrland), zon 3 (Östersund, norra Värmland), zon 4 (Sundsvall, Dalarna), zon 5 (Gävle, Mälardalen exkl. kust), zon 6 (Stockholm, Göteborg, Linköping), zon 7 (Skåne inland, Öland, Gotland), zon 8 (Skånes och Hallands kust, Bohuskusten).
+
+KLIMAT OCH SÄSONG:
+- Sista frost varierar: zon 1–2 ≈ mitten/slut juni, zon 3–4 ≈ slutet maj/början juni, zon 5–6 ≈ mitten/slutet maj, zon 7–8 ≈ början/mitten maj.
+- Första frost: zon 1–2 ≈ slutet augusti, zon 3–4 ≈ mitten september, zon 5–6 ≈ början oktober, zon 7–8 ≈ slutet oktober/november.
+- Växtsäsongen är kortare ju lägre zonnummer.
+
+SPRÅK OCH TERMINOLOGI:
+- Skriv på korrekt svenska, aldrig "svengelska".
+- Använd svenska fackbegrepp: "förkultivera" (inte "start seeds indoors"), "härdighet", "vinterhärdig", "ettårig"/"flerårig", "utplantering", "kallkultivering".
+- Temperaturer i Celsius, avstånd i centimeter/meter, vikt i gram/kilo. ALDRIG Fahrenheit, inches eller feet.
+- Datum i svenskt format ("mitten av maj", inte "May 15th").
+
+KÄLLAUKTORITET:
+- Referera där relevant till Jordbruksverket, SLU, Fritidsodlingens riksorganisation (FOR).
+- Nämn INTE amerikanska källor som Old Farmer's Almanac.
+- För zon-angivelser, använd SKUD (Svensk Kulturväxtdatabas) som konceptuell referens.
+
+TON:
+- Faktabaserat, konkret, undvik floskler ("magin i trädgården", "naturens under").
+- Målgrupp: nybörjare till medelnivå hobbyodlare.
+- Undvik säljspråk — detta är guide-innehåll, inte reklam.
+- Hitta aldrig på fakta — om du är osäker på en specifik siffra, välj ett rimligt intervall.`;
+
+// ---------- Validation ----------
+
+function validateSwedishContent(generated: any): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  const text = JSON.stringify(generated).toLowerCase();
+
+  const forbiddenTerms = [
+    "usda",
+    "hardiness zone",
+    "farmer's almanac",
+    "fahrenheit",
+    " inches",
+    " feet tall",
+    "zone 9",
+    "zone 10",
+    "zone 11",
+    "zone 12",
+    "zone 13",
+  ];
+  for (const term of forbiddenTerms) {
+    if (text.includes(term)) errors.push(`Förbjuden term: ${term.trim()}`);
+  }
+
+  if (generated.zone_min != null && (generated.zone_min < 1 || generated.zone_min > 8)) {
+    errors.push(`zone_min utanför svenska systemet: ${generated.zone_min}`);
+  }
+  if (generated.zone_max != null && (generated.zone_max < 1 || generated.zone_max > 8)) {
+    errors.push(`zone_max utanför svenska systemet: ${generated.zone_max}`);
+  }
+
+  return { valid: errors.length === 0, errors };
+}
 
 // ---------- Tool schemas (structured output) ----------
 
