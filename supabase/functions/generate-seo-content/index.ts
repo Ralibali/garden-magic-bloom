@@ -517,12 +517,20 @@ serve(async (req) => {
         winter_temp_min: result.winter_temp_min ?? null,
         faq: result.faq,
         published: false,
+        generation_status: validation.valid ? "success" : "failed",
+        generation_errors: validation.errors,
       };
 
       const { error } = await adminClient.from("seo_zones").upsert(row, { onConflict: "slug" });
       if (error) throw error;
 
-      return new Response(JSON.stringify({ success: true, slug: `zon-${zoneNumber}`, type }), {
+      await logGeneration(adminClient, {
+        type, target_slug: zoneSlug, input_prompt: prompt, output_json: result,
+        validation_errors: validation.errors,
+        status: validation.valid ? "success" : "failed",
+      });
+
+      return new Response(JSON.stringify({ success: true, slug: zoneSlug, type, validation }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
