@@ -1,4 +1,6 @@
-import { useEffect } from 'react';
+import { useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
+import React from 'react';
 
 const BASE = 'https://odlingsdagboken.com';
 
@@ -21,116 +23,75 @@ interface SeoOptions {
 }
 
 /**
- * Sets document title, meta description, canonical URL, OG tags, Twitter cards,
- * hreflang, article meta and optional JSON-LD. Cleans up on unmount.
+ * Returns a <Helmet> element that sets document title, meta description,
+ * canonical URL, OG tags, Twitter cards, hreflang, article meta and optional JSON-LD.
+ * Works with SSR/pre-rendering via react-helmet-async.
  */
 export function useSeo({ title, description, path, ogType = 'website', ogImage, ogImageAlt, noindex, jsonLd, articleMeta }: SeoOptions) {
-  useEffect(() => {
-    const createdElements: HTMLElement[] = [];
+  const fullUrl = `${BASE}${path}`;
+  const imgUrl = ogImage ? (ogImage.startsWith('http') ? ogImage : `${BASE}${ogImage}`) : undefined;
 
-    const setMeta = (attr: string, key: string, content: string) => {
-      let el = document.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement;
-      if (!el) {
-        el = document.createElement('meta');
-        el.setAttribute(attr, key);
-        document.head.appendChild(el);
-        createdElements.push(el);
-      }
-      el.setAttribute('content', content);
-    };
+  const jsonLdString = useMemo(() => {
+    if (!jsonLd) return undefined;
+    const data = Array.isArray(jsonLd)
+      ? { '@context': 'https://schema.org', '@graph': jsonLd }
+      : { '@context': 'https://schema.org', ...jsonLd };
+    return JSON.stringify(data);
+  }, [jsonLd]);
 
-    const addLink = (rel: string, href: string, attrs?: Record<string, string>) => {
-      const el = document.createElement('link');
-      el.rel = rel;
-      el.href = href;
-      if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
-      document.head.appendChild(el);
-      createdElements.push(el);
-    };
-
+  return React.createElement(Helmet, null,
     // Title
-    document.title = title;
+    React.createElement('title', null, title),
 
     // Meta description
-    setMeta('name', 'description', description);
+    React.createElement('meta', { name: 'description', content: description }),
 
     // Robots
-    setMeta('name', 'robots', noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+    React.createElement('meta', { name: 'robots', content: noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' }),
 
     // Canonical
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
-    if (canonical) canonical.remove();
-    addLink('canonical', `${BASE}${path}`);
+    React.createElement('link', { rel: 'canonical', href: fullUrl }),
 
     // Hreflang
-    addLink('alternate', `${BASE}${path}`, { hreflang: 'sv' });
-    addLink('alternate', `${BASE}${path}`, { hreflang: 'x-default' });
+    React.createElement('link', { rel: 'alternate', href: fullUrl, hrefLang: 'sv' }),
+    React.createElement('link', { rel: 'alternate', href: fullUrl, hrefLang: 'x-default' }),
 
     // OG tags
-    const fullUrl = `${BASE}${path}`;
-    setMeta('property', 'og:title', title);
-    setMeta('property', 'og:description', description);
-    setMeta('property', 'og:url', fullUrl);
-    setMeta('property', 'og:type', ogType);
-    setMeta('property', 'og:site_name', 'Odlingsdagboken');
-    setMeta('property', 'og:locale', 'sv_SE');
-    if (ogImage) {
-      const imgUrl = ogImage.startsWith('http') ? ogImage : `${BASE}${ogImage}`;
-      setMeta('property', 'og:image', imgUrl);
-      setMeta('property', 'og:image:alt', ogImageAlt || title);
-    }
+    React.createElement('meta', { property: 'og:title', content: title }),
+    React.createElement('meta', { property: 'og:description', content: description }),
+    React.createElement('meta', { property: 'og:url', content: fullUrl }),
+    React.createElement('meta', { property: 'og:type', content: ogType }),
+    React.createElement('meta', { property: 'og:site_name', content: 'Odlingsdagboken' }),
+    React.createElement('meta', { property: 'og:locale', content: 'sv_SE' }),
+
+    // OG image
+    ...(imgUrl ? [
+      React.createElement('meta', { property: 'og:image', content: imgUrl }),
+      React.createElement('meta', { property: 'og:image:alt', content: ogImageAlt || title }),
+    ] : []),
 
     // Twitter Card
-    setMeta('name', 'twitter:card', 'summary_large_image');
-    setMeta('name', 'twitter:title', title);
-    setMeta('name', 'twitter:description', description);
-    if (ogImage) {
-      const imgUrl = ogImage.startsWith('http') ? ogImage : `${BASE}${ogImage}`;
-      setMeta('name', 'twitter:image', imgUrl);
-      setMeta('name', 'twitter:image:alt', ogImageAlt || title);
-    }
+    React.createElement('meta', { name: 'twitter:card', content: 'summary_large_image' }),
+    React.createElement('meta', { name: 'twitter:title', content: title }),
+    React.createElement('meta', { name: 'twitter:description', content: description }),
+    ...(imgUrl ? [
+      React.createElement('meta', { name: 'twitter:image', content: imgUrl }),
+      React.createElement('meta', { name: 'twitter:image:alt', content: ogImageAlt || title }),
+    ] : []),
 
-    // Article-specific meta
-    if (articleMeta) {
-      if (articleMeta.publishedTime) setMeta('property', 'article:published_time', articleMeta.publishedTime);
-      if (articleMeta.modifiedTime) setMeta('property', 'article:modified_time', articleMeta.modifiedTime);
-      if (articleMeta.author) setMeta('property', 'article:author', articleMeta.author);
-      if (articleMeta.section) setMeta('property', 'article:section', articleMeta.section);
-      if (articleMeta.tags) {
-        articleMeta.tags.forEach(tag => {
-          const el = document.createElement('meta');
-          el.setAttribute('property', 'article:tag');
-          el.setAttribute('content', tag);
-          document.head.appendChild(el);
-          createdElements.push(el);
-        });
-      }
-    }
+    // Article meta
+    ...(articleMeta?.publishedTime ? [React.createElement('meta', { property: 'article:published_time', content: articleMeta.publishedTime })] : []),
+    ...(articleMeta?.modifiedTime ? [React.createElement('meta', { property: 'article:modified_time', content: articleMeta.modifiedTime })] : []),
+    ...(articleMeta?.author ? [React.createElement('meta', { property: 'article:author', content: articleMeta.author })] : []),
+    ...(articleMeta?.section ? [React.createElement('meta', { property: 'article:section', content: articleMeta.section })] : []),
+    ...(articleMeta?.tags?.map(tag => React.createElement('meta', { key: tag, property: 'article:tag', content: tag })) || []),
 
     // AI citation meta
-    setMeta('name', 'citation_title', title);
-    setMeta('name', 'citation_author', 'Odlingsdagboken');
-    setMeta('name', 'citation_language', 'sv');
+    React.createElement('meta', { name: 'citation_title', content: title }),
+    React.createElement('meta', { name: 'citation_author', content: 'Odlingsdagboken' }),
+    React.createElement('meta', { name: 'citation_language', content: 'sv' }),
 
     // JSON-LD
-    if (jsonLd) {
-      let script = document.getElementById('json-ld-page') as HTMLScriptElement;
-      if (!script) {
-        script = document.createElement('script');
-        script.id = 'json-ld-page';
-        script.type = 'application/ld+json';
-        document.head.appendChild(script);
-        createdElements.push(script);
-      }
-      const data = Array.isArray(jsonLd)
-        ? { '@context': 'https://schema.org', '@graph': jsonLd }
-        : { '@context': 'https://schema.org', ...jsonLd };
-      script.textContent = JSON.stringify(data);
-    }
-
-    return () => {
-      document.title = 'Odlingsdagboken – Din digitala odlingsdagbok';
-      createdElements.forEach(el => el.remove());
-    };
-  }, [title, description, path, ogType, ogImage, ogImageAlt, noindex, jsonLd, articleMeta]);
+    ...(jsonLdString ? [React.createElement('script', { type: 'application/ld+json' }, jsonLdString)] : []),
+  );
 }
