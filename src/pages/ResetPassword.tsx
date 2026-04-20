@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSeo } from '@/hooks/useSeo';
+import { Seo } from '@/hooks/useSeo';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,13 +11,6 @@ import { toast } from '@/hooks/use-toast';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
-
-  useSeo({
-    title: 'Återställ lösenord | Odlingsdagboken',
-    description: 'Ange ditt nya lösenord för Odlingsdagboken.',
-    path: '/reset-password',
-    noindex: true,
-  });
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -82,6 +75,12 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-background noise-bg">
+      <Seo
+        title="Återställ lösenord | Odlingsdagboken"
+        description="Ange ditt nya lösenord för Odlingsdagboken."
+        path="/reset-password"
+        noindex
+      />
       <div className="w-full max-w-md">
         <div className="flex items-center gap-3 mb-8 justify-center">
           <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">

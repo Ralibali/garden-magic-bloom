@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSeo } from '@/hooks/useSeo';
+import { Seo } from '@/hooks/useSeo';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import heroGarden from '@/assets/hero-garden.jpg';
 import { Button } from '@/components/ui/button';
@@ -16,13 +16,6 @@ export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login, register, isAuthenticated, loading: authLoading } = useAuth();
-
-  useSeo({
-    title: 'Logga in eller skapa konto | Odlingsdagboken',
-    description: 'Logga in på Odlingsdagboken eller skapa ett gratis konto för att börja logga sådder och skördar.',
-    path: '/login',
-    noindex: true,
-  });
 
   const initialMode = searchParams.get('mode');
   const [authMode, setAuthMode] = useState<AuthMode>(
@@ -77,6 +70,12 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex">
+      <Seo
+        title="Logga in eller skapa konto | Odlingsdagboken"
+        description="Logga in på Odlingsdagboken eller skapa ett gratis konto för att börja logga sådder och skördar."
+        path="/login"
+        noindex
+      />
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img src={heroGarden} alt="Svensk köksträdgård med odlingsbäddar" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />

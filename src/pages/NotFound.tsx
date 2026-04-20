@@ -1,18 +1,11 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import { useSeo } from "@/hooks/useSeo";
+import { Seo } from "@/hooks/useSeo";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Sprout } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
-
-  useSeo({
-    title: "Sidan hittades inte – Odlingsdagboken",
-    description: "Sidan du letade efter finns inte. Gå tillbaka till startsidan.",
-    path: location.pathname,
-    noindex: true,
-  });
 
   useEffect(() => {
     console.error("404 Error:", location.pathname);
@@ -20,6 +13,12 @@ const NotFound = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <Seo
+        title="Sidan hittades inte – Odlingsdagboken"
+        description="Sidan du letade efter finns inte. Gå tillbaka till startsidan."
+        path={location.pathname}
+        noindex
+      />
       <div className="text-center max-w-md">
         <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
           <Sprout className="h-8 w-8 text-primary" />

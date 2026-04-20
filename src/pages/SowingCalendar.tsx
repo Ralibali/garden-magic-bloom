@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Sprout, Sun, Snowflake, Leaf } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import { useSeo } from '@/hooks/useSeo';
+import { Seo } from '@/hooks/useSeo';
 
 type SowWindow = {
   variety: string;
@@ -64,14 +64,13 @@ export default function SowingCalendar() {
   const offset = ZONE_OFFSET[zone] ?? 0;
   const currentMonth = new Date().getMonth() + 1;
 
-  useSeo({
-    title: `Såkalender zon ${zone} – Odlingsdagboken`,
-    description: `Se rekommenderade såtider för 20+ grönsaker i klimatzon ${zone}. Förodling, direktsådd och skördtider.`,
-    path: '/app/calendar',
-  });
-
   return (
     <div className="space-y-6">
+      <Seo
+        title={`Såkalender zon ${zone} – Odlingsdagboken`}
+        description={`Se rekommenderade såtider för 20+ grönsaker i klimatzon ${zone}. Förodling, direktsådd och skördtider.`}
+        path="/app/calendar"
+      />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">

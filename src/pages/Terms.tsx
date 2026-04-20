@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSeo } from '@/hooks/useSeo';
+import { Seo } from '@/hooks/useSeo';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -8,29 +8,28 @@ import { useNavigate } from 'react-router-dom';
 export default function Terms() {
   const navigate = useNavigate();
 
-  useSeo({
-    title: 'Användarvillkor & Integritetspolicy | Odlingsdagboken',
-    description: 'Läs Odlingsdagbokens användarvillkor och integritetspolicy. Information om dataskydd, cookies och dina rättigheter.',
-    path: '/terms',
-    jsonLd: [
-      {
-        '@type': 'WebPage',
-        name: 'Användarvillkor & Integritetspolicy',
-        url: 'https://odlingsdagboken.com/terms',
-        isPartOf: { '@id': 'https://odlingsdagboken.com/#website' },
-      },
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://odlingsdagboken.com' },
-          { '@type': 'ListItem', position: 2, name: 'Villkor', item: 'https://odlingsdagboken.com/terms' },
-        ],
-      },
-    ],
-  });
-
   return (
     <div className="max-w-3xl mx-auto py-8 px-4 animate-fade-in">
+      <Seo
+        title="Användarvillkor & Integritetspolicy | Odlingsdagboken"
+        description="Läs Odlingsdagbokens användarvillkor och integritetspolicy. Information om dataskydd, cookies och dina rättigheter."
+        path="/terms"
+        jsonLd={[
+          {
+            '@type': 'WebPage',
+            name: 'Användarvillkor & Integritetspolicy',
+            url: 'https://odlingsdagboken.com/terms',
+            isPartOf: { '@id': 'https://odlingsdagboken.com/#website' },
+          },
+          {
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://odlingsdagboken.com' },
+              { '@type': 'ListItem', position: 2, name: 'Villkor', item: 'https://odlingsdagboken.com/terms' },
+            ],
+          },
+        ]}
+      />
       <Button variant="ghost" size="sm" className="mb-4 gap-1.5 rounded-xl" onClick={() => navigate(-1)}>
         <ArrowLeft className="h-4 w-4" /> Tillbaka
       </Button>

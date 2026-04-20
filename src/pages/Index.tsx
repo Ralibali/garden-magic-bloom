@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { useSeo } from '@/hooks/useSeo';
+import { Seo } from '@/hooks/useSeo';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Check, ChevronRight, Sprout, BookOpen, Calendar, Bot, BarChart2, Smartphone, Star, X, Menu } from 'lucide-react';
 import dashboardPreview from '@/assets/dashboard-preview.jpg';
@@ -301,61 +301,60 @@ function PricingToggle({ yearly, setYearly }: { yearly: boolean; setYearly: (v: 
 export default function Index() {
   const [yearly, setYearly] = useState(true);
 
-  useSeo({
-    title: 'Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare',
-    description: 'Håll koll på såtider, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis verktyg för 2 000+ svenska hobbyodlare.',
-    path: '/',
-    ogImage: '/og-image.png',
-    ogImageAlt: 'Odlingsdagboken – digital odlingsdagbok för svenska odlare',
-    jsonLd: [
-      {
-        '@type': 'SoftwareApplication',
-        name: 'Odlingsdagboken',
-        applicationCategory: 'LifestyleApplication',
-        operatingSystem: 'Web',
-        description: 'Digital odlingsdagbok för svenska grönsaksodlare. Logga sådder, skördar och växtföljd – anpassat per klimatzon.',
-        url: 'https://odlingsdagboken.com',
-        inLanguage: 'sv',
-        offers: [
-          { '@type': 'Offer', price: '0', priceCurrency: 'SEK', description: 'Gratis grundversion' },
-          { '@type': 'Offer', price: '99', priceCurrency: 'SEK', description: 'Plus – obegränsade bäddar, AI-coach, statistik' },
-        ],
-      },
-      {
-        '@type': 'HowTo',
-        name: 'Kom igång med Odlingsdagboken',
-        description: 'Tre enkla steg för att börja logga din odling digitalt.',
-        step: howItWorksSteps.map((s, i) => ({
-          '@type': 'HowToStep',
-          position: i + 1,
-          name: s.title,
-          text: s.desc,
-        })),
-      },
-      {
-        '@type': 'FAQPage',
-        mainEntity: faqs.map(f => ({
-          '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: { '@type': 'Answer', text: f.a },
-        })),
-      },
-      {
-        '@type': 'Organization',
-        '@id': 'https://odlingsdagboken.com/#organization',
-        name: 'Odlingsdagboken',
-        url: 'https://odlingsdagboken.com',
-        logo: 'https://odlingsdagboken.com/logo-odlingsdagboken.png',
-        sameAs: [
-          'https://instagram.com/odlingsdagboken',
-          'https://facebook.com/odlingsdagboken',
-        ],
-      },
-    ],
-  });
-
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
+      <Seo
+        title="Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare"
+        description="Håll koll på såtider, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis verktyg för 2 000+ svenska hobbyodlare."
+        path="/"
+        ogImage="/og-image.png"
+        ogImageAlt="Odlingsdagboken – digital odlingsdagbok för svenska odlare"
+        jsonLd={[
+          {
+            '@type': 'SoftwareApplication',
+            name: 'Odlingsdagboken',
+            applicationCategory: 'LifestyleApplication',
+            operatingSystem: 'Web',
+            description: 'Digital odlingsdagbok för svenska grönsaksodlare. Logga sådder, skördar och växtföljd – anpassat per klimatzon.',
+            url: 'https://odlingsdagboken.com',
+            inLanguage: 'sv',
+            offers: [
+              { '@type': 'Offer', price: '0', priceCurrency: 'SEK', description: 'Gratis grundversion' },
+              { '@type': 'Offer', price: '99', priceCurrency: 'SEK', description: 'Plus – obegränsade bäddar, AI-coach, statistik' },
+            ],
+          },
+          {
+            '@type': 'HowTo',
+            name: 'Kom igång med Odlingsdagboken',
+            description: 'Tre enkla steg för att börja logga din odling digitalt.',
+            step: howItWorksSteps.map((s, i) => ({
+              '@type': 'HowToStep',
+              position: i + 1,
+              name: s.title,
+              text: s.desc,
+            })),
+          },
+          {
+            '@type': 'FAQPage',
+            mainEntity: faqs.map(f => ({
+              '@type': 'Question',
+              name: f.q,
+              acceptedAnswer: { '@type': 'Answer', text: f.a },
+            })),
+          },
+          {
+            '@type': 'Organization',
+            '@id': 'https://odlingsdagboken.com/#organization',
+            name: 'Odlingsdagboken',
+            url: 'https://odlingsdagboken.com',
+            logo: 'https://odlingsdagboken.com/logo-odlingsdagboken.png',
+            sameAs: [
+              'https://instagram.com/odlingsdagboken',
+              'https://facebook.com/odlingsdagboken',
+            ],
+          },
+        ]}
+      />
       <ExitIntentPopup />
       <SeasonalBanner />
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSeo } from '@/hooks/useSeo';
+import { Seo } from '@/hooks/useSeo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Download, Smartphone, CheckCircle2, ArrowLeft } from 'lucide-react';
@@ -15,29 +15,6 @@ const Install = () => {
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const navigate = useNavigate();
-
-  useSeo({
-    title: 'Installera Odlingsdagboken – hämta appen gratis',
-    description: 'Installera Odlingsdagboken som app direkt på din hemskärm. Fungerar offline, laddar snabbt och kräver ingen appbutik.',
-    path: '/install',
-    ogImage: '/og-image.png',
-    ogImageAlt: 'Odlingsdagboken – digital odlingsdagbok',
-    jsonLd: [
-      {
-        '@type': 'WebPage',
-        name: 'Installera Odlingsdagboken',
-        description: 'Hämta Odlingsdagboken som app direkt på din hemskärm.',
-        url: 'https://odlingsdagboken.com/install',
-      },
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://odlingsdagboken.com' },
-          { '@type': 'ListItem', position: 2, name: 'Installera', item: 'https://odlingsdagboken.com/install' },
-        ],
-      },
-    ],
-  });
 
   useEffect(() => {
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -65,6 +42,28 @@ const Install = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Seo
+        title="Installera Odlingsdagboken – hämta appen gratis"
+        description="Installera Odlingsdagboken som app direkt på din hemskärm. Fungerar offline, laddar snabbt och kräver ingen appbutik."
+        path="/install"
+        ogImage="/og-image.png"
+        ogImageAlt="Odlingsdagboken – digital odlingsdagbok"
+        jsonLd={[
+          {
+            '@type': 'WebPage',
+            name: 'Installera Odlingsdagboken',
+            description: 'Hämta Odlingsdagboken som app direkt på din hemskärm.',
+            url: 'https://odlingsdagboken.com/install',
+          },
+          {
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://odlingsdagboken.com' },
+              { '@type': 'ListItem', position: 2, name: 'Installera', item: 'https://odlingsdagboken.com/install' },
+            ],
+          },
+        ]}
+      />
       <div className="max-w-md w-full space-y-6">
         <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Tillbaka
