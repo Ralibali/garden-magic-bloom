@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Loader2, CheckCircle2, FileEdit, Eye, ExternalLink, RefreshCw, Trash2 } from "lucide-react";
+import { Sparkles, Loader2, CheckCircle2, FileEdit, Eye, ExternalLink, RefreshCw, Trash2, Image as ImageIcon } from "lucide-react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -135,7 +135,7 @@ function PlantsPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("seo_plants")
-        .select("id, slug, name, published, updated_at, description_short")
+        .select("id, slug, name, published, updated_at, description_short, image_url")
         .order("name");
       if (error) throw error;
       return data;
@@ -198,6 +198,7 @@ function PlantsPanel() {
                         existing={existing}
                         onGenerate={() => generateOneMutation.mutate(p.name)}
                         isGenerating={generateOneMutation.isPending && generateOneMutation.variables === p.name}
+                        hasImage={!!existing?.image_url}
                       />
                     );
                   })}
