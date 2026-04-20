@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Loader2, Users, MessageSquare, FileText, BarChart3, Search, Link2, Crown, MinusCircle, LayoutDashboard, Trash2, CheckCircle2, XCircle, Clock, CalendarDays, Sprout, Carrot, Camera, Bug } from 'lucide-react';
+import { Shield, Loader2, Users, MessageSquare, FileText, BarChart3, Search, Link2, Crown, MinusCircle, LayoutDashboard, Trash2, CheckCircle2, XCircle, Clock, CalendarDays, Sprout, Carrot, Camera, Bug, Sparkles } from 'lucide-react';
 import { LayoutGrid } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +23,7 @@ import GlossaryManager from '@/components/admin/GlossaryManager';
 const AnalyticsDashboard = React.lazy(() => import('@/components/admin/AnalyticsDashboard'));
 const KeywordExplorer = React.lazy(() => import('@/components/admin/KeywordExplorer'));
 const PlatformOverview = React.lazy(() => import('@/components/admin/PlatformOverview'));
+const SeoContentManager = React.lazy(() => import('@/components/admin/SeoContentManager'));
 
 export default function Admin() {
   const { user } = useAuth();
@@ -72,6 +73,7 @@ export default function Admin() {
           <TabsTrigger value="blog" className="gap-1.5"><FileText className="h-4 w-4" /> Blogg</TabsTrigger>
           <TabsTrigger value="glossary" className="gap-1.5"><Link2 className="h-4 w-4" /> Länkord</TabsTrigger>
           <TabsTrigger value="keywords" className="gap-1.5"><Search className="h-4 w-4" /> Nyckelord</TabsTrigger>
+          <TabsTrigger value="seo-content" className="gap-1.5"><Sparkles className="h-4 w-4" /> SEO-innehåll</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -91,6 +93,11 @@ export default function Admin() {
         <TabsContent value="keywords">
           <React.Suspense fallback={<Skeleton className="h-64" />}>
             <KeywordExplorer />
+          </React.Suspense>
+        </TabsContent>
+        <TabsContent value="seo-content">
+          <React.Suspense fallback={<Skeleton className="h-64" />}>
+            <SeoContentManager />
           </React.Suspense>
         </TabsContent>
       </Tabs>
