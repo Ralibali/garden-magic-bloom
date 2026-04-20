@@ -52,4 +52,7 @@ Disallow: /app/
 Disallow: /login
 Disallow: /reset-password
 
-Sitemap: https://odlingsdagboken.com/functions/v1/sitemap
+Sitemap: https://odlingsdagboken.com/sitemap.xml
+
+# AI-discovery manifest
+# https://odlingsdagboken.com/llms.txt
