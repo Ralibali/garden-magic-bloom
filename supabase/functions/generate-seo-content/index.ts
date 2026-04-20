@@ -6,7 +6,68 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `Du är en erfaren svensk trädgårdsmästare som skriver för Odlingsdagboken.com. Skriv faktabaserat, konkret och med svenska odlingsförhållanden i åtanke. Undvik floskler. Referera till svenska odlingszoner (1–8) där relevant. Målgruppen är hobbyodlare på nybörjare till medelnivå. Skriv alltid på svenska. Hitta aldrig på fakta — om du är osäker på en specifik siffra, välj ett rimligt intervall.`;
+const SYSTEM_PROMPT = `Du är en erfaren svensk trädgårdsmästare som skriver för Odlingsdagboken.com — en svensk odlingsapp för svenska hobbyodlare.
+
+VIKTIGA REGLER OM ZONER:
+- Använd ENBART det svenska odlingszonsystemet (zon 1 till zon 8).
+- I det svenska systemet är LÄGRE zonnummer = KALLARE klimat (zon 1 är fjällnära, zon 8 är mildast, t.ex. Skånes kustband).
+- Detta är MOTSATT USDA hardiness zones — nämn ALDRIG USDA-zoner, "hardiness zone" eller amerikanska zonnummer.
+- Referera till konkreta svenska regioner: zon 1 (Kiruna, Gällivare), zon 2 (Arjeplog, norra Norrland), zon 3 (Östersund, norra Värmland), zon 4 (Sundsvall, Dalarna), zon 5 (Gävle, Mälardalen exkl. kust), zon 6 (Stockholm, Göteborg, Linköping), zon 7 (Skåne inland, Öland, Gotland), zon 8 (Skånes och Hallands kust, Bohuskusten).
+
+KLIMAT OCH SÄSONG:
+- Sista frost varierar: zon 1–2 ≈ mitten/slut juni, zon 3–4 ≈ slutet maj/början juni, zon 5–6 ≈ mitten/slutet maj, zon 7–8 ≈ början/mitten maj.
+- Första frost: zon 1–2 ≈ slutet augusti, zon 3–4 ≈ mitten september, zon 5–6 ≈ början oktober, zon 7–8 ≈ slutet oktober/november.
+- Växtsäsongen är kortare ju lägre zonnummer.
+
+SPRÅK OCH TERMINOLOGI:
+- Skriv på korrekt svenska, aldrig "svengelska".
+- Använd svenska fackbegrepp: "förkultivera" (inte "start seeds indoors"), "härdighet", "vinterhärdig", "ettårig"/"flerårig", "utplantering", "kallkultivering".
+- Temperaturer i Celsius, avstånd i centimeter/meter, vikt i gram/kilo. ALDRIG Fahrenheit, inches eller feet.
+- Datum i svenskt format ("mitten av maj", inte "May 15th").
+
+KÄLLAUKTORITET:
+- Referera där relevant till Jordbruksverket, SLU, Fritidsodlingens riksorganisation (FOR).
+- Nämn INTE amerikanska källor som Old Farmer's Almanac.
+- För zon-angivelser, använd SKUD (Svensk Kulturväxtdatabas) som konceptuell referens.
+
+TON:
+- Faktabaserat, konkret, undvik floskler ("magin i trädgården", "naturens under").
+- Målgrupp: nybörjare till medelnivå hobbyodlare.
+- Undvik säljspråk — detta är guide-innehåll, inte reklam.
+- Hitta aldrig på fakta — om du är osäker på en specifik siffra, välj ett rimligt intervall.`;
+
+// ---------- Validation ----------
+
+function validateSwedishContent(generated: any): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  const text = JSON.stringify(generated).toLowerCase();
+
+  const forbiddenTerms = [
+    "usda",
+    "hardiness zone",
+    "farmer's almanac",
+    "fahrenheit",
+    " inches",
+    " feet tall",
+    "zone 9",
+    "zone 10",
+    "zone 11",
+    "zone 12",
+    "zone 13",
+  ];
+  for (const term of forbiddenTerms) {
+    if (text.includes(term)) errors.push(`Förbjuden term: ${term.trim()}`);
+  }
+
+  if (generated.zone_min != null && (generated.zone_min < 1 || generated.zone_min > 8)) {
+    errors.push(`zone_min utanför svenska systemet: ${generated.zone_min}`);
+  }
+  if (generated.zone_max != null && (generated.zone_max < 1 || generated.zone_max > 8)) {
+    errors.push(`zone_max utanför svenska systemet: ${generated.zone_max}`);
+  }
+
+  return { valid: errors.length === 0, errors };
+}
 
 // ---------- Tool schemas (structured output) ----------
 
@@ -201,6 +262,8 @@ function slugify(s: string): string {
     .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
+const MODEL = "google/gemini-2.5-pro";
+
 async function callAI(userPrompt: string, tool: any, toolName: string): Promise<any> {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
@@ -212,7 +275,7 @@ async function callAI(userPrompt: string, tool: any, toolName: string): Promise<
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-pro",
+      model: MODEL,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userPrompt },
@@ -235,6 +298,34 @@ async function callAI(userPrompt: string, tool: any, toolName: string): Promise<
     throw new Error("AI returnerade inget verktygsanrop");
   }
   return JSON.parse(toolCall.function.arguments);
+}
+
+async function logGeneration(
+  adminClient: any,
+  entry: {
+    type: string;
+    target_slug: string | null;
+    input_prompt: string;
+    output_json: any;
+    validation_errors: string[];
+    status: "success" | "failed" | "error";
+    error_message?: string;
+  },
+) {
+  try {
+    await adminClient.from("seo_generation_log").insert({
+      type: entry.type,
+      target_slug: entry.target_slug,
+      model: MODEL,
+      input_prompt: entry.input_prompt,
+      output_json: entry.output_json ?? null,
+      validation_errors: entry.validation_errors,
+      status: entry.status,
+      error_message: entry.error_message ?? null,
+    });
+  } catch (e) {
+    console.error("Failed to write seo_generation_log:", e);
+  }
 }
 
 // ---------- Main handler ----------
@@ -273,8 +364,20 @@ serve(async (req) => {
 
     if (type === "plant") {
       if (!name) throw new Error("name krävs för plant");
-      const result = await callAI(plantPrompt(name), PLANT_TOOL, "save_plant_content");
       const slug = slugify(name);
+      const prompt = plantPrompt(name);
+      let result: any = null;
+      let validation = { valid: true, errors: [] as string[] };
+      try {
+        result = await callAI(prompt, PLANT_TOOL, "save_plant_content");
+        validation = validateSwedishContent(result);
+      } catch (err: any) {
+        await logGeneration(adminClient, {
+          type, target_slug: slug, input_prompt: prompt, output_json: null,
+          validation_errors: [], status: "error", error_message: err.message,
+        });
+        throw err;
+      }
 
       // Normalise 0 → null for sow fields
       const cleanInt = (v: any) => (v === 0 || v == null ? null : v);
@@ -313,12 +416,20 @@ serve(async (req) => {
         content_html: result.content_html,
         faq: result.faq,
         published: false,
+        generation_status: validation.valid ? "success" : "failed",
+        generation_errors: validation.errors,
       };
 
       const { error } = await adminClient.from("seo_plants").upsert(row, { onConflict: "slug" });
       if (error) throw error;
 
-      return new Response(JSON.stringify({ success: true, slug, type }), {
+      await logGeneration(adminClient, {
+        type, target_slug: slug, input_prompt: prompt, output_json: result,
+        validation_errors: validation.errors,
+        status: validation.valid ? "success" : "failed",
+      });
+
+      return new Response(JSON.stringify({ success: true, slug, type, validation }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -326,7 +437,19 @@ serve(async (req) => {
     if (type === "month") {
       if (!monthNumber || monthNumber < 1 || monthNumber > 12) throw new Error("monthNumber 1-12 krävs");
       const monthName = MONTH_NAMES[monthNumber - 1];
-      const result = await callAI(monthPrompt(monthName, monthNumber), MONTH_TOOL, "save_month_content");
+      const prompt = monthPrompt(monthName, monthNumber);
+      let result: any = null;
+      let validation = { valid: true, errors: [] as string[] };
+      try {
+        result = await callAI(prompt, MONTH_TOOL, "save_month_content");
+        validation = validateSwedishContent(result);
+      } catch (err: any) {
+        await logGeneration(adminClient, {
+          type, target_slug: monthName, input_prompt: prompt, output_json: null,
+          validation_errors: [], status: "error", error_message: err.message,
+        });
+        throw err;
+      }
 
       const row = {
         slug: monthName,
@@ -344,22 +467,43 @@ serve(async (req) => {
         frost_risk: result.frost_risk,
         faq: result.faq,
         published: false,
+        generation_status: validation.valid ? "success" : "failed",
+        generation_errors: validation.errors,
       };
 
       const { error } = await adminClient.from("seo_months").upsert(row, { onConflict: "slug" });
       if (error) throw error;
 
-      return new Response(JSON.stringify({ success: true, slug: monthName, type }), {
+      await logGeneration(adminClient, {
+        type, target_slug: monthName, input_prompt: prompt, output_json: result,
+        validation_errors: validation.errors,
+        status: validation.valid ? "success" : "failed",
+      });
+
+      return new Response(JSON.stringify({ success: true, slug: monthName, type, validation }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     if (type === "zone") {
       if (!zoneNumber || zoneNumber < 1 || zoneNumber > 8) throw new Error("zoneNumber 1-8 krävs");
-      const result = await callAI(zonePrompt(zoneNumber), ZONE_TOOL, "save_zone_content");
+      const zoneSlug = `zon-${zoneNumber}`;
+      const prompt = zonePrompt(zoneNumber);
+      let result: any = null;
+      let validation = { valid: true, errors: [] as string[] };
+      try {
+        result = await callAI(prompt, ZONE_TOOL, "save_zone_content");
+        validation = validateSwedishContent(result);
+      } catch (err: any) {
+        await logGeneration(adminClient, {
+          type, target_slug: zoneSlug, input_prompt: prompt, output_json: null,
+          validation_errors: [], status: "error", error_message: err.message,
+        });
+        throw err;
+      }
 
       const row = {
-        slug: `zon-${zoneNumber}`,
+        slug: zoneSlug,
         zone_number: zoneNumber,
         title: `Odlingszon ${zoneNumber} – Klimat, växter och tips`,
         description: result.description,
@@ -373,12 +517,20 @@ serve(async (req) => {
         winter_temp_min: result.winter_temp_min ?? null,
         faq: result.faq,
         published: false,
+        generation_status: validation.valid ? "success" : "failed",
+        generation_errors: validation.errors,
       };
 
       const { error } = await adminClient.from("seo_zones").upsert(row, { onConflict: "slug" });
       if (error) throw error;
 
-      return new Response(JSON.stringify({ success: true, slug: `zon-${zoneNumber}`, type }), {
+      await logGeneration(adminClient, {
+        type, target_slug: zoneSlug, input_prompt: prompt, output_json: result,
+        validation_errors: validation.errors,
+        status: validation.valid ? "success" : "failed",
+      });
+
+      return new Response(JSON.stringify({ success: true, slug: zoneSlug, type, validation }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

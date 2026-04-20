@@ -6,7 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Loader2, CheckCircle2, FileEdit, Eye, ExternalLink, RefreshCw, Trash2, Image as ImageIcon } from "lucide-react";
+import { Sparkles, Loader2, CheckCircle2, FileEdit, Eye, ExternalLink, RefreshCw, Trash2, Image as ImageIcon, AlertTriangle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -135,7 +136,7 @@ function PlantsPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("seo_plants")
-        .select("id, slug, name, published, updated_at, description_short, image_url")
+        .select("id, slug, name, published, updated_at, description_short, image_url, generation_status, generation_errors")
         .order("name");
       if (error) throw error;
       return data;
@@ -156,9 +157,13 @@ function PlantsPanel() {
 
   const generateOneMutation = useMutation({
     mutationFn: (name: string) => generateOne({ type: "plant", name }),
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["admin-seo_plants"] });
-      toast.success("Genererad!");
+      if (data?.validation && !data.validation.valid) {
+        toast.warning(`Genererad med ${data.validation.errors.length} valideringsfel — granska innan publicering.`);
+      } else {
+        toast.success("Genererad!");
+      }
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -221,7 +226,7 @@ function MonthsPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("seo_months")
-        .select("id, slug, month_number, month_name, published, updated_at")
+        .select("id, slug, month_number, month_name, published, updated_at, generation_status, generation_errors")
         .order("month_number");
       if (error) throw error;
       return data;
@@ -289,7 +294,7 @@ function ZonesPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("seo_zones")
-        .select("id, slug, zone_number, title, published, updated_at")
+        .select("id, slug, zone_number, title, published, updated_at, generation_status, generation_errors")
         .order("zone_number");
       if (error) throw error;
       return data;
@@ -388,7 +393,7 @@ function SeoRow({
   type: SeoType;
   title: string;
   slug: string;
-  existing?: { id: string; published: boolean; updated_at: string };
+  existing?: { id: string; published: boolean; updated_at: string; generation_status?: string | null; generation_errors?: string[] | null };
   onGenerate: () => void;
   isGenerating: boolean;
   hasImage?: boolean;
@@ -458,6 +463,25 @@ function SeoRow({
               )
             ) : (
               <Badge variant="outline" className="text-[9px] text-muted-foreground">Saknas</Badge>
+            )}
+            {existing?.generation_status === "failed" && (existing.generation_errors?.length ?? 0) > 0 && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="destructive" className="text-[9px] gap-0.5 cursor-help">
+                      <AlertTriangle className="h-2.5 w-2.5" /> Validering
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-xs font-medium mb-1">Genereringsfel:</p>
+                    <ul className="text-[10px] space-y-0.5">
+                      {existing.generation_errors!.map((err, i) => (
+                        <li key={i}>• {err}</li>
+                      ))}
+                    </ul>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
             {existing && (
               <span className="text-[10px] text-muted-foreground">

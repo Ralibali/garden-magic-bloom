@@ -810,6 +810,45 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_generation_log: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          input_prompt: string | null
+          model: string | null
+          output_json: Json | null
+          status: string
+          target_slug: string | null
+          type: string
+          validation_errors: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_prompt?: string | null
+          model?: string | null
+          output_json?: Json | null
+          status?: string
+          target_slug?: string | null
+          type: string
+          validation_errors?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_prompt?: string | null
+          model?: string | null
+          output_json?: Json | null
+          status?: string
+          target_slug?: string | null
+          type?: string
+          validation_errors?: string[] | null
+        }
+        Relationships: []
+      }
       seo_months: {
         Row: {
           avg_temp_middle: number | null
@@ -820,6 +859,8 @@ export type Database = {
           daylight_hours_avg: number | null
           faq: Json | null
           frost_risk: string | null
+          generation_errors: string[] | null
+          generation_status: string | null
           id: string
           intro: string | null
           month_name: string
@@ -840,6 +881,8 @@ export type Database = {
           daylight_hours_avg?: number | null
           faq?: Json | null
           frost_risk?: string | null
+          generation_errors?: string[] | null
+          generation_status?: string | null
           id?: string
           intro?: string | null
           month_name: string
@@ -860,6 +903,8 @@ export type Database = {
           daylight_hours_avg?: number | null
           faq?: Json | null
           frost_risk?: string | null
+          generation_errors?: string[] | null
+          generation_status?: string | null
           id?: string
           intro?: string | null
           month_name?: string
@@ -956,6 +1001,8 @@ export type Database = {
           difficulty: string | null
           faq: Json | null
           featured: boolean
+          generation_errors: string[] | null
+          generation_status: string | null
           germination_days_max: number | null
           germination_days_min: number | null
           harvest_end: number | null
@@ -997,6 +1044,8 @@ export type Database = {
           difficulty?: string | null
           faq?: Json | null
           featured?: boolean
+          generation_errors?: string[] | null
+          generation_status?: string | null
           germination_days_max?: number | null
           germination_days_min?: number | null
           harvest_end?: number | null
@@ -1038,6 +1087,8 @@ export type Database = {
           difficulty?: string | null
           faq?: Json | null
           featured?: boolean
+          generation_errors?: string[] | null
+          generation_status?: string | null
           germination_days_max?: number | null
           germination_days_min?: number | null
           harvest_end?: number | null
@@ -1077,6 +1128,8 @@ export type Database = {
           first_frost_typical: string | null
           frost_free_days_max: number | null
           frost_free_days_min: number | null
+          generation_errors: string[] | null
+          generation_status: string | null
           id: string
           last_frost_typical: string | null
           published: boolean
@@ -1096,6 +1149,8 @@ export type Database = {
           first_frost_typical?: string | null
           frost_free_days_max?: number | null
           frost_free_days_min?: number | null
+          generation_errors?: string[] | null
+          generation_status?: string | null
           id?: string
           last_frost_typical?: string | null
           published?: boolean
@@ -1115,6 +1170,8 @@ export type Database = {
           first_frost_typical?: string | null
           frost_free_days_max?: number | null
           frost_free_days_min?: number | null
+          generation_errors?: string[] | null
+          generation_status?: string | null
           id?: string
           last_frost_typical?: string | null
           published?: boolean
