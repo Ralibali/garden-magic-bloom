@@ -66,11 +66,11 @@ function validateSwedishContent(generated: any): { valid: boolean; errors: strin
     errors.push(`zone_max utanför svenska systemet: ${generated.zone_max}`);
   }
 
-  // Strukturkontroller
+  // Strukturkontroller — generösare gränser eftersom LLM:s inte räknar tecken exakt
   if (typeof generated.description_short === "string") {
     const len = generated.description_short.trim().length;
-    if (len < 150 || len > 160) {
-      errors.push(`description_short ska vara 150–160 tecken (är ${len})`);
+    if (len < 130 || len > 175) {
+      errors.push(`description_short ska vara 130–175 tecken (är ${len})`);
     }
   }
 
