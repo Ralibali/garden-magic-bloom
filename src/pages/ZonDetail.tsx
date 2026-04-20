@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Sprout, ArrowLeft, MapPin, Snowflake, Calendar, Thermometer } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { ORG_AUTHOR, ORG_PUBLISHER, buildBreadcrumbs } from '@/lib/seoData';
+import { ArticleAttribution } from '@/components/ArticleAttribution';
 
 export default function ZonDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -148,6 +149,8 @@ export default function ZonDetail() {
             </div>
           </section>
         )}
+
+        <ArticleAttribution updatedAt={zone.updated_at} publishedAt={zone.created_at} />
 
         <div className="text-center bg-gradient-to-br from-primary/5 via-card to-accent/5 rounded-2xl p-8 border border-border/30 mt-12">
           <h2 className="font-serif text-xl text-foreground mb-2">Anpassa appen efter {zone.title}</h2>

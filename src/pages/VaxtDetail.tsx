@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Sprout, ArrowLeft, Sun, Droplets, MapPin, Ruler, Calendar, Leaf } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { formatMonthRange, CATEGORY_LABEL, ORG_AUTHOR, ORG_PUBLISHER, buildBreadcrumbs, rangeOrSingle } from '@/lib/seoData';
+import { ArticleAttribution } from '@/components/ArticleAttribution';
 
 export default function VaxtDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -241,6 +242,8 @@ export default function VaxtDetail() {
             </div>
           </section>
         )}
+
+        <ArticleAttribution updatedAt={plant.updated_at} publishedAt={plant.created_at} />
 
         {/* CTA */}
         <div className="text-center bg-gradient-to-br from-primary/5 via-card to-accent/5 rounded-2xl p-8 border border-border/30 mt-12">

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Sprout, ArrowLeft, Thermometer, Sun, Snowflake, CheckCircle2 } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { ORG_AUTHOR, ORG_PUBLISHER, buildBreadcrumbs, SEASON_LABEL } from '@/lib/seoData';
+import { ArticleAttribution } from '@/components/ArticleAttribution';
 
 export default function ManadDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -172,6 +173,8 @@ export default function ManadDetail() {
             </div>
           </section>
         )}
+
+        <ArticleAttribution updatedAt={month.updated_at} publishedAt={month.created_at} />
 
         <div className="text-center bg-gradient-to-br from-primary/5 via-card to-accent/5 rounded-2xl p-8 border border-border/30 mt-12">
           <h2 className="font-serif text-xl text-foreground mb-2">Planera {month.month_name} i din egen dagbok</h2>
