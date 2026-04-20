@@ -18,20 +18,47 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
-  const { data: posts } = await supabase
-    .from("blog_posts")
-    .select("slug, updated_at, published_at, cover_image_url, title")
-    .eq("is_published", true)
-    .order("published_at", { ascending: false });
+  const [postsRes, plantsRes, monthsRes, zonesRes] = await Promise.all([
+    supabase
+      .from("blog_posts")
+      .select("slug, updated_at, published_at, cover_image_url, title")
+      .eq("is_published", true)
+      .order("published_at", { ascending: false }),
+    supabase
+      .from("seo_plants")
+      .select("slug, updated_at, image_url, name")
+      .eq("published", true)
+      .order("updated_at", { ascending: false }),
+    supabase
+      .from("seo_months")
+      .select("slug, updated_at, title")
+      .eq("published", true)
+      .order("month_number", { ascending: true }),
+    supabase
+      .from("seo_zones")
+      .select("slug, updated_at, title")
+      .eq("published", true)
+      .order("zone_number", { ascending: true }),
+  ]);
+
+  const posts = postsRes.data ?? [];
+  const plants = plantsRes.data ?? [];
+  const months = monthsRes.data ?? [];
+  const zones = zonesRes.data ?? [];
 
   const staticPages = [
     { loc: "/", priority: "1.0", changefreq: "weekly" },
     { loc: "/blogg", priority: "0.9", changefreq: "daily" },
+    { loc: "/vaxter", priority: "0.9", changefreq: "weekly" },
+    { loc: "/manad", priority: "0.8", changefreq: "weekly" },
+    { loc: "/zoner", priority: "0.8", changefreq: "monthly" },
     { loc: "/install", priority: "0.6", changefreq: "monthly" },
     { loc: "/terms", priority: "0.3", changefreq: "yearly" },
   ];
 
-  const now = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -39,45 +66,57 @@ Deno.serve(async (req) => {
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 `;
 
-  for (const page of staticPages) {
+  const writeUrl = (
+    loc: string,
+    lastmod: string,
+    changefreq: string,
+    priority: string,
+    image?: { url: string; title?: string } | null,
+  ) => {
     xml += `  <url>
-    <loc>${BASE_URL}${page.loc}</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>${page.changefreq}</changefreq>
-    <priority>${page.priority}</priority>
-    <xhtml:link rel="alternate" hreflang="sv" href="${BASE_URL}${page.loc}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE_URL}${page.loc}" />
+    <loc>${BASE_URL}${loc}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+    <xhtml:link rel="alternate" hreflang="sv" href="${BASE_URL}${loc}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE_URL}${loc}" />`;
+    if (image?.url) {
+      const absolute = image.url.startsWith("http") ? image.url : `${BASE_URL}${image.url}`;
+      xml += `
+    <image:image>
+      <image:loc>${esc(absolute)}</image:loc>${image.title ? `
+      <image:title>${esc(image.title)}</image:title>` : ""}
+    </image:image>`;
+    }
+    xml += `
   </url>
 `;
+  };
+
+  for (const page of staticPages) {
+    writeUrl(page.loc, today, page.changefreq, page.priority);
   }
 
-  if (posts) {
-    for (const post of posts) {
-      const lastmod = (post.updated_at || post.published_at || now).split("T")[0];
-      const imageUrl = post.cover_image_url
-        ? (post.cover_image_url.startsWith("http") ? post.cover_image_url : `${BASE_URL}${post.cover_image_url}`)
-        : null;
+  for (const post of posts) {
+    const lastmod = (post.updated_at || post.published_at || today).split("T")[0];
+    writeUrl(`/blogg/${post.slug}`, lastmod, "weekly", "0.8",
+      post.cover_image_url ? { url: post.cover_image_url, title: post.title } : null);
+  }
 
-      xml += `  <url>
-    <loc>${BASE_URL}/blogg/${post.slug}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="sv" href="${BASE_URL}/blogg/${post.slug}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE_URL}/blogg/${post.slug}" />`;
+  for (const plant of plants) {
+    const lastmod = (plant.updated_at || today).split("T")[0];
+    writeUrl(`/vaxter/${plant.slug}`, lastmod, "monthly", "0.8",
+      plant.image_url ? { url: plant.image_url, title: plant.name } : null);
+  }
 
-      if (imageUrl) {
-        xml += `
-    <image:image>
-      <image:loc>${imageUrl}</image:loc>
-      <image:title>${(post.title || "").replace(/&/g, "&amp;").replace(/</g, "&lt;")}</image:title>
-    </image:image>`;
-      }
+  for (const month of months) {
+    const lastmod = (month.updated_at || today).split("T")[0];
+    writeUrl(`/manad/${month.slug}`, lastmod, "monthly", "0.7");
+  }
 
-      xml += `
-  </url>
-`;
-    }
+  for (const zone of zones) {
+    const lastmod = (zone.updated_at || today).split("T")[0];
+    writeUrl(`/zoner/${zone.slug}`, lastmod, "monthly", "0.7");
   }
 
   xml += `</urlset>`;
