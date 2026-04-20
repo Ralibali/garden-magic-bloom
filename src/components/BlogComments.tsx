@@ -21,8 +21,9 @@ export default function BlogComments({ postId }: BlogCommentsProps) {
   const { data: comments = [], isLoading } = useQuery({
     queryKey: ['blog-comments', postId],
     queryFn: async () => {
+      // Använder publik view utan user_id för att inte exponera UUID:n
       const { data, error } = await supabase
-        .from('blog_comments')
+        .from('blog_comments_public')
         .select('*')
         .eq('post_id', postId)
         .order('created_at', { ascending: true });
