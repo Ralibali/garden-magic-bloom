@@ -389,7 +389,7 @@ function SeoRow({
   type: SeoType;
   title: string;
   slug: string;
-  existing?: { id: string; published: boolean; updated_at: string };
+  existing?: { id: string; published: boolean; updated_at: string; generation_status?: string | null; generation_errors?: string[] | null };
   onGenerate: () => void;
   isGenerating: boolean;
   hasImage?: boolean;
