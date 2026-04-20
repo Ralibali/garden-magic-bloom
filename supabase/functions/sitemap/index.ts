@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
-  const [postsRes, plantsRes, monthsRes, zonesRes] = await Promise.all([
+  const [postsRes, plantsRes, monthsRes, zonesRes, soroRes] = await Promise.all([
     supabase
       .from("blog_posts")
       .select("slug, updated_at, published_at, cover_image_url, title")
@@ -39,12 +39,28 @@ Deno.serve(async (req) => {
       .select("slug, updated_at, title")
       .eq("published", true)
       .order("zone_number", { ascending: true }),
+    fetch("https://app.trysoro.com/api/embed/7cadf781-f963-4b64-83b3-705e8bdbbbc7")
+      .then((r) => r.ok ? r.text() : "")
+      .catch(() => ""),
   ]);
 
   const posts = postsRes.data ?? [];
   const plants = plantsRes.data ?? [];
   const months = monthsRes.data ?? [];
   const zones = zonesRes.data ?? [];
+
+  // Parse SORO_ARTICLES array out of the embed JS
+  type SoroArticle = { slug: string; title?: string; image?: string | null; isoDate?: string };
+  let soroArticles: SoroArticle[] = [];
+  try {
+    const match = (soroRes as string).match(/var SORO_ARTICLES = (\[[\s\S]*?\]);/);
+    if (match) {
+      const parsed = JSON.parse(match[1]) as Array<{ slug: string; title?: string; image?: string | null; isoDate?: string }>;
+      soroArticles = parsed.filter((a) => a && typeof a.slug === "string" && a.slug.length > 0);
+    }
+  } catch (_e) {
+    soroArticles = [];
+  }
 
   const staticPages = [
     { loc: "/", priority: "1.0", changefreq: "weekly" },
@@ -117,6 +133,21 @@ Deno.serve(async (req) => {
   for (const zone of zones) {
     const lastmod = (zone.updated_at || today).split("T")[0];
     writeUrl(`/zoner/${zone.slug}`, lastmod, "monthly", "0.7");
+  }
+
+  // Soro-artiklar (rendered via widget at /blogg?post=<slug>)
+  // Skip slugs that already exist as native blog_posts to avoid duplicates
+  const nativeSlugs = new Set(posts.map((p) => p.slug));
+  for (const art of soroArticles) {
+    if (nativeSlugs.has(art.slug)) continue;
+    const lastmod = art.isoDate ? art.isoDate.split("T")[0] : today;
+    writeUrl(
+      `/blogg?post=${encodeURIComponent(art.slug)}`,
+      lastmod,
+      "monthly",
+      "0.7",
+      art.image ? { url: art.image, title: art.title } : null,
+    );
   }
 
   xml += `</urlset>`;
