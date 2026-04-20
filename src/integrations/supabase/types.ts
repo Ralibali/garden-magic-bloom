@@ -810,6 +810,324 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_months: {
+        Row: {
+          avg_temp_middle: number | null
+          avg_temp_north: number | null
+          avg_temp_south: number | null
+          content_html: string | null
+          created_at: string
+          daylight_hours_avg: number | null
+          faq: Json | null
+          frost_risk: string | null
+          id: string
+          intro: string | null
+          month_name: string
+          month_number: number
+          published: boolean
+          season: string | null
+          slug: string
+          tasks: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          avg_temp_middle?: number | null
+          avg_temp_north?: number | null
+          avg_temp_south?: number | null
+          content_html?: string | null
+          created_at?: string
+          daylight_hours_avg?: number | null
+          faq?: Json | null
+          frost_risk?: string | null
+          id?: string
+          intro?: string | null
+          month_name: string
+          month_number: number
+          published?: boolean
+          season?: string | null
+          slug: string
+          tasks?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          avg_temp_middle?: number | null
+          avg_temp_north?: number | null
+          avg_temp_south?: number | null
+          content_html?: string | null
+          created_at?: string
+          daylight_hours_avg?: number | null
+          faq?: Json | null
+          frost_risk?: string | null
+          id?: string
+          intro?: string | null
+          month_name?: string
+          month_number?: number
+          published?: boolean
+          season?: string | null
+          slug?: string
+          tasks?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_plant_months: {
+        Row: {
+          activity: string
+          month_id: string
+          plant_id: string
+        }
+        Insert: {
+          activity: string
+          month_id: string
+          plant_id: string
+        }
+        Update: {
+          activity?: string
+          month_id?: string
+          plant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_plant_months_month_id_fkey"
+            columns: ["month_id"]
+            isOneToOne: false
+            referencedRelation: "seo_months"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seo_plant_months_plant_id_fkey"
+            columns: ["plant_id"]
+            isOneToOne: false
+            referencedRelation: "seo_plants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_plant_zones: {
+        Row: {
+          notes: string | null
+          plant_id: string
+          suitability: string | null
+          zone_id: string
+        }
+        Insert: {
+          notes?: string | null
+          plant_id: string
+          suitability?: string | null
+          zone_id: string
+        }
+        Update: {
+          notes?: string | null
+          plant_id?: string
+          suitability?: string | null
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_plant_zones_plant_id_fkey"
+            columns: ["plant_id"]
+            isOneToOne: false
+            referencedRelation: "seo_plants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seo_plant_zones_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "seo_zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_plants: {
+        Row: {
+          avoid_plants: string[] | null
+          category: string | null
+          companion_plants: string[] | null
+          content_html: string | null
+          created_at: string
+          days_to_harvest_max: number | null
+          days_to_harvest_min: number | null
+          description_long: string | null
+          description_short: string
+          difficulty: string | null
+          faq: Json | null
+          featured: boolean
+          germination_days_max: number | null
+          germination_days_min: number | null
+          harvest_end: number | null
+          harvest_start: number | null
+          id: string
+          image_alt: string | null
+          image_url: string | null
+          latin_name: string | null
+          mature_height_cm: number | null
+          name: string
+          name_alternatives: string[] | null
+          plant_spacing_cm: number | null
+          planting_depth_cm: number | null
+          published: boolean
+          row_spacing_cm: number | null
+          slug: string
+          soil_ph_max: number | null
+          soil_ph_min: number | null
+          sow_indoor_end: number | null
+          sow_indoor_start: number | null
+          sow_outdoor_end: number | null
+          sow_outdoor_start: number | null
+          sun_requirement: string | null
+          updated_at: string
+          water_requirement: string | null
+          zone_max: number | null
+          zone_min: number | null
+        }
+        Insert: {
+          avoid_plants?: string[] | null
+          category?: string | null
+          companion_plants?: string[] | null
+          content_html?: string | null
+          created_at?: string
+          days_to_harvest_max?: number | null
+          days_to_harvest_min?: number | null
+          description_long?: string | null
+          description_short: string
+          difficulty?: string | null
+          faq?: Json | null
+          featured?: boolean
+          germination_days_max?: number | null
+          germination_days_min?: number | null
+          harvest_end?: number | null
+          harvest_start?: number | null
+          id?: string
+          image_alt?: string | null
+          image_url?: string | null
+          latin_name?: string | null
+          mature_height_cm?: number | null
+          name: string
+          name_alternatives?: string[] | null
+          plant_spacing_cm?: number | null
+          planting_depth_cm?: number | null
+          published?: boolean
+          row_spacing_cm?: number | null
+          slug: string
+          soil_ph_max?: number | null
+          soil_ph_min?: number | null
+          sow_indoor_end?: number | null
+          sow_indoor_start?: number | null
+          sow_outdoor_end?: number | null
+          sow_outdoor_start?: number | null
+          sun_requirement?: string | null
+          updated_at?: string
+          water_requirement?: string | null
+          zone_max?: number | null
+          zone_min?: number | null
+        }
+        Update: {
+          avoid_plants?: string[] | null
+          category?: string | null
+          companion_plants?: string[] | null
+          content_html?: string | null
+          created_at?: string
+          days_to_harvest_max?: number | null
+          days_to_harvest_min?: number | null
+          description_long?: string | null
+          description_short?: string
+          difficulty?: string | null
+          faq?: Json | null
+          featured?: boolean
+          germination_days_max?: number | null
+          germination_days_min?: number | null
+          harvest_end?: number | null
+          harvest_start?: number | null
+          id?: string
+          image_alt?: string | null
+          image_url?: string | null
+          latin_name?: string | null
+          mature_height_cm?: number | null
+          name?: string
+          name_alternatives?: string[] | null
+          plant_spacing_cm?: number | null
+          planting_depth_cm?: number | null
+          published?: boolean
+          row_spacing_cm?: number | null
+          slug?: string
+          soil_ph_max?: number | null
+          soil_ph_min?: number | null
+          sow_indoor_end?: number | null
+          sow_indoor_start?: number | null
+          sow_outdoor_end?: number | null
+          sow_outdoor_start?: number | null
+          sun_requirement?: string | null
+          updated_at?: string
+          water_requirement?: string | null
+          zone_max?: number | null
+          zone_min?: number | null
+        }
+        Relationships: []
+      }
+      seo_zones: {
+        Row: {
+          content_html: string | null
+          created_at: string
+          description: string | null
+          faq: Json | null
+          first_frost_typical: string | null
+          frost_free_days_max: number | null
+          frost_free_days_min: number | null
+          id: string
+          last_frost_typical: string | null
+          published: boolean
+          slug: string
+          suitable_categories: string[] | null
+          title: string
+          typical_regions: string[] | null
+          updated_at: string
+          winter_temp_min: number | null
+          zone_number: number
+        }
+        Insert: {
+          content_html?: string | null
+          created_at?: string
+          description?: string | null
+          faq?: Json | null
+          first_frost_typical?: string | null
+          frost_free_days_max?: number | null
+          frost_free_days_min?: number | null
+          id?: string
+          last_frost_typical?: string | null
+          published?: boolean
+          slug: string
+          suitable_categories?: string[] | null
+          title: string
+          typical_regions?: string[] | null
+          updated_at?: string
+          winter_temp_min?: number | null
+          zone_number: number
+        }
+        Update: {
+          content_html?: string | null
+          created_at?: string
+          description?: string | null
+          faq?: Json | null
+          first_frost_typical?: string | null
+          frost_free_days_max?: number | null
+          frost_free_days_min?: number | null
+          id?: string
+          last_frost_typical?: string | null
+          published?: boolean
+          slug?: string
+          suitable_categories?: string[] | null
+          title?: string
+          typical_regions?: string[] | null
+          updated_at?: string
+          winter_temp_min?: number | null
+          zone_number?: number
+        }
+        Relationships: []
+      }
       sowings: {
         Row: {
           bed_id: string | null
