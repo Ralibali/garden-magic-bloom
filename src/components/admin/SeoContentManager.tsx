@@ -157,9 +157,13 @@ function PlantsPanel() {
 
   const generateOneMutation = useMutation({
     mutationFn: (name: string) => generateOne({ type: "plant", name }),
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["admin-seo_plants"] });
-      toast.success("Genererad!");
+      if (data?.validation && !data.validation.valid) {
+        toast.warning(`Genererad med ${data.validation.errors.length} valideringsfel — granska innan publicering.`);
+      } else {
+        toast.success("Genererad!");
+      }
     },
     onError: (e: any) => toast.error(e.message),
   });
