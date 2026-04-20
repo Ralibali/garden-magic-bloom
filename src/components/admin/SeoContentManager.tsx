@@ -383,7 +383,7 @@ function BatchControls({
 }
 
 function SeoRow({
-  type, title, slug, existing, onGenerate, isGenerating,
+  type, title, slug, existing, onGenerate, isGenerating, hasImage,
 }: {
   type: SeoType;
   title: string;
@@ -391,6 +391,7 @@ function SeoRow({
   existing?: { id: string; published: boolean; updated_at: string };
   onGenerate: () => void;
   isGenerating: boolean;
+  hasImage?: boolean;
 }) {
   const queryClient = useQueryClient();
   const tableName = TABLE_BY_TYPE[type];
