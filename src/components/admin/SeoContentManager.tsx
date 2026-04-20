@@ -460,6 +460,25 @@ function SeoRow({
             ) : (
               <Badge variant="outline" className="text-[9px] text-muted-foreground">Saknas</Badge>
             )}
+            {existing?.generation_status === "failed" && (existing.generation_errors?.length ?? 0) > 0 && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="destructive" className="text-[9px] gap-0.5 cursor-help">
+                      <AlertTriangle className="h-2.5 w-2.5" /> Validering
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-xs font-medium mb-1">Genereringsfel:</p>
+                    <ul className="text-[10px] space-y-0.5">
+                      {existing.generation_errors!.map((err, i) => (
+                        <li key={i}>• {err}</li>
+                      ))}
+                    </ul>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
             {existing && (
               <span className="text-[10px] text-muted-foreground">
                 {new Date(existing.updated_at).toLocaleDateString("sv-SE")}
