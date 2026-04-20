@@ -425,6 +425,23 @@ function SeoRow({
     onError: (e: any) => toast.error(e.message),
   });
 
+  const generateImage = useMutation({
+    mutationFn: async () => {
+      if (!existing) return;
+      const { data, error } = await supabase.functions.invoke("generate-plant-image", {
+        body: { plantId: existing.id },
+      });
+      if (error) throw new Error(error.message || "Bildgenerering misslyckades");
+      if ((data as any)?.error) throw new Error((data as any).error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`admin-${tableName}`] });
+      queryClient.invalidateQueries({ queryKey: [`admin-${tableName}-detail`, existing?.id] });
+      toast.success("Bild genererad!");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   return (
     <Card className="border-border/50">
       <CardContent className="p-3 flex items-center gap-2">
@@ -453,6 +470,23 @@ function SeoRow({
         <div className="flex gap-1 shrink-0">
           {existing && (
             <ReviewDialog type={type} id={existing.id} title={title} />
+          )}
+          {existing && type === "plant" && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-[10px] rounded-lg gap-1"
+              onClick={() => generateImage.mutate()}
+              disabled={generateImage.isPending}
+              title={hasImage ? "Generera om bilden" : "Generera AI-bild"}
+            >
+              {generateImage.isPending ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <ImageIcon className="h-3 w-3" />
+              )}
+              {hasImage ? "Ny bild" : "Bild"}
+            </Button>
           )}
           <Button
             variant="outline"
