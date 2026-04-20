@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import React, { Suspense } from "react";
 import { HelmetProvider } from "react-helmet-async";
@@ -109,7 +109,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 // Redirect /guider/:slug → /blogg/:slug (consolidate duplicate content)
 function GuiderRedirect() {
-  const { slug } = require('react-router-dom').useParams();
+  const { slug } = useParams();
   return <Navigate to={`/blogg/${slug}`} replace />;
 }
 
