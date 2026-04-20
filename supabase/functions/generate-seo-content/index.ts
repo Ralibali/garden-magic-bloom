@@ -262,6 +262,8 @@ function slugify(s: string): string {
     .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
+const MODEL = "google/gemini-2.5-pro";
+
 async function callAI(userPrompt: string, tool: any, toolName: string): Promise<any> {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
@@ -273,7 +275,7 @@ async function callAI(userPrompt: string, tool: any, toolName: string): Promise<
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-pro",
+      model: MODEL,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userPrompt },
@@ -296,6 +298,34 @@ async function callAI(userPrompt: string, tool: any, toolName: string): Promise<
     throw new Error("AI returnerade inget verktygsanrop");
   }
   return JSON.parse(toolCall.function.arguments);
+}
+
+async function logGeneration(
+  adminClient: any,
+  entry: {
+    type: string;
+    target_slug: string | null;
+    input_prompt: string;
+    output_json: any;
+    validation_errors: string[];
+    status: "success" | "failed" | "error";
+    error_message?: string;
+  },
+) {
+  try {
+    await adminClient.from("seo_generation_log").insert({
+      type: entry.type,
+      target_slug: entry.target_slug,
+      model: MODEL,
+      input_prompt: entry.input_prompt,
+      output_json: entry.output_json ?? null,
+      validation_errors: entry.validation_errors,
+      status: entry.status,
+      error_message: entry.error_message ?? null,
+    });
+  } catch (e) {
+    console.error("Failed to write seo_generation_log:", e);
+  }
 }
 
 // ---------- Main handler ----------
