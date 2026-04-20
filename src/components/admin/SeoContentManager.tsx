@@ -222,7 +222,7 @@ function MonthsPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("seo_months")
-        .select("id, slug, month_number, month_name, published, updated_at")
+        .select("id, slug, month_number, month_name, published, updated_at, generation_status, generation_errors")
         .order("month_number");
       if (error) throw error;
       return data;
