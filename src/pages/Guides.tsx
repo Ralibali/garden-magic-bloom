@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import VisitorWelcomePopup from '@/components/VisitorWelcomePopup';
-import { useSeo } from '@/hooks/useSeo';
+import { Seo } from '@/hooks/useSeo';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
@@ -22,32 +22,6 @@ const categoryLabels: Record<string, string> = {
 
 export default function Guides() {
   const soroRef = useRef<HTMLDivElement>(null);
-
-  useSeo({
-    title: 'Odlingstips & Guider 2026 | Odlingsdagboken',
-    description: 'Guider, såtider och tips för svenska hobbyodlare. Lär dig mer om växtföljd, pallkrage och klassisk grönsaksodling.',
-    path: '/blogg',
-    ogImage: '/blog-images/spring-garden.jpg',
-    ogImageAlt: 'Svensk köksträdgård – Odlingsdagbokens blogg',
-    jsonLd: [
-      {
-        '@type': 'CollectionPage',
-        '@id': 'https://odlingsdagboken.com/blogg',
-        name: 'Bloggen – Guider & tips om grönsaksodling',
-        description: 'Guider, tips och inspiration för svenska hobbyodlare.',
-        url: 'https://odlingsdagboken.com/blogg',
-        isPartOf: { '@id': 'https://odlingsdagboken.com/#website' },
-        inLanguage: 'sv-SE',
-      },
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://odlingsdagboken.com' },
-          { '@type': 'ListItem', position: 2, name: 'Blogg', item: 'https://odlingsdagboken.com/blogg' },
-        ],
-      },
-    ],
-  });
 
   // Inject Soro embed script
   useEffect(() => {
@@ -81,6 +55,31 @@ export default function Guides() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Odlingstips & Guider 2026 | Odlingsdagboken"
+        description="Guider, såtider och tips för svenska hobbyodlare. Lär dig mer om växtföljd, pallkrage och klassisk grönsaksodling."
+        path="/blogg"
+        ogImage="/blog-images/spring-garden.jpg"
+        ogImageAlt="Svensk köksträdgård – Odlingsdagbokens blogg"
+        jsonLd={[
+          {
+            '@type': 'CollectionPage',
+            '@id': 'https://odlingsdagboken.com/blogg',
+            name: 'Bloggen – Guider & tips om grönsaksodling',
+            description: 'Guider, tips och inspiration för svenska hobbyodlare.',
+            url: 'https://odlingsdagboken.com/blogg',
+            isPartOf: { '@id': 'https://odlingsdagboken.com/#website' },
+            inLanguage: 'sv-SE',
+          },
+          {
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://odlingsdagboken.com' },
+              { '@type': 'ListItem', position: 2, name: 'Blogg', item: 'https://odlingsdagboken.com/blogg' },
+            ],
+          },
+        ]}
+      />
       <VisitorWelcomePopup />
 
       {posts.length > 0 && (

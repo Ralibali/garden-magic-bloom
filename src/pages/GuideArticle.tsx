@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Sprout, Loader2, BookOpen, CalendarDays } from 'lucide-react';
 import ShareButtons from '@/components/ShareButtons';
 import BlogComments from '@/components/BlogComments';
-import { useSeo } from '@/hooks/useSeo';
+import { Seo } from '@/hooks/useSeo';
 
 const categoryLabels: Record<string, string> = {
   guide: 'Guide',
@@ -295,17 +295,6 @@ export default function GuideArticle() {
 
   const seoImage = post?.cover_image_url || '/blog-images/spring-garden.jpg';
 
-  useSeo({
-    title: post ? (post.meta_title || post.title + ' | Odlingsdagboken') : 'Odlingsdagboken',
-    description: post ? (post.meta_description || post.excerpt || '') : '',
-    path: `/blogg/${slug || ''}`,
-    ogType: 'article',
-    ogImage: seoImage,
-    ogImageAlt: post?.title,
-    jsonLd: jsonLd,
-    articleMeta,
-  });
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -326,6 +315,16 @@ export default function GuideArticle() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title={post.meta_title || post.title + ' | Odlingsdagboken'}
+        description={post.meta_description || post.excerpt || ''}
+        path={`/blogg/${slug || ''}`}
+        ogType="article"
+        ogImage={seoImage}
+        ogImageAlt={post.title}
+        jsonLd={jsonLd}
+        articleMeta={articleMeta}
+      />
       <VisitorWelcomePopup />
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-30">
