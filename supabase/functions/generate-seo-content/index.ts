@@ -364,8 +364,20 @@ serve(async (req) => {
 
     if (type === "plant") {
       if (!name) throw new Error("name krävs för plant");
-      const result = await callAI(plantPrompt(name), PLANT_TOOL, "save_plant_content");
       const slug = slugify(name);
+      const prompt = plantPrompt(name);
+      let result: any = null;
+      let validation = { valid: true, errors: [] as string[] };
+      try {
+        result = await callAI(prompt, PLANT_TOOL, "save_plant_content");
+        validation = validateSwedishContent(result);
+      } catch (err: any) {
+        await logGeneration(adminClient, {
+          type, target_slug: slug, input_prompt: prompt, output_json: null,
+          validation_errors: [], status: "error", error_message: err.message,
+        });
+        throw err;
+      }
 
       // Normalise 0 → null for sow fields
       const cleanInt = (v: any) => (v === 0 || v == null ? null : v);
@@ -404,12 +416,20 @@ serve(async (req) => {
         content_html: result.content_html,
         faq: result.faq,
         published: false,
+        generation_status: validation.valid ? "success" : "failed",
+        generation_errors: validation.errors,
       };
 
       const { error } = await adminClient.from("seo_plants").upsert(row, { onConflict: "slug" });
       if (error) throw error;
 
-      return new Response(JSON.stringify({ success: true, slug, type }), {
+      await logGeneration(adminClient, {
+        type, target_slug: slug, input_prompt: prompt, output_json: result,
+        validation_errors: validation.errors,
+        status: validation.valid ? "success" : "failed",
+      });
+
+      return new Response(JSON.stringify({ success: true, slug, type, validation }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -417,7 +437,19 @@ serve(async (req) => {
     if (type === "month") {
       if (!monthNumber || monthNumber < 1 || monthNumber > 12) throw new Error("monthNumber 1-12 krävs");
       const monthName = MONTH_NAMES[monthNumber - 1];
-      const result = await callAI(monthPrompt(monthName, monthNumber), MONTH_TOOL, "save_month_content");
+      const prompt = monthPrompt(monthName, monthNumber);
+      let result: any = null;
+      let validation = { valid: true, errors: [] as string[] };
+      try {
+        result = await callAI(prompt, MONTH_TOOL, "save_month_content");
+        validation = validateSwedishContent(result);
+      } catch (err: any) {
+        await logGeneration(adminClient, {
+          type, target_slug: monthName, input_prompt: prompt, output_json: null,
+          validation_errors: [], status: "error", error_message: err.message,
+        });
+        throw err;
+      }
 
       const row = {
         slug: monthName,
@@ -435,22 +467,43 @@ serve(async (req) => {
         frost_risk: result.frost_risk,
         faq: result.faq,
         published: false,
+        generation_status: validation.valid ? "success" : "failed",
+        generation_errors: validation.errors,
       };
 
       const { error } = await adminClient.from("seo_months").upsert(row, { onConflict: "slug" });
       if (error) throw error;
 
-      return new Response(JSON.stringify({ success: true, slug: monthName, type }), {
+      await logGeneration(adminClient, {
+        type, target_slug: monthName, input_prompt: prompt, output_json: result,
+        validation_errors: validation.errors,
+        status: validation.valid ? "success" : "failed",
+      });
+
+      return new Response(JSON.stringify({ success: true, slug: monthName, type, validation }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     if (type === "zone") {
       if (!zoneNumber || zoneNumber < 1 || zoneNumber > 8) throw new Error("zoneNumber 1-8 krävs");
-      const result = await callAI(zonePrompt(zoneNumber), ZONE_TOOL, "save_zone_content");
+      const zoneSlug = `zon-${zoneNumber}`;
+      const prompt = zonePrompt(zoneNumber);
+      let result: any = null;
+      let validation = { valid: true, errors: [] as string[] };
+      try {
+        result = await callAI(prompt, ZONE_TOOL, "save_zone_content");
+        validation = validateSwedishContent(result);
+      } catch (err: any) {
+        await logGeneration(adminClient, {
+          type, target_slug: zoneSlug, input_prompt: prompt, output_json: null,
+          validation_errors: [], status: "error", error_message: err.message,
+        });
+        throw err;
+      }
 
       const row = {
-        slug: `zon-${zoneNumber}`,
+        slug: zoneSlug,
         zone_number: zoneNumber,
         title: `Odlingszon ${zoneNumber} – Klimat, växter och tips`,
         description: result.description,
