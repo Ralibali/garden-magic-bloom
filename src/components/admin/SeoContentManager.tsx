@@ -290,7 +290,7 @@ function ZonesPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("seo_zones")
-        .select("id, slug, zone_number, title, published, updated_at")
+        .select("id, slug, zone_number, title, published, updated_at, generation_status, generation_errors")
         .order("zone_number");
       if (error) throw error;
       return data;
