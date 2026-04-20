@@ -136,7 +136,7 @@ function PlantsPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("seo_plants")
-        .select("id, slug, name, published, updated_at, description_short, image_url")
+        .select("id, slug, name, published, updated_at, description_short, image_url, generation_status, generation_errors")
         .order("name");
       if (error) throw error;
       return data;
