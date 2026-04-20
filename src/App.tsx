@@ -41,6 +41,15 @@ const MyPlants = React.lazy(() => import("./pages/MyPlants"));
 const GardeningCoach = React.lazy(() => import("./pages/GardeningCoach"));
 const Install = React.lazy(() => import("./pages/Install"));
 const ResetPassword = React.lazy(() => import("./pages/ResetPassword"));
+const OmOss = React.lazy(() => import("./pages/OmOss"));
+const Priser = React.lazy(() => import("./pages/Priser"));
+const GroLanding = React.lazy(() => import("./pages/Gro"));
+const VaxterIndex = React.lazy(() => import("./pages/VaxterIndex"));
+const VaxtDetail = React.lazy(() => import("./pages/VaxtDetail"));
+const ManadIndex = React.lazy(() => import("./pages/ManadIndex"));
+const ManadDetail = React.lazy(() => import("./pages/ManadDetail"));
+const ZonerIndex = React.lazy(() => import("./pages/ZonerIndex"));
+const ZonDetail = React.lazy(() => import("./pages/ZonDetail"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -142,6 +151,17 @@ const AppRoutes = () => (
           <Route path="/blogg" element={<Guides />} />
           <Route path="/blogg/tagg/:tag" element={<Guides />} />
           <Route path="/blogg/:slug" element={<GuideArticle />} />
+          {/* Public marketing/SEO pages */}
+          <Route path="/om-oss" element={<OmOss />} />
+          <Route path="/priser" element={<Priser />} />
+          <Route path="/gro" element={<GroLanding />} />
+          {/* Programmatic SEO routes */}
+          <Route path="/vaxter" element={<VaxterIndex />} />
+          <Route path="/vaxter/:slug" element={<VaxtDetail />} />
+          <Route path="/manad" element={<ManadIndex />} />
+          <Route path="/manad/:slug" element={<ManadDetail />} />
+          <Route path="/zoner" element={<ZonerIndex />} />
+          <Route path="/zoner/:slug" element={<ZonDetail />} />
           <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="beds" element={<Beds />} />
