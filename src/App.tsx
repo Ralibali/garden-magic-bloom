@@ -107,6 +107,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Redirect /guider/:slug → /blogg/:slug (consolidate duplicate content)
+function GuiderRedirect() {
+  const { slug } = require('react-router-dom').useParams();
+  return <Navigate to={`/blogg/${slug}`} replace />;
+}
+
 function CacheClearer() {
   const { user } = useAuth();
   const prevUserId = React.useRef<string | null>(user?.id ?? null);
@@ -130,8 +136,9 @@ const AppRoutes = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/terms" element={<Terms />} />
-          <Route path="/guider" element={<Guides />} />
-          <Route path="/guider/:slug" element={<GuideArticle />} />
+          {/* SEO: /guider konsoliderad till /blogg (301 i vercel.json, client-side fallback här) */}
+          <Route path="/guider" element={<Navigate to="/blogg" replace />} />
+          <Route path="/guider/:slug" element={<GuiderRedirect />} />
           <Route path="/blogg" element={<Guides />} />
           <Route path="/blogg/tagg/:tag" element={<Guides />} />
           <Route path="/blogg/:slug" element={<GuideArticle />} />
