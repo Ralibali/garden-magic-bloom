@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Loader2, CheckCircle2, FileEdit, Eye, ExternalLink, RefreshCw, Trash2 } from "lucide-react";
+import { Sparkles, Loader2, CheckCircle2, FileEdit, Eye, ExternalLink, RefreshCw, Trash2, Image as ImageIcon } from "lucide-react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -135,7 +135,7 @@ function PlantsPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("seo_plants")
-        .select("id, slug, name, published, updated_at, description_short")
+        .select("id, slug, name, published, updated_at, description_short, image_url")
         .order("name");
       if (error) throw error;
       return data;
@@ -198,6 +198,7 @@ function PlantsPanel() {
                         existing={existing}
                         onGenerate={() => generateOneMutation.mutate(p.name)}
                         isGenerating={generateOneMutation.isPending && generateOneMutation.variables === p.name}
+                        hasImage={!!existing?.image_url}
                       />
                     );
                   })}
@@ -382,7 +383,7 @@ function BatchControls({
 }
 
 function SeoRow({
-  type, title, slug, existing, onGenerate, isGenerating,
+  type, title, slug, existing, onGenerate, isGenerating, hasImage,
 }: {
   type: SeoType;
   title: string;
@@ -390,6 +391,7 @@ function SeoRow({
   existing?: { id: string; published: boolean; updated_at: string };
   onGenerate: () => void;
   isGenerating: boolean;
+  hasImage?: boolean;
 }) {
   const queryClient = useQueryClient();
   const tableName = TABLE_BY_TYPE[type];
@@ -423,6 +425,23 @@ function SeoRow({
     onError: (e: any) => toast.error(e.message),
   });
 
+  const generateImage = useMutation({
+    mutationFn: async () => {
+      if (!existing) return;
+      const { data, error } = await supabase.functions.invoke("generate-plant-image", {
+        body: { plantId: existing.id },
+      });
+      if (error) throw new Error(error.message || "Bildgenerering misslyckades");
+      if ((data as any)?.error) throw new Error((data as any).error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`admin-${tableName}`] });
+      queryClient.invalidateQueries({ queryKey: [`admin-${tableName}-detail`, existing?.id] });
+      toast.success("Bild genererad!");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   return (
     <Card className="border-border/50">
       <CardContent className="p-3 flex items-center gap-2">
@@ -451,6 +470,23 @@ function SeoRow({
         <div className="flex gap-1 shrink-0">
           {existing && (
             <ReviewDialog type={type} id={existing.id} title={title} />
+          )}
+          {existing && type === "plant" && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-[10px] rounded-lg gap-1"
+              onClick={() => generateImage.mutate()}
+              disabled={generateImage.isPending}
+              title={hasImage ? "Generera om bilden" : "Generera AI-bild"}
+            >
+              {generateImage.isPending ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <ImageIcon className="h-3 w-3" />
+              )}
+              {hasImage ? "Ny bild" : "Bild"}
+            </Button>
           )}
           <Button
             variant="outline"
