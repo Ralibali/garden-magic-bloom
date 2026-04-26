@@ -646,8 +646,8 @@ export default function Index() {
       <section aria-labelledby="how-heading">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <div className="text-center mb-10">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Så här funkar det</p>
-            <h2 id="how-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Kom igång på tre enkla steg</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Så här fungerar det</p>
+            <h2 id="how-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Kom igång på några minuter</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
             {howItWorksSteps.map((step, i) => (
@@ -662,10 +662,17 @@ export default function Index() {
                 <div className="w-12 h-12 rounded-full bg-primary/10 text-primary font-serif text-xl font-bold flex items-center justify-center mx-auto mb-4">
                   {step.num}
                 </div>
-                <h3 className="font-serif text-base sm:text-lg text-foreground mb-1">{step.title}</h3>
-                <p className="text-sm text-muted-foreground">{step.desc}</p>
+                <h3 className="font-serif text-base sm:text-lg text-foreground mb-2">{step.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
               </motion.div>
             ))}
+          </div>
+          <div className="text-center mt-10">
+            <motion.div whileHover={{ scale: 1.02 }} className="inline-block">
+              <Button asChild size="lg" className="h-12 px-6 sm:px-8 text-base gap-2 shadow-lg">
+                <a href="/login?mode=register">Börja gratis idag <ArrowRight className="h-4 w-4" /></a>
+              </Button>
+            </motion.div>
           </div>
         </div>
       </section>
