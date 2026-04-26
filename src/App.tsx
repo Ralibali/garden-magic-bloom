@@ -156,6 +156,7 @@ const AppRoutes = () => (
           <Route path="/om-oss" element={<OmOss />} />
           <Route path="/priser" element={<Priser />} />
           <Route path="/gro" element={<GroLanding />} />
+          <Route path="/sakalender" element={<Sakalender />} />
           {/* Programmatic SEO routes */}
           <Route path="/vaxter" element={<VaxterIndex />} />
           <Route path="/vaxter/:slug" element={<VaxtDetail />} />
