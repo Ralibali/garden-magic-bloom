@@ -2,7 +2,7 @@
 create table if not exists public.public_leads (
   id uuid primary key default gen_random_uuid(),
   email text not null,
-  source text not null check (source in ('sakalender', 'odlingsplan', 'gro-preview', 'blogg', 'seo')),
+  source text not null check (source in ('sakalender', 'odlingsplan', 'odlingsakuten', 'gro-preview', 'blogg', 'seo')),
   plan jsonb,
   page_path text,
   user_agent text,
@@ -26,7 +26,7 @@ create policy "Anyone can submit public leads"
   to anon, authenticated
   with check (
     email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
-    and source in ('sakalender', 'odlingsplan', 'gro-preview', 'blogg', 'seo')
+    and source in ('sakalender', 'odlingsplan', 'odlingsakuten', 'gro-preview', 'blogg', 'seo')
   );
 
 -- Keep lead data private. Admin/service-role can still read it outside RLS.
