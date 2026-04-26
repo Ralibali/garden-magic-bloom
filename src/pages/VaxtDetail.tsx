@@ -228,8 +228,9 @@ export default function VaxtDetail() {
 
         {/* Mjuk inline-CTA mitt i innehållet */}
         <InlineSignupCTA
-          title={`Vill du komma ihåg vad som fungerar när du odlar ${plant.name}?`}
-          description="Skapa ett gratis konto i Odlingsdagboken och logga sådder, skördar och anteckningar år efter år."
+          title={`Vill du lyckas bättre med ${plant.name} nästa säsong?`}
+          description="Spara när du sår, planterar ut och skördar. Då ser du vad som fungerar i din egen trädgård – inte bara vad som står i generella odlingsråd."
+          buttonLabel="Börja logga gratis"
         />
 
         {/* FAQ */}
