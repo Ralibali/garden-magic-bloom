@@ -845,7 +845,8 @@ export default function Index() {
                   <a href="/login?mode=register">Prova Plus gratis i 14 dagar</a>
                 </Button>
               </motion.div>
-              <p className="text-[10px] text-center text-muted-foreground mt-3">Inget betalkort krävs · Avbryt när som helst</p>
+              <p className="text-[11px] text-center text-muted-foreground mt-3 italic">Mindre än priset av en fröpåse i månaden – men med värde hela säsongen.</p>
+              <p className="text-[10px] text-center text-muted-foreground mt-1">Inget betalkort krävs · Avbryt när som helst</p>
             </motion.div>
           </div>
 
