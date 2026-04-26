@@ -792,14 +792,15 @@ export default function Index() {
                 <span className="text-3xl sm:text-4xl font-bold text-foreground">0</span>
                 <span className="text-muted-foreground text-sm">kr</span>
               </div>
-              <p className="text-xs text-muted-foreground mb-4">
-                För dig som vill komma igång och logga sådder, skördar och bäddar.
+              <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+                För dig som vill komma igång och få bättre koll på sådder, skördar och bäddar.
               </p>
               <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
-                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Obegränsade loggposter</li>
-                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Tre odlingsbäddar</li>
-                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Såkalender</li>
-                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Växtföljdsplanering</li>
+                <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> Logga sådder och skördar</li>
+                <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> Skapa dina första bäddar</li>
+                <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> Använd grundläggande såkalender</li>
+                <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> Spara anteckningar från säsongen</li>
+                <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> Perfekt för att komma igång</li>
               </ul>
               <motion.div whileHover={{ scale: 1.02 }}>
                 <Button asChild variant="outline" className="w-full">
