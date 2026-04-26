@@ -304,8 +304,8 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <Seo
-        title="Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare"
-        description="Håll koll på såtider, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis verktyg för 2 000+ svenska hobbyodlare."
+        title="Odlingsdagboken – såkalender, skördelogg och odlingsplanering"
+        description="Planera sådd, logga skördar och se vad som fungerar i din trädgård år efter år. Gratis digital odlingsdagbok för svenska odlare."
         path="/"
         ogImage="/og-image.png"
         ogImageAlt="Odlingsdagboken – digital odlingsdagbok för svenska odlare"
@@ -387,7 +387,7 @@ export default function Index() {
             </Button>
             <motion.div whileHover={{ scale: 1.02 }}>
               <Button asChild size="sm" className="h-8 px-4 text-sm">
-                <a href="/login?mode=register">Kom igång gratis</a>
+                <a href="/login?mode=register">Testa gratis</a>
               </Button>
             </motion.div>
           </div>
