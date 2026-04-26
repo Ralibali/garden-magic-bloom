@@ -775,8 +775,8 @@ export default function Index() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <div className="text-center mb-8">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Prissättning</p>
-            <h2 id="pricing-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">Kom igång gratis – uppgradera när du vill</h2>
-            <p className="text-muted-foreground max-w-md mx-auto text-sm">Börja gratis. Uppgradera när du vill.</p>
+            <h2 id="pricing-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">Välj hur mycket stöd du vill ha under säsongen</h2>
+            <p className="text-muted-foreground max-w-xl mx-auto text-sm leading-relaxed">Börja gratis och bygg upp din odlingshistorik. När du vill planera smartare, få mer analys och använda Gro fullt ut kan du uppgradera till Plus.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto">
