@@ -725,7 +725,7 @@ export default function Index() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <div className="mb-10 text-center sm:text-left">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Funktioner</p>
-            <h2 id="features-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Gratis såkalender, växtföljd och mer</h2>
+            <h2 id="features-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Allt du behöver för att odla mer genomtänkt</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
