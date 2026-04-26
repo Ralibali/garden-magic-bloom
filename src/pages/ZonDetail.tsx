@@ -10,6 +10,7 @@ import { Loader2, Sprout, ArrowLeft, MapPin, Snowflake, Calendar, Thermometer } 
 import DOMPurify from 'dompurify';
 import { ORG_AUTHOR, ORG_PUBLISHER, buildBreadcrumbs } from '@/lib/seoData';
 import { ArticleAttribution } from '@/components/ArticleAttribution';
+import InlineSignupCTA from '@/components/InlineSignupCTA';
 
 export default function ZonDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -133,6 +134,8 @@ export default function ZonDetail() {
           </section>
         )}
 
+        <InlineSignupCTA />
+
         {faqArr.length > 0 && (
           <section className="mb-10">
             <h2 className="font-serif text-2xl text-foreground mb-4">Vanliga frågor om {zone.title}</h2>
@@ -152,15 +155,13 @@ export default function ZonDetail() {
 
         <ArticleAttribution updatedAt={zone.updated_at} publishedAt={zone.created_at} />
 
-        <div className="text-center bg-gradient-to-br from-primary/5 via-card to-accent/5 rounded-2xl p-8 border border-border/30 mt-12">
-          <h2 className="font-serif text-xl text-foreground mb-2">Anpassa appen efter {zone.title}</h2>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto mb-5">
-            Skapa en gratis dagbok – appen anpassar tips och påminnelser efter din klimatzon.
-          </p>
-          <Link to="/login">
-            <Button size="lg" className="rounded-xl gap-2"><Sprout className="h-4 w-4" /> Skapa konto</Button>
-          </Link>
-        </div>
+        <InlineSignupCTA
+          variant="card"
+          title={`Anpassa appen efter ${zone.title}`}
+          description="Skapa en gratis dagbok – appen anpassar tips och påminnelser efter din klimatzon."
+          buttonLabel="Börja gratis"
+          className="mt-12"
+        />
       </article>
     </PublicLayout>
   );

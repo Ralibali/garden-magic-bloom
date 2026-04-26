@@ -10,6 +10,7 @@ import { Loader2, Sprout, ArrowLeft, Thermometer, Sun, Snowflake, CheckCircle2 }
 import DOMPurify from 'dompurify';
 import { ORG_AUTHOR, ORG_PUBLISHER, buildBreadcrumbs, SEASON_LABEL } from '@/lib/seoData';
 import { ArticleAttribution } from '@/components/ArticleAttribution';
+import InlineSignupCTA from '@/components/InlineSignupCTA';
 
 export default function ManadDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -157,6 +158,8 @@ export default function ManadDetail() {
           </section>
         ))}
 
+        <InlineSignupCTA />
+
         {faqArr.length > 0 && (
           <section className="mb-10">
             <h2 className="font-serif text-2xl text-foreground mb-4">Vanliga frågor om {month.month_name}</h2>
@@ -176,15 +179,13 @@ export default function ManadDetail() {
 
         <ArticleAttribution updatedAt={month.updated_at} publishedAt={month.created_at} />
 
-        <div className="text-center bg-gradient-to-br from-primary/5 via-card to-accent/5 rounded-2xl p-8 border border-border/30 mt-12">
-          <h2 className="font-serif text-xl text-foreground mb-2">Planera {month.month_name} i din egen dagbok</h2>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto mb-5">
-            Få påminnelser, väderdata och anpassade förslag baserat på din klimatzon.
-          </p>
-          <Link to="/login">
-            <Button size="lg" className="rounded-xl gap-2"><Sprout className="h-4 w-4" /> Skapa konto</Button>
-          </Link>
-        </div>
+        <InlineSignupCTA
+          variant="card"
+          title={`Planera ${month.month_name} i din egen dagbok`}
+          description="Få påminnelser, väderdata och anpassade förslag baserat på din klimatzon – helt gratis."
+          buttonLabel="Börja gratis"
+          className="mt-12"
+        />
       </article>
     </PublicLayout>
   );
