@@ -256,8 +256,8 @@ export default function VaxtDetail() {
         {/* Slut-CTA */}
         <InlineSignupCTA
           variant="card"
-          title={`Logga din odling av ${plant.name}`}
-          description="Skapa en gratis dagbok och håll koll på sådder, skörd och växtföljd – år efter år."
+          title={`Logga din odling av ${plant.name} – år efter år`}
+          description="Skapa en gratis dagbok och bygg upp din egen kunskap om vad som faktiskt fungerar i just din jord och din klimatzon."
           buttonLabel="Börja gratis"
           className="mt-12"
         />
