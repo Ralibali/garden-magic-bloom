@@ -134,7 +134,11 @@ export default function ZonDetail() {
           </section>
         )}
 
-        <InlineSignupCTA />
+        <InlineSignupCTA
+          title="Odla smartare i din klimatzon"
+          description="Spara dina egna erfarenheter från säsongen och bygg upp en odlingsplan som passar just din plats, din jord och ditt lokala klimat."
+          buttonLabel="Börja gratis"
+        />
 
         {faqArr.length > 0 && (
           <section className="mb-10">
