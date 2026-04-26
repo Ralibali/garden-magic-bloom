@@ -406,7 +406,7 @@ export default function Index() {
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
                 <div className="flex items-center gap-2 justify-center lg:justify-start mb-4">
                   <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.15em] text-primary font-semibold">
-                    <Sprout className="h-3.5 w-3.5" /> Byggd för svenska odlare
+                    <Sprout className="h-3.5 w-3.5" /> Planera smartare · Odla tryggare · Skörda mer
                   </span>
                 </div>
               </motion.div>
@@ -419,7 +419,7 @@ export default function Index() {
 
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}>
                 <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 max-w-lg mx-auto lg:mx-0">
-                  Odlingsdagboken hjälper dig veta när du ska så, vad du odlade förra året och hur du får bättre resultat – anpassat för svenska odlare, pallkragar, växthus och klimatzoner.
+                  Odlingsdagboken hjälper dig att odla med mer kunskap och mindre gissningar. Logga sådder, skördar, bäddar och anteckningar – och se vad som faktiskt fungerar i din trädgård, år efter år.
                 </p>
               </motion.div>
 
@@ -442,8 +442,11 @@ export default function Index() {
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 justify-center lg:justify-start text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Inget betalkort krävs</span>
                   <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Gratis att börja</span>
-                  <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Byggd för svenska odlare</span>
+                  <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Anpassad för svenska odlare</span>
                 </div>
+                <p className="text-xs text-muted-foreground/80 mt-3 italic max-w-lg mx-auto lg:mx-0">
+                  Används av svenska hobbyodlare som vill få bättre koll på sin säsong.
+                </p>
               </motion.div>
 
               <SocialProofCounter />
