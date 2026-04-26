@@ -170,12 +170,14 @@ function ExitIntentPopup() {
         <button onClick={dismiss} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground" aria-label="Stäng"><X className="h-5 w-5" /></button>
         <div className="text-center">
           <span className="text-4xl mb-3 block">🌱</span>
-          <h3 className="font-serif text-xl text-foreground mb-2">Vänta – missa inte din bästa säsong!</h3>
-          <p className="text-sm text-muted-foreground mb-5">Skapa ett gratiskonto och börja logga dina sådder redan idag – tar 30 sekunder.</p>
+          <h3 className="font-serif text-xl text-foreground mb-2">Vänta – vill du spara årets odling innan du glömmer?</h3>
+          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
+            De små detaljerna är ofta det som avgör nästa års skörd: när du sådde, vad som grodde bäst och vilken bädd som gav mest. Skapa ett gratiskonto och börja samla din odlingskunskap redan idag.
+          </p>
           <Button asChild size="lg" className="w-full gap-2 mb-3">
-            <a href="/login?mode=register">Testa gratis – tar 30 sekunder <ArrowRight className="h-4 w-4" /></a>
+            <a href="/login?mode=register">Skapa gratis konto <ArrowRight className="h-4 w-4" /></a>
           </Button>
-          <p className="text-xs text-muted-foreground">Inget betalkort krävs · 14 dagars Plus gratis</p>
+          <p className="text-xs text-muted-foreground">Inget betalkort krävs · Tar under 30 sekunder</p>
         </div>
       </motion.div>
     </div>
