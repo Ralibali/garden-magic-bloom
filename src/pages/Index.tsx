@@ -770,6 +770,67 @@ export default function Index() {
         </div>
       </section>
 
+      {/* ═══════════════════════ GRO – AI-COACH ═══════════════════════ */}
+      <section id="gro" aria-labelledby="gro-heading" className="scroll-mt-20 bg-gradient-to-br from-primary/5 via-card/40 to-accent/5 border-b border-border">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-14 sm:py-20">
+          <div className="grid lg:grid-cols-5 gap-10 items-center">
+            <div className="lg:col-span-2 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-[0.15em] mb-4">
+                <Bot className="h-3.5 w-3.5" /> Personlig AI-coach
+              </div>
+              <h2 id="gro-heading" className="font-serif text-2xl sm:text-3xl lg:text-4xl text-foreground mb-4 leading-tight">
+                Möt Gro – din personliga odlingsrådgivare
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-6">
+                Gro hjälper dig förstå vad som händer i din odling. Fråga om såtider, gula blad, växtföljd, skadedjur, gödsling eller varför en planta inte trivs. Ju mer du loggar i Odlingsdagboken, desto bättre kan Gro hjälpa dig utifrån just din trädgård.
+              </p>
+              <motion.div whileHover={{ scale: 1.02 }} className="inline-block">
+                <Button asChild size="lg" className="h-12 px-6 sm:px-8 text-base gap-2 shadow-lg">
+                  <a href="/login?mode=register">Testa Gro gratis <ArrowRight className="h-4 w-4" /></a>
+                </Button>
+              </motion.div>
+              <p className="text-xs text-muted-foreground mt-3">
+                Tre frågor gratis · Obegränsat med Plus
+              </p>
+            </div>
+
+            <div className="lg:col-span-3">
+              <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm shadow-sm p-5 sm:p-6 space-y-3">
+                <p className="text-[11px] uppercase tracking-[0.15em] text-primary font-semibold mb-2">
+                  Exempel på frågor du kan ställa
+                </p>
+                {[
+                  'När ska jag så tomat i zon 3?',
+                  'Varför gulnar bladen på min gurka?',
+                  'Vad kan jag odla efter potatis?',
+                  'Hur förbättrar jag jorden i min pallkrage?',
+                ].map((q, i) => (
+                  <motion.div
+                    key={q}
+                    initial={{ opacity: 0, x: -8 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: i * 0.08 }}
+                    className="flex items-start gap-3 p-3 sm:p-3.5 rounded-xl bg-background/60 border border-border/60"
+                  >
+                    <span className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-sm shrink-0" aria-hidden="true">🧑‍🌾</span>
+                    <p className="text-sm text-foreground/90 leading-relaxed pt-1">{q}</p>
+                  </motion.div>
+                ))}
+                <div className="flex items-start gap-3 p-3 sm:p-3.5 rounded-xl bg-primary/5 border border-primary/15">
+                  <span className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0" aria-hidden="true">
+                    <Bot className="h-3.5 w-3.5 text-primary" />
+                  </span>
+                  <p className="text-sm text-muted-foreground leading-relaxed pt-1 italic">
+                    Gro svarar utifrån svensk klimatzon, dina bäddar och din odlingshistorik – inte generella råd från andra länder.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════════════════ PRICING ═══════════════════════ */}
       <section id="priser" className="scroll-mt-20" aria-labelledby="pricing-heading">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
