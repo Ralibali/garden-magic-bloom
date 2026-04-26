@@ -516,28 +516,66 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ═══════════════════════ AS SEEN IN ═══════════════════════ */}
-      <section className="bg-card/50 border-b border-border/40" aria-label="Omnämnanden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-medium text-center mb-4">Omnämnd i</p>
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground/50">
-            <span className="font-serif text-base font-medium tracking-tight">Odla.nu</span>
-            <span className="font-serif text-base font-medium tracking-tight">Trädgårdsforum</span>
-            <span className="font-serif text-base font-medium tracking-tight">Pallkrage-podden</span>
-            <span className="font-serif text-base font-medium tracking-tight">Vi i Villa</span>
-          </div>
+      {/* ═══════════════════════ TRUST SECTION ═══════════════════════ */}
+      <section className="bg-card/40 border-y border-border/40" aria-labelledby="trust-heading">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10 sm:py-12">
+          <h2 id="trust-heading" className="text-center text-[11px] uppercase tracking-[0.2em] text-primary font-semibold mb-5">
+            Byggd för svenska hobbyodlare
+          </h2>
+          <ul className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 text-center">
+            {[
+              { icon: '🇸🇪', label: 'Anpassad efter svenska klimatzoner' },
+              { icon: '🌿', label: 'Pallkrage, växthus och friland' },
+              { icon: '🌱', label: 'Gratis att börja' },
+              { icon: '🔒', label: 'GDPR – data inom EU' },
+            ].map(item => (
+              <li key={item.label} className="flex flex-col items-center gap-2">
+                <span className="text-2xl" aria-hidden="true">{item.icon}</span>
+                <span className="text-xs sm:text-sm text-foreground/85 leading-snug">{item.label}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      {/* ═══════════════════════ TRUST BAR ═══════════════════════ */}
-      <section className="border-b border-border bg-background">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1.5">🇸🇪 <span className="font-medium text-foreground">Byggd för Sverige</span></span>
-            <div className="hidden sm:block w-px h-5 bg-border" />
-            <span className="flex items-center gap-1.5">🔒 GDPR – data inom EU</span>
-            <div className="hidden sm:block w-px h-5 bg-border" />
-            <span className="flex items-center gap-1.5">🌱 Gratis att börja</span>
+      {/* ═══════════════════════ PROBLEM / LÖSNING ═══════════════════════ */}
+      <section aria-labelledby="problems-heading" className="bg-background border-b border-border">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-14 sm:py-20">
+          <div className="text-center mb-10 max-w-xl mx-auto">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Känner du igen dig?</p>
+            <h2 id="problems-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">
+              De flesta odlare har samma problem
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Man minns inte exakt vad man gjorde förra året – och samma misstag upprepas.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { problem: 'Jag glömmer när jag sådde.', solution: 'Logga varje sådd och få bättre koll nästa säsong.' },
+              { problem: 'Jag vet inte vad som gav bäst skörd.', solution: 'Jämför skördar mellan bäddar, växter och år.' },
+              { problem: 'Jag odlar samma sak på samma plats.', solution: 'Planera växtföljd och undvik att trötta ut jorden.' },
+              { problem: 'Jag vet inte vad som gick fel.', solution: 'Anteckna, jämför och fråga Gro när något inte ser rätt ut.' },
+              { problem: 'Jag missar rätt såtid.', solution: 'Använd såkalender anpassad efter svensk odling.' },
+            ].map((item, i) => (
+              <motion.div
+                key={item.problem}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="p-5 rounded-2xl border border-border bg-card h-full flex flex-col"
+              >
+                <p className="text-sm text-muted-foreground mb-2 flex items-start gap-2">
+                  <span className="text-destructive mt-0.5" aria-hidden="true">✗</span>
+                  <span>"{item.problem}"</span>
+                </p>
+                <p className="text-sm text-foreground font-medium leading-relaxed flex items-start gap-2">
+                  <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" aria-hidden="true" />
+                  <span>{item.solution}</span>
+                </p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
