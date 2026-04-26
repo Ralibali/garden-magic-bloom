@@ -216,32 +216,35 @@ function BotanicalDecoration() {
 
 /* ─── Data ─── */
 const features = [
-  { icon: BookOpen, title: 'Odlingsdagbok', desc: 'Logga varje sådd och skörd. Se mönster du aldrig visste fanns.', color: 'bg-primary/10 text-primary' },
-  { icon: Calendar, title: 'Såkalender', desc: 'Få påminnelser anpassade till din klimatzon och dina växter.', color: 'bg-success/10 text-success' },
-  { icon: Sprout, title: 'Växtföljd', desc: 'Planera rotationen automatiskt. Friskare jord, bättre skördar.', color: 'bg-accent/10 text-accent' },
-  { icon: Bot, title: 'AI-coach Gro', desc: 'Chatta med Gro om dina växter. Hon svarar baserat på din egna odlingshistorik – dina bäddar, sådder och skördar.', color: 'bg-warning/10 text-warning', badge: 'PLUS', cta: { label: 'Prova Gro →', href: '/app/gro' } },
-  { icon: BarChart2, title: 'Skördestatistik', desc: 'Visualisera dina bästa år och dina bästa bäddar.', color: 'bg-primary/10 text-primary' },
-  { icon: Smartphone, title: 'PWA – fungerar offline', desc: 'Installera som app. Logga direkt i trädgården utan internet.', color: 'bg-success/10 text-success' },
+  { icon: BookOpen, title: 'Odlingsdagbok', desc: 'Samla sådder, utplantering, skörd och anteckningar på ett ställe. Perfekt när du vill förstå vad som faktiskt fungerade i din egen jord.', color: 'bg-primary/10 text-primary' },
+  { icon: Calendar, title: 'Såkalender', desc: 'Få bättre koll på när det är dags att så, förodla och plantera ut. Anpassat för svenska säsonger, inte generella råd från andra klimat.', color: 'bg-success/10 text-success' },
+  { icon: Sprout, title: 'Växtföljd', desc: 'Undvik att odla samma växtfamilj på samma plats år efter år. En smart växtföljd ger friskare jord och starkare plantor.', color: 'bg-accent/10 text-accent' },
+  { icon: Bot, title: 'AI-coach Gro', desc: 'Fråga Gro om gula blad, svag tillväxt, såtider eller planering. Gro hjälper dig tolka din odling och ger råd utifrån det du har loggat.', color: 'bg-warning/10 text-warning', badge: 'PLUS', cta: { label: 'Prova Gro →', href: '/app/gro' } },
+  { icon: BarChart2, title: 'Skördestatistik', desc: 'Se vilka grödor, bäddar och säsonger som gav bäst resultat. Det blir tydligt vad du ska göra mer av – och vad du kan ändra.', color: 'bg-primary/10 text-primary' },
+  { icon: Smartphone, title: 'Fungerar i mobilen', desc: 'Logga direkt i trädgården när du vattnar, skördar eller ser något du vill komma ihåg. Din odlingsdagbok följer med ut.', color: 'bg-success/10 text-success' },
 ];
 
 const faqs = [
-  { q: 'Är Odlingsdagboken verkligen gratis?', a: 'Ja, grundversionen är alltid gratis utan tidsbegränsning. Du kan logga sådder, skördar och använda såkalendern helt utan kostnad.' },
-  { q: 'Vad ingår i Plus?', a: 'Obegränsade bäddar, AI-coach Gro, avancerad statistik, export (CSV/PDF) och prioriterad support. Allt för 99 kr/år.' },
-  { q: 'Fungerar appen offline?', a: 'Ja, installera som PWA så fungerar loggning även utan internetuppkoppling. Datan synkas när du är online igen.' },
-  { q: 'Kan jag importera data från pappersanteckningar?', a: 'Du kan logga historisk data manuellt. CSV-import är på vår roadmap och kommer snart.' },
-  { q: 'Hur lång är gratisperioden för Plus?', a: 'Alla nya konton får 14 dagars Plus gratis – inget betalkort krävs. Du kan avbryta när som helst.' },
+  { q: 'Är Odlingsdagboken gratis?', a: 'Ja. Du kan börja gratis och logga sådder, skördar och anteckningar utan att ange betalkort. Gratisversionen räcker bra för att komma igång och bygga upp din första odlingshistorik.' },
+  { q: 'Vad är skillnaden mellan Gratis och Plus?', a: 'Gratis hjälper dig att komma igång med grundläggande loggning. Plus är för dig som vill få mer stöd under säsongen: obegränsade bäddar, AI-coachen Gro, mer statistik, export och bättre planering inför kommande odlingsår.' },
+  { q: 'Varför ska jag logga min odling?', a: 'För att din egen trädgård är den bästa läraren. Generella råd är bra, men det som verkligen spelar roll är vad som fungerar i just din jord, ditt läge och din klimatzon. När du loggar kan du jämföra, justera och odla smartare nästa år.' },
+  { q: 'Passar Odlingsdagboken nybörjare?', a: 'Ja. Odlingsdagboken är byggd för att vara enkel även om du precis börjat odla. Du behöver inte kunna allt från start – du lär dig steg för steg medan du bygger upp din egen odlingskunskap.' },
+  { q: 'Fungerar det för pallkrage och växthus?', a: 'Ja. Du kan använda Odlingsdagboken för pallkrage, växthus, friland, krukor, balkong och kolonilott. Du lägger själv upp de platser där du odlar.' },
+  { q: 'Vad är Gro?', a: 'Gro är Odlingsdagbokens AI-coach. Du kan fråga om odlingsproblem, planering, såtider och plantor som inte mår bra. Ju mer du loggar, desto mer relevant hjälp kan du få.' },
+  { q: 'Behöver jag installera en app?', a: 'Nej. Odlingsdagboken fungerar direkt i webbläsaren, men du kan också lägga till den på mobilens hemskärm så att den känns som en app.' },
+  { q: 'Hur lång är Plus-testperioden?', a: 'Du kan prova Plus gratis i 14 dagar. Inget betalkort krävs för att börja.' },
 ];
 
 const testimonials = [
-  { name: 'Anna K.', zone: 3, stars: 5, quote: 'Äntligen vet jag varför tomaterna misslyckades förra sommaren. Tre år av data – ovärderligt.' },
-  { name: 'Magnus L.', zone: 4, stars: 5, quote: 'AI-coachen Gro svarade på en fråga om mina ärtors gulnande blad på 10 sekunder. Imponerande.' },
-  { name: 'Sara W.', zone: 2, stars: 5, quote: 'Jag odlar i pallkrage på balkongen. Perfekt anpassat för mig.' },
+  { name: 'Anna', zone: 3, stars: 5, quote: 'Jag trodde att jag skulle minnas allt från förra säsongen, men det gjorde jag såklart inte. Nu ser jag exakt när jag sådde tomaterna och vilka sorter som faktiskt gav bäst skörd.' },
+  { name: 'Magnus', zone: 4, stars: 5, quote: 'Det bästa är att jag kan jämföra år för år. Jag såg direkt att gurkan trivdes bättre i den andra bädden, något jag aldrig hade kommit ihåg annars.' },
+  { name: 'Sara', zone: 2, stars: 5, quote: 'Jag odlar inte stort, men jag vill ändå göra rätt. Odlingsdagboken gör det enkelt att hålla koll utan att det känns krångligt.' },
 ];
 
 const howItWorksSteps = [
-  { num: '1', title: 'Skapa konto på tio sekunder', desc: 'Helt gratis, ingen betalinfo krävs.' },
-  { num: '2', title: 'Lägg till dina bäddar och växter', desc: 'Odlingsbäddar, krukväxter – allt på ett ställe.' },
-  { num: '3', title: 'Logga sådder och skördar', desc: 'Se vad som funkar år efter år.' },
+  { num: '1', title: 'Lägg in hur du odlar', desc: 'Välj om du odlar i pallkrage, växthus, friland, krukor eller på balkong. Lägg till dina bäddar och platser så får du struktur direkt.' },
+  { num: '2', title: 'Logga sådder och skördar', desc: 'Skriv in vad du sår, när du planterar ut och hur mycket du skördar. Det tar bara några sekunder – men ger värdefull kunskap inför nästa år.' },
+  { num: '3', title: 'Lär av din egen säsong', desc: 'Se vad som fungerade, vad som kan förbättras och vilka grödor som gav bäst resultat. Nästa säsong blir du en smartare odlare.' },
 ];
 
 /* ─── Mobile nav ─── */
