@@ -719,19 +719,22 @@ export default function Index() {
               className="p-5 sm:p-8 rounded-2xl border border-border bg-card h-full"
             >
               <h3 className="font-serif text-xl text-foreground mb-1">Gratis</h3>
-              <div className="flex items-baseline gap-1 mb-5">
+              <div className="flex items-baseline gap-1 mb-2">
                 <span className="text-3xl sm:text-4xl font-bold text-foreground">0</span>
                 <span className="text-muted-foreground text-sm">kr</span>
               </div>
+              <p className="text-xs text-muted-foreground mb-4">
+                För dig som vill komma igång och logga sådder, skördar och bäddar.
+              </p>
               <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
                 <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Obegränsade loggposter</li>
-                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> 3 odlingsbäddar</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Tre odlingsbäddar</li>
                 <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Såkalender</li>
                 <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Växtföljdsplanering</li>
               </ul>
               <motion.div whileHover={{ scale: 1.02 }}>
                 <Button asChild variant="outline" className="w-full">
-                  <a href="/login?mode=register">Kom igång gratis</a>
+                  <a href="/login?mode=register">Börja gratis</a>
                 </Button>
               </motion.div>
             </motion.div>
@@ -755,17 +758,21 @@ export default function Index() {
                 <span className="text-3xl sm:text-4xl font-bold text-foreground">99</span>
                 <span className="text-muted-foreground text-sm">kr/år</span>
               </div>
-              <p className="text-xs text-muted-foreground mb-4">Bara ~åtta kr/månad</p>
+              <p className="text-xs text-muted-foreground mb-1">Bara ~åtta kr/månad</p>
+              <p className="text-xs text-muted-foreground mb-4">
+                För dig som vill planera smartare, få hjälp av Gro och jämföra säsonger år för år.
+              </p>
               <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
                 <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Allt i Gratis</li>
                 <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Obegränsade bäddar</li>
                 <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> AI-coach Gro</li>
                 <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Avancerad statistik</li>
-                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Prioriterad support</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Export (CSV/PDF)</li>
+                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Bättre planering inför nästa säsong</li>
               </ul>
               <motion.div whileHover={{ scale: 1.02 }}>
                 <Button asChild className="w-full">
-                  <a href="/login?mode=register">Prova Plus 14 dagar gratis</a>
+                  <a href="/login?mode=register">Prova Plus gratis i 14 dagar</a>
                 </Button>
               </motion.div>
               <p className="text-[10px] text-center text-muted-foreground mt-3">Inget betalkort krävs · Avbryt när som helst</p>
