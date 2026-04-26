@@ -170,12 +170,14 @@ function ExitIntentPopup() {
         <button onClick={dismiss} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground" aria-label="Stäng"><X className="h-5 w-5" /></button>
         <div className="text-center">
           <span className="text-4xl mb-3 block">🌱</span>
-          <h3 className="font-serif text-xl text-foreground mb-2">Vänta – missa inte din bästa säsong!</h3>
-          <p className="text-sm text-muted-foreground mb-5">Skapa ett gratiskonto och börja logga dina sådder redan idag – tar 30 sekunder.</p>
+          <h3 className="font-serif text-xl text-foreground mb-2">Vänta – vill du spara årets odling innan du glömmer?</h3>
+          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
+            De små detaljerna är ofta det som avgör nästa års skörd: när du sådde, vad som grodde bäst och vilken bädd som gav mest. Skapa ett gratiskonto och börja samla din odlingskunskap redan idag.
+          </p>
           <Button asChild size="lg" className="w-full gap-2 mb-3">
-            <a href="/login?mode=register">Testa gratis – tar 30 sekunder <ArrowRight className="h-4 w-4" /></a>
+            <a href="/login?mode=register">Skapa gratis konto <ArrowRight className="h-4 w-4" /></a>
           </Button>
-          <p className="text-xs text-muted-foreground">Inget betalkort krävs · 14 dagars Plus gratis</p>
+          <p className="text-xs text-muted-foreground">Inget betalkort krävs · Tar under 30 sekunder</p>
         </div>
       </motion.div>
     </div>
@@ -216,32 +218,35 @@ function BotanicalDecoration() {
 
 /* ─── Data ─── */
 const features = [
-  { icon: BookOpen, title: 'Odlingsdagbok', desc: 'Logga varje sådd och skörd. Se mönster du aldrig visste fanns.', color: 'bg-primary/10 text-primary' },
-  { icon: Calendar, title: 'Såkalender', desc: 'Få påminnelser anpassade till din klimatzon och dina växter.', color: 'bg-success/10 text-success' },
-  { icon: Sprout, title: 'Växtföljd', desc: 'Planera rotationen automatiskt. Friskare jord, bättre skördar.', color: 'bg-accent/10 text-accent' },
-  { icon: Bot, title: 'AI-coach Gro', desc: 'Chatta med Gro om dina växter. Hon svarar baserat på din egna odlingshistorik – dina bäddar, sådder och skördar.', color: 'bg-warning/10 text-warning', badge: 'PLUS', cta: { label: 'Prova Gro →', href: '/app/gro' } },
-  { icon: BarChart2, title: 'Skördestatistik', desc: 'Visualisera dina bästa år och dina bästa bäddar.', color: 'bg-primary/10 text-primary' },
-  { icon: Smartphone, title: 'PWA – fungerar offline', desc: 'Installera som app. Logga direkt i trädgården utan internet.', color: 'bg-success/10 text-success' },
+  { icon: BookOpen, title: 'Odlingsdagbok', desc: 'Samla sådder, utplantering, skörd och anteckningar på ett ställe. Perfekt när du vill förstå vad som faktiskt fungerade i din egen jord.', color: 'bg-primary/10 text-primary' },
+  { icon: Calendar, title: 'Såkalender', desc: 'Få bättre koll på när det är dags att så, förodla och plantera ut. Anpassat för svenska säsonger, inte generella råd från andra klimat.', color: 'bg-success/10 text-success' },
+  { icon: Sprout, title: 'Växtföljd', desc: 'Undvik att odla samma växtfamilj på samma plats år efter år. En smart växtföljd ger friskare jord och starkare plantor.', color: 'bg-accent/10 text-accent' },
+  { icon: Bot, title: 'AI-coach Gro', desc: 'Fråga Gro om gula blad, svag tillväxt, såtider eller planering. Gro hjälper dig tolka din odling och ger råd utifrån det du har loggat.', color: 'bg-warning/10 text-warning', badge: 'PLUS', cta: { label: 'Prova Gro →', href: '/app/gro' } },
+  { icon: BarChart2, title: 'Skördestatistik', desc: 'Se vilka grödor, bäddar och säsonger som gav bäst resultat. Det blir tydligt vad du ska göra mer av – och vad du kan ändra.', color: 'bg-primary/10 text-primary' },
+  { icon: Smartphone, title: 'Fungerar i mobilen', desc: 'Logga direkt i trädgården när du vattnar, skördar eller ser något du vill komma ihåg. Din odlingsdagbok följer med ut.', color: 'bg-success/10 text-success' },
 ];
 
 const faqs = [
-  { q: 'Är Odlingsdagboken verkligen gratis?', a: 'Ja, grundversionen är alltid gratis utan tidsbegränsning. Du kan logga sådder, skördar och använda såkalendern helt utan kostnad.' },
-  { q: 'Vad ingår i Plus?', a: 'Obegränsade bäddar, AI-coach Gro, avancerad statistik, export (CSV/PDF) och prioriterad support. Allt för 99 kr/år.' },
-  { q: 'Fungerar appen offline?', a: 'Ja, installera som PWA så fungerar loggning även utan internetuppkoppling. Datan synkas när du är online igen.' },
-  { q: 'Kan jag importera data från pappersanteckningar?', a: 'Du kan logga historisk data manuellt. CSV-import är på vår roadmap och kommer snart.' },
-  { q: 'Hur lång är gratisperioden för Plus?', a: 'Alla nya konton får 14 dagars Plus gratis – inget betalkort krävs. Du kan avbryta när som helst.' },
+  { q: 'Är Odlingsdagboken gratis?', a: 'Ja. Du kan börja gratis och logga sådder, skördar och anteckningar utan att ange betalkort. Gratisversionen räcker bra för att komma igång och bygga upp din första odlingshistorik.' },
+  { q: 'Vad är skillnaden mellan Gratis och Plus?', a: 'Gratis hjälper dig att komma igång med grundläggande loggning. Plus är för dig som vill få mer stöd under säsongen: obegränsade bäddar, AI-coachen Gro, mer statistik, export och bättre planering inför kommande odlingsår.' },
+  { q: 'Varför ska jag logga min odling?', a: 'För att din egen trädgård är den bästa läraren. Generella råd är bra, men det som verkligen spelar roll är vad som fungerar i just din jord, ditt läge och din klimatzon. När du loggar kan du jämföra, justera och odla smartare nästa år.' },
+  { q: 'Passar Odlingsdagboken nybörjare?', a: 'Ja. Odlingsdagboken är byggd för att vara enkel även om du precis börjat odla. Du behöver inte kunna allt från start – du lär dig steg för steg medan du bygger upp din egen odlingskunskap.' },
+  { q: 'Fungerar det för pallkrage och växthus?', a: 'Ja. Du kan använda Odlingsdagboken för pallkrage, växthus, friland, krukor, balkong och kolonilott. Du lägger själv upp de platser där du odlar.' },
+  { q: 'Vad är Gro?', a: 'Gro är Odlingsdagbokens AI-coach. Du kan fråga om odlingsproblem, planering, såtider och plantor som inte mår bra. Ju mer du loggar, desto mer relevant hjälp kan du få.' },
+  { q: 'Behöver jag installera en app?', a: 'Nej. Odlingsdagboken fungerar direkt i webbläsaren, men du kan också lägga till den på mobilens hemskärm så att den känns som en app.' },
+  { q: 'Hur lång är Plus-testperioden?', a: 'Du kan prova Plus gratis i 14 dagar. Inget betalkort krävs för att börja.' },
 ];
 
 const testimonials = [
-  { name: 'Anna K.', zone: 3, stars: 5, quote: 'Äntligen vet jag varför tomaterna misslyckades förra sommaren. Tre år av data – ovärderligt.' },
-  { name: 'Magnus L.', zone: 4, stars: 5, quote: 'AI-coachen Gro svarade på en fråga om mina ärtors gulnande blad på 10 sekunder. Imponerande.' },
-  { name: 'Sara W.', zone: 2, stars: 5, quote: 'Jag odlar i pallkrage på balkongen. Perfekt anpassat för mig.' },
+  { name: 'Anna', zone: 3, stars: 5, quote: 'Jag trodde att jag skulle minnas allt från förra säsongen, men det gjorde jag såklart inte. Nu ser jag exakt när jag sådde tomaterna och vilka sorter som faktiskt gav bäst skörd.' },
+  { name: 'Magnus', zone: 4, stars: 5, quote: 'Det bästa är att jag kan jämföra år för år. Jag såg direkt att gurkan trivdes bättre i den andra bädden, något jag aldrig hade kommit ihåg annars.' },
+  { name: 'Sara', zone: 2, stars: 5, quote: 'Jag odlar inte stort, men jag vill ändå göra rätt. Odlingsdagboken gör det enkelt att hålla koll utan att det känns krångligt.' },
 ];
 
 const howItWorksSteps = [
-  { num: '1', title: 'Skapa konto på tio sekunder', desc: 'Helt gratis, ingen betalinfo krävs.' },
-  { num: '2', title: 'Lägg till dina bäddar och växter', desc: 'Odlingsbäddar, krukväxter – allt på ett ställe.' },
-  { num: '3', title: 'Logga sådder och skördar', desc: 'Se vad som funkar år efter år.' },
+  { num: '1', title: 'Lägg in hur du odlar', desc: 'Välj om du odlar i pallkrage, växthus, friland, krukor eller på balkong. Lägg till dina bäddar och platser så får du struktur direkt.' },
+  { num: '2', title: 'Logga sådder och skördar', desc: 'Skriv in vad du sår, när du planterar ut och hur mycket du skördar. Det tar bara några sekunder – men ger värdefull kunskap inför nästa år.' },
+  { num: '3', title: 'Lär av din egen säsong', desc: 'Se vad som fungerade, vad som kan förbättras och vilka grödor som gav bäst resultat. Nästa säsong blir du en smartare odlare.' },
 ];
 
 /* ─── Mobile nav ─── */
@@ -406,7 +411,7 @@ export default function Index() {
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
                 <div className="flex items-center gap-2 justify-center lg:justify-start mb-4">
                   <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.15em] text-primary font-semibold">
-                    <Sprout className="h-3.5 w-3.5" /> Byggd för svenska odlare
+                    <Sprout className="h-3.5 w-3.5" /> Planera smartare · Odla tryggare · Skörda mer
                   </span>
                 </div>
               </motion.div>
@@ -419,7 +424,7 @@ export default function Index() {
 
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}>
                 <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 max-w-lg mx-auto lg:mx-0">
-                  Odlingsdagboken hjälper dig veta när du ska så, vad du odlade förra året och hur du får bättre resultat – anpassat för svenska odlare, pallkragar, växthus och klimatzoner.
+                  Odlingsdagboken hjälper dig att odla med mer kunskap och mindre gissningar. Logga sådder, skördar, bäddar och anteckningar – och se vad som faktiskt fungerar i din trädgård, år efter år.
                 </p>
               </motion.div>
 
@@ -442,8 +447,11 @@ export default function Index() {
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 justify-center lg:justify-start text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Inget betalkort krävs</span>
                   <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Gratis att börja</span>
-                  <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Byggd för svenska odlare</span>
+                  <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Anpassad för svenska odlare</span>
                 </div>
+                <p className="text-xs text-muted-foreground/80 mt-3 italic max-w-lg mx-auto lg:mx-0">
+                  Används av svenska hobbyodlare som vill få bättre koll på sin säsong.
+                </p>
               </motion.div>
 
               <SocialProofCounter />
@@ -518,16 +526,24 @@ export default function Index() {
 
       {/* ═══════════════════════ TRUST SECTION ═══════════════════════ */}
       <section className="bg-card/40 border-y border-border/40" aria-labelledby="trust-heading">
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10 sm:py-12">
-          <h2 id="trust-heading" className="text-center text-[11px] uppercase tracking-[0.2em] text-primary font-semibold mb-5">
-            Byggd för svenska hobbyodlare
-          </h2>
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
+          <div className="text-center mb-8">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-primary font-semibold mb-3">
+              Byggd för svenska odlingsförhållanden
+            </p>
+            <h2 id="trust-heading" className="font-serif text-xl sm:text-2xl text-foreground leading-snug max-w-xl mx-auto">
+              Svensk odling skiljer sig från generella råd
+            </h2>
+            <p className="text-sm text-muted-foreground mt-3 max-w-xl mx-auto leading-relaxed">
+              Klimatzon, frostnätter, kort säsong och växlande väder spelar roll. Därför är Odlingsdagboken byggd för dig som odlar i Sverige – oavsett om du har pallkrage, växthus, friland, balkong eller kolonilott.
+            </p>
+          </div>
           <ul className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 text-center">
             {[
               { icon: '🇸🇪', label: 'Anpassad efter svenska klimatzoner' },
-              { icon: '🌿', label: 'Pallkrage, växthus och friland' },
+              { icon: '🌿', label: 'Pallkrage, växthus, friland och balkong' },
               { icon: '🌱', label: 'Gratis att börja' },
-              { icon: '🔒', label: 'GDPR – data inom EU' },
+              { icon: '🔒', label: 'Din odlingsdata sparas tryggt inom EU' },
             ].map(item => (
               <li key={item.label} className="flex flex-col items-center gap-2">
                 <span className="text-2xl" aria-hidden="true">{item.icon}</span>
@@ -541,22 +557,22 @@ export default function Index() {
       {/* ═══════════════════════ PROBLEM / LÖSNING ═══════════════════════ */}
       <section aria-labelledby="problems-heading" className="bg-background border-b border-border">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-14 sm:py-20">
-          <div className="text-center mb-10 max-w-xl mx-auto">
+          <div className="text-center mb-10 max-w-2xl mx-auto">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Känner du igen dig?</p>
-            <h2 id="problems-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">
-              De flesta odlare har samma problem
+            <h2 id="problems-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-4">
+              De flesta odlare gör mer rätt än de tror
             </h2>
-            <p className="text-sm text-muted-foreground">
-              Man minns inte exakt vad man gjorde förra året – och samma misstag upprepas.
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              Problemet är att man inte alltid minns vad man gjorde. När sådde du tomaterna? Vilken bädd gav bäst skörd? Vad växte där förra året? Odlingsdagboken gör det enkelt att se mönstren och fatta bättre beslut nästa säsong.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { problem: 'Jag glömmer när jag sådde.', solution: 'Logga varje sådd och få bättre koll nästa säsong.' },
-              { problem: 'Jag vet inte vad som gav bäst skörd.', solution: 'Jämför skördar mellan bäddar, växter och år.' },
-              { problem: 'Jag odlar samma sak på samma plats.', solution: 'Planera växtföljd och undvik att trötta ut jorden.' },
-              { problem: 'Jag vet inte vad som gick fel.', solution: 'Anteckna, jämför och fråga Gro när något inte ser rätt ut.' },
-              { problem: 'Jag missar rätt såtid.', solution: 'Använd såkalender anpassad efter svensk odling.' },
+              { problem: 'Jag minns inte när jag sådde', solution: 'Skriv in datum för sådd, omskolning och utplantering. Nästa år slipper du börja om från noll – du har din egen odlingshistorik att gå tillbaka till.' },
+              { problem: 'Jag vet inte vad som gav bäst skörd', solution: 'Logga skörden och jämför mellan växter, bäddar och säsonger. Det blir snabbt tydligt vad som trivdes bäst hos dig.' },
+              { problem: 'Jag odlar samma sak på samma plats', solution: 'Med koll på växtföljden minskar risken för trött jord, sjukdomar och svagare plantor. Du ser enkelt vad som vuxit var tidigare år.' },
+              { problem: 'Jag vet inte vad som gick fel', solution: 'Anteckna väder, skadedjur, gödsling och plantornas utveckling. Små detaljer kan förklara stora skillnader i resultat.' },
+              { problem: 'Jag missar rätt tid att så', solution: 'Använd såkalender och påminnelser som stöd under säsongen. Rätt timing gör ofta större skillnad än man tror.' },
             ].map((item, i) => (
               <motion.div
                 key={item.problem}
@@ -564,18 +580,64 @@ export default function Index() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="p-5 rounded-2xl border border-border bg-card h-full flex flex-col"
+                className="p-5 sm:p-6 rounded-2xl border border-border bg-card h-full flex flex-col"
               >
-                <p className="text-sm text-muted-foreground mb-2 flex items-start gap-2">
-                  <span className="text-destructive mt-0.5" aria-hidden="true">✗</span>
-                  <span>"{item.problem}"</span>
-                </p>
-                <p className="text-sm text-foreground font-medium leading-relaxed flex items-start gap-2">
+                <h3 className="font-serif text-base text-foreground mb-3 flex items-start gap-2">
+                  <span className="text-destructive mt-0.5 font-sans" aria-hidden="true">“</span>
+                  <span>{item.problem}</span>
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2">
                   <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" aria-hidden="true" />
                   <span>{item.solution}</span>
                 </p>
               </motion.div>
             ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <motion.div whileHover={{ scale: 1.02 }} className="inline-block">
+              <Button asChild size="lg" className="h-12 px-6 sm:px-8 text-base gap-2 shadow-lg">
+                <a href="/login?mode=register">Börja logga din odling gratis <ArrowRight className="h-4 w-4" /></a>
+              </Button>
+            </motion.div>
+            <p className="text-xs text-muted-foreground mt-3">Inget betalkort krävs · 14 dagars Plus gratis</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════ MÖNSTER / EXPERTSEKTION ═══════════════════════ */}
+      <section aria-labelledby="patterns-heading" className="bg-card/40 border-b border-border">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-14 sm:py-20">
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Så hjälper Odlingsdagboken dig att odla bättre</p>
+              <h2 id="patterns-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-4 leading-tight">
+                Din odling blir bättre när du börjar se mönstren
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-6">
+                Erfarna odlare gissar inte – de observerar, antecknar och justerar. Odlingsdagboken hjälper dig göra samma sak på ett enkelt sätt. Du bygger upp en egen kunskapsbank över din trädgård: vad som gror bra, vad som trivs i dina bäddar, när du brukar kunna plantera ut och vilka grödor som faktiskt ger mest tillbaka.
+              </p>
+              <motion.div whileHover={{ scale: 1.02 }} className="inline-block">
+                <Button asChild size="lg" className="gap-2">
+                  <a href="/login?mode=register">Skapa din odlingsdagbok gratis <ArrowRight className="h-4 w-4" /></a>
+                </Button>
+              </motion.div>
+            </div>
+            <ul className="space-y-3">
+              {[
+                'Logga sådder, skördar och anteckningar',
+                'Planera växtföljd mellan säsonger',
+                'Få bättre koll på klimatzon och såtider',
+                'Se vilka bäddar och grödor som presterar bäst',
+                'Fråga AI-coachen Gro när du behöver råd',
+                'Spara erfarenheter från varje säsong',
+              ].map(item => (
+                <li key={item} className="flex items-start gap-3 p-3 sm:p-4 rounded-xl border border-border bg-card">
+                  <Check className="h-4 w-4 text-primary mt-1 shrink-0" />
+                  <span className="text-sm text-foreground/90">{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
@@ -584,8 +646,8 @@ export default function Index() {
       <section aria-labelledby="how-heading">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <div className="text-center mb-10">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Så här funkar det</p>
-            <h2 id="how-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Kom igång på tre enkla steg</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Så här fungerar det</p>
+            <h2 id="how-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Kom igång på några minuter</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
             {howItWorksSteps.map((step, i) => (
@@ -600,10 +662,17 @@ export default function Index() {
                 <div className="w-12 h-12 rounded-full bg-primary/10 text-primary font-serif text-xl font-bold flex items-center justify-center mx-auto mb-4">
                   {step.num}
                 </div>
-                <h3 className="font-serif text-base sm:text-lg text-foreground mb-1">{step.title}</h3>
-                <p className="text-sm text-muted-foreground">{step.desc}</p>
+                <h3 className="font-serif text-base sm:text-lg text-foreground mb-2">{step.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
               </motion.div>
             ))}
+          </div>
+          <div className="text-center mt-10">
+            <motion.div whileHover={{ scale: 1.02 }} className="inline-block">
+              <Button asChild size="lg" className="h-12 px-6 sm:px-8 text-base gap-2 shadow-lg">
+                <a href="/login?mode=register">Börja gratis idag <ArrowRight className="h-4 w-4" /></a>
+              </Button>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -656,7 +725,7 @@ export default function Index() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <div className="mb-10 text-center sm:text-left">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Funktioner</p>
-            <h2 id="features-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Gratis såkalender, växtföljd och mer</h2>
+            <h2 id="features-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Allt du behöver för att odla mer genomtänkt</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -706,8 +775,8 @@ export default function Index() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <div className="text-center mb-8">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Prissättning</p>
-            <h2 id="pricing-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">Kom igång gratis – uppgradera när du vill</h2>
-            <p className="text-muted-foreground max-w-md mx-auto text-sm">Börja gratis. Uppgradera när du vill.</p>
+            <h2 id="pricing-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">Välj hur mycket stöd du vill ha under säsongen</h2>
+            <p className="text-muted-foreground max-w-xl mx-auto text-sm leading-relaxed">Börja gratis och bygg upp din odlingshistorik. När du vill planera smartare, få mer analys och använda Gro fullt ut kan du uppgradera till Plus.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto">
@@ -723,14 +792,15 @@ export default function Index() {
                 <span className="text-3xl sm:text-4xl font-bold text-foreground">0</span>
                 <span className="text-muted-foreground text-sm">kr</span>
               </div>
-              <p className="text-xs text-muted-foreground mb-4">
-                För dig som vill komma igång och logga sådder, skördar och bäddar.
+              <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+                För dig som vill komma igång och få bättre koll på sådder, skördar och bäddar.
               </p>
               <ul className="space-y-2.5 text-sm text-muted-foreground mb-6">
-                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Obegränsade loggposter</li>
-                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Tre odlingsbäddar</li>
-                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Såkalender</li>
-                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary shrink-0" /> Växtföljdsplanering</li>
+                <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> Logga sådder och skördar</li>
+                <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> Skapa dina första bäddar</li>
+                <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> Använd grundläggande såkalender</li>
+                <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> Spara anteckningar från säsongen</li>
+                <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> Perfekt för att komma igång</li>
               </ul>
               <motion.div whileHover={{ scale: 1.02 }}>
                 <Button asChild variant="outline" className="w-full">
@@ -775,7 +845,8 @@ export default function Index() {
                   <a href="/login?mode=register">Prova Plus gratis i 14 dagar</a>
                 </Button>
               </motion.div>
-              <p className="text-[10px] text-center text-muted-foreground mt-3">Inget betalkort krävs · Avbryt när som helst</p>
+              <p className="text-[11px] text-center text-muted-foreground mt-3 italic">Mindre än priset av en fröpåse i månaden – men med värde hela säsongen.</p>
+              <p className="text-[10px] text-center text-muted-foreground mt-1">Inget betalkort krävs · Avbryt när som helst</p>
             </motion.div>
           </div>
 
