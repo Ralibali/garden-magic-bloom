@@ -10,6 +10,7 @@ import { Loader2, Sprout, ArrowLeft, Sun, Droplets, MapPin, Ruler, Calendar, Lea
 import DOMPurify from 'dompurify';
 import { formatMonthRange, CATEGORY_LABEL, ORG_AUTHOR, ORG_PUBLISHER, buildBreadcrumbs, rangeOrSingle } from '@/lib/seoData';
 import { ArticleAttribution } from '@/components/ArticleAttribution';
+import InlineSignupCTA from '@/components/InlineSignupCTA';
 
 export default function VaxtDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -225,6 +226,12 @@ export default function VaxtDetail() {
           </section>
         )}
 
+        {/* Mjuk inline-CTA mitt i innehållet */}
+        <InlineSignupCTA
+          title={`Vill du komma ihåg vad som fungerar när du odlar ${plant.name}?`}
+          description="Skapa ett gratis konto i Odlingsdagboken och logga sådder, skördar och anteckningar år efter år."
+        />
+
         {/* FAQ */}
         {faqArr.length > 0 && (
           <section className="mb-10">
@@ -245,17 +252,14 @@ export default function VaxtDetail() {
 
         <ArticleAttribution updatedAt={plant.updated_at} publishedAt={plant.created_at} />
 
-        {/* CTA */}
-        <div className="text-center bg-gradient-to-br from-primary/5 via-card to-accent/5 rounded-2xl p-8 border border-border/30 mt-12">
-          <span className="text-3xl mb-3 block">🌱</span>
-          <h2 className="font-serif text-xl text-foreground mb-2">Logga din odling av {plant.name}</h2>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto mb-5">
-            Skapa en gratis dagbok och håll koll på sådder, skörd och växtföljd.
-          </p>
-          <Link to="/login">
-            <Button size="lg" className="rounded-xl gap-2"><Sprout className="h-4 w-4" /> Skapa konto</Button>
-          </Link>
-        </div>
+        {/* Slut-CTA */}
+        <InlineSignupCTA
+          variant="card"
+          title={`Logga din odling av ${plant.name}`}
+          description="Skapa en gratis dagbok och håll koll på sådder, skörd och växtföljd – år efter år."
+          buttonLabel="Börja gratis"
+          className="mt-12"
+        />
       </article>
     </PublicLayout>
   );
