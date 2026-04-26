@@ -552,22 +552,22 @@ export default function Index() {
       {/* ═══════════════════════ PROBLEM / LÖSNING ═══════════════════════ */}
       <section aria-labelledby="problems-heading" className="bg-background border-b border-border">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-14 sm:py-20">
-          <div className="text-center mb-10 max-w-xl mx-auto">
+          <div className="text-center mb-10 max-w-2xl mx-auto">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Känner du igen dig?</p>
-            <h2 id="problems-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-3">
-              De flesta odlare har samma problem
+            <h2 id="problems-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-4">
+              De flesta odlare gör mer rätt än de tror
             </h2>
-            <p className="text-sm text-muted-foreground">
-              Man minns inte exakt vad man gjorde förra året – och samma misstag upprepas.
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              Problemet är att man inte alltid minns vad man gjorde. När sådde du tomaterna? Vilken bädd gav bäst skörd? Vad växte där förra året? Odlingsdagboken gör det enkelt att se mönstren och fatta bättre beslut nästa säsong.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { problem: 'Jag glömmer när jag sådde.', solution: 'Logga varje sådd och få bättre koll nästa säsong.' },
-              { problem: 'Jag vet inte vad som gav bäst skörd.', solution: 'Jämför skördar mellan bäddar, växter och år.' },
-              { problem: 'Jag odlar samma sak på samma plats.', solution: 'Planera växtföljd och undvik att trötta ut jorden.' },
-              { problem: 'Jag vet inte vad som gick fel.', solution: 'Anteckna, jämför och fråga Gro när något inte ser rätt ut.' },
-              { problem: 'Jag missar rätt såtid.', solution: 'Använd såkalender anpassad efter svensk odling.' },
+              { problem: 'Jag minns inte när jag sådde', solution: 'Skriv in datum för sådd, omskolning och utplantering. Nästa år slipper du börja om från noll – du har din egen odlingshistorik att gå tillbaka till.' },
+              { problem: 'Jag vet inte vad som gav bäst skörd', solution: 'Logga skörden och jämför mellan växter, bäddar och säsonger. Det blir snabbt tydligt vad som trivdes bäst hos dig.' },
+              { problem: 'Jag odlar samma sak på samma plats', solution: 'Med koll på växtföljden minskar risken för trött jord, sjukdomar och svagare plantor. Du ser enkelt vad som vuxit var tidigare år.' },
+              { problem: 'Jag vet inte vad som gick fel', solution: 'Anteckna väder, skadedjur, gödsling och plantornas utveckling. Små detaljer kan förklara stora skillnader i resultat.' },
+              { problem: 'Jag missar rätt tid att så', solution: 'Använd såkalender och påminnelser som stöd under säsongen. Rätt timing gör ofta större skillnad än man tror.' },
             ].map((item, i) => (
               <motion.div
                 key={item.problem}
@@ -575,18 +575,64 @@ export default function Index() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.08 }}
-                className="p-5 rounded-2xl border border-border bg-card h-full flex flex-col"
+                className="p-5 sm:p-6 rounded-2xl border border-border bg-card h-full flex flex-col"
               >
-                <p className="text-sm text-muted-foreground mb-2 flex items-start gap-2">
-                  <span className="text-destructive mt-0.5" aria-hidden="true">✗</span>
-                  <span>"{item.problem}"</span>
-                </p>
-                <p className="text-sm text-foreground font-medium leading-relaxed flex items-start gap-2">
+                <h3 className="font-serif text-base text-foreground mb-3 flex items-start gap-2">
+                  <span className="text-destructive mt-0.5 font-sans" aria-hidden="true">“</span>
+                  <span>{item.problem}</span>
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2">
                   <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" aria-hidden="true" />
                   <span>{item.solution}</span>
                 </p>
               </motion.div>
             ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <motion.div whileHover={{ scale: 1.02 }} className="inline-block">
+              <Button asChild size="lg" className="h-12 px-6 sm:px-8 text-base gap-2 shadow-lg">
+                <a href="/login?mode=register">Börja logga din odling gratis <ArrowRight className="h-4 w-4" /></a>
+              </Button>
+            </motion.div>
+            <p className="text-xs text-muted-foreground mt-3">Inget betalkort krävs · 14 dagars Plus gratis</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════ MÖNSTER / EXPERTSEKTION ═══════════════════════ */}
+      <section aria-labelledby="patterns-heading" className="bg-card/40 border-b border-border">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-14 sm:py-20">
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Så hjälper Odlingsdagboken dig att odla bättre</p>
+              <h2 id="patterns-heading" className="font-serif text-2xl sm:text-3xl text-foreground mb-4 leading-tight">
+                Din odling blir bättre när du börjar se mönstren
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-6">
+                Erfarna odlare gissar inte – de observerar, antecknar och justerar. Odlingsdagboken hjälper dig göra samma sak på ett enkelt sätt. Du bygger upp en egen kunskapsbank över din trädgård: vad som gror bra, vad som trivs i dina bäddar, när du brukar kunna plantera ut och vilka grödor som faktiskt ger mest tillbaka.
+              </p>
+              <motion.div whileHover={{ scale: 1.02 }} className="inline-block">
+                <Button asChild size="lg" className="gap-2">
+                  <a href="/login?mode=register">Skapa din odlingsdagbok gratis <ArrowRight className="h-4 w-4" /></a>
+                </Button>
+              </motion.div>
+            </div>
+            <ul className="space-y-3">
+              {[
+                'Logga sådder, skördar och anteckningar',
+                'Planera växtföljd mellan säsonger',
+                'Få bättre koll på klimatzon och såtider',
+                'Se vilka bäddar och grödor som presterar bäst',
+                'Fråga AI-coachen Gro när du behöver råd',
+                'Spara erfarenheter från varje säsong',
+              ].map(item => (
+                <li key={item} className="flex items-start gap-3 p-3 sm:p-4 rounded-xl border border-border bg-card">
+                  <Check className="h-4 w-4 text-primary mt-1 shrink-0" />
+                  <span className="text-sm text-foreground/90">{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
