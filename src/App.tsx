@@ -10,7 +10,7 @@ import CookieConsent from "./components/CookieConsent";
 import { TrackingProvider } from "./components/TrackingProvider";
 
 // Eager: landing + login (critical path)
-import Index from "./pages/Index";
+import GrowthHome from "./pages/GrowthHome";
 import Login from "./pages/Login";
 
 // Lazy: everything behind auth
@@ -145,7 +145,7 @@ const AppRoutes = () => (
     <ErrorBoundary>
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<GrowthHome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/terms" element={<Terms />} />
           {/* SEO: /guider konsoliderad till /blogg (301 i vercel.json, client-side fallback här) */}
