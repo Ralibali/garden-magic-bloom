@@ -49,7 +49,6 @@ Deno.serve(async (req) => {
   const months = monthsRes.data ?? [];
   const zones = zonesRes.data ?? [];
 
-  // Parse SORO_ARTICLES array out of the embed JS
   type SoroArticle = { slug: string; title?: string; image?: string | null; isoDate?: string };
   let soroArticles: SoroArticle[] = [];
   try {
@@ -64,6 +63,12 @@ Deno.serve(async (req) => {
 
   const staticPages = [
     { loc: "/", priority: "1.0", changefreq: "weekly" },
+    { loc: "/sakalender", priority: "0.95", changefreq: "weekly" },
+    { loc: "/odlingsplan", priority: "0.95", changefreq: "weekly" },
+    { loc: "/odlingsakuten", priority: "0.9", changefreq: "weekly" },
+    { loc: "/gro", priority: "0.85", changefreq: "weekly" },
+    { loc: "/priser", priority: "0.75", changefreq: "monthly" },
+    { loc: "/om-oss", priority: "0.65", changefreq: "monthly" },
     { loc: "/blogg", priority: "0.9", changefreq: "daily" },
     { loc: "/vaxter", priority: "0.9", changefreq: "weekly" },
     { loc: "/manad", priority: "0.8", changefreq: "weekly" },
@@ -135,8 +140,6 @@ Deno.serve(async (req) => {
     writeUrl(`/zoner/${zone.slug}`, lastmod, "monthly", "0.7");
   }
 
-  // Soro-artiklar (rendered via widget at /blogg?post=<slug>)
-  // Skip slugs that already exist as native blog_posts to avoid duplicates
   const nativeSlugs = new Set(posts.map((p) => p.slug));
   for (const art of soroArticles) {
     if (nativeSlugs.has(art.slug)) continue;
