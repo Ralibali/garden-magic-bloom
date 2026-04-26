@@ -68,6 +68,10 @@ Deno.serve(async (req) => {
     { loc: "/vaxter", priority: "0.9", changefreq: "weekly" },
     { loc: "/manad", priority: "0.8", changefreq: "weekly" },
     { loc: "/zoner", priority: "0.8", changefreq: "monthly" },
+    { loc: "/sakalender", priority: "0.9", changefreq: "weekly" },
+    { loc: "/gro", priority: "0.8", changefreq: "monthly" },
+    { loc: "/priser", priority: "0.7", changefreq: "monthly" },
+    { loc: "/om-oss", priority: "0.5", changefreq: "monthly" },
     { loc: "/install", priority: "0.6", changefreq: "monthly" },
     { loc: "/terms", priority: "0.3", changefreq: "yearly" },
   ];
