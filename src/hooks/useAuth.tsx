@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
+import { markLeadConverted, trackEvent } from '@/lib/analytics';
 
 interface UserProfile {
   id: string;
@@ -34,16 +35,11 @@ function toBasicProfile(supaUser: SupabaseUser): UserProfile {
 }
 
 async function buildProfile(supaUser: SupabaseUser): Promise<UserProfile> {
-  // Fire check-subscription to sync Stripe status → profiles table
   let subscriptionEnd: string | null = null;
   try {
     const { data } = await supabase.functions.invoke('check-subscription');
-    if (data?.subscription_end) {
-      subscriptionEnd = data.subscription_end;
-    }
-  } catch {
-    // Non-blocking – profile query below will still work with cached status
-  }
+    if (data?.subscription_end) subscriptionEnd = data.subscription_end;
+  } catch {}
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -51,13 +47,11 @@ async function buildProfile(supaUser: SupabaseUser): Promise<UserProfile> {
     .eq('user_id', supaUser.id)
     .maybeSingle();
 
-  // Check if premium has expired
   let subStatus = profile?.subscription_status ?? 'free';
   if (subStatus === 'premium' && profile?.premium_expires_at) {
     const expiresAt = new Date(profile.premium_expires_at);
     if (expiresAt < new Date()) {
       subStatus = 'free';
-      // Auto-downgrade in DB (fire-and-forget)
       void supabase.from('profiles').update({ subscription_status: 'free', premium_expires_at: null }).eq('user_id', supaUser.id);
     }
   }
@@ -87,24 +81,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      if (isMounted) {
-        // Set basic user immediately for fast route access
-        setUser(toBasicProfile(supaUser));
-      }
+      if (isMounted) setUser(toBasicProfile(supaUser));
+      if (supaUser.email) void markLeadConverted(supaUser.email, supaUser.id);
 
       if (hydrateProfile) {
-        // Fire-and-forget: do not block auth state callback
         void buildProfile(supaUser)
           .then((profile) => {
             if (isMounted) setUser(profile);
           })
-          .catch(() => {
-            // Keep basic profile if profile query fails
-          });
+          .catch(() => {});
       }
     };
 
-    // 1) Restore session from storage first
     supabase.auth
       .getSession()
       .then(({ data: { session } }) => {
@@ -118,7 +106,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       });
 
-    // 2) React to subsequent auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMounted) return;
 
@@ -130,6 +117,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const shouldHydrateProfile = event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'USER_UPDATED';
       applySession(session, shouldHydrateProfile);
+      if (event === 'SIGNED_IN' && session?.user) {
+        void trackEvent('login_completed', { email: session.user.email });
+      }
       setLoading(false);
     });
 
@@ -140,29 +130,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
+    await trackEvent('login_started', { email: email.toLowerCase() });
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw new Error(error.message);
 
     if (data.user) {
       setUser(toBasicProfile(data.user));
+      if (data.user.email) void markLeadConverted(data.user.email, data.user.id);
       void buildProfile(data.user).then(setUser).catch(() => undefined);
     }
   };
 
   const register = async (email: string, password: string, name: string) => {
+    await trackEvent('register_started', { email: email.toLowerCase() });
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { name } },
     });
     if (error) throw new Error(error.message);
+    if (data.user?.email) {
+      void markLeadConverted(data.user.email, data.user.id);
+      void trackEvent('register_completed', { email: data.user.email });
+    }
     return data;
   };
 
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    // Clear any cached data to prevent data leakage between accounts
     localStorage.clear();
   };
 
