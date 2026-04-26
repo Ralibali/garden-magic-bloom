@@ -1,8 +1,9 @@
-import React, { Suspense, useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import React, { Suspense, useEffect, useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { MobileNav } from './MobileNav';
+import PublicPlanHandoff from './PublicPlanHandoff';
 import { Menu, Sprout } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -19,6 +20,31 @@ function useNoIndex() {
     el.setAttribute('content', 'noindex, nofollow');
     return () => { if (el) el.setAttribute('content', prevContent || 'index, follow'); };
   }, []);
+}
+
+function useSavedPublicPlan() {
+  const [plan, setPlan] = useState<any | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('odlingsdagboken_latest_public_plan');
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed?.dismissed) return;
+      setPlan(parsed);
+    } catch {
+      setPlan(null);
+    }
+  }, []);
+
+  const dismiss = () => {
+    try {
+      localStorage.removeItem('odlingsdagboken_latest_public_plan');
+    } catch {}
+    setPlan(null);
+  };
+
+  return { plan, dismiss };
 }
 
 const pageVariants = {
@@ -45,6 +71,8 @@ function ContentLoader() {
 
 export default function AppLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { plan, dismiss } = useSavedPublicPlan();
   useNoIndex();
 
   return (
@@ -76,7 +104,9 @@ export default function AppLayout() {
                   animate="animate"
                   exit="exit"
                   transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="space-y-6"
                 >
+                  {plan && <PublicPlanHandoff plan={plan} onNavigate={navigate} onDismiss={dismiss} />}
                   <Outlet />
                 </motion.div>
               </AnimatePresence>
