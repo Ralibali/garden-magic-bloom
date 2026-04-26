@@ -405,34 +405,33 @@ export default function Index() {
             <div className="text-center lg:text-left">
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
                 <div className="flex items-center gap-2 justify-center lg:justify-start mb-4">
-                  <div className="flex gap-0.5">
-                    {[1,2,3,4,5].map(i => <Star key={i} className="h-3.5 w-3.5 fill-warning text-warning" />)}
-                  </div>
-                  <span className="text-xs text-muted-foreground font-medium">Älskad av 2 000+ svenska odlare</span>
+                  <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.15em] text-primary font-semibold">
+                    <Sprout className="h-3.5 w-3.5" /> Byggd för svenska odlare
+                  </span>
                 </div>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.08 }}>
                 <h1 id="hero-heading" className="font-serif text-3xl sm:text-4xl lg:text-5xl text-foreground leading-[1.1] tracking-tight mb-4">
-                  Logga sådder, följ skördar – se vad som <span className="gradient-text">verkligen funkar</span> i din trädgård
+                  Få bättre skörd nästa säsong – med koll på allt du sår, planterar och <span className="gradient-text">skördar</span>
                 </h1>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}>
                 <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 max-w-lg mx-auto lg:mx-0">
-                  Odlingsdagboken hjälper dig hålla koll på såtider, skördar och växtföljd – anpassat efter din klimatzon. Helt gratis att börja.
+                  Odlingsdagboken hjälper dig veta när du ska så, vad du odlade förra året och hur du får bättre resultat – anpassat för svenska odlare, pallkragar, växthus och klimatzoner.
                 </p>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.22 }}>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-4">
-                  <motion.div whileHover={{ scale: 1.02 }}>
-                    <Button asChild size="lg" className="h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base gap-2 shadow-lg">
-                      <a href="/login?mode=register">Skapa gratis konto <ArrowRight className="h-4 w-4" /></a>
+                  <motion.div whileHover={{ scale: 1.02 }} className="w-full sm:w-auto">
+                    <Button asChild size="lg" className="w-full sm:w-auto h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base gap-2 shadow-lg">
+                      <a href="/login?mode=register">Testa gratis – tar 30 sekunder <ArrowRight className="h-4 w-4" /></a>
                     </Button>
                   </motion.div>
-                  <motion.div whileHover={{ scale: 1.02 }}>
-                    <Button asChild variant="outline" size="lg" className="h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base">
+                  <motion.div whileHover={{ scale: 1.02 }} className="w-full sm:w-auto">
+                    <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base">
                       <a href="#funktioner">Se hur det fungerar</a>
                     </Button>
                   </motion.div>
@@ -440,10 +439,10 @@ export default function Index() {
               </motion.div>
 
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.3 }}>
-                <div className="flex flex-wrap items-center gap-4 justify-center lg:justify-start text-xs text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 justify-center lg:justify-start text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Inget betalkort krävs</span>
-                  <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Sju dagars Plus gratis</span>
-                  <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Fungerar offline</span>
+                  <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Gratis att börja</span>
+                  <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Byggd för svenska odlare</span>
                 </div>
               </motion.div>
 
@@ -467,9 +466,50 @@ export default function Index() {
                   className="w-full h-auto"
                 />
               </div>
-              <div className="absolute -bottom-3 -right-3 bg-card border border-border rounded-lg px-3 py-2 shadow-lg hidden sm:flex items-center gap-2 text-xs">
-                <Sprout className="h-4 w-4 text-primary" />
-                <span className="text-foreground font-medium">AI-coach Gro ingår i Plus</span>
+
+              {/* Floating callout badges – desktop only */}
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="absolute -left-4 top-6 bg-card border border-border rounded-lg px-3 py-2 shadow-lg hidden lg:flex items-center gap-2 text-xs"
+              >
+                <span className="w-2 h-2 rounded-full bg-success" />
+                <span className="text-foreground font-medium">Tomat sådd: 12 mars</span>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.75 }}
+                className="absolute -right-4 top-1/2 -translate-y-1/2 bg-card border border-border rounded-lg px-3 py-2 shadow-lg hidden lg:flex items-center gap-2 text-xs"
+              >
+                <span className="text-base">🥒</span>
+                <span className="text-foreground font-medium">Skörd: Gurka 4,2 kg</span>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.9 }}
+                className="absolute -bottom-3 -right-3 bg-card border border-border rounded-lg px-3 py-2 shadow-lg hidden sm:flex items-center gap-2 text-xs max-w-[220px]"
+              >
+                <Bot className="h-4 w-4 text-warning shrink-0" />
+                <span className="text-foreground font-medium leading-snug">Gro tipsar: så två veckor senare nästa år</span>
+              </motion.div>
+
+              {/* Mobile callouts – stacked under image */}
+              <div className="lg:hidden mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="flex items-center gap-2 text-xs bg-card border border-border rounded-lg px-3 py-2">
+                  <span className="w-2 h-2 rounded-full bg-success" />
+                  <span className="text-foreground font-medium">Tomat sådd: 12 mars</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs bg-card border border-border rounded-lg px-3 py-2">
+                  <span className="text-base">🥒</span>
+                  <span className="text-foreground font-medium">Skörd: Gurka 4,2 kg</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs bg-card border border-border rounded-lg px-3 py-2">
+                  <Bot className="h-3.5 w-3.5 text-warning shrink-0" />
+                  <span className="text-foreground font-medium leading-snug">Gro tipsar: så senare nästa år</span>
+                </div>
               </div>
             </motion.div>
           </div>
