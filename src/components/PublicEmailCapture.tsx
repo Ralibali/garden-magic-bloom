@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Check, Loader2, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { trackEvent } from '@/lib/analytics';
 
 interface PublicEmailCaptureProps {
   source: 'sakalender' | 'odlingsplan';
@@ -24,8 +25,9 @@ export default function PublicEmailCapture({ source, plan, title, description }:
     setLoading(true);
     setErrorMessage('');
 
+    const normalizedEmail = email.trim().toLowerCase();
     const lead = {
-      email: email.trim().toLowerCase(),
+      email: normalizedEmail,
       source,
       plan,
       page_path: window.location.pathname,
@@ -34,6 +36,7 @@ export default function PublicEmailCapture({ source, plan, title, description }:
     };
 
     try {
+      await trackEvent('email_lead_started', { source, email: normalizedEmail });
       const { error } = await supabase.from('public_leads' as any).insert(lead as any);
       if (error) throw error;
 
@@ -41,9 +44,10 @@ export default function PublicEmailCapture({ source, plan, title, description }:
         const leads = JSON.parse(localStorage.getItem('odlingsdagboken_public_leads') || '[]');
         leads.push({ ...lead, createdAt: new Date().toISOString(), stored: 'supabase' });
         localStorage.setItem('odlingsdagboken_public_leads', JSON.stringify(leads));
-        localStorage.setItem('odlingsdagboken_lead_email', email.trim().toLowerCase());
+        localStorage.setItem('odlingsdagboken_lead_email', normalizedEmail);
       } catch {}
 
+      await trackEvent('email_lead_submitted', { source, email: normalizedEmail, stored: 'supabase', plan_type: plan?.type });
       setSaved(true);
     } catch (error) {
       console.error('[PublicEmailCapture]', error);
@@ -53,8 +57,9 @@ export default function PublicEmailCapture({ source, plan, title, description }:
         const leads = JSON.parse(localStorage.getItem('odlingsdagboken_public_leads') || '[]');
         leads.push({ ...lead, createdAt: new Date().toISOString(), stored: 'local_fallback' });
         localStorage.setItem('odlingsdagboken_public_leads', JSON.stringify(leads));
-        localStorage.setItem('odlingsdagboken_lead_email', email.trim().toLowerCase());
+        localStorage.setItem('odlingsdagboken_lead_email', normalizedEmail);
       } catch {}
+      await trackEvent('email_lead_local_fallback', { source, email: normalizedEmail, plan_type: plan?.type });
     } finally {
       setLoading(false);
     }
