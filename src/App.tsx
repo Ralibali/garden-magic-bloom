@@ -44,6 +44,7 @@ const ResetPassword = React.lazy(() => import("./pages/ResetPassword"));
 const OmOss = React.lazy(() => import("./pages/OmOss"));
 const Priser = React.lazy(() => import("./pages/Priser"));
 const GroLanding = React.lazy(() => import("./pages/Gro"));
+const Sakalender = React.lazy(() => import("./pages/Sakalender"));
 const VaxterIndex = React.lazy(() => import("./pages/VaxterIndex"));
 const VaxtDetail = React.lazy(() => import("./pages/VaxtDetail"));
 const ManadIndex = React.lazy(() => import("./pages/ManadIndex"));
