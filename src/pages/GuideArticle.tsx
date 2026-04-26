@@ -414,19 +414,19 @@ export default function GuideArticle() {
         <div className="mt-12 bg-gradient-to-br from-primary/5 via-card to-accent/5 rounded-2xl p-6 sm:p-8 border border-primary/15 text-center shadow-sm">
           <span className="text-3xl mb-3 block">🌱</span>
           <h3 className="font-serif text-lg text-foreground mb-2">
-            Redo att följa dina egna skördar?
+            Vill du komma ihåg vad som fungerar i din egen odling?
           </h3>
           <p className="text-sm text-muted-foreground max-w-md mx-auto mb-2">
-            Över 2 000 svenska odlare loggar sådder, skördar och växtföljd med Odlingsdagboken. Helt gratis.
+            Skapa ett gratis konto i Odlingsdagboken och logga sådder, skördar och anteckningar år efter år.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-muted-foreground mb-5">
             <span className="flex items-center gap-1">✅ Gratis att börja</span>
             <span className="flex items-center gap-1">✅ Fungerar offline</span>
             <span className="flex items-center gap-1">✅ 14 dagars Plus gratis</span>
           </div>
-          <Link to="/login">
+          <Link to="/login?mode=register">
             <Button size="lg" className="rounded-xl gap-2 h-12 px-8 text-base shadow-lg">
-              <Sprout className="h-4 w-4" /> Skapa gratis konto
+              <Sprout className="h-4 w-4" /> Börja gratis
             </Button>
           </Link>
           <p className="text-[10px] text-muted-foreground mt-3">Inget betalkort krävs</p>

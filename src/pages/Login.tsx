@@ -25,6 +25,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [referralCode, setReferralCode] = useState(searchParams.get('ref') || '');
+  const [showReferralField, setShowReferralField] = useState(!!searchParams.get('ref'));
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -129,18 +130,45 @@ export default function Login() {
 
           {authMode === 'register' && (
             <form onSubmit={handleRegister} className="animate-fade-in space-y-5">
-              <div><h3 className="font-serif text-3xl text-foreground mb-2">Skapa konto</h3><p className="text-muted-foreground">Kom igång med din odlingsdagbok på några sekunder.</p></div>
+              <div>
+                <h3 className="font-serif text-3xl text-foreground mb-2">Börja odla smartare idag</h3>
+                <p className="text-muted-foreground">Skapa ett gratis konto på under 30 sekunder. Inget betalkort krävs.</p>
+              </div>
               <div className="space-y-4">
                 <div><Label htmlFor="name" className="text-muted-foreground">Namn</Label><div className="relative mt-1.5"><User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="name" type="text" placeholder="Ditt namn" value={name} onChange={(e) => setName(e.target.value)} className="pl-10 h-11" required /></div></div>
                 <div><Label htmlFor="reg-email" className="text-muted-foreground">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="reg-email" type="email" placeholder="din@email.se" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-11" required /></div></div>
                 <div><Label htmlFor="reg-password" className="text-muted-foreground">Lösenord</Label><div className="relative mt-1.5"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="reg-password" type="password" placeholder="Minst 8 tecken" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 h-11" minLength={8} required /></div></div>
-                <div><Label htmlFor="referral" className="text-muted-foreground">Värvningskod (valfritt)</Label><div className="relative mt-1.5"><Gift className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="referral" type="text" placeholder="T.ex. A1B2C3" value={referralCode} onChange={(e) => setReferralCode(e.target.value.toUpperCase())} className="pl-10 h-11 uppercase" maxLength={6} /></div><p className="text-[10px] text-muted-foreground mt-1">Har du en kod från en vän? Ni får båda 7 dagars Plus!</p></div>
+
+                {!showReferralField ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowReferralField(true)}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Har du en värvningskod?
+                  </button>
+                ) : (
+                  <div>
+                    <Label htmlFor="referral" className="text-muted-foreground">Värvningskod</Label>
+                    <div className="relative mt-1.5">
+                      <Gift className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input id="referral" type="text" placeholder="T.ex. A1B2C3" value={referralCode} onChange={(e) => setReferralCode(e.target.value.toUpperCase())} className="pl-10 h-11 uppercase" maxLength={6} autoFocus />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-1">Har du en kod från en vän? Ni får båda 7 dagars Plus!</p>
+                  </div>
+                )}
+
                 <div className="flex items-start gap-2">
                   <input type="checkbox" id="terms" checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} className="mt-1 rounded border-border" required />
                   <label htmlFor="terms" className="text-xs text-muted-foreground leading-relaxed">Jag har läst och godkänner <a href="/terms" target="_blank" className="text-primary hover:underline">användarvillkoren & integritetspolicyn</a>.</label>
                 </div>
               </div>
-              <Button type="submit" className="w-full h-12 text-base font-medium" disabled={loading || !acceptedTerms}>{loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Skapa konto <ArrowRight className="ml-2 h-4 w-4" /></Button>
+              <div className="space-y-2">
+                <Button type="submit" className="w-full h-12 text-base font-medium" disabled={loading || !acceptedTerms}>{loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Skapa gratis konto <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                <p className="text-[11px] text-center text-muted-foreground">
+                  Gratis att börja · 14 dagars Plus gratis · Avsluta när du vill
+                </p>
+              </div>
               <button type="button" className="text-sm text-muted-foreground hover:text-foreground" onClick={() => setAuthMode('welcome')}>← Tillbaka</button>
             </form>
           )}
