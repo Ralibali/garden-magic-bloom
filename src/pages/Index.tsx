@@ -521,16 +521,24 @@ export default function Index() {
 
       {/* ═══════════════════════ TRUST SECTION ═══════════════════════ */}
       <section className="bg-card/40 border-y border-border/40" aria-labelledby="trust-heading">
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10 sm:py-12">
-          <h2 id="trust-heading" className="text-center text-[11px] uppercase tracking-[0.2em] text-primary font-semibold mb-5">
-            Byggd för svenska hobbyodlare
-          </h2>
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
+          <div className="text-center mb-8">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-primary font-semibold mb-3">
+              Byggd för svenska odlingsförhållanden
+            </p>
+            <h2 id="trust-heading" className="font-serif text-xl sm:text-2xl text-foreground leading-snug max-w-xl mx-auto">
+              Svensk odling skiljer sig från generella råd
+            </h2>
+            <p className="text-sm text-muted-foreground mt-3 max-w-xl mx-auto leading-relaxed">
+              Klimatzon, frostnätter, kort säsong och växlande väder spelar roll. Därför är Odlingsdagboken byggd för dig som odlar i Sverige – oavsett om du har pallkrage, växthus, friland, balkong eller kolonilott.
+            </p>
+          </div>
           <ul className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 text-center">
             {[
               { icon: '🇸🇪', label: 'Anpassad efter svenska klimatzoner' },
-              { icon: '🌿', label: 'Pallkrage, växthus och friland' },
+              { icon: '🌿', label: 'Pallkrage, växthus, friland och balkong' },
               { icon: '🌱', label: 'Gratis att börja' },
-              { icon: '🔒', label: 'GDPR – data inom EU' },
+              { icon: '🔒', label: 'Din odlingsdata sparas tryggt inom EU' },
             ].map(item => (
               <li key={item.label} className="flex flex-col items-center gap-2">
                 <span className="text-2xl" aria-hidden="true">{item.icon}</span>
