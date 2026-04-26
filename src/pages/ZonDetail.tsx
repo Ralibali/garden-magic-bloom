@@ -134,7 +134,11 @@ export default function ZonDetail() {
           </section>
         )}
 
-        <InlineSignupCTA />
+        <InlineSignupCTA
+          title="Odla smartare i din klimatzon"
+          description="Spara dina egna erfarenheter från säsongen och bygg upp en odlingsplan som passar just din plats, din jord och ditt lokala klimat."
+          buttonLabel="Börja gratis"
+        />
 
         {faqArr.length > 0 && (
           <section className="mb-10">
@@ -157,8 +161,8 @@ export default function ZonDetail() {
 
         <InlineSignupCTA
           variant="card"
-          title={`Anpassa appen efter ${zone.title}`}
-          description="Skapa en gratis dagbok – appen anpassar tips och påminnelser efter din klimatzon."
+          title={`Bygg din egen odlingskunskap för ${zone.title}`}
+          description="Generella råd är bra. Dina egna erfarenheter är ännu bättre. Skapa en gratis dagbok och samla det du lär dig under säsongen."
           buttonLabel="Börja gratis"
           className="mt-12"
         />

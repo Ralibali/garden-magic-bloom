@@ -228,8 +228,9 @@ export default function VaxtDetail() {
 
         {/* Mjuk inline-CTA mitt i innehållet */}
         <InlineSignupCTA
-          title={`Vill du komma ihåg vad som fungerar när du odlar ${plant.name}?`}
-          description="Skapa ett gratis konto i Odlingsdagboken och logga sådder, skördar och anteckningar år efter år."
+          title={`Vill du lyckas bättre med ${plant.name} nästa säsong?`}
+          description="Spara när du sår, planterar ut och skördar. Då ser du vad som fungerar i din egen trädgård – inte bara vad som står i generella odlingsråd."
+          buttonLabel="Börja logga gratis"
         />
 
         {/* FAQ */}
@@ -255,8 +256,8 @@ export default function VaxtDetail() {
         {/* Slut-CTA */}
         <InlineSignupCTA
           variant="card"
-          title={`Logga din odling av ${plant.name}`}
-          description="Skapa en gratis dagbok och håll koll på sådder, skörd och växtföljd – år efter år."
+          title={`Logga din odling av ${plant.name} – år efter år`}
+          description="Skapa en gratis dagbok och bygg upp din egen kunskap om vad som faktiskt fungerar i just din jord och din klimatzon."
           buttonLabel="Börja gratis"
           className="mt-12"
         />

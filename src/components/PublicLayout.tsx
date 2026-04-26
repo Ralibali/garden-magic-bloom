@@ -25,6 +25,7 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
             <span className="font-serif text-lg text-foreground">Odlingsdagboken</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
+            <Link to="/sakalender" className="hover:text-foreground transition-colors">Såkalender</Link>
             <Link to="/vaxter" className="hover:text-foreground transition-colors">Växter</Link>
             <Link to="/manad" className="hover:text-foreground transition-colors">Månad</Link>
             <Link to="/zoner" className="hover:text-foreground transition-colors">Zoner</Link>
@@ -47,6 +48,7 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
           <span>© {new Date().getFullYear()} Aurora Media AB · Org.nr 559272-0220</span>
           <div className="flex flex-wrap gap-x-4 gap-y-2 justify-center">
             <Link to="/" className="hover:text-foreground transition-colors">Startsidan</Link>
+            <Link to="/sakalender" className="hover:text-foreground transition-colors">Såkalender</Link>
             <Link to="/vaxter" className="hover:text-foreground transition-colors">Växtguider</Link>
             <Link to="/manad" className="hover:text-foreground transition-colors">Månader</Link>
             <Link to="/zoner" className="hover:text-foreground transition-colors">Zoner</Link>

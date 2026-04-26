@@ -154,7 +154,7 @@ export default function Login() {
                       <Gift className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input id="referral" type="text" placeholder="T.ex. A1B2C3" value={referralCode} onChange={(e) => setReferralCode(e.target.value.toUpperCase())} className="pl-10 h-11 uppercase" maxLength={6} autoFocus />
                     </div>
-                    <p className="text-[10px] text-muted-foreground mt-1">Har du en kod från en vän? Ni får båda 7 dagars Plus!</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">Fyll i koden från en vän så får ni båda extra Plus-tid.</p>
                   </div>
                 )}
 

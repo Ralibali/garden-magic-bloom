@@ -158,7 +158,11 @@ export default function ManadDetail() {
           </section>
         ))}
 
-        <InlineSignupCTA />
+        <InlineSignupCTA
+          title="Vill du få bättre koll på vad du ska så varje månad?"
+          description="Med Odlingsdagboken kan du planera säsongen, logga sådder och få bättre överblick över vad som händer i din odling månad för månad."
+          buttonLabel="Skapa gratis konto"
+        />
 
         {faqArr.length > 0 && (
           <section className="mb-10">
@@ -182,8 +186,8 @@ export default function ManadDetail() {
         <InlineSignupCTA
           variant="card"
           title={`Planera ${month.month_name} i din egen dagbok`}
-          description="Få påminnelser, väderdata och anpassade förslag baserat på din klimatzon – helt gratis."
-          buttonLabel="Börja gratis"
+          description="Spara dina sådder och skördar – nästa år har du din egen historik att gå tillbaka till. Bättre än vilken generell såkalender som helst."
+          buttonLabel="Skapa gratis konto"
           className="mt-12"
         />
       </article>
