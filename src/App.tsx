@@ -44,6 +44,9 @@ const ResetPassword = React.lazy(() => import("./pages/ResetPassword"));
 const OmOss = React.lazy(() => import("./pages/OmOss"));
 const Priser = React.lazy(() => import("./pages/Priser"));
 const GroLanding = React.lazy(() => import("./pages/Gro"));
+const Sakalender = React.lazy(() => import("./pages/Sakalender"));
+const Odlingsplan = React.lazy(() => import("./pages/Odlingsplan"));
+const Odlingsakuten = React.lazy(() => import("./pages/Odlingsakuten"));
 const VaxterIndex = React.lazy(() => import("./pages/VaxterIndex"));
 const VaxtDetail = React.lazy(() => import("./pages/VaxtDetail"));
 const ManadIndex = React.lazy(() => import("./pages/ManadIndex"));
@@ -155,6 +158,9 @@ const AppRoutes = () => (
           <Route path="/om-oss" element={<OmOss />} />
           <Route path="/priser" element={<Priser />} />
           <Route path="/gro" element={<GroLanding />} />
+          <Route path="/sakalender" element={<Sakalender />} />
+          <Route path="/odlingsplan" element={<Odlingsplan />} />
+          <Route path="/odlingsakuten" element={<Odlingsakuten />} />
           {/* Programmatic SEO routes */}
           <Route path="/vaxter" element={<VaxterIndex />} />
           <Route path="/vaxter/:slug" element={<VaxtDetail />} />
