@@ -268,7 +268,7 @@ function MobileMenu() {
               <hr className="border-border my-1" />
               <a href="/login?mode=login" className="px-3 py-2.5 text-sm text-foreground hover:text-primary rounded-lg hover:bg-muted/50 transition-colors">Logga in</a>
               <Button asChild size="sm" className="mt-1">
-                <a href="/login?mode=register">Kom igång gratis</a>
+                <a href="/login?mode=register">Testa gratis</a>
               </Button>
             </div>
           </motion.div>
@@ -792,7 +792,7 @@ export default function Index() {
               <p className="text-xs text-muted-foreground mb-4">Alla funktioner, inga begränsningar. Inget betalkort.</p>
               <motion.div whileHover={{ scale: 1.02 }}>
                 <Button asChild size="lg" className="h-12 px-8 text-base gap-2 shadow-lg w-full sm:w-auto">
-                  <a href="/login?mode=register">Starta gratis provperiod <ArrowRight className="h-4 w-4" /></a>
+                  <a href="/login?mode=register">Prova Plus gratis i 14 dagar <ArrowRight className="h-4 w-4" /></a>
                 </Button>
               </motion.div>
             </div>
@@ -805,7 +805,7 @@ export default function Index() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-24">
           <div className="text-center mb-10">
             <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Omdömen</p>
-            <h2 id="testimonials-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Vad svenska odlare säger</h2>
+            <h2 id="testimonials-heading" className="font-serif text-2xl sm:text-3xl text-foreground">Används av svenska hobbyodlare</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {testimonials.map((t, i) => (
@@ -880,7 +880,7 @@ export default function Index() {
             </p>
             <motion.div whileHover={{ scale: 1.02 }}>
               <Button asChild size="lg" variant="secondary" className="h-12 sm:h-13 px-6 sm:px-8 text-[15px] sm:text-base gap-2">
-                <a href="/login?mode=register">Kom igång gratis <ArrowRight className="h-4 w-4" /></a>
+                <a href="/login?mode=register">Testa gratis – tar 30 sekunder <ArrowRight className="h-4 w-4" /></a>
               </Button>
             </motion.div>
             <p className="text-xs text-background/50 mt-4">Alla nya konton får Plus gratis i 14 dagar · Inget betalkort krävs</p>
