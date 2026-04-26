@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, Mail } from 'lucide-react';
+import { Check, Loader2, Mail } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PublicEmailCaptureProps {
   source: 'sakalender' | 'odlingsplan';
@@ -13,17 +14,50 @@ interface PublicEmailCaptureProps {
 export default function PublicEmailCapture({ source, plan, title, description }: PublicEmailCaptureProps) {
   const [email, setEmail] = useState('');
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!email.trim()) return;
+
+    setLoading(true);
+    setErrorMessage('');
+
+    const lead = {
+      email: email.trim().toLowerCase(),
+      source,
+      plan,
+      page_path: window.location.pathname,
+      user_agent: navigator.userAgent,
+      consent_marketing: true,
+    };
+
     try {
-      const leads = JSON.parse(localStorage.getItem('odlingsdagboken_public_leads') || '[]');
-      leads.push({ email: email.trim(), source, plan, createdAt: new Date().toISOString() });
-      localStorage.setItem('odlingsdagboken_public_leads', JSON.stringify(leads));
-      localStorage.setItem('odlingsdagboken_lead_email', email.trim());
-    } catch {}
-    setSaved(true);
+      const { error } = await supabase.from('public_leads' as any).insert(lead as any);
+      if (error) throw error;
+
+      try {
+        const leads = JSON.parse(localStorage.getItem('odlingsdagboken_public_leads') || '[]');
+        leads.push({ ...lead, createdAt: new Date().toISOString(), stored: 'supabase' });
+        localStorage.setItem('odlingsdagboken_public_leads', JSON.stringify(leads));
+        localStorage.setItem('odlingsdagboken_lead_email', email.trim().toLowerCase());
+      } catch {}
+
+      setSaved(true);
+    } catch (error) {
+      console.error('[PublicEmailCapture]', error);
+      setErrorMessage('Kunde inte spara till databasen just nu. Din plan finns ändå kvar i webbläsaren, så du kan skapa konto direkt.');
+
+      try {
+        const leads = JSON.parse(localStorage.getItem('odlingsdagboken_public_leads') || '[]');
+        leads.push({ ...lead, createdAt: new Date().toISOString(), stored: 'local_fallback' });
+        localStorage.setItem('odlingsdagboken_public_leads', JSON.stringify(leads));
+        localStorage.setItem('odlingsdagboken_lead_email', email.trim().toLowerCase());
+      } catch {}
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (saved) {
@@ -32,8 +66,8 @@ export default function PublicEmailCapture({ source, plan, title, description }:
         <div className="flex gap-3">
           <div className="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0"><Check className="h-4 w-4" /></div>
           <div>
-            <h3 className="font-serif text-xl text-foreground mb-1">Toppen – planen är markerad som sparad</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">Skapa ett gratis konto på samma enhet så plockar Odlingsdagboken upp planen och visar nästa steg inne i appen.</p>
+            <h3 className="font-serif text-xl text-foreground mb-1">Toppen – planen är sparad</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">Vi har sparat din e-post och planen. Skapa ett gratis konto på samma enhet så plockar Odlingsdagboken upp planen och visar nästa steg inne i appen.</p>
           </div>
         </div>
       </div>
@@ -51,9 +85,12 @@ export default function PublicEmailCapture({ source, plan, title, description }:
       </div>
       <div className="flex flex-col sm:flex-row gap-2">
         <Input type="email" placeholder="din@email.se" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-11" />
-        <Button type="submit" className="h-11 shrink-0">Spara planen</Button>
+        <Button type="submit" className="h-11 shrink-0" disabled={loading}>
+          {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+          Spara planen
+        </Button>
       </div>
-      <p className="text-[11px] text-muted-foreground mt-2">Inget betalkort krävs. Du kan skapa konto när du vill spara planen permanent.</p>
+      {errorMessage ? <p className="text-[11px] text-destructive mt-2">{errorMessage}</p> : <p className="text-[11px] text-muted-foreground mt-2">Inget betalkort krävs. Du kan skapa konto när du vill spara planen permanent.</p>}
     </form>
   );
 }
