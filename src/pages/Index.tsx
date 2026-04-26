@@ -171,11 +171,11 @@ function ExitIntentPopup() {
         <div className="text-center">
           <span className="text-4xl mb-3 block">🌱</span>
           <h3 className="font-serif text-xl text-foreground mb-2">Vänta – missa inte din bästa säsong!</h3>
-          <p className="text-sm text-muted-foreground mb-5">Skapa ett gratiskonto och börja logga dina sådder redan idag. 2 000+ odlare har redan börjat.</p>
+          <p className="text-sm text-muted-foreground mb-5">Skapa ett gratiskonto och börja logga dina sådder redan idag – tar 30 sekunder.</p>
           <Button asChild size="lg" className="w-full gap-2 mb-3">
-            <a href="/login?mode=register">Skapa gratis konto <ArrowRight className="h-4 w-4" /></a>
+            <a href="/login?mode=register">Testa gratis – tar 30 sekunder <ArrowRight className="h-4 w-4" /></a>
           </Button>
-          <p className="text-xs text-muted-foreground">Inget betalkort krävs · Sju dagars Plus gratis</p>
+          <p className="text-xs text-muted-foreground">Inget betalkort krävs · 14 dagars Plus gratis</p>
         </div>
       </motion.div>
     </div>
@@ -229,7 +229,7 @@ const faqs = [
   { q: 'Vad ingår i Plus?', a: 'Obegränsade bäddar, AI-coach Gro, avancerad statistik, export (CSV/PDF) och prioriterad support. Allt för 99 kr/år.' },
   { q: 'Fungerar appen offline?', a: 'Ja, installera som PWA så fungerar loggning även utan internetuppkoppling. Datan synkas när du är online igen.' },
   { q: 'Kan jag importera data från pappersanteckningar?', a: 'Du kan logga historisk data manuellt. CSV-import är på vår roadmap och kommer snart.' },
-  { q: 'Hur lång är gratisperioden för Plus?', a: '14 dagar, inget kreditkort krävs. Du kan avbryta när som helst.' },
+  { q: 'Hur lång är gratisperioden för Plus?', a: 'Alla nya konton får 14 dagars Plus gratis – inget betalkort krävs. Du kan avbryta när som helst.' },
 ];
 
 const testimonials = [
