@@ -144,6 +144,15 @@ Deno.serve(async (req) => {
     writeUrl(`/zoner/${zone.slug}`, lastmod, "monthly", "0.7");
   }
 
+  // Tag archive pages
+  const tagSet = new Set<string>();
+  for (const row of (tagsRes.data ?? []) as Array<{ tags: string[] | null }>) {
+    if (Array.isArray(row.tags)) for (const t of row.tags) if (t) tagSet.add(t);
+  }
+  for (const tag of tagSet) {
+    writeUrl(`/blogg/tagg/${encodeURIComponent(tag)}`, today, "weekly", "0.6");
+  }
+
   const nativeSlugs = new Set(posts.map((p) => p.slug));
   for (const art of soroArticles) {
     if (nativeSlugs.has(art.slug)) continue;
