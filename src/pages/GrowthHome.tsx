@@ -50,7 +50,7 @@ export default function GrowthHome() {
         title="Odlingsdagboken – såkalender, odlingsplan och skördelogg"
         description="Planera sådd, logga skördar och se vad som fungerar i din trädgård år efter år. Gratis digital odlingsdagbok för svenska odlare."
         path="/"
-        ogImage="/og-image.png"
+        ogImage="https://odlingsdagboken.com/og-image.png"
         jsonLd={[
           {
             '@type': 'SoftwareApplication',
