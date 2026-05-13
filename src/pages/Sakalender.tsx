@@ -55,7 +55,7 @@ export default function Sakalender() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="Såkalender 2026 – skapa personlig såkalender för din klimatzon" description="Skapa en gratis såkalender för svenska odlare. Välj klimatzon, odlingssätt och växter och få rekommenderade tider för sådd, utplantering och skörd." path="/sakalender" ogImage="/og-image.png" />
+      <Seo title="Såkalender 2026 – personlig såkalender för din zon" description="Skapa en gratis såkalender för svenska odlare. Välj klimatzon, odlingssätt och växter och få rekommenderade tider för sådd, utplantering och skörd." path="/sakalender" ogImage="https://odlingsdagboken.com/og-image.png" />
       <header className="border-b border-border/50 bg-card/80 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 font-serif font-semibold text-foreground"><Sprout className="h-5 w-5 text-primary" /> Odlingsdagboken</Link>

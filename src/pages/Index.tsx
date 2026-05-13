@@ -312,7 +312,7 @@ export default function Index() {
         title="Odlingsdagboken – såkalender, skördelogg och odlingsplanering"
         description="Planera sådd, logga skördar och se vad som fungerar i din trädgård år efter år. Gratis digital odlingsdagbok för svenska odlare."
         path="/"
-        ogImage="/og-image.png"
+        ogImage="https://odlingsdagboken.com/og-image.png"
         ogImageAlt="Odlingsdagboken – digital odlingsdagbok för svenska odlare"
         jsonLd={[
           {

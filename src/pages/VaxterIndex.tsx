@@ -44,7 +44,7 @@ export default function VaxterIndex() {
   return (
     <PublicLayout>
       <Seo
-        title="Växtguider – Odla över hundra grönsaker, frukter & örter | Odlingsdagboken"
+        title="Växtguider – grönsaker, frukter & örter | Odlingsdagboken"
         description="Komplett guide till att odla grönsaker, frukter, bär, kryddor och blommor i Sverige. Såtider, skörd, skötsel och svårighetsgrad för varje växt."
         path="/vaxter"
         jsonLd={[

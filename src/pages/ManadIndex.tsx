@@ -31,7 +31,7 @@ export default function ManadIndex() {
   return (
     <PublicLayout>
       <Seo
-        title="Odla efter månad – Vad gör jag i trädgården nu? | Odlingsdagboken"
+        title="Odla efter månad – din trädgård just nu | Odlingsdagboken"
         description="Komplett månadsguide för svenska hobbyodlare. Vad ska sås, skördas och göras i januari, februari, mars och resten av året."
         path="/manad"
         jsonLd={[

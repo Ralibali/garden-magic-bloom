@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
-  const [postsRes, plantsRes, monthsRes, zonesRes, soroRes] = await Promise.all([
+  const [postsRes, plantsRes, monthsRes, zonesRes, tagsRes, soroRes] = await Promise.all([
     supabase
       .from("blog_posts")
       .select("slug, updated_at, published_at, cover_image_url, title")
@@ -39,6 +39,10 @@ Deno.serve(async (req) => {
       .select("slug, updated_at, title")
       .eq("published", true)
       .order("zone_number", { ascending: true }),
+    supabase
+      .from("blog_posts")
+      .select("tags")
+      .eq("is_published", true),
     fetch("https://app.trysoro.com/api/embed/7cadf781-f963-4b64-83b3-705e8bdbbbc7")
       .then((r) => r.ok ? r.text() : "")
       .catch(() => ""),
@@ -138,6 +142,15 @@ Deno.serve(async (req) => {
   for (const zone of zones) {
     const lastmod = (zone.updated_at || today).split("T")[0];
     writeUrl(`/zoner/${zone.slug}`, lastmod, "monthly", "0.7");
+  }
+
+  // Tag archive pages
+  const tagSet = new Set<string>();
+  for (const row of (tagsRes.data ?? []) as Array<{ tags: string[] | null }>) {
+    if (Array.isArray(row.tags)) for (const t of row.tags) if (t) tagSet.add(t);
+  }
+  for (const tag of tagSet) {
+    writeUrl(`/blogg/tagg/${encodeURIComponent(tag)}`, today, "weekly", "0.6");
   }
 
   const nativeSlugs = new Set(posts.map((p) => p.slug));
