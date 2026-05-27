@@ -11,7 +11,8 @@ const moisture = ['Torr', 'Fuktig', 'Blöt', 'Vet ej'];
 const coldNights = ['Ja', 'Nej', 'Vet ej'];
 
 function PillGroup({ label, options, value, onChange }: { label: string; options: string[]; value: string; onChange: (value: string) => void }) {
-  return <div><label className="text-sm font-medium text-foreground">{label}</label><div className="grid grid-cols-2 gap-2 mt-2">{options.map(option => <button key={option} type="button" onClick={() => onChange(option)} className={`rounded-lg border px-3 py-2 text-sm text-left transition-colors ${value === option ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{option}</button>)}</div></div>;
+  const labelId = useId();
+  return <div><div id={labelId} className="text-sm font-medium text-foreground">{label}</div><div role="group" aria-labelledby={labelId} className="grid grid-cols-2 gap-2 mt-2">{options.map(option => <button key={option} type="button" onClick={() => onChange(option)} className={`rounded-lg border px-3 py-2 text-sm text-left transition-colors ${value === option ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{option}</button>)}</div></div>;
 }
 
 function getDiagnosis(problem: string, moist: string, cold: string, plant: string) {
