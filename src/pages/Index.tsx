@@ -449,7 +449,7 @@ export default function Index() {
                   <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Gratis att börja</span>
                   <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Anpassad för svenska odlare</span>
                 </div>
-                <p className="text-xs text-muted-foreground/80 mt-3 italic max-w-lg mx-auto lg:mx-0">
+                <p className="text-xs text-muted-foreground mt-3 italic max-w-lg mx-auto lg:mx-0">
                   Används av svenska hobbyodlare som vill få bättre koll på sin säsong.
                 </p>
               </motion.div>
