@@ -119,7 +119,7 @@ export default function Login() {
               <Sprout className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h1 className="font-serif text-2xl text-foreground">Odlingsdagboken</h1>
+              <h1 className="font-serif text-2xl text-foreground">Logga in på Odlingsdagboken</h1>
               <p className="text-xs text-muted-foreground">Din personliga odlingsassistent</p>
             </div>
           </Link>
