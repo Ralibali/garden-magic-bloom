@@ -119,7 +119,7 @@ export default function Login() {
               <Sprout className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h1 className="font-serif text-2xl text-foreground">Odlingsdagboken</h1>
+              <h1 className="font-serif text-2xl text-foreground">Logga in på Odlingsdagboken</h1>
               <p className="text-xs text-muted-foreground">Din personliga odlingsassistent</p>
             </div>
           </Link>
@@ -127,7 +127,7 @@ export default function Login() {
           {authMode === 'welcome' && (
             <div className="animate-fade-in space-y-6">
               <div>
-                <h3 className="font-serif text-3xl text-foreground mb-2">Välkommen!</h3>
+                <h2 className="font-serif text-3xl text-foreground mb-2">Välkommen!</h2>
                 <p className="text-muted-foreground">Skapa en odlingsplan, logga skörd och lär av varje säsong.</p>
               </div>
               <div className="space-y-3">
@@ -139,7 +139,7 @@ export default function Login() {
 
           {authMode === 'login' && (
             <form onSubmit={handleLogin} className="animate-fade-in space-y-5">
-              <div><h3 className="font-serif text-3xl text-foreground mb-2">Logga in</h3><p className="text-muted-foreground">Välkommen tillbaka. Fortsätt bygga din odlingshistorik.</p></div>
+              <div><h2 className="font-serif text-3xl text-foreground mb-2">Logga in</h2><p className="text-muted-foreground">Välkommen tillbaka. Fortsätt bygga din odlingshistorik.</p></div>
               <div className="space-y-4">
                 <div><Label htmlFor="email" className="text-muted-foreground">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="email" type="email" placeholder="din@email.se" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-11" required /></div></div>
                 <div><Label htmlFor="password" className="text-muted-foreground">Lösenord</Label><div className="relative mt-1.5"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 h-11" required /></div></div>
@@ -158,7 +158,7 @@ export default function Login() {
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 px-3 py-1 text-xs font-medium mb-4">
                   <Check className="h-3.5 w-3.5" /> Gratis att börja
                 </div>
-                <h3 className="font-serif text-3xl text-foreground mb-2">Börja odla smartare idag</h3>
+                <h2 className="font-serif text-3xl text-foreground mb-2">Börja odla smartare idag</h2>
                 <p className="text-muted-foreground">Skapa ett gratis konto på under 30 sekunder. Spara din plan, logga skörden och lär dig vad som fungerar i just din trädgård.</p>
               </div>
 
@@ -203,7 +203,7 @@ export default function Login() {
 
           {authMode === 'forgot' && (
             <form onSubmit={(e) => { e.preventDefault(); handleForgotPassword(); }} className="animate-fade-in space-y-5">
-              <div><h3 className="font-serif text-3xl text-foreground mb-2">Återställ lösenord</h3><p className="text-muted-foreground">Ange din e-post så skickar vi en länk.</p></div>
+              <div><h2 className="font-serif text-3xl text-foreground mb-2">Återställ lösenord</h2><p className="text-muted-foreground">Ange din e-post så skickar vi en länk.</p></div>
               <div><Label htmlFor="forgot-email" className="text-muted-foreground">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="forgot-email" type="email" placeholder="din@email.se" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-11" required /></div></div>
               <Button type="submit" className="w-full h-12 text-base font-medium" disabled={loading}>{loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Skicka återställningslänk</Button>
               <button type="button" className="text-sm text-muted-foreground hover:text-foreground" onClick={() => setAuthMode('login')}>← Tillbaka till login</button>
