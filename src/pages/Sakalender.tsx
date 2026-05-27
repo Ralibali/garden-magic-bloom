@@ -79,12 +79,12 @@ export default function Sakalender() {
               <div className="bg-card border border-border rounded-2xl shadow-xl p-5 sm:p-6">
                 <h2 className="font-serif text-2xl text-foreground mb-1">Vad vill du odla i år?</h2>
                 <p className="text-sm text-muted-foreground mb-5">Gör tre enkla val och få en tydlig startplan.</p>
-                <label className="text-sm font-medium text-foreground">Välj klimatzon</label>
-                <select value={zone} onChange={event => setZone(event.target.value)} className="mt-2 mb-4 w-full h-11 rounded-lg border border-input bg-background px-3 text-sm">{['1','2','3','4','5','6','7','8','Vet inte'].map(item => <option key={item} value={item}>{item === 'Vet inte' ? 'Jag vet inte' : `Zon ${item}`}</option>)}</select>
-                <label className="text-sm font-medium text-foreground">Hur odlar du?</label>
-                <div className="grid grid-cols-2 gap-2 mt-2 mb-4">{methods.map(item => <button key={item} type="button" onClick={() => setMethod(item)} className={`rounded-lg border px-3 py-2 text-sm transition-colors ${method === item ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{item}</button>)}</div>
-                <label className="text-sm font-medium text-foreground">Välj växter</label>
-                <div className="grid grid-cols-2 gap-2 mt-2 mb-5 max-h-56 overflow-auto pr-1">{crops.map(crop => <button key={crop.name} type="button" onClick={() => setSelected(current => current.includes(crop.name) ? current.filter(item => item !== crop.name) : [...current, crop.name])} className={`rounded-lg border px-3 py-2 text-sm text-left transition-colors ${selected.includes(crop.name) ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{crop.name}</button>)}</div>
+                <label htmlFor="sak-zone" className="text-sm font-medium text-foreground">Välj klimatzon</label>
+                <select id="sak-zone" value={zone} onChange={event => setZone(event.target.value)} className="mt-2 mb-4 w-full h-11 rounded-lg border border-input bg-background px-3 text-sm">{['1','2','3','4','5','6','7','8','Vet inte'].map(item => <option key={item} value={item}>{item === 'Vet inte' ? 'Jag vet inte' : `Zon ${item}`}</option>)}</select>
+                <div id="sak-method-label" className="text-sm font-medium text-foreground">Hur odlar du?</div>
+                <div role="group" aria-labelledby="sak-method-label" className="grid grid-cols-2 gap-2 mt-2 mb-4">{methods.map(item => <button key={item} type="button" onClick={() => setMethod(item)} className={`rounded-lg border px-3 py-2 text-sm transition-colors ${method === item ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{item}</button>)}</div>
+                <div id="sak-crops-label" className="text-sm font-medium text-foreground">Välj växter</div>
+                <div role="group" aria-labelledby="sak-crops-label" className="grid grid-cols-2 gap-2 mt-2 mb-5 max-h-56 overflow-auto pr-1">{crops.map(crop => <button key={crop.name} type="button" onClick={() => setSelected(current => current.includes(crop.name) ? current.filter(item => item !== crop.name) : [...current, crop.name])} className={`rounded-lg border px-3 py-2 text-sm text-left transition-colors ${selected.includes(crop.name) ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{crop.name}</button>)}</div>
                 <Button onClick={createCalendar} disabled={selected.length === 0} className="w-full gap-2" size="lg">Skapa min såkalender <ArrowRight className="h-4 w-4" /></Button>
               </div>
             </div>
