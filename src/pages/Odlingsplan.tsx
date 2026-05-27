@@ -12,7 +12,8 @@ const cropTypes = ['Grönsaker', 'Örter', 'Bär', 'Blommor'];
 const goals = ['Mer skörd', 'Enklare odling', 'Barnvänlig odling', 'Pollinatörsvänlig odling', 'Självhushållning'];
 
 function ToggleGroup({ label, options, selected, setSelected, multi = false }: { label: string; options: string[]; selected: string[]; setSelected: (value: string[]) => void; multi?: boolean }) {
-  return <div><label className="text-sm font-medium text-foreground">{label}</label><div className="grid grid-cols-2 gap-2 mt-2">{options.map(option => { const active = selected.includes(option); return <button key={option} type="button" onClick={() => multi ? setSelected(active ? selected.filter(item => item !== option) : [...selected, option]) : setSelected([option])} className={`rounded-lg border px-3 py-2 text-sm text-left transition-colors ${active ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{option}</button>; })}</div></div>;
+  const labelId = React.useId();
+  return <div><div id={labelId} className="text-sm font-medium text-foreground">{label}</div><div role="group" aria-labelledby={labelId} className="grid grid-cols-2 gap-2 mt-2">{options.map(option => { const active = selected.includes(option); return <button key={option} type="button" onClick={() => multi ? setSelected(active ? selected.filter(item => item !== option) : [...selected, option]) : setSelected([option])} className={`rounded-lg border px-3 py-2 text-sm text-left transition-colors ${active ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{option}</button>; })}</div></div>;
 }
 
 export default function Odlingsplan() {
