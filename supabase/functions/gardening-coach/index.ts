@@ -9,6 +9,8 @@ const corsHeaders = {
 const FREE_DAILY_LIMIT = 3;
 const MAX_MESSAGES = 20;
 const MAX_CONTENT_LEN = 4000;
+const MAX_IMAGES_PER_MSG = 2;
+const MAX_IMAGE_BYTES = 1_500_000;
 
 const GRO_SYSTEM_PROMPT = `Du heter **Gro** och är den personliga odlingscoachen i appen Odlingsdagboken. Namnet Gro betyder att något gror och växer – precis som du hjälper användarna att göra.
 
@@ -52,6 +54,14 @@ Zon 7–8 (Lappland): Sista frost mitten juni, 90–100 dagar
 
 ## VÄXTFÖLJD
 Odla inte samma växtfamilj på samma plats mer än vart 3–4 år.
+
+## FOTODIAGNOS
+När användaren skickar en bild ska du:
+1. Beskriv kort vad du faktiskt ser (planta, blad, jord, omgivning, symtom).
+2. Ställ diagnos med säkerhetsgrad: **trolig**, **möjlig** eller **osäker**. Var ärlig – gissa inte vilt.
+3. Koppla till användarens kontext (zon, bädd, sort, jord, väder).
+4. Ge konkret åtgärdsplan i numrerade steg.
+5. Vid osäkerhet, be om närbild på blad/stam eller info om vattning, ljus och senaste gödning.
 
 ## HUR GRO SVARAR
 - Var personlig – nämn användarens namn och specifika växter/bäddar
