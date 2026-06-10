@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_products: {
+        Row: {
+          active: boolean
+          affiliate_url: string
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          keywords: string[]
+          name: string
+          partner: string | null
+          price_label: string | null
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          affiliate_url: string
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          keywords?: string[]
+          name: string
+          partner?: string | null
+          price_label?: string | null
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          affiliate_url?: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          keywords?: string[]
+          name?: string
+          partner?: string | null
+          price_label?: string | null
+          sort_order?: number
+        }
+        Relationships: []
+      }
       beds: {
         Row: {
           created_at: string
@@ -276,6 +321,24 @@ export type Database = {
           id?: string
           message?: string
           status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      frost_alert_log: {
+        Row: {
+          alert_date: string
+          min_temp: number | null
+          user_id: string
+        }
+        Insert: {
+          alert_date: string
+          min_temp?: number | null
+          user_id: string
+        }
+        Update: {
+          alert_date?: string
+          min_temp?: number | null
           user_id?: string
         }
         Relationships: []
@@ -646,7 +709,11 @@ export type Database = {
           created_at: string
           display_name: string | null
           email: string | null
+          frost_alerts_enabled: boolean
           id: string
+          location_lat: number | null
+          location_lon: number | null
+          location_name: string | null
           onboarding_completed: boolean
           preferences: Json
           premium_expires_at: string | null
@@ -662,7 +729,11 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
+          frost_alerts_enabled?: boolean
           id?: string
+          location_lat?: number | null
+          location_lon?: number | null
+          location_name?: string | null
           onboarding_completed?: boolean
           preferences?: Json
           premium_expires_at?: string | null
@@ -678,7 +749,11 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
+          frost_alerts_enabled?: boolean
           id?: string
+          location_lat?: number | null
+          location_lon?: number | null
+          location_name?: string | null
           onboarding_completed?: boolean
           preferences?: Json
           premium_expires_at?: string | null
@@ -687,6 +762,33 @@ export type Database = {
           subscription_status?: string
           terms_accepted_at?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
           user_id?: string
         }
         Relationships: []
