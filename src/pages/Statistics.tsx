@@ -133,6 +133,42 @@ const Statistics = () => {
         <h1 className="text-2xl font-bold flex items-center gap-2"><BarChart3 className="h-6 w-6" /> Statistik {currentYear}</h1>
       </FadeIn>
 
+      {harvestValue.total > 0 && (
+        <FadeIn>
+          <Card className="border-primary/30 bg-gradient-to-br from-primary/10 via-warning/5 to-card">
+            <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="w-12 h-12 rounded-xl bg-warning/15 flex items-center justify-center shrink-0"><Coins className="h-6 w-6 text-warning" /></div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1.5">
+                    Skördens värde {currentYear}
+                    <TooltipProvider><UITooltip><TooltipTrigger asChild><Info className="h-3 w-3 cursor-help" /></TooltipTrigger>
+                      <TooltipContent className="max-w-xs text-xs">Beräknat på genomsnittliga butikspriser per kilo i Sverige.</TooltipContent>
+                    </UITooltip></TooltipProvider>
+                  </p>
+                  <p className="text-3xl font-bold text-foreground">{harvestValue.total.toLocaleString('sv-SE')} kr</p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                className="gap-1.5"
+                onClick={async () => {
+                  const text = `Min odling har gett grönsaker för ${harvestValue.total.toLocaleString('sv-SE')} kr i år 🌱 – loggat med Odlingsdagboken https://odlingsdagboken.com`;
+                  if (navigator.share) {
+                    try { await navigator.share({ title: 'Min skörd', text }); } catch {}
+                  } else {
+                    await navigator.clipboard.writeText(text);
+                  }
+                }}
+              >
+                <Share2 className="h-4 w-4" /> Dela
+              </Button>
+            </CardContent>
+          </Card>
+        </FadeIn>
+      )}
+
+
       {/* Summary cards */}
       <StaggerContainer className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StaggerItem>
