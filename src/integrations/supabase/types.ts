@@ -280,6 +280,30 @@ export type Database = {
         }
         Relationships: []
       }
+      gro_usage: {
+        Row: {
+          created_at: string
+          message_count: number
+          updated_at: string
+          usage_date: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          message_count?: number
+          updated_at?: string
+          usage_date?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          message_count?: number
+          updated_at?: string
+          usage_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       harvests: {
         Row: {
           bed_id: string | null
