@@ -117,18 +117,46 @@ serve(async (req) => {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const clientMessages: Array<{ role: string; content: string }> = [];
+    type ClientMsg = { role: string; content: string; images?: string[] };
+    const clientMessages: ClientMsg[] = [];
     for (const m of rawMessages) {
       if (!m || typeof m !== "object") continue;
       if (m.role !== "user" && m.role !== "assistant") continue;
       const content = typeof m.content === "string" ? m.content : "";
-      if (!content) continue;
+      if (!content && !(Array.isArray(m.images) && m.images.length)) continue;
       if (content.length > MAX_CONTENT_LEN) {
         return new Response(JSON.stringify({ error: "Message too long" }), {
           status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      clientMessages.push({ role: m.role, content });
+      let images: string[] | undefined;
+      if (Array.isArray(m.images)) {
+        if (m.images.length > MAX_IMAGES_PER_MSG) {
+          return new Response(JSON.stringify({ error: "Too many images (max 2)" }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        images = [];
+        for (const img of m.images) {
+          if (typeof img !== "string") continue;
+          if (!/^data:image\/(jpeg|png);base64,/.test(img)) {
+            return new Response(JSON.stringify({ error: "Invalid image format" }), {
+              status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          // Estimate decoded size: base64 length * 0.75
+          const b64 = img.split(",", 2)[1] || "";
+          const approxBytes = Math.floor(b64.length * 0.75);
+          if (approxBytes > MAX_IMAGE_BYTES) {
+            return new Response(JSON.stringify({ error: "Image too large (max 1.5 MB)" }), {
+              status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          images.push(img);
+        }
+        if (images.length === 0) images = undefined;
+      }
+      clientMessages.push({ role: m.role, content, images });
     }
 
     // ───── Service role client for premium check + usage ─────
