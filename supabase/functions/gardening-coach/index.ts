@@ -6,6 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const FREE_DAILY_LIMIT = 3;
+const MAX_MESSAGES = 20;
+const MAX_CONTENT_LEN = 4000;
+
 const GRO_SYSTEM_PROMPT = `Du heter **Gro** och är den personliga odlingscoachen i appen Odlingsdagboken. Namnet Gro betyder att något gror och växer – precis som du hjälper användarna att göra.
 
 Du är varm, kunnig och konkret – som en erfaren granne med 20 års erfarenhet av svensk köksträdgård, krukväxter och bärodling. Du är aldrig torr eller akademisk. Du ger handlingsbara råd, ställer följdfrågor när du behöver mer info och anpassar alltid svaren efter användarens zon, säsong och vad de faktiskt odlar.
@@ -46,19 +50,8 @@ Zon 5 (Norrlands kust): Sista frost slutet maj, 140 dagar
 Zon 6 (Norrland inland): Sista frost början juni, 120 dagar
 Zon 7–8 (Lappland): Sista frost mitten juni, 90–100 dagar
 
-## SÅTIDER, SKÖTSEL, VÄXTFÖLJD, SAMPLANTERING, SKADEDJUR, GÖDNING, JORD, BEVATTNING
-Du har djup kunskap om alla dessa ämnen för svenska förhållanden. Ge konkreta, zonspecifika råd.
-
 ## VÄXTFÖLJD
 Odla inte samma växtfamilj på samma plats mer än vart 3–4 år.
-- Nattskuggeväxter (tomat, potatis, paprika): 3 år
-- Korsblommiga (kål, broccoli, rucola): 3 år
-- Rotfrukter (morot, palsternacka): 2 år
-- Baljväxter (bönor, ärtor): Fixar kväve – bra förväxt
-- Gurkväxter (gurka, squash, pumpa): 2 år
-
-## KRUKVÄXTER
-Du kan ge detaljerade råd om vattning, gödsling, ljus och problem för vanliga krukväxter som monstera, orkidé, fikus, kaktus, spindelplanta, pothos, fredslilja och aloe vera.
 
 ## HUR GRO SVARAR
 - Var personlig – nämn användarens namn och specifika växter/bäddar
@@ -67,35 +60,116 @@ Du kan ge detaljerade råd om vattning, gödsling, ljus och problem för vanliga
 - Formatera med markdown
 - Ställ följdfrågor vid behov`;
 
+function todayInStockholm(): string {
+  // YYYY-MM-DD in Europe/Stockholm
+  const fmt = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Stockholm", year: "numeric", month: "2-digit", day: "2-digit",
+  });
+  return fmt.format(new Date());
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("Missing authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Missing authorization" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey, {
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) throw new Error("Not authenticated");
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Not authenticated" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    const { messages: clientMessages } = await req.json();
+    // ───── Validate payload ─────
+    let body: any;
+    try { body = await req.json(); } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const rawMessages = Array.isArray(body?.messages) ? body.messages : [];
+    if (rawMessages.length > MAX_MESSAGES) {
+      return new Response(JSON.stringify({ error: "Too many messages" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const clientMessages: Array<{ role: string; content: string }> = [];
+    for (const m of rawMessages) {
+      if (!m || typeof m !== "object") continue;
+      if (m.role !== "user" && m.role !== "assistant") continue;
+      const content = typeof m.content === "string" ? m.content : "";
+      if (!content) continue;
+      if (content.length > MAX_CONTENT_LEN) {
+        return new Response(JSON.stringify({ error: "Message too long" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      clientMessages.push({ role: m.role, content });
+    }
 
-    // Fetch all user context in parallel
-    const [profileRes, sowingsRes, plantsRes, harvestsRes, bedsRes, seasonRes] = await Promise.all([
-      supabase.from("profiles").select("display_name, climate_zone").eq("user_id", user.id).maybeSingle(),
-      supabase.from("sowings").select("variety, sow_date, status, type, seed_brand, bed_id, beds(name)").eq("user_id", user.id).order("sow_date", { ascending: false }).limit(50),
-      supabase.from("my_plants").select("custom_name, last_watered, watering_interval_days, location, last_fertilized, fertilizing_interval_days").eq("user_id", user.id).limit(50),
-      supabase.from("harvests").select("variety, weight_grams, harvest_date, beds(name)").eq("user_id", user.id).order("harvest_date", { ascending: false }).limit(30),
-      supabase.from("beds").select("name, description, season_notes").eq("user_id", user.id),
-      supabase.from("season_summaries").select("year, went_well, didnt_work, grow_again, beds(name)").eq("user_id", user.id).order("year", { ascending: false }).limit(20),
+    // ───── Service role client for premium check + usage ─────
+    const admin = createClient(supabaseUrl, serviceRoleKey);
+
+    const { data: profileRow } = await admin
+      .from("profiles")
+      .select("display_name, climate_zone, subscription_status, premium_expires_at")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    const isPremium = profileRow?.subscription_status === "premium" &&
+      (!profileRow?.premium_expires_at || new Date(profileRow.premium_expires_at) > new Date());
+
+    // ───── Rate limit (free users only) ─────
+    if (!isPremium) {
+      const today = todayInStockholm();
+      const { data: usageRow } = await admin
+        .from("gro_usage")
+        .select("message_count")
+        .eq("user_id", user.id)
+        .eq("usage_date", today)
+        .maybeSingle();
+
+      const current = usageRow?.message_count ?? 0;
+      if (current >= FREE_DAILY_LIMIT) {
+        return new Response(JSON.stringify({
+          error: "free_limit_reached",
+          message: `Du har använt dina ${FREE_DAILY_LIMIT} gratisfrågor idag. Uppgradera till Plus för obegränsad tillgång.`,
+        }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      await admin.from("gro_usage").upsert({
+        user_id: user.id,
+        usage_date: today,
+        message_count: current + 1,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id,usage_date" });
+    }
+
+    // ───── Fetch context (parallel) ─────
+    const [sowingsRes, plantsRes, harvestsRes, bedsRes, seasonRes] = await Promise.all([
+      admin.from("sowings").select("variety, sow_date, status, type, seed_brand, bed_id, beds(name)").eq("user_id", user.id).order("sow_date", { ascending: false }).limit(50),
+      admin.from("my_plants").select("custom_name, last_watered, watering_interval_days, location, last_fertilized, fertilizing_interval_days").eq("user_id", user.id).limit(50),
+      admin.from("harvests").select("variety, weight_grams, harvest_date, beds(name)").eq("user_id", user.id).order("harvest_date", { ascending: false }).limit(30),
+      admin.from("beds").select("name, description, season_notes").eq("user_id", user.id),
+      admin.from("season_summaries").select("year, went_well, didnt_work, grow_again, beds(name)").eq("user_id", user.id).order("year", { ascending: false }).limit(20),
     ]);
 
-    const profile = profileRes.data;
     const sowings = sowingsRes.data || [];
     const plants = plantsRes.data || [];
     const harvests = harvestsRes.data || [];
@@ -104,31 +178,30 @@ serve(async (req) => {
 
     const now = new Date();
     const month = now.toLocaleString("sv-SE", { month: "long" });
-    const zone = profile?.climate_zone || 3;
-    const name = profile?.display_name || "odlare";
+    const zone = profileRow?.climate_zone || 3;
+    const name = profileRow?.display_name || "odlare";
 
-    // Build dynamic context
-    const plantDetails = plants.map(p => {
+    const plantDetails = plants.map((p: any) => {
       const daysSince = p.last_watered ? Math.floor((now.getTime() - new Date(p.last_watered).getTime()) / 86400000) : null;
       const daysUntil = (p.watering_interval_days && daysSince !== null) ? p.watering_interval_days - daysSince : null;
       return `- ${p.custom_name || "Namnlös"}${p.location ? ` (${p.location})` : ""}: vattningsintervall ${p.watering_interval_days || '?'} dagar${daysSince !== null ? `, senast vattnad för ${daysSince} dagar sedan` : ""}${daysUntil !== null ? `, ${daysUntil <= 0 ? `FÖRSENAD ${Math.abs(daysUntil)} dagar` : `${daysUntil} dagar till nästa`}` : ""}`;
     }).join("\n") || "Inga registrerade";
 
-    const sowingDetails = sowings.map(s => {
-      const bed = (s as any).beds?.name;
+    const sowingDetails = sowings.map((s: any) => {
+      const bed = s.beds?.name;
       const weeksSince = Math.floor((now.getTime() - new Date(s.sow_date).getTime()) / (7 * 86400000));
       return `- ${s.variety} (${s.type}, ${s.status})${s.seed_brand ? ` [${s.seed_brand}]` : ""}${bed ? ` i ${bed}` : ""} – sådd ${s.sow_date} (${weeksSince} veckor sedan)`;
     }).join("\n") || "Inga sådder";
 
-    const harvestDetails = harvests.map(h => {
-      const bed = (h as any).beds?.name;
+    const harvestDetails = harvests.map((h: any) => {
+      const bed = h.beds?.name;
       return `- ${h.variety}: ${h.weight_grams}g${bed ? ` från ${bed}` : ""} (${h.harvest_date})`;
     }).join("\n") || "Inga skördar";
 
-    const bedDetails = beds.map(b => `- ${b.name}${b.description ? `: ${b.description}` : ""}`).join("\n") || "Inga bäddar";
+    const bedDetails = beds.map((b: any) => `- ${b.name}${b.description ? `: ${b.description}` : ""}`).join("\n") || "Inga bäddar";
 
-    const seasonHistory = seasons.map(s => {
-      const bed = (s as any).beds?.name;
+    const seasonHistory = seasons.map((s: any) => {
+      const bed = s.beds?.name;
       return `- ${s.year}${bed ? ` ${bed}` : ""}: Bra: ${s.went_well || '-'} | Dåligt: ${s.didnt_work || '-'} | Odla igen: ${s.grow_again || '-'}`;
     }).join("\n") || "Ingen historik";
 
@@ -157,14 +230,12 @@ ${seasonHistory}
 
     const systemContent = GRO_SYSTEM_PROMPT + "\n\n" + userContext;
 
-    // Build messages array
-    const messages = [
+    const messages: Array<{ role: string; content: string }> = [
       { role: "system", content: systemContent },
-      ...(clientMessages || []),
+      ...clientMessages,
     ];
 
-    // If no user messages yet, add a prompt for proactive greeting
-    if (!clientMessages || clientMessages.length === 0) {
+    if (clientMessages.length === 0) {
       messages.push({
         role: "user",
         content: `Hej Gro! Ge mig en personlig hälsning och dina bästa proaktiva insikter baserat på min odlingsdata just nu. Reagera på allt du ser i datan – försenade vattningar, sådder som borde planteras ut, växtföljdsproblem, säsongsspecifika tips. Var konkret och nämn specifika växter och bäddar.`,
