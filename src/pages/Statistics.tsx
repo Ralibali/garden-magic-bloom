@@ -302,7 +302,32 @@ const Statistics = () => {
                 </CardContent>
               </Card>
             )}
+
+            {harvestValue.byVariety.length > 0 && (
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2"><Coins className="h-4 w-4" /> Värde per gröda {currentYear}</CardTitle>
+                  <p className="text-xs text-muted-foreground">Baserat på genomsnittliga butikspriser</p>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <table className="w-full text-sm">
+                    <thead className="text-xs text-muted-foreground"><tr><th className="text-left p-2 pl-4">Gröda</th><th className="text-right p-2">Vikt</th><th className="text-right p-2">Pris/kg</th><th className="text-right p-2 pr-4">Värde</th></tr></thead>
+                    <tbody>
+                      {harvestValue.byVariety.map(v => (
+                        <tr key={v.variety} className="border-t border-border/40">
+                          <td className="p-2 pl-4 font-medium">{v.variety}</td>
+                          <td className="p-2 text-right">{v.kg} kg</td>
+                          <td className="p-2 text-right text-muted-foreground">{v.pricePerKg} kr</td>
+                          <td className="p-2 pr-4 text-right font-semibold">{v.sek.toLocaleString('sv-SE')} kr</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </CardContent>
+              </Card>
+            )}
           </div>
+
         </>
       )}
     </div>
