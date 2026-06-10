@@ -134,7 +134,7 @@ export default function Premium() {
       {/* Single pricing card */}
       <Card className="bg-card border-2 border-primary shadow-lg relative overflow-hidden max-w-md mx-auto">
         <div className="absolute top-0 left-0 right-0 bg-primary text-primary-foreground text-xs font-semibold py-1.5 text-center tracking-wide uppercase">
-          Alla nya konton får 7 dagars Plus gratis
+          Alla nya konton får 14 dagars Plus gratis
         </div>
         <CardContent className="p-6 pt-10 text-center">
           <h3 className="font-serif text-lg text-foreground mb-1">Odlingsdagboken Plus</h3>
@@ -150,7 +150,7 @@ export default function Premium() {
             disabled={!!loadingPlan || isPremium}
           >
             {loadingPlan === 'yearly' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crown className="h-4 w-4" />}
-            {isPremium ? 'Du har redan Plus' : 'Prova gratis i 7 dagar'}
+            {isPremium ? 'Du har redan Plus' : 'Prova gratis i 14 dagar'}
           </Button>
         </CardContent>
       </Card>
@@ -281,7 +281,7 @@ export default function Premium() {
             disabled={!!loadingPlan}
           >
             {loadingPlan === 'yearly' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sprout className="h-4 w-4" />}
-            Prova gratis i 7 dagar – 99 kr/år
+            Prova gratis i 14 dagar – 99 kr/år
           </Button>
           <p className="text-xs text-muted-foreground mt-3">
             Frågor? <a href="mailto:info@auroramedia.se" className="text-primary hover:underline">info@auroramedia.se</a>

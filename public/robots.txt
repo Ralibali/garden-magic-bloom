@@ -1,5 +1,8 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /app/
+Disallow: /login
+Disallow: /reset-password
 
 User-agent: Googlebot-Image
 Allow: /blog-images/
@@ -7,6 +10,9 @@ Allow: /assets/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /app/
+Disallow: /login
+Disallow: /reset-password
 
 User-agent: Twitterbot
 Allow: /
