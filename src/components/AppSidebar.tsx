@@ -24,18 +24,18 @@ const navGroups = [
     ],
   },
   {
-    label: 'Planering',
+    label: 'Planera',
     items: [
-      { title: 'Mina växter', url: '/app/my-plants', icon: Flower2 },
-      { title: 'Växtbibliotek', url: '/app/plants', icon: BookOpen },
       { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
       { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
       { title: 'Samplantering', url: '/app/companion', icon: Heart },
       { title: 'Fröförråd', url: '/app/seeds', icon: Package },
+      { title: 'Mina växter', url: '/app/my-plants', icon: Flower2 },
+      { title: 'Växtbibliotek', url: '/app/plants', icon: BookOpen },
     ],
   },
   {
-    label: 'Verktyg',
+    label: 'Mer',
     items: [
       { title: 'Gro', url: '/app/gro', icon: Sparkles },
       { title: 'Skadedjur', url: '/app/pests', icon: Bug },

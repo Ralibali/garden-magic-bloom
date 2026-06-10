@@ -7,22 +7,22 @@ import { useGardenProfile } from '@/hooks/useGardenProfile';
 
 const primaryItems = [
   { title: 'Hem', url: '/app', icon: Home },
-  { title: 'Bäddar', url: '/app/beds', icon: LayoutGrid },
-  { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
+  { title: 'Dagbok', url: '/app/sowings', icon: Sprout },
+  { title: 'Gro', url: '/app/gro', icon: Sparkles },
   { title: 'Mina växter', url: '/app/my-plants', icon: Flower2 },
   { title: 'Mer', url: '#more', icon: MoreHorizontal },
 ];
 
 const moreItems = [
-  { title: 'Gro', url: '/app/gro', icon: Sparkles },
+  { title: 'Bäddar', url: '/app/beds', icon: LayoutGrid },
   { title: 'Skörd', url: '/app/harvests', icon: Carrot },
   { title: 'Växtbibliotek', url: '/app/plants', icon: BookOpen },
   { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
   { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
+  { title: 'Samplantering', url: '/app/companion', icon: Heart },
   { title: 'Fröförråd', url: '/app/seeds', icon: Package },
   { title: 'Fotodagbok', url: '/app/photos', icon: Camera },
   { title: 'Tidslinje', url: '/app/timeline', icon: Clock },
-  { title: 'Samplantering', url: '/app/companion', icon: Heart },
   { title: 'Skadedjur', url: '/app/pests', icon: Bug },
   { title: 'Statistik', url: '/app/statistics', icon: BarChart3 },
   { title: 'Premium', url: '/app/premium', icon: Crown },
