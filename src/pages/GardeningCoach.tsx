@@ -65,7 +65,10 @@ async function streamChat({
 
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({}));
-    throw new Error(err.error || `Fel ${resp.status}`);
+    const e: any = new Error(err.message || err.error || `Fel ${resp.status}`);
+    e.status = resp.status;
+    e.code = err.error;
+    throw e;
   }
   if (!resp.body) throw new Error('No stream');
 
@@ -210,7 +213,18 @@ const GardeningCoach = () => {
       });
     } catch (e: any) {
       if (e.name !== 'AbortError') {
-        toast({ title: 'Fel', description: e.message, variant: 'destructive' });
+        if (e.code === 'free_limit_reached' || e.status === 429) {
+          // Server är sanningen – tvinga 0 kvar och visa upsell
+          localStorage.setItem(COACH_USAGE_KEY, JSON.stringify({
+            count: FREE_DAILY_LIMIT,
+            date: new Date().toISOString().split('T')[0],
+          }));
+          setRemaining(0);
+          // Ta bort sista user-meddelandet så det inte hänger kvar
+          setMessages(prev => prev[prev.length - 1]?.role === 'user' ? prev.slice(0, -1) : prev);
+        } else {
+          toast({ title: 'Fel', description: e.message, variant: 'destructive' });
+        }
       }
       setLoading(false);
     }

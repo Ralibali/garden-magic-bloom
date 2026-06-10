@@ -113,7 +113,6 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
-  console.log('[ProtectedRoute] loading:', loading, 'isAuthenticated:', isAuthenticated);
   if (loading) return <LoadingFallback />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return <>{children}</>;

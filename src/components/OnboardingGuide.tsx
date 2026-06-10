@@ -47,7 +47,7 @@ const steps = [
     emoji: '✨',
     title: 'Allt redo!',
     subtitle: 'Börja logga din första säsong',
-    description: 'Du har 7 dagars Plus gratis – obegränsade bäddar, smarta påminnelser och full växtföljd. Tips: Lägg appen på hemskärmen!',
+    description: 'Du har 14 dagars Plus gratis – obegränsade bäddar, smarta påminnelser och full växtföljd. Tips: Lägg appen på hemskärmen!',
     highlights: [
       { icon: Sprout, text: 'Logga sådder', desc: 'Bygg din dagbok!' },
       { icon: Carrot, text: 'Väg skördar', desc: 'Se vad som funkar' },

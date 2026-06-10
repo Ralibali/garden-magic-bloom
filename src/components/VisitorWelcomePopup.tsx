@@ -5,15 +5,48 @@ import { X, Sprout, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const STORAGE_KEY = 'visitor-welcome-dismissed';
+const CONSENT_KEY = 'cookie-consent';
 
 export default function VisitorWelcomePopup() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    const dismissed = localStorage.getItem(STORAGE_KEY);
-    if (dismissed) return;
-    const timer = setTimeout(() => setShow(true), 8000);
-    return () => clearTimeout(timer);
+    if (localStorage.getItem(STORAGE_KEY)) return;
+
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let cancelled = false;
+
+    const scheduleShow = () => {
+      if (cancelled) return;
+      timer = setTimeout(() => setShow(true), 8000);
+    };
+
+    const hasConsent = () => !!localStorage.getItem(CONSENT_KEY);
+
+    if (hasConsent()) {
+      scheduleShow();
+      return () => { cancelled = true; if (timer) clearTimeout(timer); };
+    }
+
+    // Wait for cookie-consent choice before showing welcome popup.
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === CONSENT_KEY && e.newValue) scheduleShow();
+    };
+    // Same-tab fallback: poll for the key (CookieConsent sets it in this tab).
+    const poll = window.setInterval(() => {
+      if (hasConsent()) {
+        window.clearInterval(poll);
+        scheduleShow();
+      }
+    }, 1000);
+
+    window.addEventListener('storage', onStorage);
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+      window.clearInterval(poll);
+      window.removeEventListener('storage', onStorage);
+    };
   }, []);
 
   const dismiss = () => {

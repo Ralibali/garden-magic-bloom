@@ -51,8 +51,9 @@ async function buildProfile(supaUser: SupabaseUser): Promise<UserProfile> {
   if (subStatus === 'premium' && profile?.premium_expires_at) {
     const expiresAt = new Date(profile.premium_expires_at);
     if (expiresAt < new Date()) {
+      // UI:t räknar trialen som slut – databastriggern protect_subscription_fields
+      // hindrar klientskrivning, så servern (Stripe-webhook / cron) ansvarar för sync.
       subStatus = 'free';
-      void supabase.from('profiles').update({ subscription_status: 'free', premium_expires_at: null }).eq('user_id', supaUser.id);
     }
   }
 
