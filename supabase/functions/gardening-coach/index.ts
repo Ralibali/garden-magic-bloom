@@ -9,6 +9,8 @@ const corsHeaders = {
 const FREE_DAILY_LIMIT = 3;
 const MAX_MESSAGES = 20;
 const MAX_CONTENT_LEN = 4000;
+const MAX_IMAGES_PER_MSG = 2;
+const MAX_IMAGE_BYTES = 1_500_000;
 
 const GRO_SYSTEM_PROMPT = `Du heter **Gro** och är den personliga odlingscoachen i appen Odlingsdagboken. Namnet Gro betyder att något gror och växer – precis som du hjälper användarna att göra.
 
@@ -52,6 +54,14 @@ Zon 7–8 (Lappland): Sista frost mitten juni, 90–100 dagar
 
 ## VÄXTFÖLJD
 Odla inte samma växtfamilj på samma plats mer än vart 3–4 år.
+
+## FOTODIAGNOS
+När användaren skickar en bild ska du:
+1. Beskriv kort vad du faktiskt ser (planta, blad, jord, omgivning, symtom).
+2. Ställ diagnos med säkerhetsgrad: **trolig**, **möjlig** eller **osäker**. Var ärlig – gissa inte vilt.
+3. Koppla till användarens kontext (zon, bädd, sort, jord, väder).
+4. Ge konkret åtgärdsplan i numrerade steg.
+5. Vid osäkerhet, be om närbild på blad/stam eller info om vattning, ljus och senaste gödning.
 
 ## HUR GRO SVARAR
 - Var personlig – nämn användarens namn och specifika växter/bäddar
@@ -107,18 +117,46 @@ serve(async (req) => {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const clientMessages: Array<{ role: string; content: string }> = [];
+    type ClientMsg = { role: string; content: string; images?: string[] };
+    const clientMessages: ClientMsg[] = [];
     for (const m of rawMessages) {
       if (!m || typeof m !== "object") continue;
       if (m.role !== "user" && m.role !== "assistant") continue;
       const content = typeof m.content === "string" ? m.content : "";
-      if (!content) continue;
+      if (!content && !(Array.isArray(m.images) && m.images.length)) continue;
       if (content.length > MAX_CONTENT_LEN) {
         return new Response(JSON.stringify({ error: "Message too long" }), {
           status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      clientMessages.push({ role: m.role, content });
+      let images: string[] | undefined;
+      if (Array.isArray(m.images)) {
+        if (m.images.length > MAX_IMAGES_PER_MSG) {
+          return new Response(JSON.stringify({ error: "Too many images (max 2)" }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        images = [];
+        for (const img of m.images) {
+          if (typeof img !== "string") continue;
+          if (!/^data:image\/(jpeg|png);base64,/.test(img)) {
+            return new Response(JSON.stringify({ error: "Invalid image format" }), {
+              status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          // Estimate decoded size: base64 length * 0.75
+          const b64 = img.split(",", 2)[1] || "";
+          const approxBytes = Math.floor(b64.length * 0.75);
+          if (approxBytes > MAX_IMAGE_BYTES) {
+            return new Response(JSON.stringify({ error: "Image too large (max 1.5 MB)" }), {
+              status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          images.push(img);
+        }
+        if (images.length === 0) images = undefined;
+      }
+      clientMessages.push({ role: m.role, content, images });
     }
 
     // ───── Service role client for premium check + usage ─────
@@ -230,9 +268,19 @@ ${seasonHistory}
 
     const systemContent = GRO_SYSTEM_PROMPT + "\n\n" + userContext;
 
-    const messages: Array<{ role: string; content: string }> = [
+    const mappedClientMessages = clientMessages.map((m) => {
+      if (m.images && m.images.length) {
+        const parts: any[] = [];
+        if (m.content) parts.push({ type: "text", text: m.content });
+        for (const url of m.images) parts.push({ type: "image_url", image_url: { url } });
+        return { role: m.role, content: parts };
+      }
+      return { role: m.role, content: m.content };
+    });
+
+    const messages: any[] = [
       { role: "system", content: systemContent },
-      ...clientMessages,
+      ...mappedClientMessages,
     ];
 
     if (clientMessages.length === 0) {

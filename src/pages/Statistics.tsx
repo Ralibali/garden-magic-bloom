@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, Sprout, Carrot, LayoutGrid, TrendingUp, TrendingDown } from 'lucide-react';
+import { BarChart3, Sprout, Carrot, LayoutGrid, TrendingUp, TrendingDown, Coins, Share2, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -8,6 +8,8 @@ import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 import { PremiumGate } from '@/components/PremiumGate';
+import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { valueForHarvest, pricePerKgFor } from '@/data/cropPrices';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
@@ -101,6 +103,25 @@ const Statistics = () => {
       .map(([variety, grams]) => ({ variety, kg: +(grams / 1000).toFixed(2) }));
   }, [harvests, currentYear]);
 
+  // Harvest value SEK for current year
+  const harvestValue = useMemo(() => {
+    if (!harvests) return { total: 0, byVariety: [] as { variety: string; kg: number; sek: number; pricePerKg: number }[] };
+    const agg: Record<string, { grams: number }> = {};
+    for (const h of harvests) {
+      if (new Date(h.harvest_date).getFullYear() !== currentYear) continue;
+      const k = h.variety || 'Okänd';
+      if (!agg[k]) agg[k] = { grams: 0 };
+      agg[k].grams += h.weight_grams || 0;
+    }
+    let total = 0;
+    const byVariety = Object.entries(agg).map(([variety, { grams }]) => {
+      const sek = valueForHarvest(variety, grams);
+      total += sek;
+      return { variety, kg: +(grams / 1000).toFixed(2), sek: Math.round(sek), pricePerKg: pricePerKgFor(variety) };
+    }).sort((a, b) => b.sek - a.sek);
+    return { total: Math.round(total), byVariety };
+  }, [harvests, currentYear]);
+
   if (isLoading) return <div className="space-y-4"><Skeleton className="h-8 w-48" /><Skeleton className="h-64" /></div>;
 
   const isEmpty = stats?.active_beds === 0 && stats?.sowings_this_year === 0 && stats?.harvest_kg === 0;
@@ -111,6 +132,42 @@ const Statistics = () => {
       <FadeIn>
         <h1 className="text-2xl font-bold flex items-center gap-2"><BarChart3 className="h-6 w-6" /> Statistik {currentYear}</h1>
       </FadeIn>
+
+      {harvestValue.total > 0 && (
+        <FadeIn>
+          <Card className="border-primary/30 bg-gradient-to-br from-primary/10 via-warning/5 to-card">
+            <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="w-12 h-12 rounded-xl bg-warning/15 flex items-center justify-center shrink-0"><Coins className="h-6 w-6 text-warning" /></div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1.5">
+                    Skördens värde {currentYear}
+                    <TooltipProvider><UITooltip><TooltipTrigger asChild><Info className="h-3 w-3 cursor-help" /></TooltipTrigger>
+                      <TooltipContent className="max-w-xs text-xs">Beräknat på genomsnittliga butikspriser per kilo i Sverige.</TooltipContent>
+                    </UITooltip></TooltipProvider>
+                  </p>
+                  <p className="text-3xl font-bold text-foreground">{harvestValue.total.toLocaleString('sv-SE')} kr</p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                className="gap-1.5"
+                onClick={async () => {
+                  const text = `Min odling har gett grönsaker för ${harvestValue.total.toLocaleString('sv-SE')} kr i år 🌱 – loggat med Odlingsdagboken https://odlingsdagboken.com`;
+                  if (navigator.share) {
+                    try { await navigator.share({ title: 'Min skörd', text }); } catch {}
+                  } else {
+                    await navigator.clipboard.writeText(text);
+                  }
+                }}
+              >
+                <Share2 className="h-4 w-4" /> Dela
+              </Button>
+            </CardContent>
+          </Card>
+        </FadeIn>
+      )}
+
 
       {/* Summary cards */}
       <StaggerContainer className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -245,7 +302,32 @@ const Statistics = () => {
                 </CardContent>
               </Card>
             )}
+
+            {harvestValue.byVariety.length > 0 && (
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2"><Coins className="h-4 w-4" /> Värde per gröda {currentYear}</CardTitle>
+                  <p className="text-xs text-muted-foreground">Baserat på genomsnittliga butikspriser</p>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <table className="w-full text-sm">
+                    <thead className="text-xs text-muted-foreground"><tr><th className="text-left p-2 pl-4">Gröda</th><th className="text-right p-2">Vikt</th><th className="text-right p-2">Pris/kg</th><th className="text-right p-2 pr-4">Värde</th></tr></thead>
+                    <tbody>
+                      {harvestValue.byVariety.map(v => (
+                        <tr key={v.variety} className="border-t border-border/40">
+                          <td className="p-2 pl-4 font-medium">{v.variety}</td>
+                          <td className="p-2 text-right">{v.kg} kg</td>
+                          <td className="p-2 text-right text-muted-foreground">{v.pricePerKg} kr</td>
+                          <td className="p-2 pr-4 text-right font-semibold">{v.sek.toLocaleString('sv-SE')} kr</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </CardContent>
+              </Card>
+            )}
           </div>
+
         </>
       )}
     </div>
