@@ -48,5 +48,24 @@ export default function Odlingsakuten() {
     ) : (
       <section className="bg-gradient-to-br from-background via-primary/5 to-accent/10"><div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12"><div className="grid lg:grid-cols-[1fr_420px] gap-6 items-start"><div className="rounded-3xl border border-primary/20 bg-card p-5 sm:p-7 shadow-xl"><p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Första bedömning</p><h1 className="font-serif text-3xl sm:text-5xl text-foreground leading-tight mb-4">Det här är mest troligt</h1><p className="text-muted-foreground leading-relaxed mb-5">Utifrån att du odlar {plant.toLowerCase()} i {place.toLowerCase()} och ser “{problem.toLowerCase()}” är detta de vanligaste orsakerna. Se råden som en trygg startpunkt och följ upp plantans utveckling de närmaste dagarna.</p><div className="grid gap-3">{diagnosis.map((item, index) => <article key={item.title} className="rounded-2xl border border-border bg-background/70 p-4"><div className="flex items-center gap-2 mb-2"><div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">{index + 1}</div><Stethoscope className="h-5 w-5 text-primary" /></div><h2 className="font-serif text-xl text-foreground mb-2">{item.title}</h2><p className="text-sm text-muted-foreground leading-relaxed">{item.text}</p></article>)}</div><button type="button" onClick={resetDiagnosis} className="text-xs text-muted-foreground hover:text-foreground mt-4">Ändra mina svar</button></div><div className="space-y-4"><div className="bg-primary text-primary-foreground rounded-2xl p-5 sm:p-6"><h2 className="font-serif text-2xl mb-2">Spara problemet i din odlingsdagbok</h2><p className="text-primary-foreground/85 mb-5 text-sm leading-relaxed">När du sparar problemet kan du anteckna vad du gjorde och följa upp om plantan återhämtade sig. Det är så erfaren odling byggs: observera, justera och lär av din egen trädgård.</p><Button asChild variant="secondary" size="lg" className="w-full gap-2"><Link to="/login?mode=register&source=odlingsakuten">Spara problemet gratis <ArrowRight className="h-4 w-4" /></Link></Button></div><div className="rounded-2xl border border-border bg-card p-5"><h3 className="font-serif text-xl text-foreground mb-2">Följ upp om några dagar</h3><p className="text-sm text-muted-foreground leading-relaxed">Ta gärna en bild, skriv vad du gjorde och kontrollera plantan igen om 3–5 dagar. Då lär du dig vad som faktiskt hjälper i din egen odling.</p></div></div></div></div></section>
     )}
+    <section className="bg-card border-t border-border/50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-16 grid lg:grid-cols-[1fr_360px] gap-8 items-center">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">📸 Nyhet</p>
+          <h2 className="font-serif text-3xl sm:text-4xl text-foreground leading-tight mb-3">Fota din planta – få AI-diagnos av Gro</h2>
+          <p className="text-muted-foreground leading-relaxed mb-5 max-w-xl">Skicka en bild på den sjuka plantan i appen och få en personlig diagnos från Gro, vår AI-odlingscoach. Hon ser bladfärg, fläckar och tecken på skadedjur – och ger dig en åtgärdsplan i steg.</p>
+          <ol className="space-y-2 text-sm text-foreground/85 mb-6 max-w-md">
+            <li><span className="font-semibold text-primary">1.</span> Öppna Gro i appen</li>
+            <li><span className="font-semibold text-primary">2.</span> Tryck på kamera-ikonen och fota din planta</li>
+            <li><span className="font-semibold text-primary">3.</span> Få en diagnos och konkreta steg att prova</li>
+          </ol>
+          <Button asChild size="lg" className="gap-2"><Link to="/login?mode=register&source=odlingsakuten-foto">Prova gratis <ArrowRight className="h-4 w-4" /></Link></Button>
+        </div>
+        <div className="rounded-3xl border border-border bg-background/60 p-6 text-sm text-muted-foreground italic shadow-sm">
+          "Jag fotade tomatbladen och Gro såg direkt att det var bladmögel. Fick en åtgärdsplan på minuter."
+          <p className="not-italic text-xs mt-3 text-foreground/70">— Anna, zon 3</p>
+        </div>
+      </div>
+    </section>
   </main></div>;
 }
