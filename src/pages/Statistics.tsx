@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, Sprout, Carrot, LayoutGrid, TrendingUp, TrendingDown } from 'lucide-react';
+import { BarChart3, Sprout, Carrot, LayoutGrid, TrendingUp, TrendingDown, Coins, Share2, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -8,6 +8,8 @@ import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 import { PremiumGate } from '@/components/PremiumGate';
+import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { valueForHarvest, pricePerKgFor } from '@/data/cropPrices';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
@@ -99,6 +101,25 @@ const Statistics = () => {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([variety, grams]) => ({ variety, kg: +(grams / 1000).toFixed(2) }));
+  }, [harvests, currentYear]);
+
+  // Harvest value SEK for current year
+  const harvestValue = useMemo(() => {
+    if (!harvests) return { total: 0, byVariety: [] as { variety: string; kg: number; sek: number; pricePerKg: number }[] };
+    const agg: Record<string, { grams: number }> = {};
+    for (const h of harvests) {
+      if (new Date(h.harvest_date).getFullYear() !== currentYear) continue;
+      const k = h.variety || 'Okänd';
+      if (!agg[k]) agg[k] = { grams: 0 };
+      agg[k].grams += h.weight_grams || 0;
+    }
+    let total = 0;
+    const byVariety = Object.entries(agg).map(([variety, { grams }]) => {
+      const sek = valueForHarvest(variety, grams);
+      total += sek;
+      return { variety, kg: +(grams / 1000).toFixed(2), sek: Math.round(sek), pricePerKg: pricePerKgFor(variety) };
+    }).sort((a, b) => b.sek - a.sek);
+    return { total: Math.round(total), byVariety };
   }, [harvests, currentYear]);
 
   if (isLoading) return <div className="space-y-4"><Skeleton className="h-8 w-48" /><Skeleton className="h-64" /></div>;
