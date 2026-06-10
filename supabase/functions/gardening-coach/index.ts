@@ -268,9 +268,19 @@ ${seasonHistory}
 
     const systemContent = GRO_SYSTEM_PROMPT + "\n\n" + userContext;
 
-    const messages: Array<{ role: string; content: string }> = [
+    const mappedClientMessages = clientMessages.map((m) => {
+      if (m.images && m.images.length) {
+        const parts: any[] = [];
+        if (m.content) parts.push({ type: "text", text: m.content });
+        for (const url of m.images) parts.push({ type: "image_url", image_url: { url } });
+        return { role: m.role, content: parts };
+      }
+      return { role: m.role, content: m.content };
+    });
+
+    const messages: any[] = [
       { role: "system", content: systemContent },
-      ...clientMessages,
+      ...mappedClientMessages,
     ];
 
     if (clientMessages.length === 0) {
