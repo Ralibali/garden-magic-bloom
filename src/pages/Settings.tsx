@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Settings as SettingsIcon, Download, FileSpreadsheet, FileText, Leaf, Trash2, AlertTriangle } from 'lucide-react';
 import DataImporter from '@/components/DataImporter';
+import NotificationsSettings from '@/components/NotificationsSettings';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
@@ -202,6 +203,8 @@ const SettingsPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      <NotificationsSettings />
 
       <DataImporter />
 
