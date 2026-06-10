@@ -17,6 +17,7 @@ import OnboardingFlow from '@/components/OnboardingFlow';
 import GettingStartedGuide from '@/components/GettingStartedGuide';
 import DashboardActionCenter from '@/components/DashboardActionCenter';
 import FrostAlertCTA from '@/components/FrostAlertCTA';
+import HarvestValueLine from '@/components/HarvestValueLine';
 import { GardenCategory } from '@/lib/gardenModules';
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 
