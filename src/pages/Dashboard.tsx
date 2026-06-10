@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import OnboardingFlow from '@/components/OnboardingFlow';
 import GettingStartedGuide from '@/components/GettingStartedGuide';
 import DashboardActionCenter from '@/components/DashboardActionCenter';
+import FrostAlertCTA from '@/components/FrostAlertCTA';
 import { GardenCategory } from '@/lib/gardenModules';
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 
@@ -144,6 +145,8 @@ const Dashboard = () => {
           {temp !== undefined && <div className="flex items-center gap-2 text-sm text-muted-foreground bg-card border border-border rounded-xl px-4 py-2 w-fit"><Thermometer className="h-4 w-4 text-primary" /><span className="font-medium text-foreground">{Math.round(temp)}°C</span><span>just nu</span></div>}
         </div>
       </FadeIn>
+
+      <FrostAlertCTA />
 
       <DashboardActionCenter climateZone={climateZone} currentMonth={currentMonth} isNewUser={!!isNewUser} onNavigate={navigate} />
 
