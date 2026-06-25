@@ -24,6 +24,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function trackBrowserEvent(eventName: string, params: Record<string, unknown> = {}) {
+  if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
+    (window as any).gtag('event', eventName, params);
+  }
+}
+
 function toBasicProfile(supaUser: SupabaseUser): UserProfile {
   return {
     id: supaUser.id,
@@ -50,11 +56,7 @@ async function buildProfile(supaUser: SupabaseUser): Promise<UserProfile> {
   let subStatus = profile?.subscription_status ?? 'free';
   if (subStatus === 'premium' && profile?.premium_expires_at) {
     const expiresAt = new Date(profile.premium_expires_at);
-    if (expiresAt < new Date()) {
-      // UI:t räknar trialen som slut – databastriggern protect_subscription_fields
-      // hindrar klientskrivning, så servern (Stripe-webhook / cron) ansvarar för sync.
-      subStatus = 'free';
-    }
+    if (expiresAt < new Date()) subStatus = 'free';
   }
 
   return {
@@ -76,7 +78,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const applySession = (session: Session | null, hydrateProfile: boolean) => {
       const supaUser = session?.user ?? null;
-
       if (!supaUser) {
         if (isMounted) setUser(null);
         return;
@@ -139,6 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(toBasicProfile(data.user));
       if (data.user.email) void markLeadConverted(data.user.email, data.user.id);
       void buildProfile(data.user).then(setUser).catch(() => undefined);
+      trackBrowserEvent('login', { method: 'email' });
     }
   };
 
@@ -147,12 +149,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name } },
+      options: {
+        data: { name },
+        emailRedirectTo: `${window.location.origin}/app`,
+      },
     });
     if (error) throw new Error(error.message);
+
     if (data.user?.email) {
       void markLeadConverted(data.user.email, data.user.id);
-      void trackEvent('register_completed', { email: data.user.email });
+      void trackEvent('register_completed', {
+        email: data.user.email,
+        requires_email_confirmation: !data.session,
+      });
+      trackBrowserEvent('sign_up', { method: 'email' });
     }
     return data;
   };
@@ -160,7 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    localStorage.clear();
+    sessionStorage.removeItem('_sid');
   };
 
   return (
