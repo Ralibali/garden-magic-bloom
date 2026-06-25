@@ -5,20 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#4A7C59" />
     <meta name="google-site-verification" content="ZN8K34rBoIGoGpv_W-BOhbroP9sNioyr2zqOmXCD0K8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://www.google.com https://pagead2.googlesyndication.com https://app.trysoro.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co https://ai.gateway.lovable.dev https://www.google-analytics.com https://googleads.g.doubleclick.net https://api.brevo.com https://fonts.googleapis.com https://fonts.gstatic.com https://app.trysoro.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; worker-src 'self' blob:; manifest-src 'self';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://www.google.com https://pagead2.googlesyndication.com https://app.trysoro.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co https://api.open-meteo.com https://ai.gateway.lovable.dev https://www.google-analytics.com https://googleads.g.doubleclick.net https://api.brevo.com https://fonts.googleapis.com https://fonts.gstatic.com https://app.trysoro.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; worker-src 'self' blob:; manifest-src 'self';" />
 
-    <!-- Preconnect for speed -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://ysonnvbkrwajacvdkqut.supabase.co" />
+    <link rel="preconnect" href="https://api.open-meteo.com" />
 
-    <!-- Preload fonts -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" /></noscript>
 
-    <!-- Google Ads tag – loaded only after cookie consent -->
     <script>
       function loadGoogleAds() {
         if (document.getElementById('gtag-ads')) return;
@@ -33,17 +31,11 @@
         gtag('js', new Date());
         gtag('config', 'AW-10941540384');
       }
-      // Check consent on load
       window.addEventListener('load', function() {
-        if (localStorage.getItem('cookie-consent') === 'accepted') {
-          loadGoogleAds();
-        }
+        if (localStorage.getItem('cookie-consent') === 'accepted') loadGoogleAds();
       });
-      // Listen for consent changes
       window.addEventListener('storage', function(e) {
-        if (e.key === 'cookie-consent' && e.newValue === 'accepted') {
-          loadGoogleAds();
-        }
+        if (e.key === 'cookie-consent' && e.newValue === 'accepted') loadGoogleAds();
       });
     </script>
 
@@ -51,45 +43,39 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="apple-touch-icon" href="/pwa-192x192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    
+
     <title>Odlingsdagboken 2026 – digital odlingsdagbok för odlare</title>
-    <meta name="description" content="Håll koll på såtider, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis verktyg för 2 000+ svenska hobbyodlare.">
-    <meta name="keywords" content="odlingsdagbok, såkalender, skördlogg, växtföljd, klimatzon, pallkrage, trädgård app, odla grönsaker, odling sverige">
+    <meta name="description" content="Håll koll på såtider, skördar och växtföljd. Se vad som fungerar i just din trädgård – år efter år. Gratis att börja för svenska hobbyodlare." />
+    <meta name="keywords" content="odlingsdagbok, såkalender, skördlogg, växtföljd, klimatzon, pallkrage, trädgård app, odla grönsaker, odling sverige" />
     <meta name="author" content="Odlingsdagboken" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="https://odlingsdagboken.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="alternate" type="application/rss+xml" title="Odlingsdagboken – Blogg" href="https://ysonnvbkrwajacvdkqut.supabase.co/functions/v1/rss-feed" />
 
-    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Odlingsdagboken" />
     <meta property="og:locale" content="sv_SE" />
-    <meta property="og:title" content="Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare">
-    <meta property="og:description" content="Håll koll på såtider, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis verktyg för 2 000+ svenska hobbyodlare.">
-    <meta property="og:image" content="https://odlingsdagboken.com/og-image.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:url" content="https://odlingsdagboken.com/">
+    <meta property="og:title" content="Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare" />
+    <meta property="og:description" content="Planera sådd, logga skörd och bygg en kunskapsbank för din egen trädgård. Gratis att börja." />
+    <meta property="og:image" content="https://odlingsdagboken.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://odlingsdagboken.com/" />
 
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@odlingsdagboken" />
-    <meta name="twitter:title" content="Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare">
-    <meta name="twitter:description" content="Håll koll på såtider, skördar och växtföljd. Se vad som funkar i just din trädgård – år efter år. Gratis verktyg för 2 000+ svenska hobbyodlare.">
-    <meta name="twitter:image" content="https://odlingsdagboken.com/og-image.png">
+    <meta name="twitter:title" content="Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare" />
+    <meta name="twitter:description" content="Planera sådd, logga skörd och se vad som fungerar i din trädgård år efter år." />
+    <meta name="twitter:image" content="https://odlingsdagboken.com/og-image.png" />
 
-    <!-- Additional SEO meta -->
     <meta name="geo.region" content="SE" />
     <meta name="geo.placename" content="Sverige" />
     <meta name="content-language" content="sv" />
-    
-    <!-- AI visibility -->
     <meta name="citation_title" content="Odlingsdagboken – Digital odlingsdagbok för svenska odlare" />
     <meta name="citation_author" content="Odlingsdagboken" />
     <meta name="citation_language" content="sv" />
 
-    <!-- Schema -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -100,11 +86,7 @@
           "name": "Odlingsdagboken",
           "url": "https://odlingsdagboken.com",
           "logo": "https://odlingsdagboken.com/logo-odlingsdagboken.png",
-          "description": "Odlingsdagboken hjälper svenska hobbyodlare att hålla koll på sådder, skördar och växtföljd – helt digitalt.",
-          "sameAs": [
-            "https://instagram.com/odlingsdagboken",
-            "https://facebook.com/odlingsdagboken"
-          ]
+          "description": "Odlingsdagboken hjälper svenska hobbyodlare att hålla koll på sådder, skördar och växtföljd – helt digitalt."
         },
         {
           "@type": "WebSite",
@@ -124,16 +106,15 @@
           "inLanguage": "sv",
           "offers": [
             { "@type": "Offer", "price": "0", "priceCurrency": "SEK", "description": "Gratis grundversion" },
-            { "@type": "Offer", "price": "99", "priceCurrency": "SEK", "description": "Plus – obegränsade bäddar, AI-coach" }
+            { "@type": "Offer", "price": "99", "priceCurrency": "SEK", "description": "Plus – personlig odlingshjälp, historik och statistik" }
           ]
         }
       ]
     }
     </script>
-</head>
+  </head>
 
   <body>
-    <!-- Skip link for keyboard navigation -->
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded">Hoppa till innehåll</a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
