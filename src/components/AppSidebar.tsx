@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Home, Sprout, LayoutGrid, Carrot, BarChart3, Settings, LogOut, Crown, Shield, CalendarDays, RefreshCw, Package, Clock, Heart, Bug, Camera, Flower2, BookOpen, Sparkles } from 'lucide-react';
+import { Home, Sprout, LayoutGrid, Carrot, BarChart3, Settings, LogOut, Crown, Shield, CalendarDays, RefreshCw, Package, Clock, Heart, Bug, Camera, Flower2, BookOpen, Sparkles, Bell } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,6 +27,7 @@ const navGroups = [
     label: 'Planera',
     items: [
       { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
+      { title: 'Påminnelser', url: '/app/reminders', icon: Bell },
       { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
       { title: 'Samplantering', url: '/app/companion', icon: Heart },
       { title: 'Fröförråd', url: '/app/seeds', icon: Package },
@@ -35,12 +36,12 @@ const navGroups = [
     ],
   },
   {
-    label: 'Mer',
+    label: 'Insikter',
     items: [
       { title: 'Gro', url: '/app/gro', icon: Sparkles },
       { title: 'Skadedjur', url: '/app/pests', icon: Bug },
       { title: 'Statistik', url: '/app/statistics', icon: BarChart3 },
-      { title: 'Premium', url: '/app/premium', icon: Crown },
+      { title: 'Plus', url: '/app/premium', icon: Crown },
       { title: 'Inställningar', url: '/app/settings', icon: Settings },
       { title: 'Admin', url: '/app/admin', icon: Shield, adminOnly: true },
     ],
@@ -60,28 +61,24 @@ export function AppSidebar() {
     supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' }).then(({ data }) => setIsAdmin(!!data));
   }, [user?.id]);
 
-  const handleLogout = async () => { await logout(); navigate('/login'); };
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login?mode=login');
+  };
 
   return (
     <Sidebar collapsible="icon" className="hidden md:flex border-r border-sidebar-border bg-sidebar">
       <SidebarContent className="pt-5">
         <div className="px-5 pb-6 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Sprout className="h-5 w-5 text-primary" />
-          </div>
-          {!collapsed && (
-            <div>
-              <h1 className="font-serif text-lg text-foreground leading-none">Odlingsdagboken</h1>
-              <p className="text-[10px] text-muted-foreground mt-0.5">Din digitala odlingsassistent</p>
-            </div>
-          )}
+          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"><Sprout className="h-5 w-5 text-primary" /></div>
+          {!collapsed && <div><h1 className="font-serif text-lg text-foreground leading-none">Odlingsdagboken</h1><p className="text-[10px] text-muted-foreground mt-0.5">Din digitala odlingsassistent</p></div>}
         </div>
 
         {navGroups.map((group) => {
           const items = group.items
-            .filter(item => !(item as any).adminOnly || isAdmin)
-            .filter(item => isVisible(item.url));
-          if (items.length === 0) return null;
+            .filter((item) => !(item as any).adminOnly || isAdmin)
+            .filter((item) => isVisible(item.url));
+          if (!items.length) return null;
           return (
             <SidebarGroup key={group.label}>
               {!collapsed && <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.14em] px-5 mb-1 font-medium">{group.label}</SidebarGroupLabel>}
@@ -105,17 +102,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 space-y-2 border-t border-sidebar-border">
-        {!collapsed && (
-          <>
-            <div className="px-1">
-              <p className="text-sm font-medium text-foreground truncate">{(user as any)?.name || 'Användare'}</p>
-              <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
-            </div>
-            <Button variant="ghost" size="sm" className="w-full justify-start gap-2.5 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/70 rounded-xl h-9" onClick={handleLogout}>
-              <LogOut className="h-4 w-4" /> Logga ut
-            </Button>
-          </>
-        )}
+        {!collapsed && <><div className="px-1"><p className="text-sm font-medium text-foreground truncate">{(user as any)?.name || 'Användare'}</p><p className="text-[11px] text-muted-foreground truncate">{user?.email}</p></div><Button variant="ghost" size="sm" className="w-full justify-start gap-2.5 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/70 rounded-xl h-9" onClick={handleLogout}><LogOut className="h-4 w-4" /> Logga ut</Button></>}
       </SidebarFooter>
     </Sidebar>
   );
