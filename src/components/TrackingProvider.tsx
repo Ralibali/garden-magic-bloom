@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { usePageTracking, useAutoClickTracking, useScrollDepthTracking } from '@/hooks/useTracking';
 
-const CONSENT_EVENT = 'odlingsdagboken:consent';
-
 function hasConsent(): boolean {
   return typeof window !== 'undefined' && localStorage.getItem('cookie-consent') === 'accepted';
 }
@@ -12,11 +10,11 @@ export function TrackingProvider() {
 
   useEffect(() => {
     const syncConsent = () => setConsent(hasConsent());
-    window.addEventListener(CONSENT_EVENT, syncConsent);
     window.addEventListener('storage', syncConsent);
+    const timer = window.setInterval(syncConsent, 750);
     return () => {
-      window.removeEventListener(CONSENT_EVENT, syncConsent);
       window.removeEventListener('storage', syncConsent);
+      window.clearInterval(timer);
     };
   }, []);
 
