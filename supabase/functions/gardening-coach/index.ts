@@ -157,14 +157,11 @@ serve(async (req) => {
     const zone = profileRow?.climate_zone || 3;
     const isPremium = profileRow?.subscription_status === "premium" && (!profileRow?.premium_expires_at || new Date(profileRow.premium_expires_at) > new Date());
     const hasUserQuestion = clientMessages.some((message) => message.role === "user");
-    let pendingUsage: { date: string; current: number } | null = null;
+    const usageDate = dateKeyInStockholm();
 
     if (!isPremium && hasUserQuestion) {
-      const date = dateKeyInStockholm();
-      const { data: usageRow } = await admin.from("gro_usage").select("message_count").eq("user_id", user.id).eq("usage_date", date).maybeSingle();
-      const current = usageRow?.message_count ?? 0;
-      if (current >= FREE_DAILY_LIMIT) return new Response(JSON.stringify({ error: "free_limit_reached", message: `Du har använt dina ${FREE_DAILY_LIMIT} gratisfrågor idag. Uppgradera till Plus för obegränsad tillgång.` }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      pendingUsage = { date, current };
+      const { data: usageRow } = await admin.from("gro_usage").select("message_count").eq("user_id", user.id).eq("usage_date", usageDate).maybeSingle();
+      if ((usageRow?.message_count ?? 0) >= FREE_DAILY_LIMIT) return new Response(JSON.stringify({ error: "free_limit_reached", message: `Du har använt dina ${FREE_DAILY_LIMIT} gratisfrågor idag. Uppgradera till Plus för obegränsad tillgång.` }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const [sowingsRes, plantsRes, harvestsRes, bedsRes, seasonRes, remindersRes, pestsRes, photosRes, weather] = await Promise.all([
@@ -173,7 +170,7 @@ serve(async (req) => {
       admin.from("harvests").select("variety, weight_grams, harvest_date, beds(name)").eq("user_id", user.id).order("harvest_date", { ascending: false }).limit(30),
       admin.from("beds").select("name, description, season_notes").eq("user_id", user.id),
       admin.from("season_summaries").select("year, went_well, didnt_work, grow_again, learnings, beds(name)").eq("user_id", user.id).order("year", { ascending: false }).limit(20),
-      admin.from("reminder_settings").select("settings").eq("user_id", user.id).maybeSingle(),
+      admin.from("garden_reminders").select("title, reminder_type, due_date").eq("user_id", user.id).eq("done", false).order("due_date", { ascending: true }).limit(12),
       admin.from("pest_logs").select("pest_name, severity, treatment, observed_date, resolved, notes, beds(name)").eq("user_id", user.id).order("observed_date", { ascending: false }).limit(20),
       admin.from("plant_photos").select("caption, taken_at, beds(name)").eq("user_id", user.id).order("taken_at", { ascending: false }).limit(10),
       fetchWeather(zone),
@@ -184,8 +181,7 @@ serve(async (req) => {
     const harvests = harvestsRes.data || [];
     const beds = bedsRes.data || [];
     const seasons = seasonRes.data || [];
-    const reminderSettings = (remindersRes.data?.settings as any) || {};
-    const reminders = (reminderSettings.reminders || []).filter((item: any) => !item.done).slice(0, 12);
+    const reminders = remindersRes.data || [];
     const pests = pestsRes.data || [];
     const photos = photosRes.data || [];
     const now = new Date();
@@ -205,7 +201,7 @@ serve(async (req) => {
     const harvestDetails = harvests.map((harvest: any) => `- ${harvest.variety}: ${harvest.weight_grams} g${harvest.beds?.name ? ` från ${harvest.beds.name}` : ""} (${harvest.harvest_date})`).join("\n") || "Inga skördar";
     const bedDetails = beds.map((bed: any) => `- ${bed.name}${bed.description ? `: ${bed.description}` : ""}${bed.season_notes ? ` | Anteckningar: ${bed.season_notes}` : ""}`).join("\n") || "Inga bäddar";
     const seasonHistory = seasons.map((season: any) => `- ${season.year}${season.beds?.name ? ` ${season.beds.name}` : ""}: bra ${season.went_well || "-"}; problem ${season.didnt_work || "-"}; lärdom ${season.learnings || "-"}`).join("\n") || "Ingen säsongshistorik";
-    const reminderDetails = reminders.map((reminder: any) => `- ${reminder.date}: ${reminder.title} (${reminder.type || "övrigt"})`).join("\n") || "Inga öppna påminnelser";
+    const reminderDetails = reminders.map((reminder: any) => `- ${reminder.due_date}: ${reminder.title} (${reminder.reminder_type || "övrigt"})`).join("\n") || "Inga öppna påminnelser";
     const pestDetails = pests.map((pest: any) => `- ${pest.observed_date}: ${pest.pest_name}, ${pest.severity}${pest.beds?.name ? ` i ${pest.beds.name}` : ""}, ${pest.resolved ? "löst" : "öppet"}${pest.treatment ? `, behandling ${pest.treatment}` : ""}${pest.notes ? `, anteckning ${pest.notes}` : ""}`).join("\n") || "Inga loggade problem";
     const photoDetails = photos.map((photo: any) => `- ${photo.taken_at}${photo.beds?.name ? ` i ${photo.beds.name}` : ""}${photo.caption ? `: ${photo.caption}` : ""}`).join("\n") || "Inga nyliga foton";
 
@@ -273,14 +269,21 @@ ${seasonHistory}`;
       throw new Error("AI gateway error");
     }
 
-    if (pendingUsage) {
-      const { error: usageError } = await admin.from("gro_usage").upsert({
-        user_id: user.id,
-        usage_date: pendingUsage.date,
-        message_count: pendingUsage.current + 1,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "user_id,usage_date" });
-      if (usageError) console.error("Kunde inte uppdatera Gro-kvoten", usageError);
+    if (!isPremium && hasUserQuestion) {
+      const { data: consumed, error: quotaError } = await admin.rpc("consume_gro_quota", {
+        p_user_id: user.id,
+        p_usage_date: usageDate,
+        p_limit: FREE_DAILY_LIMIT,
+      });
+      if (quotaError) {
+        await response.body?.cancel();
+        console.error("Atomic quota error", quotaError);
+        return new Response(JSON.stringify({ error: "quota_unavailable", message: "Kunde inte kontrollera dagens Gro-kvot. Försök igen." }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      if (consumed === null) {
+        await response.body?.cancel();
+        return new Response(JSON.stringify({ error: "free_limit_reached", message: `Du har använt dina ${FREE_DAILY_LIMIT} gratisfrågor idag. Uppgradera till Plus för obegränsad tillgång.` }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
     }
 
     return new Response(response.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
