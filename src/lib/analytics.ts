@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 type AnalyticsMetadata = Record<string, unknown>;
 
 const ANON_KEY = 'odlingsdagboken_anonymous_id';
+const ACTIVITY_KEY = 'odlingsdagboken_last_active_at';
 
 export function getAnonymousId() {
   try {
@@ -16,7 +17,16 @@ export function getAnonymousId() {
   }
 }
 
+function analyticsAllowed() {
+  try {
+    return localStorage.getItem('cookie-consent') === 'accepted';
+  } catch {
+    return false;
+  }
+}
+
 export async function trackEvent(eventName: string, metadata: AnalyticsMetadata = {}) {
+  if (!analyticsAllowed()) return;
   try {
     const { data: { user } } = await supabase.auth.getUser();
     const payload = {
@@ -33,6 +43,34 @@ export async function trackEvent(eventName: string, metadata: AnalyticsMetadata 
     if (error) throw error;
   } catch (error) {
     console.warn('[trackEvent]', eventName, error);
+  }
+}
+
+export async function recordProductActivity(eventName: string, metadata: AnalyticsMetadata = {}) {
+  const occurredAt = new Date().toISOString();
+  try {
+    localStorage.setItem(ACTIVITY_KEY, occurredAt);
+  } catch {}
+
+  void trackEvent(eventName, { ...metadata, occurred_at: occurredAt });
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('preferences')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    const preferences = profile?.preferences && typeof profile.preferences === 'object' && !Array.isArray(profile.preferences)
+      ? profile.preferences as Record<string, unknown>
+      : {};
+    await supabase
+      .from('profiles')
+      .update({ preferences: { ...preferences, last_active_at: occurredAt, last_activity: eventName } } as any)
+      .eq('user_id', user.id);
+  } catch (error) {
+    console.warn('[recordProductActivity]', eventName, error);
   }
 }
 
