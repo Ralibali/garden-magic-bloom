@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import AppEmptyState from '@/components/AppEmptyState';
 import { recordProductActivity } from '@/lib/analytics';
+import { addDaysToDateKey, localDateKey } from '@/lib/gardenToday';
 
 interface Reminder {
   id: string;
@@ -33,21 +34,10 @@ const typeConfig = {
   other: { icon: Bell, label: 'Övrigt', color: 'text-muted-foreground', background: 'bg-muted' },
 };
 
-function dateKey(date = new Date()) {
-  return date.toISOString().slice(0, 10);
-}
-
 function daysUntil(dateString: string) {
-  const target = new Date(`${dateString}T12:00:00`);
-  const today = new Date();
-  today.setHours(12, 0, 0, 0);
-  return Math.round((target.getTime() - today.getTime()) / 86400000);
-}
-
-function addDays(dateString: string, days: number) {
-  const date = new Date(`${dateString}T12:00:00`);
-  date.setDate(date.getDate() + days);
-  return date.toISOString().slice(0, 10);
+  const [targetYear, targetMonth, targetDay] = dateString.split('-').map(Number);
+  const [todayYear, todayMonth, todayDay] = localDateKey().split('-').map(Number);
+  return Math.round((Date.UTC(targetYear, targetMonth - 1, targetDay) - Date.UTC(todayYear, todayMonth - 1, todayDay)) / 86400000);
 }
 
 export default function Reminders() {
@@ -55,7 +45,7 @@ export default function Reminders() {
   const [open, setOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newType, setNewType] = useState<Reminder['type']>('sowing');
-  const [newDate, setNewDate] = useState(dateKey());
+  const [newDate, setNewDate] = useState(localDateKey());
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(() => typeof Notification === 'undefined' ? 'unsupported' : Notification.permission);
 
   const { data: settingsData, isLoading } = useQuery({ queryKey: ['reminder-settings'], queryFn: api.getReminderSettings });
@@ -77,17 +67,21 @@ export default function Reminders() {
     if (permission !== 'granted' || !settings.notifications_enabled) return;
     const due = upcoming.filter((reminder) => daysUntil(reminder.date) <= 0);
     if (!due.length) return;
-    const storageKey = `odlingsdagboken_reminder_notice_${dateKey()}`;
+    const storageKey = `odlingsdagboken_reminder_notice_${localDateKey()}`;
     let shownIds: string[] = [];
     try { shownIds = JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch {}
     const alreadyShown = new Set(shownIds);
     const unseen = due.filter((reminder) => !alreadyShown.has(reminder.id));
     if (!unseen.length) return;
-    new Notification(unseen.length === 1 ? unseen[0].title : `${unseen.length} odlingspåminnelser`, {
-      body: unseen.length === 1 ? 'Öppna Odlingsdagboken och markera uppgiften när den är klar.' : 'Du har uppgifter som är förfallna eller ska göras idag.',
-      icon: '/pwa-192x192.png',
-    });
-    localStorage.setItem(storageKey, JSON.stringify([...alreadyShown, ...unseen.map((reminder) => reminder.id)]));
+    try {
+      new Notification(unseen.length === 1 ? unseen[0].title : `${unseen.length} odlingspåminnelser`, {
+        body: unseen.length === 1 ? 'Öppna Odlingsdagboken och markera uppgiften när den är klar.' : 'Du har uppgifter som är förfallna eller ska göras idag.',
+        icon: '/pwa-192x192.png',
+      });
+      localStorage.setItem(storageKey, JSON.stringify([...alreadyShown, ...unseen.map((reminder) => reminder.id)]));
+    } catch {
+      // Vissa inbäddade webbläsare tillåter permission men blockerar själva aviseringen.
+    }
   }, [permission, settings.notifications_enabled, upcoming]);
 
   const requestNotifications = async () => {
@@ -112,7 +106,8 @@ export default function Reminders() {
   };
 
   const snooze = (id: string, days = 1) => {
-    const next = reminders.map((reminder) => reminder.id === id ? { ...reminder, date: addDays(reminder.date < dateKey() ? dateKey() : reminder.date, days) } : reminder);
+    const today = localDateKey();
+    const next = reminders.map((reminder) => reminder.id === id ? { ...reminder, date: addDaysToDateKey(reminder.date < today ? today : reminder.date, days) } : reminder);
     saveReminders(next);
     void recordProductActivity('reminder_snoozed', { reminder_id: id, days });
     toast({ title: days === 1 ? 'Flyttad till imorgon' : `Flyttad ${days} dagar` });
@@ -128,7 +123,7 @@ export default function Reminders() {
     const reminder: Reminder = { id: crypto.randomUUID(), title: newTitle.trim(), type: newType, date: newDate, done: false, created_at: new Date().toISOString(), completed_at: null };
     saveReminders([...reminders, reminder]);
     setNewTitle('');
-    setNewDate(dateKey());
+    setNewDate(localDateKey());
     setOpen(false);
     void recordProductActivity(reminders.length === 0 ? 'first_reminder_created' : 'reminder_created', { reminder_id: reminder.id, type: reminder.type, date: reminder.date });
     toast({ title: 'Påminnelse sparad 🌱' });
@@ -153,7 +148,7 @@ export default function Reminders() {
 
       <Dialog open={open} onOpenChange={setOpen}><DialogContent><DialogHeader><DialogTitle>Ny påminnelse</DialogTitle></DialogHeader><div className="space-y-4"><Input placeholder="Till exempel: Förodla tomater" value={newTitle} onChange={(event) => setNewTitle(event.target.value)} /><Select value={newType} onValueChange={(value) => setNewType(value as Reminder['type'])}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="sowing">Sådd</SelectItem><SelectItem value="transplant">Utplantering</SelectItem><SelectItem value="watering">Vattning</SelectItem><SelectItem value="other">Övrigt</SelectItem></SelectContent></Select><Input type="date" value={newDate} onChange={(event) => setNewDate(event.target.value)} /><Button className="w-full" onClick={handleAdd} disabled={!newTitle.trim() || !newDate || saveSettings.isPending}>Spara påminnelse</Button></div></DialogContent></Dialog>
 
-      {permission !== 'unsupported' && permission !== 'granted' && <Card className="border-primary/20 bg-primary/5"><CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex gap-3"><BellRing className="h-5 w-5 text-primary mt-0.5" /><div><p className="font-semibold text-sm">Aktivera webbläsaraviseringar</p><p className="text-xs text-muted-foreground mt-1">Aviserar om uppgifter som är idag eller försenade när appen öppnas.</p></div></div><Button size="sm" variant="outline" onClick={requestNotifications}>Aktivera</Button></CardContent></Card>}
+      {permission !== 'unsupported' && permission !== 'granted' && <Card className="border-primary/20 bg-primary/5"><CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex gap-3"><BellRing className="h-5 w-5 text-primary mt-0.5" /><div><p className="font-semibold text-sm">Aktivera webbläsaraviseringar</p><p className="text-xs text-muted-foreground mt-1">Aviserar om uppgifter som är idag eller försenade när du öppnar appen.</p></div></div><Button size="sm" variant="outline" onClick={requestNotifications}>Aktivera</Button></CardContent></Card>}
 
       {urgent.length > 0 && <Card className="border-destructive/25 bg-destructive/5"><CardContent className="p-4"><div className="flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-destructive" /><p className="font-semibold text-sm text-destructive">{urgent.length} {urgent.length === 1 ? 'uppgift behöver' : 'uppgifter behöver'} uppmärksamhet</p></div></CardContent></Card>}
 
