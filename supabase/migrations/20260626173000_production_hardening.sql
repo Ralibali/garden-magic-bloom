@@ -200,9 +200,21 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  v_user_id uuid;
 begin
-  perform public.sync_garden_reminders_json(coalesce(new.user_id, old.user_id));
-  return coalesce(new, old);
+  if tg_op = 'DELETE' then
+    v_user_id := old.user_id;
+  else
+    v_user_id := new.user_id;
+  end if;
+
+  perform public.sync_garden_reminders_json(v_user_id);
+
+  if tg_op = 'DELETE' then
+    return old;
+  end if;
+  return new;
 end;
 $$;
 
