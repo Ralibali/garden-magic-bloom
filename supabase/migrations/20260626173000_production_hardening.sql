@@ -155,4 +155,73 @@ set settings = coalesce(settings::jsonb, '{}'::jsonb) - 'reminders',
     updated_at = now()
 where coalesce(settings::jsonb, '{}'::jsonb) ? 'reminders';
 
+create or replace function public.sync_garden_reminders_json(p_user_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_reminders jsonb;
+begin
+  select coalesce(
+    jsonb_agg(
+      jsonb_strip_nulls(jsonb_build_object(
+        'id', id,
+        'title', title,
+        'type', reminder_type,
+        'date', due_date,
+        'done', done,
+        'bed', bed,
+        'created_at', created_at,
+        'completed_at', completed_at,
+        'source_action_id', source_action_id,
+        'source_pest_log_id', source_pest_log_id
+      ))
+      order by done asc, due_date asc, created_at asc
+    ),
+    '[]'::jsonb
+  ) into v_reminders
+  from public.garden_reminders
+  where user_id = p_user_id;
+
+  insert into public.reminder_settings (user_id, settings, updated_at)
+  values (p_user_id, jsonb_build_object('reminders', v_reminders), now())
+  on conflict (user_id)
+  do update
+    set settings = jsonb_set(coalesce(public.reminder_settings.settings::jsonb, '{}'::jsonb), '{reminders}', v_reminders, true),
+        updated_at = now();
+end;
+$$;
+
+create or replace function public.sync_garden_reminders_json_trigger()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  perform public.sync_garden_reminders_json(coalesce(new.user_id, old.user_id));
+  return coalesce(new, old);
+end;
+$$;
+
+drop trigger if exists sync_garden_reminders_json_after_change on public.garden_reminders;
+create trigger sync_garden_reminders_json_after_change
+after insert or update or delete on public.garden_reminders
+for each row execute function public.sync_garden_reminders_json_trigger();
+
+do $$
+declare
+  reminder_user record;
+begin
+  for reminder_user in select distinct user_id from public.garden_reminders loop
+    perform public.sync_garden_reminders_json(reminder_user.user_id);
+  end loop;
+end;
+$$;
+
+revoke all on function public.sync_garden_reminders_json(uuid) from public, anon, authenticated;
+revoke all on function public.sync_garden_reminders_json_trigger() from public, anon, authenticated;
+
 commit;
