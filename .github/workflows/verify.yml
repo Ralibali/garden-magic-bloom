@@ -6,7 +6,7 @@ on:
   pull_request:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: verify-${{ github.ref }}
@@ -17,8 +17,10 @@ jobs:
     name: Web build and tests
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
+      - name: Check out source branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -29,12 +31,18 @@ jobs:
       - name: Regenerate lockfile
         run: npm install --package-lock-only --ignore-scripts
 
-      - name: Upload regenerated lockfile
-        uses: actions/upload-artifact@v4
-        with:
-          name: regenerated-package-lock
-          path: package-lock.json
-          retention-days: 1
+      - name: Commit verified lockfile
+        if: github.event_name == 'pull_request'
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo "Lockfile is already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "Synchronize npm lockfile"
+          git push origin HEAD:${{ github.head_ref }}
 
       - name: Install dependencies from lockfile
         run: npm ci
@@ -43,37 +51,10 @@ jobs:
         run: npm test
 
       - name: Lint source
-        id: lint
-        continue-on-error: true
-        run: npm run lint > lint.log 2>&1
-
-      - name: Upload lint log
-        if: steps.lint.outcome == 'failure'
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-log
-          path: lint.log
-          retention-days: 1
+        run: npm run lint
 
       - name: Build production app
-        id: production-build
-        continue-on-error: true
-        run: npm run build > build.log 2>&1
-
-      - name: Upload build log
-        if: steps.production-build.outcome == 'failure'
-        uses: actions/upload-artifact@v4
-        with:
-          name: production-build-log
-          path: build.log
-          retention-days: 1
-
-      - name: Report failures
-        if: steps.lint.outcome == 'failure' || steps.production-build.outcome == 'failure'
-        run: |
-          if [ -f lint.log ]; then echo '--- LINT ---'; tail -n 180 lint.log; fi
-          if [ -f build.log ]; then echo '--- BUILD ---'; tail -n 180 build.log; fi
-          exit 1
+        run: npm run build
 
   functions:
     name: Supabase function typecheck
