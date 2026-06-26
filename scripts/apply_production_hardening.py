@@ -1,9 +1,18 @@
 from pathlib import Path
 
-path = Path('supabase/functions/gardening-coach/index.ts')
-source = path.read_text()
 
-replacements = [
+def replace_or_confirm(source, before, after, label):
+    if before in source:
+        return source.replace(before, after, 1)
+    if after in source:
+        return source
+    raise SystemExit(f'Missing expected block: {label}')
+
+
+edge_path = Path('supabase/functions/gardening-coach/index.ts')
+edge = edge_path.read_text()
+
+edge_replacements = [
     (
         '''    const hasUserQuestion = clientMessages.some((message) => message.role === "user");
     let pendingUsage: { date: string; current: number } | null = null;
@@ -70,9 +79,31 @@ replacements = [
     ),
 ]
 
-for old, new, label in replacements:
-    if old not in source:
-        raise SystemExit(f'Missing expected block: {label}')
-    source = source.replace(old, new, 1)
+for before, after, label in edge_replacements:
+    edge = replace_or_confirm(edge, before, after, label)
+edge_path.write_text(edge)
 
-path.write_text(source)
+migration_path = Path('supabase/migrations/20260626173000_production_hardening.sql')
+migration = migration_path.read_text()
+old_trigger = '''begin
+  perform public.sync_garden_reminders_json(coalesce(new.user_id, old.user_id));
+  return coalesce(new, old);
+end;'''
+new_trigger = '''declare
+  v_user_id uuid;
+begin
+  if tg_op = 'DELETE' then
+    v_user_id := old.user_id;
+  else
+    v_user_id := new.user_id;
+  end if;
+
+  perform public.sync_garden_reminders_json(v_user_id);
+
+  if tg_op = 'DELETE' then
+    return old;
+  end if;
+  return new;
+end;'''
+migration = replace_or_confirm(migration, old_trigger, new_trigger, 'reminder mirror trigger')
+migration_path.write_text(migration)
