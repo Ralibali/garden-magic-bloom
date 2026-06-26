@@ -28,6 +28,7 @@ export interface GardenReminder {
   bed?: string;
   created_at?: string;
   completed_at?: string | null;
+  source_action_id?: string;
 }
 
 interface GardenTodayInput {
@@ -40,13 +41,30 @@ interface GardenTodayInput {
   climateZone: number;
 }
 
-const dayKey = (date = new Date()) => date.toISOString().slice(0, 10);
+export function localDateKey(date = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Stockholm',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+export function addDaysToDateKey(dateString: string, days: number) {
+  const [year, month, day] = dateString.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day + days));
+  return date.toISOString().slice(0, 10);
+}
 
 function daysBetween(dateString: string, now = new Date()) {
-  const date = new Date(`${dateString}T12:00:00`);
-  const today = new Date(now);
-  today.setHours(12, 0, 0, 0);
-  return Math.floor((today.getTime() - date.getTime()) / 86400000);
+  const today = localDateKey(now);
+  const [targetYear, targetMonth, targetDay] = dateString.split('-').map(Number);
+  const [todayYear, todayMonth, todayDay] = today.split('-').map(Number);
+  const targetUtc = Date.UTC(targetYear, targetMonth - 1, targetDay);
+  const todayUtc = Date.UTC(todayYear, todayMonth - 1, todayDay);
+  return Math.floor((todayUtc - targetUtc) / 86400000);
 }
 
 function priorityWeight(priority: GardenActionPriority) {
@@ -63,7 +81,7 @@ function uniqueActions(actions: GardenAction[]) {
 }
 
 export function buildGardenActions({ reminders = [], sowings = [], overduePlants = [], beds = [], weather, rainData, climateZone }: GardenTodayInput): GardenAction[] {
-  const today = dayKey();
+  const today = localDateKey();
   const actions: GardenAction[] = [];
 
   reminders
@@ -88,7 +106,7 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
   overduePlants.slice(0, 2).forEach((plant: any) => {
     const name = plant.custom_name || plant.plants?.name_sv || 'En växt';
     const interval = plant.watering_interval_days || 7;
-    const daysAgo = plant.last_watered ? daysBetween(plant.last_watered) : null;
+    const daysAgo = plant.last_watered ? daysBetween(String(plant.last_watered).slice(0, 10)) : null;
     actions.push({
       id: `water-${plant.id}-${today}`,
       title: `Kontrollera ${name}`,
@@ -120,16 +138,16 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
     });
   }
 
-  if (typeof maxWind === 'number' && maxWind >= 12) {
+  if (typeof maxWind === 'number' && maxWind >= 35) {
     actions.push({
       id: `wind-${today}`,
       title: 'Säkra känsliga plantor och stöd',
-      description: `Vindbyarna kan bli omkring ${Math.round(maxWind)} km/h. Kontrollera tomatstöd, fiberduk och lätta krukor.`,
-      priority: maxWind >= 18 ? 'urgent' : 'today',
+      description: `Vinden kan nå omkring ${Math.round(maxWind)} km/h. Kontrollera tomatstöd, fiberduk och lätta krukor.`,
+      priority: maxWind >= 55 ? 'urgent' : 'today',
       kind: 'weather',
       actionPath: '/app/beds',
       actionLabel: 'Se mina bäddar',
-      groPrompt: `Det väntas kraftig vind idag. Hjälp mig prioritera vad jag ska säkra i min odling.`,
+      groPrompt: `Det väntas vindar på omkring ${Math.round(maxWind)} km/h idag. Hjälp mig prioritera vad jag ska säkra i min odling.`,
       reminderType: 'other',
     });
   }
@@ -164,9 +182,11 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
 
   sowings.slice(0, 20).forEach((sowing: any) => {
     if (!sowing.sow_date || sowing.status === 'done') return;
-    const age = daysBetween(sowing.sow_date);
+    const age = daysBetween(String(sowing.sow_date).slice(0, 10));
+    if (age < 0) return;
     const name = sowing.variety || 'sådden';
-    const isIndoor = sowing.type === 'indoor' || sowing.status === 'indoor';
+    const status = sowing.status || 'sown';
+    const isIndoor = sowing.type === 'indoor' || status === 'indoor';
 
     if (isIndoor && age >= 35 && age <= 75) {
       actions.push({
@@ -180,7 +200,7 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
         groPrompt: `${name} såddes för ${age} dagar sedan och förodlas inomhus. Är det dags att härda eller plantera om den i klimatzon ${climateZone}?`,
         reminderType: 'transplant',
       });
-    } else if (age >= 7 && age <= 18 && sowing.status === 'sown') {
+    } else if (age >= 7 && age <= 18 && status === 'sown') {
       actions.push({
         id: `emergence-${sowing.id}`,
         title: `Kontrollera groningen av ${name}`,
@@ -192,7 +212,7 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
         groPrompt: `${name} såddes för ${age} dagar sedan. Vad bör jag kontrollera nu och när är utebliven groning ett problem?`,
         reminderType: 'sowing',
       });
-    } else if (age >= 70 && age <= 150) {
+    } else if (age >= 70 && age <= 150 && (sowing.type === 'direct' || status === 'transplanted' || status === 'harvesting')) {
       actions.push({
         id: `harvest-check-${sowing.id}`,
         title: `Kontrollera skördeläget för ${name}`,
@@ -235,14 +255,14 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
 
   return uniqueActions(actions)
     .sort((a, b) => priorityWeight(a.priority) - priorityWeight(b.priority))
-    .slice(0, 7);
+    .slice(0, 8);
 }
 
 export function visibleGardenActions(actions: GardenAction[], state: Record<string, GardenActionState> = {}) {
-  const today = dayKey();
+  const today = localDateKey();
   return actions.filter((action) => {
     const actionState = state[action.id];
-    if (actionState?.completedAt?.slice(0, 10) === today) return false;
+    if (actionState?.completedAt && localDateKey(new Date(actionState.completedAt)) === today) return false;
     if (actionState?.snoozedUntil && actionState.snoozedUntil > today) return false;
     return true;
   });
