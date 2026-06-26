@@ -65,8 +65,8 @@ jobs:
         with:
           version: latest
 
-      - name: Start local Supabase
-        run: supabase start
+      - name: Start local database
+        run: supabase start -x studio,imgproxy,inbucket,logflare,vector,supavisor,realtime,storage-api,postgrest,gotrue,edge-runtime
 
       - name: Rebuild database from migrations
         run: supabase db reset --local
