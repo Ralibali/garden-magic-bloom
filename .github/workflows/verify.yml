@@ -23,14 +23,37 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
-      - name: Install dependencies
+      - name: Regenerate lockfile
+        run: npm install --package-lock-only --ignore-scripts
+
+      - name: Upload regenerated lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: regenerated-package-lock
+          path: package-lock.json
+          retention-days: 1
+
+      - name: Install dependencies from lockfile
         run: npm ci
 
       - name: Run unit tests
         run: npm test
+
+      - name: Lint source
+        id: lint
+        continue-on-error: true
+        run: npm run lint > lint.log 2>&1
+
+      - name: Upload lint log
+        if: steps.lint.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-log
+          path: lint.log
+          retention-days: 1
 
       - name: Build production app
         id: production-build
@@ -45,10 +68,11 @@ jobs:
           path: build.log
           retention-days: 1
 
-      - name: Report build failure
-        if: steps.production-build.outcome == 'failure'
+      - name: Report failures
+        if: steps.lint.outcome == 'failure' || steps.production-build.outcome == 'failure'
         run: |
-          tail -n 120 build.log
+          if [ -f lint.log ]; then echo '--- LINT ---'; tail -n 180 lint.log; fi
+          if [ -f build.log ]; then echo '--- BUILD ---'; tail -n 180 build.log; fi
           exit 1
 
   functions:
