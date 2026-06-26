@@ -16,6 +16,14 @@ function isThisWeek(dateString?: string | null) {
   return new Date(dateString).getTime() >= startOfCurrentWeek().getTime();
 }
 
+function isoWeekNumber(date = new Date()) {
+  const target = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = target.getUTCDay() || 7;
+  target.setUTCDate(target.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(target.getUTCFullYear(), 0, 1));
+  return Math.ceil((((target.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+}
+
 const monthlyNextSteps: Record<number, string> = {
   1: 'Välj årets sorter och kontrollera fröförrådet.',
   2: 'Prioritera långsamma sådder och kontrollera extraljus.',
@@ -46,15 +54,14 @@ export default function WeeklyGardenSummary({ sowings = [], harvests = [], remin
     const weekPhotos = photos.filter((item) => isThisWeek(item.taken_at || item.created_at));
     return {
       sowings: weekSowings.length,
-      harvests: weekHarvests.length,
       harvestKg: weekHarvestGrams / 1000,
       completed: reminderCompletions + smartCompletions,
       photos: weekPhotos.length,
     };
   }, [sowings, harvests, reminders, smartState, photos]);
 
-  const hasActivity = summary.sowings + summary.harvests + summary.completed + summary.photos > 0;
-  const weekNumber = Number(new Intl.DateTimeFormat('sv-SE', { week: 'numeric' } as any).format?.(new Date()).replace(/\D/g, '')) || Math.ceil((((new Date() as any) - (new Date(new Date().getFullYear(), 0, 1) as any)) / 86400000 + new Date(new Date().getFullYear(), 0, 1).getDay() + 1) / 7);
+  const hasActivity = summary.sowings + summary.harvestKg + summary.completed + summary.photos > 0;
+  const weekNumber = isoWeekNumber();
 
   return (
     <section className="grid gap-4 lg:grid-cols-[1.35fr_.65fr]">
