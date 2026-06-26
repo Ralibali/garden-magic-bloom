@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -22,10 +22,12 @@ import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { recordProductActivity } from '@/lib/analytics';
 import {
+  addDaysToDateKey,
   buildGardenActions,
   GardenAction,
   GardenActionState,
   GardenReminder,
+  localDateKey,
   visibleGardenActions,
 } from '@/lib/gardenToday';
 
@@ -62,12 +64,6 @@ const priorityClasses = {
   soon: 'border-border/70 bg-muted/45 text-muted-foreground',
 };
 
-function tomorrowDate() {
-  const date = new Date();
-  date.setDate(date.getDate() + 1);
-  return date.toISOString().slice(0, 10);
-}
-
 export default function TodayInGarden({
   weather,
   rainData,
@@ -80,16 +76,19 @@ export default function TodayInGarden({
 }: TodayInGardenProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [showAll, setShowAll] = useState(false);
   const settings = (remindersData?.settings as any) || {};
   const reminders = (settings.reminders || []) as GardenReminder[];
   const actionState = (settings.smart_action_state || {}) as Record<string, GardenActionState>;
+  const today = localDateKey();
+  const tomorrow = addDaysToDateKey(today, 1);
 
   const generatedActions = useMemo(
     () => buildGardenActions({ reminders, sowings, overduePlants, beds, weather, rainData, climateZone }),
     [reminders, sowings, overduePlants, beds, weather, rainData, climateZone],
   );
   const actions = useMemo(() => visibleGardenActions(generatedActions, actionState), [generatedActions, actionState]);
-  const completedToday = Object.values(actionState).filter((state) => state.completedAt?.slice(0, 10) === new Date().toISOString().slice(0, 10)).length;
+  const completedToday = Object.values(actionState).filter((state) => state.completedAt && localDateKey(new Date(state.completedAt)) === today).length;
 
   const saveMutation = useMutation({
     mutationFn: (nextSettings: any) => api.updateReminderSettings({ settings: { ...settings, ...nextSettings } }),
@@ -109,23 +108,23 @@ export default function TodayInGarden({
   };
 
   const snoozeAction = (action: GardenAction) => {
-    const nextState = { ...actionState, [action.id]: { ...actionState[action.id], snoozedUntil: tomorrowDate() } };
+    const nextState = { ...actionState, [action.id]: { ...actionState[action.id], snoozedUntil: tomorrow } };
     saveMutation.mutate({ smart_action_state: nextState });
     void recordProductActivity('smart_action_snoozed', { action_id: action.id, kind: action.kind });
     toast({ title: 'Flyttad till imorgon', description: action.title });
   };
 
   const addReminder = (action: GardenAction) => {
-    const exists = reminders.some((reminder: any) => reminder.source_action_id === action.id && !reminder.done);
+    const exists = reminders.some((reminder) => reminder.source_action_id === action.id && !reminder.done);
     if (exists) {
       toast({ title: 'Påminnelsen finns redan' });
       return;
     }
-    const reminder = {
+    const reminder: GardenReminder = {
       id: crypto.randomUUID(),
       title: action.title,
       type: action.reminderType,
-      date: tomorrowDate(),
+      date: tomorrow,
       done: false,
       created_at: new Date().toISOString(),
       source_action_id: action.id,
@@ -140,8 +139,8 @@ export default function TodayInGarden({
     navigate('/app/gro', { state: { prompt: action.groPrompt, source: 'today_in_garden' } });
   };
 
-  const visible = actions.slice(0, 4);
-  const totalToday = visible.length + completedToday;
+  const visible = showAll ? actions : actions.slice(0, 4);
+  const totalToday = actions.length + completedToday;
   const progress = totalToday ? Math.round((completedToday / totalToday) * 100) : 100;
 
   return (
@@ -174,7 +173,7 @@ export default function TodayInGarden({
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="flex items-center justify-between px-1 pb-1"><div><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Prioriterat för dig</p><p className="mt-1 text-sm font-semibold">{visible.length} {visible.length === 1 ? 'sak' : 'saker'} att ta ställning till</p></div>{visible.some((action) => action.priority === 'urgent') && <AlertTriangle className="h-5 w-5 text-destructive" />}</div>
+              <div className="flex items-center justify-between px-1 pb-1"><div><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Prioriterat för dig</p><p className="mt-1 text-sm font-semibold">{actions.length} {actions.length === 1 ? 'sak' : 'saker'} att ta ställning till</p></div>{actions.some((action) => action.priority === 'urgent') && <AlertTriangle className="h-5 w-5 text-destructive" />}</div>
 
               {visible.map((action) => {
                 const Icon = kindIcons[action.kind];
@@ -198,7 +197,7 @@ export default function TodayInGarden({
                 );
               })}
 
-              {actions.length > visible.length && <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => navigate('/app/reminders')}>Visa {actions.length - visible.length} fler rekommendationer <ArrowRight className="h-4 w-4" /></Button>}
+              {actions.length > 4 && <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => setShowAll((current) => !current)}>{showAll ? 'Visa färre' : `Visa ${actions.length - 4} fler rekommendationer`} <ArrowRight className={`h-4 w-4 transition-transform ${showAll ? '-rotate-90' : 'rotate-90'}`} /></Button>}
             </div>
           )}
         </div>
