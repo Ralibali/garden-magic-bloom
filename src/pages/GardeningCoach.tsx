@@ -9,10 +9,13 @@ import { FadeIn } from '@/components/animations';
 import { useAuth } from '@/hooks/useAuth';
 import GroProductSuggestion from '@/components/GroProductSuggestion';
 import { recordProductActivity } from '@/lib/analytics';
+import { localDateKey } from '@/lib/gardenToday';
+import { approximateDataUrlBytes, compressImageFile, isImageDataUrl } from '@/lib/images';
 
 const FREE_DAILY_LIMIT = 3;
 const COACH_USAGE_KEY = 'gro-daily-usage';
 const COACH_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gardening-coach`;
+const MAX_IMAGE_BYTES = 1_500_000;
 
 type Msg = { role: 'user' | 'assistant'; content: string; images?: string[] };
 
@@ -26,7 +29,7 @@ function getDailyUsage(): { count: number; date: string } {
 }
 
 function incrementUsage() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateKey();
   const usage = getDailyUsage();
   const count = usage.date === today ? usage.count + 1 : 1;
   localStorage.setItem(COACH_USAGE_KEY, JSON.stringify({ count, date: today }));
@@ -34,19 +37,9 @@ function incrementUsage() {
 }
 
 function getRemainingToday() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateKey();
   const usage = getDailyUsage();
   return usage.date === today ? Math.max(0, FREE_DAILY_LIMIT - usage.count) : FREE_DAILY_LIMIT;
-}
-
-async function compressImage(file: File, maxSide = 1280, quality = 0.8): Promise<string> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL('image/jpeg', quality);
 }
 
 async function streamChat({ messages, accessToken, onDelta, onDone, signal }: { messages: Msg[]; accessToken: string; onDelta: (text: string) => void; onDone: () => void; signal?: AbortSignal }) {
@@ -119,6 +112,7 @@ export default function GardeningCoach() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [contextPrompt, setContextPrompt] = useState('');
+  const [contextSource, setContextSource] = useState('gro');
   const [pendingImages, setPendingImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -158,7 +152,7 @@ export default function GardeningCoach() {
     } catch (error: any) {
       if (error.name !== 'AbortError') {
         if (error.code === 'free_limit_reached' || error.status === 429) {
-          localStorage.setItem(COACH_USAGE_KEY, JSON.stringify({ count: FREE_DAILY_LIMIT, date: new Date().toISOString().slice(0, 10) }));
+          localStorage.setItem(COACH_USAGE_KEY, JSON.stringify({ count: FREE_DAILY_LIMIT, date: localDateKey() }));
           setRemaining(0);
           setMessages((previous) => previous[previous.length - 1]?.role === 'user' ? previous.slice(0, -1) : previous);
         } else {
@@ -176,22 +170,25 @@ export default function GardeningCoach() {
   }, [initialized, sendMessages]);
 
   useEffect(() => {
-    const prompt = typeof (location.state as any)?.prompt === 'string' ? (location.state as any).prompt : '';
-    if (!prompt) return;
-    setInput(prompt);
-    setContextPrompt(prompt);
-    window.history.replaceState({}, document.title);
+    const state = (location.state as any) || {};
+    const prompt = typeof state.prompt === 'string' ? state.prompt : '';
+    const imageData = isImageDataUrl(state.imageData) && approximateDataUrlBytes(state.imageData) <= MAX_IMAGE_BYTES ? state.imageData : '';
+    if (!prompt && !imageData) return;
+    if (prompt) setInput(prompt);
+    if (imageData) setPendingImages([imageData]);
+    setContextPrompt(prompt || 'Bilden kommer från din fotodagbok.');
+    setContextSource(typeof state.source === 'string' ? state.source : 'linked_context');
+    navigate(location.pathname, { replace: true, state: null });
     window.setTimeout(() => inputRef.current?.focus(), 80);
-  }, [location.state]);
+  }, [location.pathname, location.state, navigate]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files?.length) return;
     const selected = Array.from(files).slice(0, 2 - pendingImages.length);
     for (const file of selected) {
       try {
-        const dataUrl = await compressImage(file);
-        const base64 = dataUrl.split(',')[1] || '';
-        if (base64.length * 0.75 > 1_500_000) {
+        const dataUrl = await compressImageFile(file);
+        if (approximateDataUrlBytes(dataUrl) > MAX_IMAGE_BYTES) {
           toast({ title: 'Bilden är för stor', description: 'Välj en mindre bild.', variant: 'destructive' });
           continue;
         }
@@ -212,19 +209,28 @@ export default function GardeningCoach() {
     }
 
     const images = pendingImages;
+    const source = contextSource;
     const userMessage: Msg = { role: 'user', content: text || 'Vad ser du på bilden?', images: images.length ? images : undefined };
     const nextMessages = [...messages.filter((message) => message.content || message.images?.length), userMessage];
     setInput('');
     setContextPrompt('');
+    setContextSource('gro');
     setPendingImages([]);
     setMessages((previous) => [...previous, userMessage]);
     if (!isPremium) {
       incrementUsage();
       setRemaining(getRemainingToday());
     }
-    void recordProductActivity('gro_question_sent', { has_image: images.length > 0, source: (location.state as any)?.source || 'gro' });
+    void recordProductActivity('gro_question_sent', { has_image: images.length > 0, source });
     scrollToBottom();
     await sendMessages(nextMessages);
+  };
+
+  const clearLinkedContext = () => {
+    setContextPrompt('');
+    setContextSource('gro');
+    setInput('');
+    setPendingImages([]);
   };
 
   return (
@@ -252,7 +258,7 @@ export default function GardeningCoach() {
       </div>
 
       <footer className="border-t border-border/60 bg-background/65 p-3 backdrop-blur-xl sm:p-4">
-        {contextPrompt && <div className="mb-2 flex items-start justify-between gap-3 rounded-xl border border-primary/15 bg-primary/6 px-3 py-2"><div className="flex gap-2 text-xs text-muted-foreground"><Bot className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" /><span>Frågan kommer från dagens personliga rekommendation. Justera texten eller skicka den som den är.</span></div><button onClick={() => { setContextPrompt(''); setInput(''); }} className="text-muted-foreground hover:text-foreground" aria-label="Ta bort förifylld fråga"><X className="h-3.5 w-3.5" /></button></div>}
+        {contextPrompt && <div className="mb-2 flex items-start justify-between gap-3 rounded-xl border border-primary/15 bg-primary/6 px-3 py-2"><div className="flex gap-2 text-xs text-muted-foreground"><Bot className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" /><span>Underlaget kommer från en annan del av din odlingsdagbok. Justera frågan eller skicka den som den är.</span></div><button onClick={clearLinkedContext} className="text-muted-foreground hover:text-foreground" aria-label="Ta bort förifyllt underlag"><X className="h-3.5 w-3.5" /></button></div>}
         {!!pendingImages.length && <div className="mb-2 flex flex-wrap gap-2">{pendingImages.map((source, index) => <div key={index} className="relative"><img src={source} alt="" className="h-16 w-16 rounded-xl border border-border object-cover" /><button onClick={() => setPendingImages((previous) => previous.filter((_, itemIndex) => itemIndex !== index))} className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground" aria-label="Ta bort bild"><X className="h-3 w-3" /></button></div>)}</div>}
         <div className="flex gap-2"><input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(event) => handleFiles(event.target.files)} /><Button type="button" variant="outline" size="icon" onClick={() => fileRef.current?.click()} disabled={loading || pendingImages.length >= 2 || (!isPremium && remaining <= 0)} aria-label="Lägg till bild"><ImagePlus className="h-4 w-4" /></Button><Input ref={inputRef} value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void handleSend(); } }} placeholder={!isPremium && remaining <= 0 ? 'Plus krävs för fler frågor idag' : 'Fråga om din odling eller fotografera en planta…'} disabled={loading || (!isPremium && remaining <= 0)} className="flex-1" /><Button onClick={() => void handleSend()} disabled={loading || (!input.trim() && !pendingImages.length) || (!isPremium && remaining <= 0)} size="icon"><Send className="h-4 w-4" /></Button></div>
         <p className="mt-2 text-center text-[10px] text-muted-foreground">Gro ger AI-genererade råd och visar osäkerhet när underlaget inte räcker.</p>
