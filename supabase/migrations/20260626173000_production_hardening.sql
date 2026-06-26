@@ -39,6 +39,37 @@ $$;
 revoke all on function public.consume_gro_quota(uuid, date, integer) from public, anon, authenticated;
 grant execute on function public.consume_gro_quota(uuid, date, integer) to service_role;
 
+create unique index if not exists reminder_settings_user_id_key
+  on public.reminder_settings (user_id);
+
+create or replace function public.merge_reminder_settings(p_patch jsonb)
+returns jsonb
+language plpgsql
+security invoker
+set search_path = public
+as $$
+declare
+  v_settings jsonb;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  insert into public.reminder_settings (user_id, settings, updated_at)
+  values (auth.uid(), coalesce(p_patch, '{}'::jsonb), now())
+  on conflict (user_id)
+  do update
+    set settings = coalesce(public.reminder_settings.settings::jsonb, '{}'::jsonb) || coalesce(excluded.settings::jsonb, '{}'::jsonb),
+        updated_at = now()
+  returning settings::jsonb into v_settings;
+
+  return v_settings;
+end;
+$$;
+
+revoke all on function public.merge_reminder_settings(jsonb) from public, anon;
+grant execute on function public.merge_reminder_settings(jsonb) to authenticated;
+
 create table if not exists public.garden_reminders (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
