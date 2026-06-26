@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import PublicEmailCapture from '@/components/PublicEmailCapture';
 import { ArrowRight, CalendarDays, Check, Copy, Sprout } from 'lucide-react';
 import { sowingMatrix, formatRange, getCropTiming, type CropTiming } from '@/data/sowingMatrix';
+import { CURRENT_YEAR } from '@/lib/currentYear';
 
 const methods = ['Pallkrage', 'Växthus', 'Friland', 'Balkong', 'Krukor'];
 
@@ -73,7 +74,7 @@ export default function Sakalender() {
   );
 
   const planPayload = { type: 'sakalender', zone, method, crops: selected, createdAt: new Date().toISOString() };
-  const shareText = `Jag skapade min såkalender för 2026 med Odlingsdagboken 🌱 Klimatzon ${zone}, odling i ${method.toLowerCase()}.`;
+  const shareText = `Jag skapade min såkalender för ${CURRENT_YEAR} med Odlingsdagboken 🌱 Klimatzon ${zone}, odling i ${method.toLowerCase()}.`;
 
   const createCalendar = () => {
     try {
@@ -88,7 +89,7 @@ export default function Sakalender() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="Såkalender 2026 – personlig såkalender för din zon" description="Skapa en gratis såkalender för svenska odlare. Välj klimatzon och få förodlings-, utplanterings- och skördetider beräknade för just din zon (1–8)." path="/sakalender" ogImage="https://odlingsdagboken.com/og-image.png" />
+      <Seo title={`Såkalender ${CURRENT_YEAR} – personlig såkalender för din zon`} description="Skapa en gratis såkalender för svenska odlare. Välj klimatzon och få förodlings-, utplanterings- och skördetider beräknade för just din zon (1–8)." path="/sakalender" ogImage="https://odlingsdagboken.com/og-image.png" />
       <header className="border-b border-border/50 bg-card/80 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 font-serif font-semibold text-foreground"><Sprout className="h-5 w-5 text-primary" /> Odlingsdagboken</Link>
@@ -101,7 +102,7 @@ export default function Sakalender() {
             <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-20 grid lg:grid-cols-[1fr_420px] gap-10 items-start">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-4">Gratis odlingsverktyg</p>
-                <h1 className="font-serif text-4xl sm:text-5xl text-foreground leading-tight mb-5">Skapa din personliga såkalender för 2026</h1>
+                <h1 className="font-serif text-4xl sm:text-5xl text-foreground leading-tight mb-5">Skapa din personliga såkalender för {CURRENT_YEAR}</h1>
                 <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mb-6">Välj klimatzon, odlingssätt och vad du vill odla. Odlingsdagboken räknar fram exakta veckor för förodling, utplantering, direktsådd och skörd – baserat på sista frost i just din zon.</p>
                 <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-primary" /> Veckor anpassade efter zon 1–8</span>
