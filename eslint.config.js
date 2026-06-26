@@ -23,7 +23,10 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
       "no-empty": ["error", { allowEmptyCatch: true }],
+      "no-useless-escape": "warn",
+      "prefer-const": "warn",
     },
   },
 );
