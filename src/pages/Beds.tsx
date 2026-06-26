@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, LayoutGrid, BookOpen, Save, Loader2, Leaf, Crown } from 'lucide-react';
+import { Plus, LayoutGrid, BookOpen, Save, Loader2, Leaf, Crown, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -14,6 +14,7 @@ import { FreeLimitBadge } from '@/components/PremiumGate';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
+import AppEmptyState from '@/components/AppEmptyState';
 import { recordProductActivity } from '@/lib/analytics';
 
 const FREE_BED_LIMIT = 3;
@@ -91,10 +92,31 @@ const Beds = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <FadeIn><div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"><div><h1 className="text-2xl sm:text-3xl font-serif flex items-center gap-2"><LayoutGrid className="h-6 w-6 text-primary" /> Mina bäddar</h1><p className="text-muted-foreground text-sm mt-1">Hantera odlingsplatser och säsongsanteckningar</p></div><div className="flex items-center gap-2"><FreeLimitBadge current={beds?.length || 0} limit={FREE_BED_LIMIT} label="bäddar" /><Dialog open={open} onOpenChange={(nextOpen) => { if (nextOpen && !isPremium && (beds?.length || 0) >= FREE_BED_LIMIT) { toast({ title: 'Gratisgränsen är nådd', description: 'Plus ger obegränsat antal bäddar.', variant: 'destructive' }); return; } setOpen(nextOpen); }}><DialogTrigger asChild><Button className="gap-2"><Plus className="h-4 w-4" /> Ny bädd</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle className="font-serif">Lägg till bädd</DialogTitle></DialogHeader><div className="space-y-4"><Input placeholder="Namn, till exempel Växthuset" value={name} onChange={(event) => setName(event.target.value)} /><Textarea placeholder="Beskrivning (valfritt)" value={description} onChange={(event) => setDescription(event.target.value)} /><Button onClick={() => createMutation.mutate()} disabled={!name.trim() || createMutation.isPending} className="w-full">{createMutation.isPending ? 'Sparar…' : 'Spara'}</Button></div></DialogContent></Dialog></div></div></FadeIn>
+    <div className="max-w-6xl mx-auto space-y-6">
+      <FadeIn>
+        <section className="premium-panel relative overflow-hidden p-5 sm:p-6">
+          <div className="absolute right-0 top-0 h-28 w-28 rounded-full bg-primary/8 blur-3xl" />
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div><span className="section-kicker mb-3"><Sparkles className="h-3.5 w-3.5" /> Din odlingskarta</span><h1 className="page-title">Mina bäddar</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Samla varje odlingsplats, säsongsanteckning och lärdom där den hör hemma.</p></div>
+            <div className="flex items-center gap-2"><FreeLimitBadge current={beds?.length || 0} limit={FREE_BED_LIMIT} label="bäddar" /><Dialog open={open} onOpenChange={(nextOpen) => { if (nextOpen && !isPremium && (beds?.length || 0) >= FREE_BED_LIMIT) { toast({ title: 'Gratisgränsen är nådd', description: 'Plus ger obegränsat antal bäddar.', variant: 'destructive' }); return; } setOpen(nextOpen); }}><DialogTrigger asChild><Button className="gap-2"><Plus className="h-4 w-4" /> Ny bädd</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Lägg till odlingsplats</DialogTitle></DialogHeader><div className="space-y-4"><Input placeholder="Namn, till exempel Växthuset" value={name} onChange={(event) => setName(event.target.value)} /><Textarea placeholder="Beskrivning (valfritt)" value={description} onChange={(event) => setDescription(event.target.value)} /><Button onClick={() => createMutation.mutate()} disabled={!name.trim() || createMutation.isPending} className="w-full">{createMutation.isPending ? 'Sparar…' : 'Skapa bädd'}</Button></div></DialogContent></Dialog></div>
+          </div>
+        </section>
+      </FadeIn>
 
-      {isLoading ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{[1, 2, 3].map((item) => <Skeleton key={item} className="h-48" />)}</div> : !beds?.length ? <Card><CardContent className="py-12 text-center text-muted-foreground">Inga bäddar ännu. Skapa din första odlingsplats för att komma igång! 🌱</CardContent></Card> : <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{beds.map((bed: any) => { const isEditing = editingNotes[bed.id] !== undefined; const notesValue = isEditing ? editingNotes[bed.id] : (bed.season_notes || ''); const lastSummary = getLatestSummary(bed.id); return <StaggerItem key={bed.id}><Card className="bg-card border-border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"><CardHeader className="pb-2 flex flex-row items-center justify-between"><CardTitle className="text-lg font-serif">{bed.name}</CardTitle><ConfirmDeleteButton itemName={bed.name} description="Bädden tas bort. Kontrollera först om sådder eller skördar är kopplade till den." disabled={deleteMutation.isPending} onConfirm={() => deleteMutation.mutate(bed.id)} /></CardHeader><CardContent className="space-y-3">{bed.description && <p className="text-sm text-muted-foreground">{bed.description}</p>}{lastSummary && <div className="bg-accent/5 border border-accent/20 rounded-lg p-2.5"><div className="flex items-center gap-1.5 mb-1"><Leaf className="h-3 w-3 text-accent" /><span className="text-[10px] font-semibold text-accent uppercase tracking-wide">Förra säsongen ({lastSummary.year})</span></div>{lastSummary.went_well && <p className="text-xs line-clamp-2">✓ {lastSummary.went_well}</p>}{lastSummary.learnings && <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">💡 {lastSummary.learnings}</p>}</div>}<div><div className="flex items-center gap-1.5 mb-1.5"><BookOpen className="h-3.5 w-3.5 text-primary" /><span className="text-xs font-medium">Säsongsanteckningar</span></div><Textarea placeholder="Vad fungerade? Vad vill du ändra?" className="text-xs min-h-[60px] resize-none" value={notesValue} onChange={(event) => setEditingNotes((previous) => ({ ...previous, [bed.id]: event.target.value }))} />{isEditing && <Button size="sm" className="mt-2 gap-1.5 w-full" onClick={() => handleSaveNotes(bed.id)} disabled={savingNotes === bed.id}>{savingNotes === bed.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />} Spara anteckningar</Button>}</div></CardContent></Card></StaggerItem>; })}</StaggerContainer>}
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{[1, 2, 3].map((item) => <Skeleton key={item} className="h-64 rounded-[1.35rem]" />)}</div>
+      ) : !beds?.length ? (
+        <AppEmptyState icon={LayoutGrid} title="Skapa din första odlingsplats" description="En bädd kan vara en pallkrage, ett växthus, en balkonglåda eller en del av friland. När platsen finns kan sådd, skörd och lärdomar börja hänga ihop." actionLabel="Skapa första bädden" onAction={() => setOpen(true)} secondaryLabel="Se såkalendern" onSecondary={() => navigate('/app/calendar')} />
+      ) : (
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {beds.map((bed: any) => {
+            const isEditing = editingNotes[bed.id] !== undefined;
+            const notesValue = isEditing ? editingNotes[bed.id] : (bed.season_notes || '');
+            const lastSummary = getLatestSummary(bed.id);
+            return <StaggerItem key={bed.id}><Card className="group relative overflow-hidden hover:-translate-y-1 hover:border-primary/20 hover:shadow-[var(--card-shadow-hover)]"><div className="h-1.5 bg-gradient-to-r from-primary via-primary/65 to-accent/70" /><CardHeader className="pb-3 flex flex-row items-start justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.13em] text-primary/70 mb-1">Odlingsplats</p><CardTitle className="text-xl">{bed.name}</CardTitle></div><ConfirmDeleteButton itemName={bed.name} description="Bädden tas bort. Kontrollera först om sådder eller skördar är kopplade till den." disabled={deleteMutation.isPending} onConfirm={() => deleteMutation.mutate(bed.id)} /></CardHeader><CardContent className="space-y-4">{bed.description && <p className="text-sm leading-relaxed text-muted-foreground">{bed.description}</p>}{lastSummary && <div className="rounded-2xl border border-accent/15 bg-accent/5 p-3"><div className="flex items-center gap-1.5 mb-1.5"><Leaf className="h-3.5 w-3.5 text-accent" /><span className="text-[10px] font-bold text-accent uppercase tracking-wide">Förra säsongen · {lastSummary.year}</span></div>{lastSummary.went_well && <p className="text-xs line-clamp-2">✓ {lastSummary.went_well}</p>}{lastSummary.learnings && <p className="text-xs text-muted-foreground line-clamp-2 mt-1">💡 {lastSummary.learnings}</p>}</div>}<div><div className="flex items-center gap-1.5 mb-2"><BookOpen className="h-3.5 w-3.5 text-primary" /><span className="text-xs font-semibold">Säsongsanteckningar</span></div><Textarea placeholder="Vad fungerar? Vad vill du ändra?" className="text-xs min-h-[84px] resize-none" value={notesValue} onChange={(event) => setEditingNotes((previous) => ({ ...previous, [bed.id]: event.target.value }))} />{isEditing && <Button size="sm" className="mt-2 gap-1.5 w-full" onClick={() => handleSaveNotes(bed.id)} disabled={savingNotes === bed.id}>{savingNotes === bed.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />} Spara anteckningar</Button>}</div></CardContent></Card></StaggerItem>;
+          })}
+        </StaggerContainer>
+      )}
     </div>
   );
 };
