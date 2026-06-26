@@ -33,7 +33,23 @@ jobs:
         run: npm test
 
       - name: Build production app
-        run: npm run build
+        id: production-build
+        continue-on-error: true
+        run: npm run build > build.log 2>&1
+
+      - name: Upload build log
+        if: steps.production-build.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build-log
+          path: build.log
+          retention-days: 1
+
+      - name: Report build failure
+        if: steps.production-build.outcome == 'failure'
+        run: |
+          tail -n 120 build.log
+          exit 1
 
   functions:
     name: Supabase function typecheck
