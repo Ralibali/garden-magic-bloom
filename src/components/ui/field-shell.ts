@@ -1,0 +1,1 @@
+export const fieldShell = "rounded-xl border border-input/85 bg-card/80 shadow-sm transition-all duration-200 hover:border-primary/25 focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10";
