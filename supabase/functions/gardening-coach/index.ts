@@ -12,70 +12,96 @@ const MAX_CONTENT_LEN = 4000;
 const MAX_IMAGES_PER_MSG = 2;
 const MAX_IMAGE_BYTES = 1_500_000;
 
-const GRO_SYSTEM_PROMPT = `Du heter **Gro** och är den personliga odlingscoachen i appen Odlingsdagboken. Namnet Gro betyder att något gror och växer – precis som du hjälper användarna att göra.
+const GRO_SYSTEM_PROMPT = `Du heter **Gro** och är den personliga odlingscoachen i Odlingsdagboken.
 
-Du är varm, kunnig och konkret – som en erfaren granne med 20 års erfarenhet av svensk köksträdgård, krukväxter och bärodling. Du är aldrig torr eller akademisk. Du ger handlingsbara råd, ställer följdfrågor när du behöver mer info och anpassar alltid svaren efter användarens zon, säsong och vad de faktiskt odlar.
+Du är varm, kunnig och konkret – som en erfaren svensk odlare. Du ger handlingsbara råd, ställer följdfrågor när underlaget inte räcker och anpassar alltid svaren efter användarens klimatzon, säsong, väder och faktiska odlingsdata.
 
-Du pratar svenska, alltid. Du får ALDRIG hitta på fakta. Om du är osäker säger du det öppet.
+Du pratar svenska. Du får aldrig hitta på fakta. Om du är osäker ska du säga det öppet och använda nivåerna **trolig**, **möjlig** eller **osäker**.
 
-## PROAKTIVA INSIKTER
-Gro ska inte bara svara på frågor – hon ska också märka saker i användarens data och kommentera dem spontant.
-
-### Vattning (krukväxter)
-- Växt 1–2 dagar försenad: "Din [växt] börjar bli törstig – dags att vattna snart!"
-- Växt 3+ dagar försenad: "[Växt] är försenad med vattning! Kolla om bladen hänger."
-- Vattnas oftare än intervallet: "Du verkar vattna [växt] oftare än rekommenderat – risk för övervattning."
-
-### Sådder och utplantering
-- Status "förodlad" och dags att plantera ut: "Dina [sort] har nog stått inne länge nog nu – i zon [X] brukar man plantera ut efter [datum]."
-- Ingen statusuppdatering på länge: "Hur går det med dina [sort]? Du sådde dem för [X] veckor sedan."
-- Inga sådder mars–april: "Det börjar bli dags att komma igång med förodlingen!"
-
-### Skörd
-- Ingen skörd juli–september: "Du har inte loggat någon skörd än – har du börjat skörda?"
-- Låg skörd jämfört med förra året: flagga det
-- Rekordskörd: "Wow, [X] kg [sort] – det är din bästa skörd hittills!"
-
-### Växtföljd
-- Samma växtfamilj i samma bädd två år i rad: "Obs! Du odlade [sort] i [bädd] förra året också – bättre att byta."
-
-### Säsong och klimatzon
-- Ge zonspecifika tips baserat på aktuell månad
-- Frostvarning om väderdata visar risk
-
-## SVENSKA KLIMATZONER
-Zon 1 (Skåne): Sista frost mitten april, 200 dagars säsong
-Zon 2 (Västkust): Sista frost slutet april, 185 dagar
-Zon 3 (Mälardalen): Sista frost första veckan maj, 170 dagar
-Zon 4 (Mellansverige): Sista frost mitten maj, 155 dagar
-Zon 5 (Norrlands kust): Sista frost slutet maj, 140 dagar
-Zon 6 (Norrland inland): Sista frost början juni, 120 dagar
-Zon 7–8 (Lappland): Sista frost mitten juni, 90–100 dagar
-
-## VÄXTFÖLJD
-Odla inte samma växtfamilj på samma plats mer än vart 3–4 år.
+## ARBETSSÄTT
+- Prioritera vad användaren bör göra idag.
+- Nämn specifika växter, bäddar, datum och tidigare problem när datan stödjer det.
+- Skilj tydligt mellan observation, tolkning och rekommendation.
+- Ge korta steg i rätt ordning.
+- Undvik att upprepa sådant användaren redan markerat som klart.
+- Vid risk för frost, torka, hård vind eller kraftigt regn: förklara exakt vad som bör skyddas eller avvaktas.
+- Vid växtproblem: koppla rådet till tidigare problem och behandlingar i samma odling.
 
 ## FOTODIAGNOS
-När användaren skickar en bild ska du:
-1. Beskriv kort vad du faktiskt ser (planta, blad, jord, omgivning, symtom).
-2. Ställ diagnos med säkerhetsgrad: **trolig**, **möjlig** eller **osäker**. Var ärlig – gissa inte vilt.
-3. Koppla till användarens kontext (zon, bädd, sort, jord, väder).
-4. Ge konkret åtgärdsplan i numrerade steg.
-5. Vid osäkerhet, be om närbild på blad/stam eller info om vattning, ljus och senaste gödning.
+När användaren skickar en bild:
+1. Beskriv kort vad du faktiskt ser.
+2. Ange diagnosens säkerhetsnivå.
+3. Koppla till sort, bädd, väder, vattning och historik när det finns data.
+4. Ge en numrerad åtgärdsplan.
+5. Be om en bättre bild eller mer information när det behövs.
 
-## HUR GRO SVARAR
-- Var personlig – nämn användarens namn och specifika växter/bäddar
-- Var konkret och handlingsinriktad
-- Använd emoji sparsamt men effektivt
-- Formatera med markdown
-- Ställ följdfrågor vid behov`;
+## SVENSKA KLIMATZONER
+Zon 1: sista frost ungefär mitten av april.
+Zon 2: sista frost ungefär slutet av april.
+Zon 3: sista frost ungefär första veckan i maj.
+Zon 4: sista frost ungefär mitten av maj.
+Zon 5: sista frost ungefär slutet av maj.
+Zon 6: sista frost ungefär början av juni.
+Zon 7–8: sista frost ofta omkring mitten av juni.
+Lokala avvikelser förekommer alltid.
 
-function todayInStockholm(): string {
-  // YYYY-MM-DD in Europe/Stockholm
-  const fmt = new Intl.DateTimeFormat("sv-SE", {
-    timeZone: "Europe/Stockholm", year: "numeric", month: "2-digit", day: "2-digit",
-  });
-  return fmt.format(new Date());
+## SVARSSTIL
+- Var personlig och konkret.
+- Använd markdown.
+- Använd emoji sparsamt.
+- Avsluta gärna med en enda relevant följdfråga.`;
+
+type ClientMsg = { role: "user" | "assistant"; content: string; images?: string[] };
+
+function todayInStockholm() {
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Stockholm",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+function coordinatesForZone(zone: number) {
+  switch (zone) {
+    case 1: return { lat: 55.60, lon: 13.00 };
+    case 2: return { lat: 57.71, lon: 11.97 };
+    case 3: return { lat: 58.41, lon: 15.62 };
+    case 4: return { lat: 60.67, lon: 15.63 };
+    case 5: return { lat: 62.39, lon: 17.31 };
+    case 6: return { lat: 63.83, lon: 20.26 };
+    case 7: return { lat: 65.58, lon: 17.54 };
+    case 8: return { lat: 67.86, lon: 20.22 };
+    default: return { lat: 58.41, lon: 15.62 };
+  }
+}
+
+async function fetchWeather(zone: number) {
+  try {
+    const { lat, lon } = coordinatesForZone(zone);
+    const params = new URLSearchParams({
+      latitude: String(lat),
+      longitude: String(lon),
+      timezone: "Europe/Stockholm",
+      forecast_days: "3",
+      current: "temperature_2m,apparent_temperature,precipitation,wind_speed_10m,weather_code",
+      daily: "temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max",
+    });
+    const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatWeather(weather: any) {
+  if (!weather) return "Väderdata kunde inte hämtas.";
+  const current = weather.current || {};
+  const daily = weather.daily || {};
+  return [0, 1, 2].map((index) => {
+    const label = index === 0 ? "Idag" : index === 1 ? "Imorgon" : "Om två dagar";
+    return `- ${label}: ${daily.temperature_2m_min?.[index] ?? "?"}–${daily.temperature_2m_max?.[index] ?? "?"} °C, nederbörd ${daily.precipitation_sum?.[index] ?? "?"} mm, regnrisk ${daily.precipitation_probability_max?.[index] ?? "?"} %, maxvind ${daily.wind_speed_10m_max?.[index] ?? "?"} km/h`;
+  }).join("\n") + `\n- Just nu: ${current.temperature_2m ?? "?"} °C, känns som ${current.apparent_temperature ?? "?"} °C.`;
 }
 
 serve(async (req) => {
@@ -83,129 +109,71 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Missing authorization" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    if (!authHeader) return new Response(JSON.stringify({ error: "Missing authorization" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, { global: { headers: { Authorization: authHeader } } });
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Not authenticated" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    if (authError || !user) return new Response(JSON.stringify({ error: "Not authenticated" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-    // ───── Validate payload ─────
     let body: any;
     try { body = await req.json(); } catch {
-      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+
     const rawMessages = Array.isArray(body?.messages) ? body.messages : [];
-    if (rawMessages.length > MAX_MESSAGES) {
-      return new Response(JSON.stringify({ error: "Too many messages" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    type ClientMsg = { role: string; content: string; images?: string[] };
+    if (rawMessages.length > MAX_MESSAGES) return new Response(JSON.stringify({ error: "Too many messages" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
     const clientMessages: ClientMsg[] = [];
-    for (const m of rawMessages) {
-      if (!m || typeof m !== "object") continue;
-      if (m.role !== "user" && m.role !== "assistant") continue;
-      const content = typeof m.content === "string" ? m.content : "";
-      if (!content && !(Array.isArray(m.images) && m.images.length)) continue;
-      if (content.length > MAX_CONTENT_LEN) {
-        return new Response(JSON.stringify({ error: "Message too long" }), {
-          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+    for (const message of rawMessages) {
+      if (!message || typeof message !== "object") continue;
+      if (message.role !== "user" && message.role !== "assistant") continue;
+      const content = typeof message.content === "string" ? message.content : "";
+      if (!content && !(Array.isArray(message.images) && message.images.length)) continue;
+      if (content.length > MAX_CONTENT_LEN) return new Response(JSON.stringify({ error: "Message too long" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
       let images: string[] | undefined;
-      if (Array.isArray(m.images)) {
-        if (m.images.length > MAX_IMAGES_PER_MSG) {
-          return new Response(JSON.stringify({ error: "Too many images (max 2)" }), {
-            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
+      if (Array.isArray(message.images)) {
+        if (message.images.length > MAX_IMAGES_PER_MSG) return new Response(JSON.stringify({ error: "Too many images" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         images = [];
-        for (const img of m.images) {
-          if (typeof img !== "string") continue;
-          if (!/^data:image\/(jpeg|png);base64,/.test(img)) {
-            return new Response(JSON.stringify({ error: "Invalid image format" }), {
-              status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-          }
-          // Estimate decoded size: base64 length * 0.75
-          const b64 = img.split(",", 2)[1] || "";
-          const approxBytes = Math.floor(b64.length * 0.75);
-          if (approxBytes > MAX_IMAGE_BYTES) {
-            return new Response(JSON.stringify({ error: "Image too large (max 1.5 MB)" }), {
-              status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-          }
-          images.push(img);
+        for (const image of message.images) {
+          if (typeof image !== "string") continue;
+          if (!/^data:image\/(jpeg|png);base64,/.test(image)) return new Response(JSON.stringify({ error: "Invalid image format" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          const base64 = image.split(",", 2)[1] || "";
+          if (Math.floor(base64.length * 0.75) > MAX_IMAGE_BYTES) return new Response(JSON.stringify({ error: "Image too large" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          images.push(image);
         }
-        if (images.length === 0) images = undefined;
+        if (!images.length) images = undefined;
       }
-      clientMessages.push({ role: m.role, content, images });
+      clientMessages.push({ role: message.role, content, images });
     }
 
-    // ───── Service role client for premium check + usage ─────
     const admin = createClient(supabaseUrl, serviceRoleKey);
+    const { data: profileRow } = await admin.from("profiles").select("display_name, climate_zone, subscription_status, premium_expires_at, preferences").eq("user_id", user.id).maybeSingle();
+    const zone = profileRow?.climate_zone || 3;
+    const isPremium = profileRow?.subscription_status === "premium" && (!profileRow?.premium_expires_at || new Date(profileRow.premium_expires_at) > new Date());
+    const hasUserQuestion = clientMessages.some((message) => message.role === "user");
 
-    const { data: profileRow } = await admin
-      .from("profiles")
-      .select("display_name, climate_zone, subscription_status, premium_expires_at")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    const isPremium = profileRow?.subscription_status === "premium" &&
-      (!profileRow?.premium_expires_at || new Date(profileRow.premium_expires_at) > new Date());
-
-    // ───── Rate limit (free users only) ─────
-    if (!isPremium) {
+    if (!isPremium && hasUserQuestion) {
       const today = todayInStockholm();
-      const { data: usageRow } = await admin
-        .from("gro_usage")
-        .select("message_count")
-        .eq("user_id", user.id)
-        .eq("usage_date", today)
-        .maybeSingle();
-
+      const { data: usageRow } = await admin.from("gro_usage").select("message_count").eq("user_id", user.id).eq("usage_date", today).maybeSingle();
       const current = usageRow?.message_count ?? 0;
-      if (current >= FREE_DAILY_LIMIT) {
-        return new Response(JSON.stringify({
-          error: "free_limit_reached",
-          message: `Du har använt dina ${FREE_DAILY_LIMIT} gratisfrågor idag. Uppgradera till Plus för obegränsad tillgång.`,
-        }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      await admin.from("gro_usage").upsert({
-        user_id: user.id,
-        usage_date: today,
-        message_count: current + 1,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "user_id,usage_date" });
+      if (current >= FREE_DAILY_LIMIT) return new Response(JSON.stringify({ error: "free_limit_reached", message: `Du har använt dina ${FREE_DAILY_LIMIT} gratisfrågor idag. Uppgradera till Plus för obegränsad tillgång.` }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      await admin.from("gro_usage").upsert({ user_id: user.id, usage_date: today, message_count: current + 1, updated_at: new Date().toISOString() }, { onConflict: "user_id,usage_date" });
     }
 
-    // ───── Fetch context (parallel) ─────
-    const [sowingsRes, plantsRes, harvestsRes, bedsRes, seasonRes] = await Promise.all([
+    const [sowingsRes, plantsRes, harvestsRes, bedsRes, seasonRes, remindersRes, pestsRes, photosRes, weather] = await Promise.all([
       admin.from("sowings").select("variety, sow_date, status, type, seed_brand, bed_id, beds(name)").eq("user_id", user.id).order("sow_date", { ascending: false }).limit(50),
       admin.from("my_plants").select("custom_name, last_watered, watering_interval_days, location, last_fertilized, fertilizing_interval_days").eq("user_id", user.id).limit(50),
       admin.from("harvests").select("variety, weight_grams, harvest_date, beds(name)").eq("user_id", user.id).order("harvest_date", { ascending: false }).limit(30),
       admin.from("beds").select("name, description, season_notes").eq("user_id", user.id),
-      admin.from("season_summaries").select("year, went_well, didnt_work, grow_again, beds(name)").eq("user_id", user.id).order("year", { ascending: false }).limit(20),
+      admin.from("season_summaries").select("year, went_well, didnt_work, grow_again, learnings, beds(name)").eq("user_id", user.id).order("year", { ascending: false }).limit(20),
+      admin.from("reminder_settings").select("settings").eq("user_id", user.id).maybeSingle(),
+      admin.from("pest_logs").select("pest_name, severity, treatment, observed_date, resolved, notes, beds(name)").eq("user_id", user.id).order("observed_date", { ascending: false }).limit(20),
+      admin.from("plant_photos").select("caption, taken_at, beds(name)").eq("user_id", user.id).order("taken_at", { ascending: false }).limit(10),
+      fetchWeather(zone),
     ]);
 
     const sowings = sowingsRes.data || [];
@@ -213,122 +181,98 @@ serve(async (req) => {
     const harvests = harvestsRes.data || [];
     const beds = bedsRes.data || [];
     const seasons = seasonRes.data || [];
-
+    const reminderSettings = (remindersRes.data?.settings as any) || {};
+    const reminders = (reminderSettings.reminders || []).filter((item: any) => !item.done).slice(0, 12);
+    const pests = pestsRes.data || [];
+    const photos = photosRes.data || [];
     const now = new Date();
-    const month = now.toLocaleString("sv-SE", { month: "long" });
-    const zone = profileRow?.climate_zone || 3;
     const name = profileRow?.display_name || "odlare";
+    const month = now.toLocaleString("sv-SE", { month: "long", timeZone: "Europe/Stockholm" });
 
-    const plantDetails = plants.map((p: any) => {
-      const daysSince = p.last_watered ? Math.floor((now.getTime() - new Date(p.last_watered).getTime()) / 86400000) : null;
-      const daysUntil = (p.watering_interval_days && daysSince !== null) ? p.watering_interval_days - daysSince : null;
-      return `- ${p.custom_name || "Namnlös"}${p.location ? ` (${p.location})` : ""}: vattningsintervall ${p.watering_interval_days || '?'} dagar${daysSince !== null ? `, senast vattnad för ${daysSince} dagar sedan` : ""}${daysUntil !== null ? `, ${daysUntil <= 0 ? `FÖRSENAD ${Math.abs(daysUntil)} dagar` : `${daysUntil} dagar till nästa`}` : ""}`;
-    }).join("\n") || "Inga registrerade";
+    const plantDetails = plants.map((plant: any) => {
+      const daysSinceWatered = plant.last_watered ? Math.floor((now.getTime() - new Date(plant.last_watered).getTime()) / 86400000) : null;
+      return `- ${plant.custom_name || "Namnlös"}${plant.location ? ` (${plant.location})` : ""}: intervall ${plant.watering_interval_days || "?"} dagar${daysSinceWatered !== null ? `, senast vattnad för ${daysSinceWatered} dagar sedan` : ", ingen vattning registrerad"}`;
+    }).join("\n") || "Inga registrerade växter";
 
-    const sowingDetails = sowings.map((s: any) => {
-      const bed = s.beds?.name;
-      const weeksSince = Math.floor((now.getTime() - new Date(s.sow_date).getTime()) / (7 * 86400000));
-      return `- ${s.variety} (${s.type}, ${s.status})${s.seed_brand ? ` [${s.seed_brand}]` : ""}${bed ? ` i ${bed}` : ""} – sådd ${s.sow_date} (${weeksSince} veckor sedan)`;
+    const sowingDetails = sowings.map((sowing: any) => {
+      const weeks = Math.floor((now.getTime() - new Date(sowing.sow_date).getTime()) / (7 * 86400000));
+      return `- ${sowing.variety} (${sowing.type}, ${sowing.status})${sowing.seed_brand ? ` [${sowing.seed_brand}]` : ""}${sowing.beds?.name ? ` i ${sowing.beds.name}` : ""}, sådd ${sowing.sow_date} (${weeks} veckor sedan)`;
     }).join("\n") || "Inga sådder";
 
-    const harvestDetails = harvests.map((h: any) => {
-      const bed = h.beds?.name;
-      return `- ${h.variety}: ${h.weight_grams}g${bed ? ` från ${bed}` : ""} (${h.harvest_date})`;
-    }).join("\n") || "Inga skördar";
-
-    const bedDetails = beds.map((b: any) => `- ${b.name}${b.description ? `: ${b.description}` : ""}`).join("\n") || "Inga bäddar";
-
-    const seasonHistory = seasons.map((s: any) => {
-      const bed = s.beds?.name;
-      return `- ${s.year}${bed ? ` ${bed}` : ""}: Bra: ${s.went_well || '-'} | Dåligt: ${s.didnt_work || '-'} | Odla igen: ${s.grow_again || '-'}`;
-    }).join("\n") || "Ingen historik";
+    const harvestDetails = harvests.map((harvest: any) => `- ${harvest.variety}: ${harvest.weight_grams} g${harvest.beds?.name ? ` från ${harvest.beds.name}` : ""} (${harvest.harvest_date})`).join("\n") || "Inga skördar";
+    const bedDetails = beds.map((bed: any) => `- ${bed.name}${bed.description ? `: ${bed.description}` : ""}${bed.season_notes ? ` | Anteckningar: ${bed.season_notes}` : ""}`).join("\n") || "Inga bäddar";
+    const seasonHistory = seasons.map((season: any) => `- ${season.year}${season.beds?.name ? ` ${season.beds.name}` : ""}: bra ${season.went_well || "-"}; problem ${season.didnt_work || "-"}; lärdom ${season.learnings || "-"}`).join("\n") || "Ingen säsongshistorik";
+    const reminderDetails = reminders.map((reminder: any) => `- ${reminder.date}: ${reminder.title} (${reminder.type || "övrigt"})`).join("\n") || "Inga öppna påminnelser";
+    const pestDetails = pests.map((pest: any) => `- ${pest.observed_date}: ${pest.pest_name}, ${pest.severity}${pest.beds?.name ? ` i ${pest.beds.name}` : ""}, ${pest.resolved ? "löst" : "öppet"}${pest.treatment ? `, behandling ${pest.treatment}` : ""}${pest.notes ? `, anteckning ${pest.notes}` : ""}`).join("\n") || "Inga loggade problem";
+    const photoDetails = photos.map((photo: any) => `- ${photo.taken_at}${photo.beds?.name ? ` i ${photo.beds.name}` : ""}${photo.caption ? `: ${photo.caption}` : ""}`).join("\n") || "Inga nyliga foton";
 
     const userContext = `
-## ANVÄNDARENS KONTEXT (live-data)
+## ANVÄNDARENS KONTEXT – LIVE-DATA
 Namn: ${name}
 Klimatzon: ${zone}
-Månad: ${month} ${now.getFullYear()}
-Datum: ${now.toISOString().split("T")[0]}
+Datum: ${now.toISOString().slice(0, 10)}
+Månad: ${month}
+Erfarenhetsnivå: ${(profileRow?.preferences as any)?.experience_level || "inte angiven"}
+Odlingssätt: ${((profileRow?.preferences as any)?.growing_methods || []).join(", ") || "inte angivet"}
 
-### Bäddar (${beds.length} st)
+### Väderprognos
+${formatWeather(weather)}
+
+### Öppna påminnelser
+${reminderDetails}
+
+### Bäddar (${beds.length})
 ${bedDetails}
 
-### Sådder denna säsong (${sowings.length} st)
+### Sådder (${sowings.length})
 ${sowingDetails}
 
-### Skördar denna säsong (${harvests.length} st)
+### Skördar (${harvests.length})
 ${harvestDetails}
 
-### Krukväxter (${plants.length} st)
+### Växter (${plants.length})
 ${plantDetails}
 
-### Växtföljdshistorik
-${seasonHistory}
-`;
+### Skadedjur och sjukdomar
+${pestDetails}
 
-    const systemContent = GRO_SYSTEM_PROMPT + "\n\n" + userContext;
+### Senaste fotodokumentationen
+${photoDetails}
 
-    const mappedClientMessages = clientMessages.map((m) => {
-      if (m.images && m.images.length) {
+### Tidigare säsonger
+${seasonHistory}`;
+
+    const mappedClientMessages = clientMessages.map((message) => {
+      if (message.images?.length) {
         const parts: any[] = [];
-        if (m.content) parts.push({ type: "text", text: m.content });
-        for (const url of m.images) parts.push({ type: "image_url", image_url: { url } });
-        return { role: m.role, content: parts };
+        if (message.content) parts.push({ type: "text", text: message.content });
+        for (const url of message.images) parts.push({ type: "image_url", image_url: { url } });
+        return { role: message.role, content: parts };
       }
-      return { role: m.role, content: m.content };
+      return { role: message.role, content: message.content };
     });
 
-    const messages: any[] = [
-      { role: "system", content: systemContent },
-      ...mappedClientMessages,
-    ];
+    const messages: any[] = [{ role: "system", content: `${GRO_SYSTEM_PROMPT}\n\n${userContext}` }, ...mappedClientMessages];
+    if (!clientMessages.length) messages.push({ role: "user", content: "Ge mig en kort personlig välkomsthälsning och högst tre konkreta saker som är viktigast i min odling just nu. Använd live-datan, undvik generella råd och nämn varför varje sak är prioriterad." });
 
-    if (clientMessages.length === 0) {
-      messages.push({
-        role: "user",
-        content: `Hej Gro! Ge mig en personlig hälsning och dina bästa proaktiva insikter baserat på min odlingsdata just nu. Reagera på allt du ser i datan – försenade vattningar, sådder som borde planteras ut, växtföljdsproblem, säsongsspecifika tips. Var konkret och nämn specifika växter och bäddar.`,
-      });
-    }
-
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
-
+    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+    if (!lovableApiKey) throw new Error("LOVABLE_API_KEY is not configured");
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
-        messages,
-        stream: true,
-      }),
+      headers: { Authorization: `Bearer ${lovableApiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "google/gemini-2.5-pro", messages, stream: true }),
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "För många förfrågningar, försök igen om en stund." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI-krediter slut." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
+      if (response.status === 429) return new Response(JSON.stringify({ error: "För många förfrågningar, försök igen om en stund." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (response.status === 402) return new Response(JSON.stringify({ error: "AI-krediter slut." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      console.error("AI gateway error:", response.status, await response.text());
       throw new Error("AI gateway error");
     }
 
-    return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
-    });
-  } catch (e) {
-    console.error("gardening-coach error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(response.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
+  } catch (error) {
+    console.error("gardening-coach error:", error);
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
