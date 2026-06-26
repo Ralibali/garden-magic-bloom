@@ -66,12 +66,7 @@ jobs:
           version: latest
 
       - name: Start local database
-        shell: bash
-        run: |
-          if ! supabase start -x studio,imgproxy,inbucket,logflare,vector,supavisor,realtime,storage-api,postgrest,gotrue,edge-runtime > /tmp/supabase-start.log 2>&1; then
-            tail -n 160 /tmp/supabase-start.log
-            exit 1
-          fi
+        run: supabase db start
 
       - name: Rebuild database from migrations
         run: supabase db reset --local
