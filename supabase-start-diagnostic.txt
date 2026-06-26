@@ -1,8 +1,3 @@
-44fdead63696: Pull complete
-488cd3d90231: Pull complete
-17dcb585f9e0: Pull complete
-9627d43e9bc7: Pull complete
-ff59fbd9c7df: Pull complete
 267e19a88be1: Pull complete
 0496516ee2d3: Pull complete
 e8e91590594f: Pull complete
@@ -42,33 +37,34 @@ d3f557879920: Pulling fs layer
 00e5a0d84ec7: Pulling fs layer
 8d1e059814b8: Pulling fs layer
 4f4fb700ef54: Pulling fs layer
-bd8399e6d4bf: Waiting
+98207d5a4564: Waiting
 8aa1fcdacf29: Waiting
+4c2077547a6f: Waiting
+a53e41a06c62: Waiting
+bd8399e6d4bf: Waiting
 d3f557879920: Waiting
 00e5a0d84ec7: Waiting
 8d1e059814b8: Waiting
 4f4fb700ef54: Waiting
-98207d5a4564: Waiting
-4c2077547a6f: Waiting
-a53e41a06c62: Waiting
-5c32499ab806: Verifying Checksum
-5c32499ab806: Download complete
-753b614cca79: Verifying Checksum
-753b614cca79: Download complete
-98207d5a4564: Verifying Checksum
-98207d5a4564: Download complete
 735e7252498b: Verifying Checksum
 735e7252498b: Download complete
+5c32499ab806: Verifying Checksum
+5c32499ab806: Download complete
+98207d5a4564: Download complete
+753b614cca79: Verifying Checksum
+753b614cca79: Download complete
+4c2077547a6f: Verifying Checksum
 4c2077547a6f: Download complete
 a53e41a06c62: Verifying Checksum
 a53e41a06c62: Download complete
-8aa1fcdacf29: Verifying Checksum
-8aa1fcdacf29: Download complete
 bd8399e6d4bf: Verifying Checksum
 bd8399e6d4bf: Download complete
-d3f557879920: Verifying Checksum
+8aa1fcdacf29: Verifying Checksum
+8aa1fcdacf29: Download complete
 d3f557879920: Download complete
+8d1e059814b8: Verifying Checksum
 8d1e059814b8: Download complete
+4f4fb700ef54: Verifying Checksum
 4f4fb700ef54: Download complete
 00e5a0d84ec7: Verifying Checksum
 00e5a0d84ec7: Download complete
@@ -100,35 +96,37 @@ b27ca18074db: Pulling fs layer
 4996c558ce2b: Pulling fs layer
 9b530af76924: Pulling fs layer
 653896432f81: Pulling fs layer
-d2f04496a183: Waiting
-52cd27cac02e: Waiting
 6da109a7da3c: Waiting
+974e5f264dd7: Waiting
 a1db97f30142: Waiting
 b27ca18074db: Waiting
-974e5f264dd7: Waiting
 4996c558ce2b: Waiting
 9b530af76924: Waiting
 653896432f81: Waiting
+d2f04496a183: Waiting
+52cd27cac02e: Waiting
 0d8aa8e026f1: Verifying Checksum
 0d8aa8e026f1: Download complete
 09ddda476dba: Verifying Checksum
 09ddda476dba: Download complete
+52cd27cac02e: Verifying Checksum
 52cd27cac02e: Download complete
+6da109a7da3c: Verifying Checksum
+6da109a7da3c: Download complete
 16733d1099a5: Verifying Checksum
 16733d1099a5: Download complete
 974e5f264dd7: Verifying Checksum
 974e5f264dd7: Download complete
-6da109a7da3c: Verifying Checksum
-6da109a7da3c: Download complete
 b27ca18074db: Verifying Checksum
 b27ca18074db: Download complete
-d2f04496a183: Verifying Checksum
-d2f04496a183: Download complete
 a1db97f30142: Verifying Checksum
 a1db97f30142: Download complete
-653896432f81: Download complete
+d2f04496a183: Verifying Checksum
+d2f04496a183: Download complete
 9b530af76924: Verifying Checksum
 9b530af76924: Download complete
+653896432f81: Verifying Checksum
+653896432f81: Download complete
 4996c558ce2b: Verifying Checksum
 4996c558ce2b: Download complete
 16733d1099a5: Pull complete
@@ -159,22 +157,24 @@ fd723d7516be: Pulling fs layer
 565df2d910df: Pull complete
 dc286a8aa197: Verifying Checksum
 dc286a8aa197: Download complete
+84a8cd6e587e: Verifying Checksum
 84a8cd6e587e: Download complete
-dc286a8aa197: Pull complete
 7a9426350136: Verifying Checksum
 7a9426350136: Download complete
 fd723d7516be: Verifying Checksum
 fd723d7516be: Download complete
+dc286a8aa197: Pull complete
 fd723d7516be: Pull complete
 84a8cd6e587e: Pull complete
 7a9426350136: Pull complete
 Digest: sha256:b629f4d0a3a3f59e3429b1128d6f437d61db6cc1d0d067b35dad1042e88c0504
 Status: Downloaded newer image for ghcr.io/supabase/gotrue:v2.191.0
 Seeding globals from roles.sql...
+Applying migration 20260305000000_bootstrap_updated_at_function.sql...
 Applying migration 20260305001718_0de56cb1-8b42-45c7-930c-13f8aae33f3f.sql...
 Stopping containers...
-ERROR: function update_updated_at_column() does not exist (SQLSTATE 42883)                                                                   
-At statement: 15                                                                                                                             
--- Updated_at triggers for new tables                                                                                                        
-CREATE TRIGGER update_coop_settings_updated_at BEFORE UPDATE ON public.coop_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+ERROR: relation "public.hens" does not exist (SQLSTATE 42P01)                                                 
+At statement: 18                                                                                              
+-- Add flock_id to hens (optional grouping)                                                                   
+ALTER TABLE public.hens ADD COLUMN IF NOT EXISTS flock_id uuid REFERENCES public.flocks(id) ON DELETE SET NULL
 Try rerunning the command with --debug to troubleshoot the error.
