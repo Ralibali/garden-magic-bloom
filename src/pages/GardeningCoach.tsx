@@ -149,6 +149,7 @@ export default function GardeningCoach() {
     try {
       const session = await getSession();
       await streamChat({ messages: nextMessages, accessToken: session.access_token, onDelta: upsertAssistant, onDone: () => setLoading(false), signal: abortRef.current.signal });
+      return true;
     } catch (error: any) {
       if (error.name !== 'AbortError') {
         if (error.code === 'free_limit_reached' || error.status === 429) {
@@ -160,6 +161,7 @@ export default function GardeningCoach() {
         }
       }
       setLoading(false);
+      return false;
     }
   }, []);
 
@@ -217,13 +219,13 @@ export default function GardeningCoach() {
     setContextSource('gro');
     setPendingImages([]);
     setMessages((previous) => [...previous, userMessage]);
-    if (!isPremium) {
+    void recordProductActivity('gro_question_sent', { has_image: images.length > 0, source });
+    scrollToBottom();
+    const succeeded = await sendMessages(nextMessages);
+    if (succeeded && !isPremium) {
       incrementUsage();
       setRemaining(getRemainingToday());
     }
-    void recordProductActivity('gro_question_sent', { has_image: images.length > 0, source });
-    scrollToBottom();
-    await sendMessages(nextMessages);
   };
 
   const clearLinkedContext = () => {
