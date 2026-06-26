@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Seo } from '@/hooks/useSeo';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Bot, CalendarDays, Check, ClipboardList, Leaf, Search, Sprout, Star, TrendingUp } from 'lucide-react';
+import { CURRENT_YEAR } from '@/lib/currentYear';
 
 const tools = [
   {
@@ -13,7 +14,7 @@ const tools = [
   },
   {
     icon: ClipboardList,
-    title: 'Odlingsplan 2026',
+    title: `Odlingsplan ${CURRENT_YEAR}`,
     text: 'Bygg en komplett odlingsplan för pallkrage, växthus, friland, balkong eller kolonilott.',
     href: '/odlingsplan',
     cta: 'Gör min plan',

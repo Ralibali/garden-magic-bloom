@@ -1,6 +1,6 @@
 import { Seo } from '@/hooks/useSeo';
 import PublicLayout from '@/components/PublicLayout';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import DOMPurify from 'dompurify';
 import { ORG_AUTHOR, ORG_PUBLISHER, buildBreadcrumbs } from '@/lib/seoData';
 import { ArticleAttribution } from '@/components/ArticleAttribution';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
+import PublicNotFound from '@/components/PublicNotFound';
 
 export default function ZonDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -45,7 +46,7 @@ export default function ZonDetail() {
   if (isLoading) {
     return <PublicLayout><div className="flex justify-center py-24"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div></PublicLayout>;
   }
-  if (!zone) return <Navigate to="/zoner" replace />;
+  if (!zone) return <PublicNotFound path={`/zoner/${slug || ''}`} title="Zonguiden hittades inte" description="Zonguiden finns inte eller är inte publicerad." backTo="/zoner" backLabel="Alla odlingszoner" />;
 
   const sanitized = zone.content_html ? DOMPurify.sanitize(zone.content_html) : '';
   const faqArr = Array.isArray(zone.faq) ? zone.faq as Array<{ question: string; answer: string }> : [];

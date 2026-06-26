@@ -1,6 +1,6 @@
 import { Seo } from '@/hooks/useSeo';
 import PublicLayout from '@/components/PublicLayout';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import DOMPurify from 'dompurify';
 import { ORG_AUTHOR, ORG_PUBLISHER, buildBreadcrumbs, SEASON_LABEL } from '@/lib/seoData';
 import { ArticleAttribution } from '@/components/ArticleAttribution';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
+import PublicNotFound from '@/components/PublicNotFound';
 
 export default function ManadDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -46,7 +47,7 @@ export default function ManadDetail() {
   if (isLoading) {
     return <PublicLayout><div className="flex justify-center py-24"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div></PublicLayout>;
   }
-  if (!month) return <Navigate to="/manad" replace />;
+  if (!month) return <PublicNotFound path={`/manad/${slug || ''}`} title="Månadsguiden hittades inte" description="Månadsguiden finns inte eller är inte publicerad." backTo="/manad" backLabel="Alla månadsguider" />;
 
   const sanitized = month.content_html ? DOMPurify.sanitize(month.content_html) : '';
   const faqArr = Array.isArray(month.faq) ? month.faq as Array<{ question: string; answer: string }> : [];

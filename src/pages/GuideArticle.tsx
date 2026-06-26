@@ -12,6 +12,7 @@ import BlogComments from '@/components/BlogComments';
 import { Seo } from '@/hooks/useSeo';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
 import GroPreviewCTA from '@/components/GroPreviewCTA';
+import PublicNotFound from '@/components/PublicNotFound';
 
 const categoryLabels: Record<string, string> = {
   guide: 'Guide',
@@ -152,7 +153,7 @@ export default function GuideArticle() {
   const seoImage = post?.cover_image_url || '/blog-images/spring-garden.jpg';
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
-  if (isError || !post) return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-4"><BookOpen className="h-10 w-10 text-muted-foreground/30" /><h1 className="font-serif text-xl text-foreground">Artikeln hittades inte</h1><Link to="/blogg"><Button variant="outline" className="rounded-xl"><ArrowLeft className="h-4 w-4 mr-1" /> Tillbaka till bloggen</Button></Link></div>;
+  if (isError || !post) return <PublicNotFound path={`/blogg/${slug || ''}`} title="Artikeln hittades inte" description="Artikeln finns inte eller är inte längre publicerad." backTo="/blogg" backLabel="Tillbaka till bloggen" />;
 
   return (
     <div className="min-h-screen bg-background">

@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, BookOpen, Loader2, Sprout } from 'lucide-react';
+import { CURRENT_YEAR } from '@/lib/currentYear';
 
 const categoryLabels: Record<string, string> = {
   guide: 'Guide',
@@ -56,7 +57,7 @@ export default function Guides() {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title="Odlingstips & Guider 2026 | Odlingsdagboken"
+        title={`Odlingstips & Guider ${CURRENT_YEAR} | Odlingsdagboken`}
         description="Guider, såtider och tips för svenska hobbyodlare. Lär dig mer om växtföljd, pallkrage och klassisk grönsaksodling."
         path="/blogg"
         ogImage="/blog-images/spring-garden.jpg"

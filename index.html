@@ -44,12 +44,13 @@
     <link rel="apple-touch-icon" href="/pwa-192x192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
 
-    <title>Odlingsdagboken 2026 – digital odlingsdagbok för odlare</title>
+    <title>Odlingsdagboken – digital odlingsdagbok för svenska odlare</title>
     <meta name="description" content="Håll koll på såtider, skördar och växtföljd. Se vad som fungerar i just din trädgård – år efter år. Gratis att börja för svenska hobbyodlare." />
-    <meta name="keywords" content="odlingsdagbok, såkalender, skördlogg, växtföljd, klimatzon, pallkrage, trädgård app, odla grönsaker, odling sverige" />
     <meta name="author" content="Odlingsdagboken" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="https://odlingsdagboken.com/" />
+    <link rel="alternate" hreflang="sv-SE" href="https://odlingsdagboken.com/" />
+    <link rel="alternate" hreflang="x-default" href="https://odlingsdagboken.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="alternate" type="application/rss+xml" title="Odlingsdagboken – Blogg" href="https://ysonnvbkrwajacvdkqut.supabase.co/functions/v1/rss-feed" />
@@ -57,24 +58,23 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Odlingsdagboken" />
     <meta property="og:locale" content="sv_SE" />
-    <meta property="og:title" content="Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare" />
+    <meta property="og:title" content="Odlingsdagboken – digital odlingsdagbok för svenska odlare" />
     <meta property="og:description" content="Planera sådd, logga skörd och bygg en kunskapsbank för din egen trädgård. Gratis att börja." />
     <meta property="og:image" content="https://odlingsdagboken.com/og-image.png" />
+    <meta property="og:image:alt" content="Odlingsdagboken – digital odlingsdagbok för svenska odlare" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:url" content="https://odlingsdagboken.com/" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Odlingsdagboken 2026 – Digital odlingsdagbok för svenska odlare" />
+    <meta name="twitter:title" content="Odlingsdagboken – digital odlingsdagbok för svenska odlare" />
     <meta name="twitter:description" content="Planera sådd, logga skörd och se vad som fungerar i din trädgård år efter år." />
     <meta name="twitter:image" content="https://odlingsdagboken.com/og-image.png" />
+    <meta name="twitter:image:alt" content="Odlingsdagboken – digital odlingsdagbok för svenska odlare" />
 
     <meta name="geo.region" content="SE" />
     <meta name="geo.placename" content="Sverige" />
-    <meta name="content-language" content="sv" />
-    <meta name="citation_title" content="Odlingsdagboken – Digital odlingsdagbok för svenska odlare" />
-    <meta name="citation_author" content="Odlingsdagboken" />
-    <meta name="citation_language" content="sv" />
+    <meta name="content-language" content="sv-SE" />
 
     <script type="application/ld+json">
     {
@@ -85,7 +85,10 @@
           "@id": "https://odlingsdagboken.com/#organization",
           "name": "Odlingsdagboken",
           "url": "https://odlingsdagboken.com",
-          "logo": "https://odlingsdagboken.com/logo-odlingsdagboken.png",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://odlingsdagboken.com/logo-odlingsdagboken.png"
+          },
           "description": "Odlingsdagboken hjälper svenska hobbyodlare att hålla koll på sådder, skördar och växtföljd – helt digitalt."
         },
         {
@@ -95,19 +98,6 @@
           "url": "https://odlingsdagboken.com",
           "publisher": { "@id": "https://odlingsdagboken.com/#organization" },
           "inLanguage": "sv-SE"
-        },
-        {
-          "@type": "SoftwareApplication",
-          "name": "Odlingsdagboken",
-          "applicationCategory": "LifestyleApplication",
-          "operatingSystem": "Web",
-          "description": "Digital odlingsdagbok för svenska grönsaksodlare. Logga sådder, skördar och växtföljd.",
-          "url": "https://odlingsdagboken.com",
-          "inLanguage": "sv",
-          "offers": [
-            { "@type": "Offer", "price": "0", "priceCurrency": "SEK", "description": "Gratis grundversion" },
-            { "@type": "Offer", "price": "99", "priceCurrency": "SEK", "description": "Plus – personlig odlingshjälp, historik och statistik" }
-          ]
         }
       ]
     }

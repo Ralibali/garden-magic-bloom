@@ -1,6 +1,6 @@
 import { Seo } from '@/hooks/useSeo';
 import PublicLayout from '@/components/PublicLayout';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import DOMPurify from 'dompurify';
 import { formatMonthRange, CATEGORY_LABEL, ORG_AUTHOR, ORG_PUBLISHER, buildBreadcrumbs, rangeOrSingle } from '@/lib/seoData';
 import { ArticleAttribution } from '@/components/ArticleAttribution';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
+import PublicNotFound from '@/components/PublicNotFound';
 
 export default function VaxtDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -42,7 +43,7 @@ export default function VaxtDetail() {
     );
   }
 
-  if (error || !plant) return <Navigate to="/vaxter" replace />;
+  if (error || !plant) return <PublicNotFound path={`/vaxter/${slug || ''}`} title="Växtguiden hittades inte" description="Växtguiden finns inte eller är inte publicerad." backTo="/vaxter" backLabel="Alla växtguider" />;
 
   const sowIndoor = formatMonthRange(plant.sow_indoor_start, plant.sow_indoor_end);
   const sowOutdoor = formatMonthRange(plant.sow_outdoor_start, plant.sow_outdoor_end);
