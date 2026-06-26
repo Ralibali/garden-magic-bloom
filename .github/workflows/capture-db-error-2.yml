@@ -1,0 +1,35 @@
+name: Capture database error 2
+
+on:
+  push:
+    branches: [fix-production-hardening]
+    paths: ['.github/workflows/capture-db-error-2.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-production-hardening
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Capture startup output
+        shell: bash
+        run: |
+          set +e
+          supabase db start > /tmp/database.log 2>&1
+          code=$?
+          tail -n 180 /tmp/database.log > supabase-start-diagnostic.txt
+          if [ "$code" -eq 0 ]; then
+            echo "Database started successfully." > supabase-start-diagnostic.txt
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add supabase-start-diagnostic.txt
+          git commit -m "Refresh Supabase database diagnostic"
+          git push origin HEAD:fix-production-hardening
