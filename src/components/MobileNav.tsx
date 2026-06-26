@@ -72,7 +72,7 @@ export function MobileNav() {
               return <button key="more" onClick={() => setShowMore(!showMore)} className={`flex w-[58px] flex-col items-center gap-1 rounded-2xl py-2 text-[10px] font-semibold transition-colors ${showMore ? 'text-primary bg-primary/8' : 'text-muted-foreground'}`}><item.icon className="h-5 w-5" /><span>{item.title}</span></button>;
             }
             if (featured) {
-              return <NavLink key={item.url} to={item.url} className="relative -mt-7 flex w-[62px] flex-col items-center gap-1 text-[10px] font-semibold text-muted-foreground" activeClassName="text-primary" onClick={() => setShowMore(false)}><span className="botanical-panel w-13 h-13 rounded-2xl flex items-center justify-center border-4 border-background shadow-xl"><item.icon className="h-5 w-5 text-white" /></span><span>{item.title}</span></NavLink>;
+              return <NavLink key={item.url} to={item.url} className="relative -mt-7 flex w-[62px] flex-col items-center gap-1 text-[10px] font-semibold text-muted-foreground" activeClassName="text-primary" onClick={() => setShowMore(false)}><span className="botanical-panel w-[52px] h-[52px] rounded-2xl flex items-center justify-center border-4 border-background shadow-xl"><item.icon className="h-5 w-5 text-white" /></span><span>{item.title}</span></NavLink>;
             }
             return <NavLink key={item.url} to={item.url} end={item.url === '/app'} className="flex w-[58px] flex-col items-center gap-1 rounded-2xl py-2 text-[10px] font-semibold text-muted-foreground transition-colors" activeClassName="text-primary bg-primary/7" onClick={() => setShowMore(false)}><item.icon className="h-5 w-5" /><span>{item.title}</span></NavLink>;
           })}
