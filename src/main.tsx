@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./design-system.css";
+import "./design-compat.css";
 
 // Restore theme preference before render to avoid flash
 const savedTheme = localStorage.getItem('theme');
