@@ -14,6 +14,7 @@ import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import AppEmptyState from '@/components/AppEmptyState';
 import { recordProductActivity } from '@/lib/analytics';
+import { addDaysToDateKey, localDateKey } from '@/lib/gardenToday';
 
 async function getUserId() {
   const { data: { user } } = await supabase.auth.getUser();
@@ -27,17 +28,11 @@ const severityMap: Record<string, { label: string; className: string }> = {
   high: { label: 'Hög', className: 'border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200' },
 };
 
-function dateAfter(days: number) {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return date.toISOString().slice(0, 10);
-}
-
 export default function PestLog() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ pest_name: '', bed_id: '', severity: 'medium', treatment: '', observed_date: new Date().toISOString().slice(0, 10), notes: '' });
+  const [form, setForm] = useState({ pest_name: '', bed_id: '', severity: 'medium', treatment: '', observed_date: localDateKey(), notes: '' });
 
   const { data: logs = [], isLoading } = useQuery({
     queryKey: ['pest-logs'],
@@ -54,42 +49,54 @@ export default function PestLog() {
   const createMutation = useMutation({
     mutationFn: async () => {
       const userId = await getUserId();
+      const severity = form.severity;
+      const pestName = form.pest_name.trim();
       const { data, error } = await supabase.from('pest_logs').insert({
         user_id: userId,
-        pest_name: form.pest_name.trim(),
+        pest_name: pestName,
         bed_id: form.bed_id || null,
-        severity: form.severity,
+        severity,
         treatment: form.treatment.trim() || null,
         observed_date: form.observed_date,
         notes: form.notes.trim() || null,
       }).select('id').single();
       if (error) throw error;
 
-      const reminderSettings = await api.getReminderSettings();
-      const settings = ((reminderSettings?.settings as any) || {}) as Record<string, any>;
-      const reminders = settings.reminders || [];
-      const reminder = {
-        id: crypto.randomUUID(),
-        title: `Följ upp ${form.pest_name.trim()}`,
-        type: 'other',
-        date: dateAfter(form.severity === 'high' ? 2 : 3),
-        done: false,
-        created_at: new Date().toISOString(),
-        completed_at: null,
-        source_pest_log_id: data.id,
-      };
-      await api.updateReminderSettings({ settings: { ...settings, reminders: [...reminders, reminder] } });
-      return data;
+      let followUpCreated = false;
+      try {
+        const reminderSettings = await api.getReminderSettings();
+        const settings = ((reminderSettings?.settings as any) || {}) as Record<string, any>;
+        const reminders = settings.reminders || [];
+        const reminder = {
+          id: crypto.randomUUID(),
+          title: `Följ upp ${pestName}`,
+          type: 'other',
+          date: addDaysToDateKey(localDateKey(), severity === 'high' ? 2 : 3),
+          done: false,
+          created_at: new Date().toISOString(),
+          completed_at: null,
+          source_pest_log_id: data.id,
+        };
+        await api.updateReminderSettings({ settings: { ...settings, reminders: [...reminders, reminder] } });
+        followUpCreated = true;
+      } catch (followUpError) {
+        console.error('Kunde inte skapa automatisk uppföljning', followUpError);
+      }
+
+      return { id: data.id, severity, followUpCreated };
     },
-    onSuccess: (data) => {
+    onSuccess: ({ id, severity, followUpCreated }) => {
       queryClient.invalidateQueries({ queryKey: ['pest-logs'] });
       queryClient.invalidateQueries({ queryKey: ['reminder-settings'] });
       setDialogOpen(false);
-      setForm({ pest_name: '', bed_id: '', severity: 'medium', treatment: '', observed_date: new Date().toISOString().slice(0, 10), notes: '' });
-      void recordProductActivity('pest_problem_logged', { pest_log_id: data.id, severity: form.severity });
-      toast({ title: 'Problemet är loggat', description: 'En automatisk uppföljning har lagts in om några dagar.' });
+      setForm({ pest_name: '', bed_id: '', severity: 'medium', treatment: '', observed_date: localDateKey(), notes: '' });
+      void recordProductActivity('pest_problem_logged', { pest_log_id: id, severity, follow_up_created: followUpCreated });
+      toast({
+        title: 'Problemet är loggat',
+        description: followUpCreated ? 'En automatisk uppföljning har lagts in om några dagar.' : 'Problemet sparades, men uppföljningen kunde inte skapas. Lägg gärna till en påminnelse manuellt.',
+      });
     },
-    onError: (error: any) => toast({ title: 'Kunde inte spara', description: error?.message, variant: 'destructive' }),
+    onError: (error: any) => toast({ title: 'Kunde inte spara problemet', description: error?.message || 'Försök igen.', variant: 'destructive' }),
   });
 
   const toggleResolved = useMutation({
@@ -102,6 +109,7 @@ export default function PestLog() {
       queryClient.invalidateQueries({ queryKey: ['pest-logs'] });
       void recordProductActivity(resolved ? 'pest_problem_resolved' : 'pest_problem_reopened', { pest_log_id: id });
     },
+    onError: (error: any) => toast({ title: 'Kunde inte uppdatera problemet', description: error?.message || 'Försök igen.', variant: 'destructive' }),
   });
 
   const askGro = (log: any) => {
