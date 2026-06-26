@@ -8,44 +8,60 @@ const corsHeaders = {
 
 const BASE_URL = "https://odlingsdagboken.com";
 
+type ImageEntry = { url: string; title?: string };
+type SitemapEntry = { loc: string; lastmod?: string | null; image?: ImageEntry | null };
+
+const esc = (value: string) => value
+  .replace(/&/g, "&amp;")
+  .replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;")
+  .replace(/'/g, "&apos;");
+
+const dateOnly = (value?: string | null) => {
+  if (!value) return undefined;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return undefined;
+  return parsed.toISOString().slice(0, 10);
+};
+
+const latestDate = (values: Array<string | null | undefined>) => {
+  const valid = values
+    .map((value) => value ? new Date(value) : null)
+    .filter((value): value is Date => !!value && !Number.isNaN(value.getTime()));
+  if (!valid.length) return undefined;
+  return valid.sort((a, b) => b.getTime() - a.getTime())[0].toISOString().slice(0, 10);
+};
+
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  const [postsRes, plantsRes, monthsRes, zonesRes, tagsRes, soroRes] = await Promise.all([
+  const [postsRes, plantsRes, monthsRes, zonesRes] = await Promise.all([
     supabase
       .from("blog_posts")
-      .select("slug, updated_at, published_at, cover_image_url, title")
+      .select("slug, updated_at, published_at, cover_image_url, title, tags")
       .eq("is_published", true)
       .order("published_at", { ascending: false }),
     supabase
       .from("seo_plants")
-      .select("slug, updated_at, image_url, name")
+      .select("slug, updated_at, created_at, image_url, name")
       .eq("published", true)
       .order("updated_at", { ascending: false }),
     supabase
       .from("seo_months")
-      .select("slug, updated_at, title")
+      .select("slug, updated_at, created_at")
       .eq("published", true)
       .order("month_number", { ascending: true }),
     supabase
       .from("seo_zones")
-      .select("slug, updated_at, title")
+      .select("slug, updated_at, created_at")
       .eq("published", true)
       .order("zone_number", { ascending: true }),
-    supabase
-      .from("blog_posts")
-      .select("tags")
-      .eq("is_published", true),
-    fetch("https://app.trysoro.com/api/embed/7cadf781-f963-4b64-83b3-705e8bdbbbc7")
-      .then((r) => r.ok ? r.text() : "")
-      .catch(() => ""),
   ]);
 
   const posts = postsRes.data ?? [];
@@ -53,37 +69,70 @@ Deno.serve(async (req) => {
   const months = monthsRes.data ?? [];
   const zones = zonesRes.data ?? [];
 
-  type SoroArticle = { slug: string; title?: string; image?: string | null; isoDate?: string };
-  let soroArticles: SoroArticle[] = [];
-  try {
-    const match = (soroRes as string).match(/var SORO_ARTICLES = (\[[\s\S]*?\]);/);
-    if (match) {
-      const parsed = JSON.parse(match[1]) as Array<{ slug: string; title?: string; image?: string | null; isoDate?: string }>;
-      soroArticles = parsed.filter((a) => a && typeof a.slug === "string" && a.slug.length > 0);
-    }
-  } catch (_e) {
-    soroArticles = [];
-  }
-
-  const staticPages = [
-    { loc: "/", priority: "1.0", changefreq: "weekly" },
-    { loc: "/sakalender", priority: "0.95", changefreq: "weekly" },
-    { loc: "/odlingsplan", priority: "0.95", changefreq: "weekly" },
-    { loc: "/odlingsakuten", priority: "0.9", changefreq: "weekly" },
-    { loc: "/gro", priority: "0.85", changefreq: "weekly" },
-    { loc: "/priser", priority: "0.75", changefreq: "monthly" },
-    { loc: "/om-oss", priority: "0.65", changefreq: "monthly" },
-    { loc: "/blogg", priority: "0.9", changefreq: "daily" },
-    { loc: "/vaxter", priority: "0.9", changefreq: "weekly" },
-    { loc: "/manad", priority: "0.8", changefreq: "weekly" },
-    { loc: "/zoner", priority: "0.8", changefreq: "monthly" },
-    { loc: "/install", priority: "0.6", changefreq: "monthly" },
-    { loc: "/terms", priority: "0.3", changefreq: "yearly" },
+  const entries: SitemapEntry[] = [
+    { loc: "/" },
+    { loc: "/sakalender" },
+    { loc: "/odlingsplan" },
+    { loc: "/odlingsakuten" },
+    { loc: "/gro" },
+    { loc: "/priser" },
+    { loc: "/om-oss" },
+    { loc: "/blogg", lastmod: latestDate(posts.map((post) => post.updated_at || post.published_at)) },
+    { loc: "/vaxter", lastmod: latestDate(plants.map((plant) => plant.updated_at || plant.created_at)) },
+    { loc: "/manad", lastmod: latestDate(months.map((month) => month.updated_at || month.created_at)) },
+    { loc: "/zoner", lastmod: latestDate(zones.map((zone) => zone.updated_at || zone.created_at)) },
+    { loc: "/install" },
+    { loc: "/terms" },
   ];
 
-  const today = new Date().toISOString().split("T")[0];
-  const esc = (s: string) =>
-    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  for (const post of posts) {
+    entries.push({
+      loc: `/blogg/${post.slug}`,
+      lastmod: dateOnly(post.updated_at || post.published_at),
+      image: post.cover_image_url ? { url: post.cover_image_url, title: post.title } : null,
+    });
+  }
+
+  for (const plant of plants) {
+    entries.push({
+      loc: `/vaxter/${plant.slug}`,
+      lastmod: dateOnly(plant.updated_at || plant.created_at),
+      image: plant.image_url ? { url: plant.image_url, title: plant.name } : null,
+    });
+  }
+
+  for (const month of months) {
+    entries.push({
+      loc: `/manad/${month.slug}`,
+      lastmod: dateOnly(month.updated_at || month.created_at),
+    });
+  }
+
+  for (const zone of zones) {
+    entries.push({
+      loc: `/zoner/${zone.slug}`,
+      lastmod: dateOnly(zone.updated_at || zone.created_at),
+    });
+  }
+
+  const tags = new Map<string, string[]>();
+  for (const post of posts as Array<{ tags: string[] | null; updated_at: string | null; published_at: string | null }>) {
+    for (const tag of Array.isArray(post.tags) ? post.tags : []) {
+      const normalized = tag?.trim();
+      if (!normalized) continue;
+      const dates = tags.get(normalized) ?? [];
+      const date = post.updated_at || post.published_at;
+      if (date) dates.push(date);
+      tags.set(normalized, dates);
+    }
+  }
+
+  for (const [tag, dates] of tags) {
+    entries.push({
+      loc: `/blogg/tagg/${encodeURIComponent(tag)}`,
+      lastmod: latestDate(dates),
+    });
+  }
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -91,84 +140,27 @@ Deno.serve(async (req) => {
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 `;
 
-  const writeUrl = (
-    loc: string,
-    lastmod: string,
-    changefreq: string,
-    priority: string,
-    image?: { url: string; title?: string } | null,
-  ) => {
-    xml += `  <url>
-    <loc>${BASE_URL}${loc}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
-    <xhtml:link rel="alternate" hreflang="sv" href="${BASE_URL}${loc}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE_URL}${loc}" />`;
-    if (image?.url) {
-      const absolute = image.url.startsWith("http") ? image.url : `${BASE_URL}${image.url}`;
-      xml += `
-    <image:image>
-      <image:loc>${esc(absolute)}</image:loc>${image.title ? `
-      <image:title>${esc(image.title)}</image:title>` : ""}
-    </image:image>`;
+  for (const entry of entries) {
+    const absoluteUrl = `${BASE_URL}${entry.loc}`;
+    xml += `  <url>\n    <loc>${esc(absoluteUrl)}</loc>`;
+    if (entry.lastmod) xml += `\n    <lastmod>${entry.lastmod}</lastmod>`;
+    xml += `\n    <xhtml:link rel="alternate" hreflang="sv-SE" href="${esc(absoluteUrl)}" />`;
+    xml += `\n    <xhtml:link rel="alternate" hreflang="x-default" href="${esc(absoluteUrl)}" />`;
+    if (entry.image?.url) {
+      const absoluteImage = entry.image.url.startsWith("http") ? entry.image.url : `${BASE_URL}${entry.image.url}`;
+      xml += `\n    <image:image>\n      <image:loc>${esc(absoluteImage)}</image:loc>`;
+      if (entry.image.title) xml += `\n      <image:title>${esc(entry.image.title)}</image:title>`;
+      xml += `\n    </image:image>`;
     }
-    xml += `
-  </url>
-`;
-  };
-
-  for (const page of staticPages) {
-    writeUrl(page.loc, today, page.changefreq, page.priority);
-  }
-
-  for (const post of posts) {
-    const lastmod = (post.updated_at || post.published_at || today).split("T")[0];
-    writeUrl(`/blogg/${post.slug}`, lastmod, "weekly", "0.8",
-      post.cover_image_url ? { url: post.cover_image_url, title: post.title } : null);
-  }
-
-  for (const plant of plants) {
-    const lastmod = (plant.updated_at || today).split("T")[0];
-    writeUrl(`/vaxter/${plant.slug}`, lastmod, "monthly", "0.8",
-      plant.image_url ? { url: plant.image_url, title: plant.name } : null);
-  }
-
-  for (const month of months) {
-    const lastmod = (month.updated_at || today).split("T")[0];
-    writeUrl(`/manad/${month.slug}`, lastmod, "monthly", "0.7");
-  }
-
-  for (const zone of zones) {
-    const lastmod = (zone.updated_at || today).split("T")[0];
-    writeUrl(`/zoner/${zone.slug}`, lastmod, "monthly", "0.7");
-  }
-
-  // Tag archive pages
-  const tagSet = new Set<string>();
-  for (const row of (tagsRes.data ?? []) as Array<{ tags: string[] | null }>) {
-    if (Array.isArray(row.tags)) for (const t of row.tags) if (t) tagSet.add(t);
-  }
-  for (const tag of tagSet) {
-    writeUrl(`/blogg/tagg/${encodeURIComponent(tag)}`, today, "weekly", "0.6");
-  }
-
-  const nativeSlugs = new Set(posts.map((p) => p.slug));
-  for (const art of soroArticles) {
-    if (nativeSlugs.has(art.slug)) continue;
-    const lastmod = art.isoDate ? art.isoDate.split("T")[0] : today;
-    writeUrl(
-      `/blogg?post=${encodeURIComponent(art.slug)}`,
-      lastmod,
-      "monthly",
-      "0.7",
-      art.image ? { url: art.image, title: art.title } : null,
-    );
+    xml += `\n  </url>\n`;
   }
 
   xml += `</urlset>`;
 
   return new Response(xml, {
-    headers: { ...corsHeaders, "Cache-Control": "public, max-age=3600, s-maxage=3600" },
+    headers: {
+      ...corsHeaders,
+      "Cache-Control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+    },
   });
 });
