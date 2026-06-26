@@ -53,13 +53,15 @@ Lokala avvikelser förekommer alltid.
 
 type ClientMsg = { role: "user" | "assistant"; content: string; images?: string[] };
 
-function todayInStockholm() {
-  return new Intl.DateTimeFormat("sv-SE", {
+function dateKeyInStockholm(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Stockholm",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(new Date());
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
 }
 
 function coordinatesForZone(zone: number) {
@@ -155,13 +157,14 @@ serve(async (req) => {
     const zone = profileRow?.climate_zone || 3;
     const isPremium = profileRow?.subscription_status === "premium" && (!profileRow?.premium_expires_at || new Date(profileRow.premium_expires_at) > new Date());
     const hasUserQuestion = clientMessages.some((message) => message.role === "user");
+    let pendingUsage: { date: string; current: number } | null = null;
 
     if (!isPremium && hasUserQuestion) {
-      const today = todayInStockholm();
-      const { data: usageRow } = await admin.from("gro_usage").select("message_count").eq("user_id", user.id).eq("usage_date", today).maybeSingle();
+      const date = dateKeyInStockholm();
+      const { data: usageRow } = await admin.from("gro_usage").select("message_count").eq("user_id", user.id).eq("usage_date", date).maybeSingle();
       const current = usageRow?.message_count ?? 0;
       if (current >= FREE_DAILY_LIMIT) return new Response(JSON.stringify({ error: "free_limit_reached", message: `Du har använt dina ${FREE_DAILY_LIMIT} gratisfrågor idag. Uppgradera till Plus för obegränsad tillgång.` }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      await admin.from("gro_usage").upsert({ user_id: user.id, usage_date: today, message_count: current + 1, updated_at: new Date().toISOString() }, { onConflict: "user_id,usage_date" });
+      pendingUsage = { date, current };
     }
 
     const [sowingsRes, plantsRes, harvestsRes, bedsRes, seasonRes, remindersRes, pestsRes, photosRes, weather] = await Promise.all([
@@ -210,7 +213,7 @@ serve(async (req) => {
 ## ANVÄNDARENS KONTEXT – LIVE-DATA
 Namn: ${name}
 Klimatzon: ${zone}
-Datum: ${now.toISOString().slice(0, 10)}
+Datum: ${dateKeyInStockholm(now)}
 Månad: ${month}
 Erfarenhetsnivå: ${(profileRow?.preferences as any)?.experience_level || "inte angiven"}
 Odlingssätt: ${((profileRow?.preferences as any)?.growing_methods || []).join(", ") || "inte angivet"}
@@ -268,6 +271,16 @@ ${seasonHistory}`;
       if (response.status === 402) return new Response(JSON.stringify({ error: "AI-krediter slut." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       console.error("AI gateway error:", response.status, await response.text());
       throw new Error("AI gateway error");
+    }
+
+    if (pendingUsage) {
+      const { error: usageError } = await admin.from("gro_usage").upsert({
+        user_id: user.id,
+        usage_date: pendingUsage.date,
+        message_count: pendingUsage.current + 1,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id,usage_date" });
+      if (usageError) console.error("Kunde inte uppdatera Gro-kvoten", usageError);
     }
 
     return new Response(response.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
