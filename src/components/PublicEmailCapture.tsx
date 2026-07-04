@@ -47,6 +47,9 @@ export default function PublicEmailCapture({ source, plan, title, description }:
         })
         .then(({ error }) => {
           if (error) console.warn('[lead-plan-email]', error);
+        })
+        .catch((error) => {
+          console.warn('[lead-plan-email]', error);
         });
 
       try {
