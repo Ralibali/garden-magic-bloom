@@ -1,5 +1,4 @@
 const SITE_NAME = 'Odlingsdagboken'
-const ROOT_DOMAIN = 'odlingsdagboken.com'
 const SENDER_DOMAIN = 'notify.odlingsdagboken.com'
 const FROM_EMAIL = `no-reply@${SENDER_DOMAIN}`
 
@@ -34,7 +33,8 @@ function escapeHtml(value: string): string {
 }
 
 export function unsubscribeUrl(token: string): string {
-  return `https://${ROOT_DOMAIN}/functions/v1/email-unsubscribe?token=${encodeURIComponent(token)}`
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? 'https://ysonnvbkrwajacvdkqut.supabase.co'
+  return `${supabaseUrl}/functions/v1/email-unsubscribe?token=${encodeURIComponent(token)}`
 }
 
 export async function getOrCreateUnsubToken(
