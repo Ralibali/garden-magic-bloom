@@ -1,5 +1,6 @@
 // Zonbaserad sowing matrix för 8 svenska klimatzoner.
 // Värden = ISO-vecknummer (1–53). null = ej rekommenderat (t.ex. chili i frilandsodling zon 7–8).
+// Kör `node scripts/export-sowing-weeks.mjs` när denna fil ändras så Edge Functions får samma såveckor.
 
 export type CropTiming = {
   preStart: number | null;
