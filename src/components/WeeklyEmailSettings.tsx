@@ -2,9 +2,10 @@ import { Mail } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { trackEvent } from '@/lib/analytics';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WeeklyEmailSettingsProps {
   enabled: boolean;
@@ -13,9 +14,17 @@ interface WeeklyEmailSettingsProps {
 
 export default function WeeklyEmailSettings({ enabled, onOptimisticChange }: WeeklyEmailSettingsProps) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const mutation = useMutation({
-    mutationFn: (nextEnabled: boolean) => api.updateWeeklyEmailPreference(nextEnabled),
+    mutationFn: async (nextEnabled: boolean) => {
+      if (!user) throw new Error('Inte inloggad');
+      const { error } = await supabase
+        .from('profiles')
+        .update({ weekly_email_enabled: nextEnabled } as any)
+        .eq('user_id', user.id);
+      if (error) throw new Error(error.message);
+    },
     onMutate: (nextEnabled) => {
       onOptimisticChange(nextEnabled);
     },
