@@ -4,9 +4,10 @@ import { Input } from '@/components/ui/input';
 import { Check, Loader2, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { trackEvent } from '@/lib/analytics';
+import { normalizeLeadEmail, type PublicLeadSource } from '@/lib/leadPlanEmail';
 
 interface PublicEmailCaptureProps {
-  source: 'sakalender' | 'odlingsplan' | 'odlingsakuten';
+  source: PublicLeadSource;
   plan: any;
   title?: string;
   description?: string;
@@ -26,7 +27,7 @@ export default function PublicEmailCapture({ source, plan, title, description }:
     setLoading(true);
     setErrorMessage('');
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = normalizeLeadEmail(email);
     const lead = {
       email: normalizedEmail,
       source,
@@ -84,7 +85,7 @@ export default function PublicEmailCapture({ source, plan, title, description }:
           <div className="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0"><Check className="h-4 w-4" /></div>
           <div>
             <h3 className="font-serif text-xl text-foreground mb-1">Toppen — kolla din inkorg!</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">Vi har skickat kalendern till {normalizedDisplayEmail(email)}. Skapa ett gratis konto på samma enhet så plockar Odlingsdagboken upp planen automatiskt.</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">Vi har skickat kalendern till {normalizeLeadEmail(email)}. Skapa ett gratis konto på samma enhet så plockar Odlingsdagboken upp planen automatiskt.</p>
           </div>
         </div>
       </div>
@@ -120,8 +121,4 @@ export default function PublicEmailCapture({ source, plan, title, description }:
       {errorMessage ? <p className="text-[11px] text-destructive mt-2">{errorMessage}</p> : <p className="text-[11px] text-muted-foreground mt-2">Inget betalkort krävs. Du kan skapa konto när du vill spara planen permanent.</p>}
     </form>
   );
-}
-
-function normalizedDisplayEmail(email: string) {
-  return email.trim().toLowerCase();
 }
