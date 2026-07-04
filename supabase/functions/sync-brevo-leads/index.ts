@@ -29,6 +29,11 @@ function normalizeEmail(email: string | null | undefined): string | null {
   return normalized.includes('@') ? normalized : null
 }
 
+function needsConvertedResync(lead: PublicLead): boolean {
+  if (!lead.converted_user_id || !lead.converted_at || !lead.synced_to_brevo_at) return false
+  return new Date(lead.converted_at).getTime() > new Date(lead.synced_to_brevo_at).getTime()
+}
+
 async function upsertBrevoContact({
   apiKey,
   listId,
@@ -64,6 +69,20 @@ async function upsertBrevoContact({
   if (body.includes('duplicate_parameter')) return { ok: true }
 
   return { ok: false, error: `${response.status} ${body}`.slice(0, 1000) }
+}
+
+async function markSynced(admin: ReturnType<typeof createClient>, lead: PublicLead): Promise<boolean> {
+  const { error: updateError } = await admin
+    .from('public_leads')
+    .update({ synced_to_brevo_at: new Date().toISOString() })
+    .eq('id', lead.id)
+
+  if (updateError) {
+    console.error('Failed to mark lead as synced', { id: lead.id, error: updateError })
+    return false
+  }
+
+  return true
 }
 
 Deno.serve(async (req) => {
@@ -108,33 +127,28 @@ Deno.serve(async (req) => {
       continue
     }
 
-    const { error: updateError } = await admin
-      .from('public_leads')
-      .update({ synced_to_brevo_at: new Date().toISOString() })
-      .eq('id', lead.id)
-
-    if (updateError) {
-      errors++
-      console.error('Failed to mark lead as synced', { id: lead.id, error: updateError })
-    } else {
-      synced++
-    }
+    if (await markSynced(admin, lead)) synced++
+    else errors++
   }
 
-  const { data: convertedLeads, error: convertedError } = await admin
+  const { data: convertedLeadCandidates, error: convertedError } = await admin
     .from('public_leads')
     .select('id, email, source, plan, created_at, converted_user_id, converted_at, synced_to_brevo_at')
     .not('converted_user_id', 'is', null)
+    .not('converted_at', 'is', null)
     .not('synced_to_brevo_at', 'is', null)
-    .filter('converted_at', 'gt', 'synced_to_brevo_at')
     .order('converted_at', { ascending: true })
-    .limit(200)
+    .limit(500)
 
   if (convertedError) {
     errors++
     console.error('Failed to fetch converted leads for Brevo update', { error: convertedError })
   } else {
-    for (const lead of (convertedLeads ?? []) as PublicLead[]) {
+    const convertedLeads = ((convertedLeadCandidates ?? []) as PublicLead[])
+      .filter(needsConvertedResync)
+      .slice(0, 200)
+
+    for (const lead of convertedLeads) {
       const result = await upsertBrevoContact({ apiKey, listId, lead })
       if (!result.ok) {
         errors++
@@ -142,17 +156,8 @@ Deno.serve(async (req) => {
         continue
       }
 
-      const { error: updateError } = await admin
-        .from('public_leads')
-        .update({ synced_to_brevo_at: new Date().toISOString() })
-        .eq('id', lead.id)
-
-      if (updateError) {
-        errors++
-        console.error('Failed to mark converted lead as synced', { id: lead.id, error: updateError })
-      } else {
-        synced++
-      }
+      if (await markSynced(admin, lead)) synced++
+      else errors++
     }
   }
 
