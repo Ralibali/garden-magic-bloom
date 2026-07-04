@@ -21,3 +21,5 @@ project_id = "ysonnvbkrwajacvdkqut"
     verify_jwt = true
   [functions.stripe-webhook]
     verify_jwt = false
+  [functions.sync-brevo-leads]
+    verify_jwt = false
