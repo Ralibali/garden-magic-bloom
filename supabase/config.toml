@@ -23,3 +23,5 @@ project_id = "ysonnvbkrwajacvdkqut"
     verify_jwt = false
   [functions.sync-brevo-leads]
     verify_jwt = false
+  [functions.weekly-digest]
+    verify_jwt = false
