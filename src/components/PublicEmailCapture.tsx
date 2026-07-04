@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { trackEvent } from '@/lib/analytics';
 
 interface PublicEmailCaptureProps {
-  source: 'sakalender' | 'odlingsplan';
+  source: 'sakalender' | 'odlingsplan' | 'odlingsakuten';
   plan: any;
   title?: string;
   description?: string;
@@ -14,6 +14,7 @@ interface PublicEmailCaptureProps {
 
 export default function PublicEmailCapture({ source, plan, title, description }: PublicEmailCaptureProps) {
   const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState('');
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -39,6 +40,14 @@ export default function PublicEmailCapture({ source, plan, title, description }:
       await trackEvent('email_lead_started', { source, email: normalizedEmail });
       const { error } = await supabase.from('public_leads' as any).insert(lead as any);
       if (error) throw error;
+
+      void supabase.functions
+        .invoke('lead-plan-email', {
+          body: { email: normalizedEmail, source, plan, website },
+        })
+        .then(({ error }) => {
+          if (error) console.warn('[lead-plan-email]', error);
+        });
 
       try {
         const leads = JSON.parse(localStorage.getItem('odlingsdagboken_public_leads') || '[]');
@@ -71,8 +80,8 @@ export default function PublicEmailCapture({ source, plan, title, description }:
         <div className="flex gap-3">
           <div className="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0"><Check className="h-4 w-4" /></div>
           <div>
-            <h3 className="font-serif text-xl text-foreground mb-1">Toppen – planen är sparad</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">Vi har sparat din e-post och planen. Skapa ett gratis konto på samma enhet så plockar Odlingsdagboken upp planen och visar nästa steg inne i appen.</p>
+            <h3 className="font-serif text-xl text-foreground mb-1">Toppen — kolla din inkorg!</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">Vi har skickat kalendern till {normalizedDisplayEmail(email)}. Skapa ett gratis konto på samma enhet så plockar Odlingsdagboken upp planen automatiskt.</p>
           </div>
         </div>
       </div>
@@ -88,6 +97,16 @@ export default function PublicEmailCapture({ source, plan, title, description }:
           <p className="text-sm text-muted-foreground leading-relaxed">{description || 'Spara din e-post här och skapa sedan konto för att behålla planen, få påminnelser och följa upp säsongen.'}</p>
         </div>
       </div>
+      <input
+        type="text"
+        name="website"
+        value={website}
+        onChange={(event) => setWebsite(event.target.value)}
+        className="sr-only"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+      />
       <div className="flex flex-col sm:flex-row gap-2">
         <Input type="email" placeholder="din@email.se" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-11" />
         <Button type="submit" className="h-11 shrink-0" disabled={loading}>
@@ -98,4 +117,8 @@ export default function PublicEmailCapture({ source, plan, title, description }:
       {errorMessage ? <p className="text-[11px] text-destructive mt-2">{errorMessage}</p> : <p className="text-[11px] text-muted-foreground mt-2">Inget betalkort krävs. Du kan skapa konto när du vill spara planen permanent.</p>}
     </form>
   );
+}
+
+function normalizedDisplayEmail(email: string) {
+  return email.trim().toLowerCase();
 }
