@@ -294,6 +294,10 @@ export async function updateProfile(profileData: any) {
   return data;
 }
 
+export async function updateWeeklyEmailPreference(enabled: boolean) {
+  return updateProfile({ weekly_email_enabled: enabled });
+}
+
 // ==================== EXPORT ====================
 
 export async function exportUserData() {
@@ -333,5 +337,6 @@ export const api = {
   openCustomerPortal,
   getProfile,
   updateProfile,
+  updateWeeklyEmailPreference,
   exportUserData,
 };
