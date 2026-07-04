@@ -3,37 +3,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings as SettingsIcon, Download, FileSpreadsheet, FileText, Leaf, Trash2, AlertTriangle } from 'lucide-react';
+import { Settings as SettingsIcon, Download, FileSpreadsheet, FileText, Leaf } from 'lucide-react';
 import DataImporter from '@/components/DataImporter';
 import NotificationsSettings from '@/components/NotificationsSettings';
+import WeeklyEmailSettings from '@/components/WeeklyEmailSettings';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { downloadCSV, downloadPDF } from '@/lib/exportUtils';
 import { GARDEN_CATEGORIES, GardenCategory } from '@/lib/gardenModules';
-import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 
 const SettingsPage = () => {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [displayName, setDisplayName] = useState('');
   const [climateZone, setClimateZone] = useState('3');
+  const [weeklyEmailEnabled, setWeeklyEmailEnabled] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<GardenCategory[]>([]);
-  const [deleting, setDeleting] = useState(false);
 
   const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
 
@@ -41,6 +28,7 @@ const SettingsPage = () => {
     if (profile) {
       setDisplayName(profile.display_name || '');
       setClimateZone(String((profile as any).climate_zone || 3));
+      setWeeklyEmailEnabled((profile as any).weekly_email_enabled ?? true);
       setSelectedCategories((profile.preferences as any)?.garden_categories || []);
     }
   }, [profile]);
@@ -98,36 +86,6 @@ const SettingsPage = () => {
     setExporting(false);
   };
 
-  const handleDeleteAccount = async () => {
-    setDeleting(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Inte inloggad');
-
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        },
-      });
-
-      if (!resp.ok) {
-        const err = await resp.json().catch(() => ({}));
-        throw new Error(err.error || 'Kunde inte radera kontot');
-      }
-
-      await supabase.auth.signOut();
-      toast({ title: 'Konto raderat', description: 'All din data har tagits bort.' });
-      navigate('/', { replace: true });
-    } catch (e: any) {
-      toast({ title: 'Fel', description: e.message, variant: 'destructive' });
-    } finally {
-      setDeleting(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold flex items-center gap-2"><SettingsIcon className="h-6 w-6" /> Inställningar</h1>
@@ -149,6 +107,8 @@ const SettingsPage = () => {
           <Button onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>{updateMutation.isPending ? 'Sparar...' : 'Spara inställningar'}</Button>
         </CardContent>
       </Card>
+
+      <WeeklyEmailSettings enabled={weeklyEmailEnabled} onOptimisticChange={setWeeklyEmailEnabled} />
 
       <Card>
         <CardHeader>
@@ -207,49 +167,6 @@ const SettingsPage = () => {
       <NotificationsSettings />
 
       <DataImporter />
-
-      <Card className="border-destructive/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-destructive">
-            <Trash2 className="h-5 w-5" /> Radera konto
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-sm text-muted-foreground">
-            Detta raderar permanent ditt konto och all din data – bäddar, sådder, skördar, krukväxter, foton och inställningar. Åtgärden går inte att ångra.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            💡 Tips: Exportera din data först om du vill spara en kopia.
-          </p>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="gap-2">
-                <Trash2 className="h-4 w-4" /> Radera mitt konto
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-destructive" /> Är du säker?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  All din data raderas permanent och kan inte återställas. Ditt konto, alla bäddar, sådder, skördar, krukväxter, foton och inställningar tas bort.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Avbryt</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteAccount}
-                  disabled={deleting}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  {deleting ? 'Raderar...' : 'Ja, radera allt'}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </CardContent>
-      </Card>
     </div>
   );
 };
