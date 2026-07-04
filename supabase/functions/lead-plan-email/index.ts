@@ -143,7 +143,8 @@ function buildOdlingsplanEmail(plan: PlanPayload, zone: number) {
 }
 
 function buildOdlingsakutenEmail(plan: PlanPayload) {
-  const crop = escapeHtml(plan.crop || 'planta')
+  const cropLabel = String(plan.crop || 'planta')
+  const crop = escapeHtml(cropLabel)
   const symptom = escapeHtml(plan.symptom || 'problemet')
   const advice = Array.isArray(plan.advice) ? plan.advice.slice(0, 3) : []
   const adviceHtml = advice.length
@@ -159,7 +160,7 @@ function buildOdlingsakutenEmail(plan: PlanPayload) {
   `
 
   return {
-    subject: `Råd för din ${crop}`,
+    subject: `Råd för din ${cropLabel}`,
     title: `Råd för din ${crop}`,
     preheader: 'Spara råden och följ upp vad som faktiskt hjälpte.',
     bodyHtml,
