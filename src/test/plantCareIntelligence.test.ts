@@ -53,4 +53,46 @@ describe('plant care intelligence', () => {
     expect(profile.confidence).toBe('personal');
     expect(profile.knowledgeLevel).toBeGreaterThanOrEqual(3);
   });
+
+  it('reports a declining trend when recent health ratings drop', () => {
+    const profile = buildPlantCareProfile(
+      { watering_interval_days: 7 },
+      [
+        { event_type: 'health_check', occurred_at: '2026-07-01T10:00:00Z', soil_moisture: 'moist', health_rating: 5 },
+        { event_type: 'health_check', occurred_at: '2026-07-03T10:00:00Z', soil_moisture: 'moist', health_rating: 5 },
+        { event_type: 'health_check', occurred_at: '2026-07-08T10:00:00Z', soil_moisture: 'dry', health_rating: 3 },
+        { event_type: 'health_check', occurred_at: '2026-07-10T10:00:00Z', soil_moisture: 'dry', health_rating: 2 },
+      ],
+      new Date('2026-07-11T12:00:00Z'),
+    );
+    expect(profile.trend).toBe('declining');
+    expect(profile.trendLabel).toMatch(/Sämre/);
+  });
+
+  it('reports an improving trend when recent ratings climb', () => {
+    const profile = buildPlantCareProfile(
+      { watering_interval_days: 7 },
+      [
+        { event_type: 'health_check', occurred_at: '2026-07-01T10:00:00Z', soil_moisture: 'dry', health_rating: 2 },
+        { event_type: 'health_check', occurred_at: '2026-07-03T10:00:00Z', soil_moisture: 'dry', health_rating: 3 },
+        { event_type: 'health_check', occurred_at: '2026-07-08T10:00:00Z', soil_moisture: 'moist', health_rating: 4 },
+        { event_type: 'health_check', occurred_at: '2026-07-10T10:00:00Z', soil_moisture: 'moist', health_rating: 5 },
+      ],
+      new Date('2026-07-11T12:00:00Z'),
+    );
+    expect(profile.trend).toBe('improving');
+  });
+
+  it('flags a milestone once the care streak reaches five', () => {
+    const start = new Date('2026-06-01T10:00:00Z').getTime();
+    const events = Array.from({ length: 6 }, (_, index) => ({
+      event_type: 'watered',
+      occurred_at: new Date(start + index * 7 * 86_400_000).toISOString(),
+      soil_moisture: 'dry',
+      health_rating: 5,
+    }));
+    const profile = buildPlantCareProfile({ watering_interval_days: 7 }, events, new Date(start + 6 * 7 * 86_400_000));
+    expect(profile.careStreak).toBeGreaterThanOrEqual(5);
+    expect(profile.milestone).not.toBeNull();
+  });
 });
