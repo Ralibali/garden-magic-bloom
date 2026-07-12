@@ -141,7 +141,7 @@ export default function TodayInGarden({
     navigate('/app/gro', { state: { prompt: action.groPrompt, source: 'today_in_garden' } });
   };
 
-  const visible = showAll ? actions : actions.slice(0, 4);
+  const visible = showAll ? actions : actions.slice(0, maxItems);
   const totalToday = actions.length + completedToday;
   const progress = totalToday ? Math.round((completedToday / totalToday) * 100) : 100;
 
