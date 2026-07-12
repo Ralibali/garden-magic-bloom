@@ -79,11 +79,86 @@ export default function Premium() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-10 animate-fade-in">
-      <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/12 via-card to-accent/10 p-6 sm:p-10"><div className="relative grid lg:grid-cols-[1.3fr_.7fr] gap-8 items-center"><div><div className="inline-flex items-center gap-2 rounded-full bg-primary/12 text-primary px-3 py-1 text-xs font-semibold mb-4"><Sparkles className="h-3.5 w-3.5" /> Odlingsdagboken Plus</div><h1 className="font-serif text-4xl sm:text-5xl leading-tight mb-4">Lär dig mer av varje bädd och varje säsong</h1><p className="text-muted-foreground text-lg max-w-2xl">Plus tar bort gränsen på tre bäddar och tio sådder och låser upp mer Gro och full statistik.</p><div className="flex flex-wrap gap-x-5 gap-y-2 mt-5 text-sm text-muted-foreground"><span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-primary" /> 14 dagar gratis</span><span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-primary" /> Inget betalkort vid konto</span><span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-primary" /> 99 kr per år</span></div></div><Card className="border-2 border-primary shadow-xl"><CardContent className="p-6 text-center"><Crown className="h-8 w-8 text-primary mx-auto mb-3" /><p className="font-serif text-xl">Plus årsvis</p><div className="my-4"><span className="text-5xl font-bold">99</span><span className="text-muted-foreground"> kr/år</span></div><p className="text-xs text-muted-foreground mb-5">Motsvarar cirka 8 kr per månad</p>{isPremium ? <Button variant="outline" className="w-full h-11" onClick={openPortal} disabled={portalLoading}>{portalLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Hantera abonnemang</Button> : <Button className="w-full h-11" onClick={checkout} disabled={loading}>{loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Crown className="h-4 w-4 mr-2" />}Prova Plus gratis</Button>}</CardContent></Card></div></section>
+      <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/12 via-card to-accent/10 p-6 sm:p-10">
+        <div className="relative grid lg:grid-cols-[1.3fr_.7fr] gap-8 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/12 text-primary px-3 py-1 text-xs font-semibold mb-4"><Sparkles className="h-3.5 w-3.5" /> Odlingsdagboken Plus</div>
+            <h1 className="font-serif text-4xl sm:text-5xl leading-tight mb-4">Lär dig mer av varje bädd och varje säsong</h1>
+            <p className="text-muted-foreground text-lg max-w-2xl">Plus tar bort gränsen på tre bäddar och tio sådder och låser upp mer Gro och full statistik.</p>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 mt-5 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-primary" /> 14 dagar gratis, sen 99 kr/år</span>
+              <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-primary" /> Förnyas automatiskt – avsluta när du vill</span>
+              <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-primary" /> Inget kort krävs för att skapa konto</span>
+            </div>
+          </div>
+          <Card className="border-2 border-primary shadow-xl">
+            <CardContent className="p-6 text-center">
+              <Crown className="h-8 w-8 text-primary mx-auto mb-3" />
+              <p className="font-serif text-xl">Plus årsvis</p>
+              <div className="my-4">
+                <span className="text-5xl font-bold">99</span>
+                <span className="text-muted-foreground"> kr/år</span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-4">Motsvarar cirka 8 kr per månad. Priset inkluderar moms.</p>
+              {isPremium ? (
+                <Button variant="outline" className="w-full h-11" onClick={openPortal} disabled={portalLoading}>
+                  {portalLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Hantera abonnemang
+                </Button>
+              ) : (
+                <>
+                  <label className="flex items-start gap-2 text-left text-[11px] text-muted-foreground leading-relaxed mb-4 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={withdrawalConsent}
+                      onChange={(event) => setWithdrawalConsent(event.target.checked)}
+                      className="mt-0.5 shrink-0"
+                    />
+                    <span>
+                      Jag begär att Plus-tjänsten aktiveras direkt och godkänner att ångerrätten enligt distansavtalslagen upphör i den utsträckning tjänsten fullgörs under 14-dagarsperioden. Jag har läst <a href="/terms" target="_blank" rel="noreferrer" className="text-primary hover:underline">villkoren</a> och accepterar att prenumerationen förnyas med 99 kr/år tills jag säger upp den.
+                    </span>
+                  </label>
+                  <Button className="w-full h-11" onClick={checkout} disabled={loading || !withdrawalConsent}>
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Crown className="h-4 w-4 mr-2" />}
+                    Beställ med betalningsskyldighet
+                  </Button>
+                  <p className="mt-2 text-[10.5px] text-muted-foreground">Ingen debitering under de första 14 dagarna. Därefter 99 kr/år tills du avslutar.</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
-      <section><div className="text-center max-w-2xl mx-auto mb-6"><h2 className="font-serif text-3xl mb-2">Det här är upplåst i Plus</h2><p className="text-sm text-muted-foreground">Samma erbjudande här som på den publika prissidan.</p></div><div className="grid sm:grid-cols-2 gap-4">{features.map(({ icon: Icon, title, text }) => <Card key={title} className="hover:shadow-md transition-shadow"><CardContent className="p-5 flex gap-4"><div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0"><Icon className="h-5 w-5" /></div><div><h3 className="font-medium mb-1">{title}</h3><p className="text-sm text-muted-foreground leading-relaxed">{text}</p></div></CardContent></Card>)}</div></section>
+      <section>
+        <div className="text-center max-w-2xl mx-auto mb-6">
+          <h2 className="font-serif text-3xl mb-2">Det här är upplåst i Plus</h2>
+          <p className="text-sm text-muted-foreground">Samma erbjudande här som på den publika prissidan.</p>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          {features.map(({ icon: Icon, title, text }) => (
+            <Card key={title} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-5 flex gap-4">
+                <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0"><Icon className="h-5 w-5" /></div>
+                <div>
+                  <h3 className="font-medium mb-1">{title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
 
-      {!isPremium && <section className="rounded-3xl bg-primary text-primary-foreground p-6 sm:p-9 text-center"><h2 className="font-serif text-3xl mb-3">Testa hela upplevelsen i 14 dagar</h2><p className="text-primary-foreground/80 max-w-xl mx-auto mb-5">Börja med din egen odling och avgör sedan om historiken, Gro och statistiken ger dig tillräckligt värde.</p><Button variant="secondary" size="lg" onClick={checkout} disabled={loading}>{loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Starta gratisperioden</Button></section>}
+      {!isPremium && (
+        <section className="rounded-3xl bg-primary text-primary-foreground p-6 sm:p-9 text-center">
+          <h2 className="font-serif text-3xl mb-3">Testa hela upplevelsen i 14 dagar</h2>
+          <p className="text-primary-foreground/80 max-w-xl mx-auto mb-3">Börja med din egen odling och avgör sedan om historiken, Gro och statistiken ger dig tillräckligt värde.</p>
+          <p className="text-primary-foreground/70 text-xs max-w-xl mx-auto mb-5">Efter 14 dagar debiteras 99 kr/år via Stripe. Du kan avsluta när som helst från kundportalen. Bekräfta samtycket i kortet ovan innan du fortsätter till betalning.</p>
+          <Button variant="secondary" size="lg" onClick={checkout} disabled={loading || !withdrawalConsent}>
+            {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Fortsätt till betalning
+          </Button>
+        </section>
+      )}
     </div>
   );
 }
