@@ -18,6 +18,14 @@ type SoroArticle = { slug: string; title?: string; isoDate?: string };
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // Require service-role bearer token (invoked by scheduled cron or admin only)
+  const authHeader = req.headers.get("Authorization");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!authHeader?.startsWith("Bearer ") || !serviceKey || authHeader.slice(7) !== serviceKey) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+  }
+
+
   try {
     // 1. Hämta Soro-artiklar
     const soroRes = await fetch(SORO_URL);
