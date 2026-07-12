@@ -34,6 +34,14 @@ const STATUS_CLASSES: Record<PlantCareStatus, string> = {
   good: 'border-emerald-300/45 bg-emerald-100/60 text-emerald-800 dark:border-emerald-800/50 dark:bg-emerald-950/30 dark:text-emerald-300',
 };
 
+const TREND_META: Record<PlantCareTrend, { className: string; Icon: typeof TrendingUp }> = {
+  improving: { className: 'text-emerald-700 dark:text-emerald-300', Icon: TrendingUp },
+  stable: { className: 'text-muted-foreground', Icon: Minus },
+  declining: { className: 'text-rose-700 dark:text-rose-300', Icon: TrendingDown },
+  unknown: { className: 'text-muted-foreground', Icon: Minus },
+};
+
+
 interface PlantDetailProps {
   plant: any;
   plantName: string;
