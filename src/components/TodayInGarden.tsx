@@ -199,7 +199,7 @@ export default function TodayInGarden({
                 );
               })}
 
-              {actions.length > 4 && <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => setShowAll((current) => !current)}>{showAll ? 'Visa färre' : `Visa ${actions.length - 4} fler rekommendationer`} <ArrowRight className={`h-4 w-4 transition-transform ${showAll ? '-rotate-90' : 'rotate-90'}`} /></Button>}
+              {actions.length > maxItems && <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => setShowAll((current) => !current)}>{showAll ? 'Visa färre' : `Visa ${actions.length - maxItems} fler rekommendationer`} <ArrowRight className={`h-4 w-4 transition-transform ${showAll ? '-rotate-90' : 'rotate-90'}`} /></Button>}
             </div>
           )}
         </div>
