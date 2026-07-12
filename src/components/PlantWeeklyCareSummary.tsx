@@ -174,7 +174,7 @@ export default function PlantWeeklyCareSummary({ variant = 'central' }: PlantWee
       </div>
 
       <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
-        {metrics.map(({ label, value, Icon }) => (
+        {metrics.slice(0, 3).map(({ label, value, Icon }) => (
           <div key={label} className="metric-card p-3 sm:p-4">
             <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
             <p className="mt-2 text-2xl font-bold tabular-nums">{value}</p>
