@@ -18,7 +18,7 @@ import PlantHealthRing from '@/components/PlantHealthRing';
 import PlantMoodAvatar from '@/components/PlantMoodAvatar';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import AppEmptyState from '@/components/AppEmptyState';
-import { buildPlantCareProfile, PlantCareProfile, PlantCareStatus } from '@/lib/plantCareIntelligence';
+import { buildPlantCareProfile, PlantCareProfile, PlantCareStatus, PlantCareTrend } from '@/lib/plantCareIntelligence';
 import { recordProductActivity } from '@/lib/analytics';
 
 const LOCATION_SUGGESTIONS = ['Fönsterbräda sovrum', 'Vardagsrum', 'Kök', 'Balkong', 'Växthus', 'Uteplats'];
