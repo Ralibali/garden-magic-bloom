@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Activity, Brain, ChevronRight, Droplets, Filter, Flame, Flower2, HeartPulse, MapPin, Plus, Search, Sparkles, X } from 'lucide-react';
+import { Activity, Brain, ChevronRight, Droplets, Filter, Flame, Flower2, HeartPulse, MapPin, Minus, Plus, Search, Sparkles, TrendingDown, TrendingUp, X } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
