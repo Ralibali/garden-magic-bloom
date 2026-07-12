@@ -27,7 +27,7 @@ describe('public plan import', () => {
       type: 'odlingsplan',
       zone: 3,
       method: 'Pallkrage',
-      crops: ['Morot', 'null'],
+      crops: ['Morot'],
     });
   });
 });
