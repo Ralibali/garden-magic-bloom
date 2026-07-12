@@ -181,20 +181,18 @@ const Dashboard = () => {
         />
       ) : (
         <>
-          {/* IDAG — max 3 åtgärder */}
-          <TodayInGarden
-            weather={weather}
-            rainData={rainData}
-            climateZone={climateZone}
-            remindersData={remindersData}
-            sowings={sowings}
-            overduePlants={attentionPlants}
-            beds={beds}
-            displayName={displayName}
-            maxItems={3}
-          />
-
-          {/* Växtpuls flyttad in i "Utforska din odling" för att undvika dubblering med TodayInGarden */}
+          {/* Dagens viktigaste åtgärd (deterministisk prioritering) */}
+          {(() => {
+            const priority = computeDashboardPriority({
+              plants: adaptivePlants as any[],
+              reminders: ((remindersData?.settings as any)?.reminders || []),
+              sowings,
+              weather,
+              rainData,
+              climateZone,
+            });
+            return <PrimaryActionCard result={priority} greeting={displayName ? `Hej ${displayName}` : undefined} weatherLine={weatherLine} />;
+          })()}
 
           {/* Veckosammanfattning – komprimerad */}
           {adaptivePlants.length > 0 && <PlantWeeklyCareSummary variant="compact" />}
