@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { plausibleEvent } from '@/lib/plausible';
 
 function getSessionId(): string {
   let id = sessionStorage.getItem('_sid');
@@ -39,7 +40,7 @@ export function usePageTracking(consent = true) {
 const CTA_KEYWORDS = new Set([
   'kom igång', 'skapa konto', 'registrera', 'logga in', 'uppgradera',
   'köp', 'testa gratis', 'prova', 'ladda ner', 'boka', 'prenumerera',
-  'läs mer', 'visa mer', 'börja nu', 'starta', 'prova plus',
+  'läs mer', 'visa mer', 'börja nu', 'starta', 'prova plus', 'spara planen',
 ]);
 
 function isCta(text: string): boolean {
@@ -61,11 +62,12 @@ function trackConversion(eventName: string, label?: string) {
   }
 }
 
-/** Auto-track clicks on links, buttons, and interactive elements – only if consent given */
+/**
+ * Auto-track interactive clicks. Anonymous CTA clicks always go to Plausible;
+ * detailed Supabase/Google tracking still requires explicit consent.
+ */
 export function useAutoClickTracking(consent = true) {
   useEffect(() => {
-    if (!consent) return;
-
     const handler = (e: MouseEvent) => {
       let el = e.target as HTMLElement | null;
       let depth = 0;
@@ -85,6 +87,16 @@ export function useAutoClickTracking(consent = true) {
       const href = el.getAttribute('href') || '';
       const trackId = el.getAttribute('data-track') || el.id || '';
       const ctaMatch = isCta(text);
+
+      if (ctaMatch) {
+        plausibleEvent('CTA Clicked', {
+          path: window.location.pathname,
+          destination: href || trackId || 'button',
+          label: text.slice(0, 60),
+        });
+      }
+
+      if (!consent) return;
 
       let eventName = 'button_click';
       if (ctaMatch) {
