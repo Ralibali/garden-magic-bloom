@@ -40,6 +40,7 @@ interface TodayInGardenProps {
   overduePlants?: any[];
   beds?: any[];
   displayName?: string;
+  maxItems?: number;
 }
 
 const kindIcons = {
