@@ -23,6 +23,7 @@ export default function Premium() {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [withdrawalConsent, setWithdrawalConsent] = useState(false);
   const isPremium = user?.subscription_status === 'premium';
 
   useEffect(() => {
@@ -41,8 +42,16 @@ export default function Premium() {
   }, [searchParams]);
 
   const checkout = async () => {
+    if (!withdrawalConsent) {
+      toast({ title: 'Bekräfta ditt val', description: 'Godkänn att tjänsten startar direkt innan du fortsätter till betalning.', variant: 'destructive' });
+      return;
+    }
     setLoading(true);
-    void trackEvent('checkout_started', { plan: 'yearly', price_sek: 99 });
+    const consentAt = new Date().toISOString();
+    void trackEvent('checkout_started', { plan: 'yearly', price_sek: 99, withdrawal_consent_at: consentAt });
+    try {
+      localStorage.setItem('plus-withdrawal-consent', JSON.stringify({ at: consentAt, price_sek: 99, plan: 'yearly-99' }));
+    } catch {}
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', { body: { priceId: YEARLY_PRICE_ID } });
       if (error) throw error;
