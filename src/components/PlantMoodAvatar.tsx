@@ -1,4 +1,3 @@
-import React from 'react';
 import { Leaf } from 'lucide-react';
 import type { PlantCareStatus } from '@/lib/plantCareIntelligence';
 
@@ -23,7 +22,7 @@ export default function PlantMoodAvatar({ score, status, size = 'md' }: PlantMoo
   return (
     <div className={`relative ${box[size]} shrink-0 rounded-[1.4rem] bg-gradient-to-br ${state.shell} shadow-[inset_0_1px_rgba(255,255,255,.7),0_14px_30px_-18px_rgba(16,85,48,.45)]`} aria-label={`Växtens visuella mående: ${score} av 100`}>
       <div className={`absolute left-1/2 top-[18%] -translate-x-1/2 ${state.sway}`}>
-        <Leaf className={`${leaf[size]} ${state.leafTone} -rotate-12 fill-current/10`} />
+        <Leaf className={`${leaf[size]} ${state.leafTone} -rotate-12 fill-current opacity-90`} />
       </div>
       <div className="absolute inset-x-0 bottom-[12%] text-center leading-none" style={{ fontSize: size === 'lg' ? 26 : size === 'md' ? 20 : 16 }}>{state.face}</div>
       <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-card bg-emerald-400 shadow-sm" />
