@@ -575,6 +575,59 @@ export type Database = {
           },
         ]
       }
+      plant_care_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          health_rating: number | null
+          id: string
+          metadata: Json
+          note: string | null
+          occurred_at: string
+          plant_id: string
+          soil_moisture: string | null
+          symptoms: string[]
+          user_id: string
+          water_amount: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type?: string
+          health_rating?: number | null
+          id?: string
+          metadata?: Json
+          note?: string | null
+          occurred_at?: string
+          plant_id: string
+          soil_moisture?: string | null
+          symptoms?: string[]
+          user_id: string
+          water_amount?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          health_rating?: number | null
+          id?: string
+          metadata?: Json
+          note?: string | null
+          occurred_at?: string
+          plant_id?: string
+          soil_moisture?: string | null
+          symptoms?: string[]
+          user_id?: string
+          water_amount?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plant_care_events_plant_id_fkey"
+            columns: ["plant_id"]
+            isOneToOne: false
+            referencedRelation: "my_plants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plant_logs: {
         Row: {
           created_at: string | null
