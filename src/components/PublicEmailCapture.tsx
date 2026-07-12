@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Check, Loader2, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { trackEvent } from '@/lib/analytics';
+import { plausibleEvent } from '@/lib/plausible';
 import { normalizeLeadEmail, type PublicLeadSource } from '@/lib/leadPlanEmail';
 
 interface PublicEmailCaptureProps {
@@ -16,6 +17,7 @@ interface PublicEmailCaptureProps {
 export default function PublicEmailCapture({ source, plan, title, description }: PublicEmailCaptureProps) {
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -34,10 +36,11 @@ export default function PublicEmailCapture({ source, plan, title, description }:
       plan,
       page_path: window.location.pathname,
       user_agent: navigator.userAgent,
-      consent_marketing: true,
+      consent_marketing: marketingConsent,
     };
 
     try {
+      plausibleEvent('Lead Capture Started', { source, marketing_consent: marketingConsent });
       await trackEvent('email_lead_started', { source, email: normalizedEmail });
       const { error } = await supabase.from('public_leads' as any).insert(lead as any);
       if (error) throw error;
@@ -60,10 +63,12 @@ export default function PublicEmailCapture({ source, plan, title, description }:
         localStorage.setItem('odlingsdagboken_lead_email', normalizedEmail);
       } catch {}
 
-      await trackEvent('email_lead_submitted', { source, email: normalizedEmail, stored: 'supabase', plan_type: plan?.type });
+      await trackEvent('email_lead_submitted', { source, email: normalizedEmail, stored: 'supabase', plan_type: plan?.type, consent_marketing: marketingConsent });
+      plausibleEvent('Lead Captured', { source, plan_type: String(plan?.type || source), marketing_consent: marketingConsent });
       setSaved(true);
     } catch (error) {
       console.error('[PublicEmailCapture]', error);
+      plausibleEvent('Lead Capture Error', { source });
       setErrorMessage('Kunde inte spara till databasen just nu. Din plan finns ändå kvar i webbläsaren, så du kan skapa konto direkt.');
 
       try {
@@ -112,13 +117,17 @@ export default function PublicEmailCapture({ source, plan, title, description }:
         aria-hidden="true"
       />
       <div className="flex flex-col sm:flex-row gap-2">
-        <Input type="email" placeholder="din@email.se" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-11" />
+        <Input type="email" placeholder="din@email.se" value={email} onChange={(event) => setEmail(event.target.value)} required className="h-11" />
         <Button type="submit" className="h-11 shrink-0" disabled={loading}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-          Spara planen
+          Skicka planen
         </Button>
       </div>
-      {errorMessage ? <p className="text-[11px] text-destructive mt-2">{errorMessage}</p> : <p className="text-[11px] text-muted-foreground mt-2">Inget betalkort krävs. Du kan skapa konto när du vill spara planen permanent.</p>}
+      <label className="mt-3 flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+        <input type="checkbox" checked={marketingConsent} onChange={(event) => setMarketingConsent(event.target.checked)} className="mt-0.5" />
+        <span>Ja tack, skicka även relevanta odlingstips och påminnelser. Frivilligt och enkelt att avsluta.</span>
+      </label>
+      {errorMessage ? <p className="text-[11px] text-destructive mt-2">{errorMessage}</p> : <p className="text-[11px] text-muted-foreground mt-2">Planmejlet skickas oavsett om du väljer odlingstips. Inget betalkort krävs.</p>}
     </form>
   );
 }
