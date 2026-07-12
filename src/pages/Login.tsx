@@ -157,7 +157,7 @@ export default function Login() {
     }
   };
 
-  const PasswordField = ({ id, autoComplete }: { id: string; autoComplete: string }) => (
+  const renderPasswordField = (id: string, autoComplete: string) => (
     <div className="relative mt-1.5">
       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
