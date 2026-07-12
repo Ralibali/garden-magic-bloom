@@ -11,6 +11,17 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Require service-role bearer token (invoked by scheduled cron or admin only)
+  const authHeader = req.headers.get("Authorization");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!authHeader?.startsWith("Bearer ") || !serviceRoleKey || authHeader.slice(7) !== serviceRoleKey) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+
   const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
   if (!BREVO_API_KEY) {
     return new Response(JSON.stringify({ error: "BREVO_API_KEY is not configured" }), {
