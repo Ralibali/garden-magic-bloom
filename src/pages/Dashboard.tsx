@@ -356,7 +356,7 @@ function PlantOnlyDashboard({
         maxItems={3}
       />
 
-      <PlantCareSpotlight plants={attentionPlants} />
+      {attentionPlants.length > 0 && <PlantCareSpotlight plants={attentionPlants} />}
 
       <PlantWeeklyCareSummary variant="compact" />
 
