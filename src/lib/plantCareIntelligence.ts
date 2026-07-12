@@ -232,6 +232,37 @@ export function buildPlantCareProfile(plant: any, events: any[] = [], now = new 
     recommendation = 'Låt växten stå i fred och gör nästa kontroll när appen säger till.';
   }
 
+  // Trend across the three most recent observations vs. the three before that.
+  const ratings = observations
+    .map(event => (typeof event.health_rating === 'number' ? event.health_rating : null))
+    .filter((value): value is number => value !== null);
+  let trend: PlantCareTrend = 'unknown';
+  if (ratings.length >= 4) {
+    const recent = ratings.slice(0, Math.min(3, Math.floor(ratings.length / 2)));
+    const older = ratings.slice(recent.length, recent.length * 2);
+    const avg = (values: number[]) => values.reduce((sum, value) => sum + value, 0) / values.length;
+    const delta = avg(recent) - avg(older);
+    if (delta >= 0.4) trend = 'improving';
+    else if (delta <= -0.4) trend = 'declining';
+    else trend = 'stable';
+  } else if (ratings.length >= 2) {
+    const delta = ratings[0] - ratings[ratings.length - 1];
+    if (delta >= 1) trend = 'improving';
+    else if (delta <= -1) trend = 'declining';
+    else trend = 'stable';
+  }
+  const trendLabel = trend === 'improving' ? 'Bättre än förra kontrollen'
+    : trend === 'declining' ? 'Sämre än tidigare'
+    : trend === 'stable' ? 'Stabilt läge'
+    : 'För få kontroller ännu';
+
+  // Small, adult milestones — no XP spam.
+  let milestone: string | null = null;
+  if (careStreak >= 5) milestone = `Fem vattningar i rytm i rad — riktigt fin omsorg.`;
+  else if (confidence === 'personal' && observations.length >= 5) milestone = 'Appen känner nu din växts personliga rytm.';
+  else if (wateringDates.length === 1 && observations.length >= 1) milestone = 'Första kontrollen loggad — grunden är lagd.';
+  else if (trend === 'improving' && ratings.length >= 3) milestone = 'Trenden pekar uppåt de senaste kontrollerna.';
+
   return {
     recommendedIntervalDays: recommendedInterval,
     baseIntervalDays: baseInterval,
@@ -253,5 +284,8 @@ export function buildPlantCareProfile(plant: any, events: any[] = [], now = new 
     knowledgeProgress,
     observationsCount: observations.length,
     wateringsCount: wateringDates.length,
+    trend,
+    trendLabel,
+    milestone,
   };
 }
