@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Activity, ArrowRightLeft, Brain, CheckCircle2, Droplets, Flame, Leaf, Scissors, Sparkles, Sprout, StickyNote, Sun } from 'lucide-react';
+import { Activity, ArrowRightLeft, Brain, CheckCircle2, Droplets, Flame, Leaf, Minus, Scissors, Sparkles, Sprout, StickyNote, Sun, TrendingDown, TrendingUp } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,8 @@ import { toast } from '@/hooks/use-toast';
 import PlantCareCheckIn from '@/components/PlantCareCheckIn';
 import PlantHealthRing from '@/components/PlantHealthRing';
 import PlantMoodAvatar from '@/components/PlantMoodAvatar';
-import { buildPlantCareProfile, PlantCareStatus } from '@/lib/plantCareIntelligence';
+import PlantPhotoStrip from '@/components/PlantPhotoStrip';
+import { buildPlantCareProfile, PlantCareStatus, PlantCareTrend } from '@/lib/plantCareIntelligence';
 import { recordProductActivity } from '@/lib/analytics';
 
 const LOG_TYPES = [
