@@ -87,10 +87,76 @@ export default function PlantWeeklyCareSummary({ variant = 'central' }: PlantWee
   }
 
   const metrics: Array<{ label: string; value: number; Icon: typeof Droplets }> = [
-    { label: 'hälsokontroller', value: summary.healthChecks, Icon: HeartPulse },
+    { label: 'kontroller', value: summary.healthChecks, Icon: HeartPulse },
     { label: 'vattningar', value: summary.waterings, Icon: Droplets },
     { label: 'nya foton', value: summary.photos, Icon: Camera },
+    { label: 'förbättrats', value: summary.improved.length, Icon: TrendingUp },
   ];
+
+  if (variant === 'compact') {
+    const hasDetails = summary.improved.length + summary.stable.length + summary.declining.length + summary.upcoming.length > 0;
+    return (
+      <section className="rounded-[1.75rem] border border-border/60 bg-card/80 p-4 sm:p-5" aria-label="Din växtvecka">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="section-kicker"><CalendarDays className="h-3.5 w-3.5" /> Din växtvecka</span>
+          <Button size="sm" variant="ghost" className="text-xs text-muted-foreground" onClick={() => navigate('/app/my-plants')}>
+            Öppna växter <ArrowRight className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+        <div className="mt-3 grid grid-cols-4 gap-2 sm:gap-3">
+          {metrics.map(({ label, value, Icon }) => (
+            <div key={label} className="rounded-2xl border border-border/50 bg-background/40 p-2.5 sm:p-3">
+              <Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+              <p className="mt-1.5 text-xl font-bold tabular-nums leading-none">{value}</p>
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">{label}</p>
+            </div>
+          ))}
+        </div>
+        {summary.insight && (
+          <p className="mt-3 flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
+            <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
+            <span>{summary.insight}</span>
+          </p>
+        )}
+        {hasDetails && (
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setExpanded(current => !current)}
+              className="flex items-center gap-1.5 text-xs font-semibold text-primary transition-colors hover:text-primary/80"
+              aria-expanded={expanded}
+            >
+              {expanded ? 'Dölj veckodetaljer' : 'Visa veckodetaljer'}
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform motion-reduce:transition-none ${expanded ? 'rotate-180' : ''}`} aria-hidden="true" />
+            </button>
+            {expanded && (
+              <div className="mt-3 space-y-3">
+                <div className="grid gap-2 sm:grid-cols-3">
+                  <TrendPill title="Har förbättrats" tone="positive" Icon={TrendingUp} items={summary.improved} />
+                  <TrendPill title="Stabila" tone="neutral" Icon={Minus} items={summary.stable} />
+                  <TrendPill title="Behöver koll" tone="warning" Icon={TrendingDown} items={summary.declining} />
+                </div>
+                {summary.upcoming.length > 0 && (
+                  <div className="rounded-2xl border border-border/50 bg-background/40 p-3">
+                    <p className="flex items-center gap-2 text-xs font-semibold"><CalendarDays className="h-3.5 w-3.5 text-primary" /> Behöver kontroll kommande dagar</p>
+                    <ul className="mt-2 space-y-1">
+                      {summary.upcoming.map(item => (
+                        <li key={item.id} className="flex items-center justify-between gap-3 text-xs">
+                          <span className="truncate">{item.name}</span>
+                          <span className="shrink-0 text-muted-foreground">{item.daysUntil === 0 ? 'idag' : `om ${item.daysUntil} ${item.daysUntil === 1 ? 'dag' : 'dagar'}`}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+    );
+  }
+
 
   return (
     <section className="premium-panel p-5 sm:p-6" aria-label="Din växtvecka">
