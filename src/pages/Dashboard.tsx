@@ -343,25 +343,17 @@ function PlantOnlyDashboard({
   const attention = plants.filter(plant => ['urgent', 'due'].includes(plant.care_profile.status)).length;
   const attentionPlants = plants.filter(plant => plant.care_profile.status !== 'good');
 
+  const priority = computeDashboardPriority({ plants, reminders: ((remindersData?.settings as any)?.reminders || []), weather, rainData, climateZone });
+
   return (
     <>
-      <TodayInGarden
-        weather={weather}
-        rainData={rainData}
-        climateZone={climateZone}
-        remindersData={remindersData}
-        sowings={[]}
-        overduePlants={attentionPlants}
-        beds={[]}
-        displayName={displayName}
-        maxItems={3}
-      />
+      <PrimaryActionCard result={priority} greeting={displayName ? `Hej ${displayName}` : undefined} />
 
-      {attentionPlants.length > 0 && <PlantCareSpotlight plants={attentionPlants} />}
+      {attentionPlants.length > 0 && <PlantCareSpotlight plants={attentionPlants.slice(0, 3)} />}
 
-      <PlantWeeklyCareSummary variant="compact" />
-
-      <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Mer från dina växter" subtitle="Nyckeltal och genvägar">
+      <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Utforska dina växter" subtitle="Veckosammanfattning, statistik och genvägar">
+        <PlantWeeklyCareSummary variant="compact" />
+        <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={[]} overduePlants={attentionPlants} beds={[]} displayName={displayName} maxItems={4} />
         {trialDaysLeft !== null && (
           <Card className="border-accent/25 bg-gradient-to-r from-accent/8 via-card to-primary/8">
             <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
