@@ -1,5 +1,6 @@
 export type PlantCareStatus = 'urgent' | 'due' | 'soon' | 'good';
 export type PlantCareConfidence = 'starter' | 'learning' | 'personal';
+export type PlantCareTrend = 'improving' | 'stable' | 'declining' | 'unknown';
 
 export interface PlantCareProfile {
   recommendedIntervalDays: number;
@@ -22,6 +23,9 @@ export interface PlantCareProfile {
   knowledgeProgress: number;
   observationsCount: number;
   wateringsCount: number;
+  trend: PlantCareTrend;
+  trendLabel: string;
+  milestone: string | null;
 }
 
 const DAY_MS = 86_400_000;
