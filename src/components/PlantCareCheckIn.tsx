@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Activity, Check, Droplets, Leaf, Loader2, Sparkles } from 'lucide-react';
+import { Activity, BellRing, Check, Droplets, Leaf, Loader2, Sparkles } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
+import { addDaysToDateKey, localDateKey } from '@/lib/gardenToday';
 import { recordProductActivity } from '@/lib/analytics';
 import type { PlantCareProfile } from '@/lib/plantCareIntelligence';
 
@@ -54,6 +56,7 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
   const [symptoms, setSymptoms] = useState<string[]>([]);
   const [waterAmount, setWaterAmount] = useState('normal');
   const [note, setNote] = useState('');
+  const [remindMe, setRemindMe] = useState(true);
 
   const reset = () => {
     setSoil('');
@@ -61,6 +64,7 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
     setSymptoms([]);
     setWaterAmount('normal');
     setNote('');
+    setRemindMe(true);
   };
 
   const saveMutation = useMutation({
@@ -97,7 +101,6 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
         },
       } as any);
 
-      // Keep the existing timeline useful even before the new migration has reached every environment.
       const fallbackNote = note.trim() || summary;
       const { error: logError } = await supabase.from('plant_logs').insert({
         user_id: userId,
@@ -106,25 +109,70 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
         note: fallbackNote,
       } as any);
       if (logError) throw logError;
-
       if (eventError) console.warn('[plant_care_events]', eventError);
+
+      let nextCheckDays: number | null = null;
+      if (remindMe) {
+        const stressed = health <= 2 || symptoms.length > 0;
+        nextCheckDays = stressed
+          ? 2
+          : watered
+            ? profile.recommendedIntervalDays
+            : soil === 'wet' || soil === 'moist'
+              ? 2
+              : 1;
+
+        try {
+          const settingsData = await api.getReminderSettings();
+          const settings = ((settingsData?.settings as any) || {}) as Record<string, any>;
+          const reminders = Array.isArray(settings.reminders) ? settings.reminders : [];
+          const sourceActionId = `plant-care-${plant.id}`;
+          const reminder = {
+            id: crypto.randomUUID(),
+            title: `Kolla jorden hos ${plantName}`,
+            type: 'watering',
+            date: addDaysToDateKey(localDateKey(), nextCheckDays),
+            done: false,
+            created_at: now.toISOString(),
+            completed_at: null,
+            source_action_id: sourceActionId,
+            plant_id: plant.id,
+          };
+          await api.updateReminderSettings({
+            settings: {
+              ...settings,
+              reminders: [...reminders.filter((item: any) => item.source_action_id !== sourceActionId || item.done), reminder],
+            },
+          });
+        } catch (reminderError) {
+          console.warn('[plant-care-reminder]', reminderError);
+          nextCheckDays = null;
+        }
+      }
+
       void recordProductActivity(watered ? 'plant_watered_with_checkin' : 'plant_health_checked', {
         plant_id: plant.id,
         soil_moisture: soil,
         health_rating: health,
         symptoms_count: symptoms.length,
+        reminder_days: nextCheckDays,
       });
+
+      return { nextCheckDays };
     },
-    onSuccess: (_, watered) => {
+    onSuccess: (result, watered) => {
       queryClient.invalidateQueries({ queryKey: ['my-plants'] });
       queryClient.invalidateQueries({ queryKey: ['plant-care-events'] });
       queryClient.invalidateQueries({ queryKey: ['watering-log'] });
       queryClient.invalidateQueries({ queryKey: ['plant-logs', plant.id] });
+      queryClient.invalidateQueries({ queryKey: ['reminder-settings'] });
       toast({
         title: watered ? `${plantName} är vattnad 💧` : `Hälsokollen är sparad 🌿`,
-        description: watered
-          ? 'Nästa vattningsråd anpassas efter hur jorden och växten mådde idag.'
-          : 'Bra! Varje kontroll gör rekommendationerna mer personliga.',
+        description: result.nextCheckDays
+          ? `Nästa jordkontroll är planerad om ${result.nextCheckDays} ${result.nextCheckDays === 1 ? 'dag' : 'dagar'}.`
+          : watered
+            ? 'Nästa vattningsråd anpassas efter hur jorden och växten mådde idag.'
+            : 'Bra! Varje kontroll gör rekommendationerna mer personliga.',
       });
       setOpen(false);
       reset();
@@ -210,6 +258,11 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
               <p className="mt-1 text-xs text-muted-foreground">Spara hellre kontrollen utan att vattna. Appen flyttar då fram nästa rekommendation.</p>
             </div>
           )}
+
+          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border/70 bg-muted/25 p-3">
+            <input type="checkbox" checked={remindMe} onChange={event => setRemindMe(event.target.checked)} className="mt-0.5" />
+            <span><span className="flex items-center gap-1.5 text-sm font-medium"><BellRing className="h-4 w-4 text-primary" /> Påminn mig om nästa jordkontroll</span><span className="mt-1 block text-xs text-muted-foreground">Tidpunkten anpassas efter måendet, jorden och den inlärda rytmen.</span></span>
+          </label>
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <Button variant="outline" onClick={() => saveMutation.mutate(false)} disabled={!soil || !health || saveMutation.isPending}>
