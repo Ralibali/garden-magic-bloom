@@ -21,7 +21,11 @@ function normalizeZone(value: unknown): number {
 
 function normalizeStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
-  return Array.from(new Set(value.map(item => String(item).trim()).filter(Boolean))).slice(0, 30);
+  const normalized = value
+    .filter(item => typeof item === 'string' || typeof item === 'number')
+    .map(item => String(item).trim())
+    .filter(Boolean);
+  return Array.from(new Set(normalized)).slice(0, 30);
 }
 
 export function parsePublicPlan(value: unknown): ImportedPublicPlan | null {
