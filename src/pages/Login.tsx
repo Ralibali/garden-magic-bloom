@@ -157,7 +157,7 @@ export default function Login() {
     }
   };
 
-  const PasswordField = ({ id, autoComplete }: { id: string; autoComplete: string }) => (
+  const renderPasswordField = (id: string, autoComplete: string) => (
     <div className="relative mt-1.5">
       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
@@ -217,7 +217,7 @@ export default function Login() {
                 <div><h2 className="font-serif text-3xl mb-2">Välkommen tillbaka</h2><p className="text-sm text-muted-foreground">Fortsätt bygga din odlingshistorik.</p></div>
                 <div className="space-y-4">
                   <div><Label htmlFor="email">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="pl-10 h-11" required /></div></div>
-                  <div><Label htmlFor="password">Lösenord</Label><PasswordField id="password" autoComplete="current-password" /></div>
+                  <div><Label htmlFor="password">Lösenord</Label>{renderPasswordField('password', 'current-password')}</div>
                 </div>
                 <Button type="submit" className="w-full h-12" disabled={loading}>{loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Logga in <ArrowRight className="ml-2 h-4 w-4" /></Button>
                 <div className="flex justify-between text-sm"><button type="button" className="text-primary hover:underline" onClick={() => setAuthMode('forgot')}>Glömt lösenord?</button><button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setAuthMode('register')}>Skapa konto</button></div>
@@ -231,7 +231,7 @@ export default function Login() {
                 <div className="space-y-4">
                   <div><Label htmlFor="name">Förnamn</Label><div className="relative mt-1.5"><User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="name" autoComplete="given-name" value={name} onChange={(event) => setName(event.target.value)} className="pl-10 h-11" required /></div></div>
                   <div><Label htmlFor="reg-email">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="reg-email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="pl-10 h-11" required /></div></div>
-                  <div><Label htmlFor="reg-password">Lösenord</Label><PasswordField id="reg-password" autoComplete="new-password" /><p className="mt-1.5 text-[11px] text-muted-foreground">Minst 8 tecken. Använd gärna en unik lösenfras.</p></div>
+                  <div><Label htmlFor="reg-password">Lösenord</Label>{renderPasswordField('reg-password', 'new-password')}<p className="mt-1.5 text-[11px] text-muted-foreground">Minst 8 tecken. Använd gärna en unik lösenfras.</p></div>
                   {!showReferralField ? <button type="button" className="text-xs text-primary hover:underline" onClick={() => setShowReferralField(true)}>Har du en värvningskod?</button> : <div><Label htmlFor="referral">Värvningskod</Label><div className="relative mt-1.5"><Gift className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="referral" value={referralCode} onChange={(event) => setReferralCode(event.target.value.toUpperCase())} className="pl-10 h-11 uppercase" maxLength={6} /></div></div>}
                   <div className="flex items-start gap-2"><input type="checkbox" id="terms" checked={acceptedTerms} onChange={(event) => setAcceptedTerms(event.target.checked)} className="mt-1" required /><label htmlFor="terms" className="text-xs text-muted-foreground">Jag godkänner <a href="/terms" target="_blank" rel="noreferrer" className="text-primary hover:underline">villkoren och integritetspolicyn</a>.</label></div>
                 </div>
