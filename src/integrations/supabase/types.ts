@@ -665,6 +665,8 @@ export type Database = {
       }
       plant_photos: {
         Row: {
+          analysis: Json | null
+          analyzed_at: string | null
           bed_id: string | null
           caption: string | null
           created_at: string
@@ -676,6 +678,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          analysis?: Json | null
+          analyzed_at?: string | null
           bed_id?: string | null
           caption?: string | null
           created_at?: string
@@ -687,6 +691,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          analysis?: Json | null
+          analyzed_at?: string | null
           bed_id?: string | null
           caption?: string | null
           created_at?: string
