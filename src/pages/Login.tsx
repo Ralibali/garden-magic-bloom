@@ -217,7 +217,7 @@ export default function Login() {
                 <div><h2 className="font-serif text-3xl mb-2">Välkommen tillbaka</h2><p className="text-sm text-muted-foreground">Fortsätt bygga din odlingshistorik.</p></div>
                 <div className="space-y-4">
                   <div><Label htmlFor="email">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="pl-10 h-11" required /></div></div>
-                  <div><Label htmlFor="password">Lösenord</Label><PasswordField id="password" autoComplete="current-password" /></div>
+                  <div><Label htmlFor="password">Lösenord</Label>{renderPasswordField('password', 'current-password')}</div>
                 </div>
                 <Button type="submit" className="w-full h-12" disabled={loading}>{loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Logga in <ArrowRight className="ml-2 h-4 w-4" /></Button>
                 <div className="flex justify-between text-sm"><button type="button" className="text-primary hover:underline" onClick={() => setAuthMode('forgot')}>Glömt lösenord?</button><button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setAuthMode('register')}>Skapa konto</button></div>
