@@ -15,6 +15,7 @@ interface PublicLead {
   converted_user_id: string | null
   converted_at: string | null
   synced_to_brevo_at: string | null
+  consent_marketing: boolean | null
 }
 
 function json(body: unknown, status = 200) {
@@ -43,6 +44,8 @@ async function upsertBrevoContact({
   listId: number
   lead: PublicLead
 }): Promise<{ ok: boolean; error?: string }> {
+  if (lead.consent_marketing !== true) return { ok: false, error: 'marketing_consent_missing' }
+
   const email = normalizeEmail(lead.email)
   if (!email) return { ok: false, error: 'invalid_email' }
 
@@ -112,7 +115,8 @@ Deno.serve(async (req) => {
 
   const { data: unsyncedLeads, error: unsyncedError } = await admin
     .from('public_leads')
-    .select('id, email, source, plan, created_at, converted_user_id, converted_at, synced_to_brevo_at')
+    .select('id, email, source, plan, created_at, converted_user_id, converted_at, synced_to_brevo_at, consent_marketing')
+    .eq('consent_marketing', true)
     .is('synced_to_brevo_at', null)
     .order('created_at', { ascending: true })
     .limit(200)
@@ -133,7 +137,8 @@ Deno.serve(async (req) => {
 
   const { data: convertedLeadCandidates, error: convertedError } = await admin
     .from('public_leads')
-    .select('id, email, source, plan, created_at, converted_user_id, converted_at, synced_to_brevo_at')
+    .select('id, email, source, plan, created_at, converted_user_id, converted_at, synced_to_brevo_at, consent_marketing')
+    .eq('consent_marketing', true)
     .not('converted_user_id', 'is', null)
     .not('converted_at', 'is', null)
     .not('synced_to_brevo_at', 'is', null)
@@ -164,6 +169,7 @@ Deno.serve(async (req) => {
   const { count: remaining, error: remainingError } = await admin
     .from('public_leads')
     .select('id', { count: 'exact', head: true })
+    .eq('consent_marketing', true)
     .is('synced_to_brevo_at', null)
 
   if (remainingError) {
