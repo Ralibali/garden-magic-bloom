@@ -165,6 +165,7 @@ export default function GuideArticle() {
         <div className="flex items-center gap-2 flex-wrap mb-4">
           {post.category && <Badge variant="secondary" className="text-[10px]">{categoryLabels[post.category] || post.category}</Badge>}
           {post.published_at && <span className="text-xs text-muted-foreground flex items-center gap-1"><CalendarDays className="h-3 w-3" />{new Date(post.published_at).toLocaleDateString('sv-SE', { year: 'numeric', month: 'long', day: 'numeric' })}</span>}
+          {(() => { const w = post.content.replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length; const min = Math.max(2, Math.round(w / 220)); return <span className="text-xs text-muted-foreground">· {min} min läsning</span>; })()}
           {post.author_name && <span className="text-xs text-muted-foreground">av <span className="font-medium text-foreground/80">{post.author_name}</span></span>}
         </div>
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-foreground leading-tight mb-4">{post.title}</h1>
