@@ -16,9 +16,11 @@ import DashboardActionCenter from '@/components/DashboardActionCenter';
 import HarvestValueLine from '@/components/HarvestValueLine';
 import TodayInGarden from '@/components/TodayInGarden';
 import WeeklyGardenSummary from '@/components/WeeklyGardenSummary';
+import PlantCareSpotlight from '@/components/PlantCareSpotlight';
 import { GardenCategory } from '@/lib/gardenModules';
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 import { getGardenForecast, weatherDescription } from '@/lib/gardenWeather';
+import { buildPlantCareProfile } from '@/lib/plantCareIntelligence';
 
 const MONTH_TIPS: Record<number, string> = {
   1: 'Planera årets sorter och kontrollera fröförrådet.',
@@ -61,17 +63,41 @@ const Dashboard = () => {
       return data || [];
     },
   });
-  const { data: overduePlants = [] } = useQuery({
-    queryKey: ['overdue-plants'],
+  const { data: carePlants = [] } = useQuery({
+    queryKey: ['adaptive-care-plants'],
     queryFn: async () => {
       const { supabase } = await import('@/integrations/supabase/client');
-      const { data, error } = await supabase.from('my_plants').select('*, plants(name_sv)').order('created_at', { ascending: false });
-      if (error) return [];
-      return (data || []).filter((plant: any) => {
-        if (!plant.last_watered) return true;
-        const daysAgo = Math.floor((Date.now() - new Date(plant.last_watered).getTime()) / 86400000);
-        return daysAgo >= (plant.watering_interval_days || 7);
-      });
+      const [plantsResult, careResult, wateringResult] = await Promise.all([
+        supabase.from('my_plants').select('*, plants(name_sv, water, light, watering_interval_days)').order('created_at', { ascending: false }),
+        supabase.from('plant_care_events' as any).select('*').order('occurred_at', { ascending: false }).limit(1000),
+        supabase.from('watering_log').select('*').order('watered_at', { ascending: false }).limit(1000),
+      ]);
+      if (plantsResult.error) return [];
+
+      const eventsByPlant = new Map<string, any[]>();
+      const add = (plantId: string | null, event: any) => {
+        if (!plantId) return;
+        const current = eventsByPlant.get(plantId) || [];
+        current.push(event);
+        eventsByPlant.set(plantId, current);
+      };
+      ((careResult.data || []) as any[]).forEach(event => add(event.plant_id, event));
+      (wateringResult.data || []).forEach((event: any) => add(event.plant_id, { ...event, event_type: 'watered' }));
+
+      return (plantsResult.data || [])
+        .map((plant: any) => {
+          const careProfile = buildPlantCareProfile(plant, eventsByPlant.get(plant.id) || []);
+          return {
+            ...plant,
+            care_profile: careProfile,
+            watering_interval_days: careProfile.recommendedIntervalDays,
+          };
+        })
+        .filter((plant: any) => plant.care_profile.status !== 'good')
+        .sort((a: any, b: any) => {
+          const order = { urgent: 0, due: 1, soon: 2, good: 3 } as Record<string, number>;
+          return order[a.care_profile.status] - order[b.care_profile.status] || a.care_profile.healthScore - b.care_profile.healthScore;
+        });
     },
   });
 
@@ -132,7 +158,8 @@ const Dashboard = () => {
         <GettingStartedGuide />
       ) : (
         <>
-          <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={sowings} overduePlants={overduePlants} beds={beds} displayName={displayName} />
+          <PlantCareSpotlight plants={carePlants as any[]} />
+          <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={sowings} overduePlants={carePlants} beds={beds} displayName={displayName} />
 
           <StaggerContainer className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <StaggerItem><Card className="metric-card cursor-pointer hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)]" onClick={() => navigate('/app/beds')}><CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-2"><LayoutGrid className="h-4 w-4 text-primary" /> Aktiva platser</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats?.active_beds ?? 0}</p></CardContent></Card></StaggerItem>
