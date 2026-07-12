@@ -22,6 +22,14 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: corsHeaders });
   }
 
+  // Require service-role bearer token (invoked by pg_net triggers or admin only)
+  const authHeader = req.headers.get("Authorization");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!authHeader?.startsWith("Bearer ") || !serviceKey || authHeader.slice(7) !== serviceKey) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+  }
+
+
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return new Response(JSON.stringify({ error: parsed.error.flatten() }), { status: 400, headers: corsHeaders });
