@@ -17,6 +17,7 @@ import DashboardActionCenter from '@/components/DashboardActionCenter';
 import HarvestValueLine from '@/components/HarvestValueLine';
 import TodayInGarden from '@/components/TodayInGarden';
 import WeeklyGardenSummary from '@/components/WeeklyGardenSummary';
+import PlantWeeklyCareSummary from '@/components/PlantWeeklyCareSummary';
 import PlantCareSpotlight from '@/components/PlantCareSpotlight';
 import { GardenCategory } from '@/lib/gardenModules';
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
