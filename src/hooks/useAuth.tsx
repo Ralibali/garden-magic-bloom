@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { markLeadConverted, trackEvent } from '@/lib/analytics';
+import { plausibleEvent } from '@/lib/plausible';
 
 interface UserProfile {
   id: string;
@@ -28,6 +29,15 @@ function trackBrowserEvent(eventName: string, params: Record<string, unknown> = 
   if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
     (window as any).gtag('event', eventName, params);
   }
+}
+
+function authFailureReason(message?: string) {
+  const value = (message || '').toLowerCase();
+  if (value.includes('already registered')) return 'already_registered';
+  if (value.includes('rate') || value.includes('too many')) return 'rate_limited';
+  if (value.includes('password')) return 'password';
+  if (value.includes('email')) return 'email';
+  return 'unknown';
 }
 
 function toBasicProfile(supaUser: SupabaseUser): UserProfile {
@@ -121,6 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       applySession(session, shouldHydrateProfile);
       if (event === 'SIGNED_IN' && session?.user) {
         void trackEvent('login_completed', { email: session.user.email });
+        plausibleEvent('Login Completed', { method: 'email' });
       }
       setLoading(false);
     });
@@ -132,9 +143,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
+    plausibleEvent('Login Started', { method: 'email' });
     await trackEvent('login_started', { email: email.toLowerCase() });
+
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw new Error(error.message);
+    if (error) {
+      plausibleEvent('Login Error', { reason: authFailureReason(error.message) });
+      throw new Error(error.message);
+    }
 
     if (data.user) {
       setUser(toBasicProfile(data.user));
@@ -145,7 +161,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (email: string, password: string, name: string) => {
+    plausibleEvent('Signup Started', { method: 'email' });
     await trackEvent('register_started', { email: email.toLowerCase() });
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -154,7 +172,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         emailRedirectTo: `${window.location.origin}/app`,
       },
     });
-    if (error) throw new Error(error.message);
+
+    if (error) {
+      plausibleEvent('Signup Error', { reason: authFailureReason(error.message) });
+      throw new Error(error.message);
+    }
+
+    // Supabase deliberately obscures whether an existing confirmed user exists.
+    // In that case it can return a user with an empty identities array and no error.
+    if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      plausibleEvent('Signup Error', { reason: 'already_registered' });
+      throw new Error('already registered');
+    }
 
     if (data.user?.email) {
       void markLeadConverted(data.user.email, data.user.id);
@@ -162,8 +191,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: data.user.email,
         requires_email_confirmation: !data.session,
       });
+      plausibleEvent('Signup Created', {
+        method: 'email',
+        confirmation_required: !data.session,
+      });
       trackBrowserEvent('sign_up', { method: 'email' });
     }
+
     return data;
   };
 
