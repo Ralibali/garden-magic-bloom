@@ -1,0 +1,1 @@
+-- Intentionally empty. Historical migrations are already applied in production.
