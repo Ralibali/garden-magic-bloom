@@ -179,6 +179,7 @@ const Dashboard = () => {
             <StaggerItem><Card className="metric-card cursor-pointer hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)]" onClick={() => navigate('/app/harvests')}><CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-2"><Carrot className="h-4 w-4 text-accent" /> Skörd i år</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{(stats?.harvest_kg ?? 0).toFixed(1)} kg</p></CardContent></Card></StaggerItem>
           </StaggerContainer>
 
+          {adaptivePlants.length > 0 && <PlantWeeklyCareSummary variant="compact" />}
           <WeeklyGardenSummary sowings={sowings} harvests={harvests} remindersData={remindersData} photos={photos} />
           <DashboardActionCenter climateZone={climateZone} currentMonth={currentMonth} isNewUser={false} onNavigate={navigate} />
           <HarvestValueLine />
