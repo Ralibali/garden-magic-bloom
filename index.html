@@ -31,11 +31,19 @@
         gtag('js', new Date());
         gtag('config', 'AW-10941540384');
       }
+      function marketingConsented() {
+        try {
+          var v2 = localStorage.getItem('cookie-consent-v2');
+          if (v2) { try { return !!JSON.parse(v2).marketing; } catch(e) { return false; } }
+          return localStorage.getItem('cookie-consent') === 'accepted';
+        } catch(e) { return false; }
+      }
+      window.loadGoogleAds = loadGoogleAds;
       window.addEventListener('load', function() {
-        if (localStorage.getItem('cookie-consent') === 'accepted') loadGoogleAds();
+        if (marketingConsented()) loadGoogleAds();
       });
       window.addEventListener('storage', function(e) {
-        if (e.key === 'cookie-consent' && e.newValue === 'accepted') loadGoogleAds();
+        if ((e.key === 'cookie-consent-v2' || e.key === 'cookie-consent') && marketingConsented()) loadGoogleAds();
       });
     </script>
 
