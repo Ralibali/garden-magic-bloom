@@ -59,6 +59,7 @@ export interface DashboardPriorityInput {
   };
   rainData?: { dryDays: number; totalPrecipitation: number } | null;
   today?: string; // yyyy-mm-dd, för deterministiska tester
+  climateZone?: number;
 }
 
 export interface DashboardPriorityResult {
