@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { CalendarDays, Camera, Droplets, HeartPulse, Sparkles, TrendingDown, TrendingUp, Minus, ArrowRight, Loader2 } from 'lucide-react';
+import { CalendarDays, Camera, ChevronDown, Droplets, HeartPulse, Sparkles, TrendingDown, TrendingUp, Minus, ArrowRight, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -13,6 +13,7 @@ interface PlantWeeklyCareSummaryProps {
 
 export default function PlantWeeklyCareSummary({ variant = 'central' }: PlantWeeklyCareSummaryProps) {
   const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['plant-weekly-summary'],
