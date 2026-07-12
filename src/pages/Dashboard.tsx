@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
+import { Brain, Camera, Carrot, Crown, ArrowRight, Hand, HeartPulse, LayoutGrid, Leaf, MapPin, Plus, Sparkles, Sprout, Thermometer, CalendarDays, CloudSun } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sprout, Carrot, LayoutGrid, Plus, Thermometer, CalendarDays, Leaf, Crown, ArrowRight, Hand, CloudSun, MapPin, Camera } from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api';
-import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 import OnboardingFlow from '@/components/OnboardingFlow';
 import GettingStartedGuide from '@/components/GettingStartedGuide';
+import PlantGettingStartedGuide from '@/components/PlantGettingStartedGuide';
 import DashboardActionCenter from '@/components/DashboardActionCenter';
 import HarvestValueLine from '@/components/HarvestValueLine';
 import TodayInGarden from '@/components/TodayInGarden';
@@ -63,7 +64,7 @@ const Dashboard = () => {
       return data || [];
     },
   });
-  const { data: carePlants = [] } = useQuery({
+  const { data: adaptivePlants = [], isLoading: plantsLoading } = useQuery({
     queryKey: ['adaptive-care-plants'],
     queryFn: async () => {
       const { supabase } = await import('@/integrations/supabase/client');
@@ -87,13 +88,8 @@ const Dashboard = () => {
       return (plantsResult.data || [])
         .map((plant: any) => {
           const careProfile = buildPlantCareProfile(plant, eventsByPlant.get(plant.id) || []);
-          return {
-            ...plant,
-            care_profile: careProfile,
-            watering_interval_days: careProfile.recommendedIntervalDays,
-          };
+          return { ...plant, care_profile: careProfile, watering_interval_days: careProfile.recommendedIntervalDays };
         })
-        .filter((plant: any) => plant.care_profile.status !== 'good')
         .sort((a: any, b: any) => {
           const order = { urgent: 0, due: 1, soon: 2, good: 3 } as Record<string, number>;
           return order[a.care_profile.status] - order[b.care_profile.status] || a.care_profile.healthScore - b.care_profile.healthScore;
@@ -110,10 +106,16 @@ const Dashboard = () => {
 
   if (showOnboarding) return <OnboardingFlow onComplete={handleOnboardingComplete} />;
 
-  const setupIncomplete = !isLoading && ((stats?.active_beds ?? 0) === 0 || (stats?.sowings_this_year ?? 0) === 0);
+  const preferences = ((profile?.preferences as any) || {}) as Record<string, any>;
+  const categories = (preferences.garden_categories || []) as GardenCategory[];
+  const plantOnly = categories.length > 0 && categories.every(category => category === 'krukvaxter');
+  const setupIncomplete = plantOnly
+    ? !plantsLoading && adaptivePlants.length === 0
+    : !isLoading && ((stats?.active_beds ?? 0) === 0 || (stats?.sowings_this_year ?? 0) === 0);
+  const dashboardLoading = isLoading || (plantOnly && plantsLoading);
+  const attentionPlants = adaptivePlants.filter((plant: any) => plant.care_profile.status !== 'good');
   const rawName = profile?.display_name?.trim();
   const displayName = rawName ? rawName.split(' ')[0] : '';
-  const preferences = ((profile?.preferences as any) || {}) as Record<string, any>;
   const lastActivityValue = preferences.last_active_at || profile?.updated_at;
   const daysSinceLastActivity = lastActivityValue ? Math.floor((Date.now() - new Date(lastActivityValue).getTime()) / 86400000) : null;
   const showWelcomeBack = !setupIncomplete && daysSinceLastActivity !== null && daysSinceLastActivity >= 7;
@@ -127,6 +129,13 @@ const Dashboard = () => {
     return days >= 0 && days <= 5 ? days : null;
   })();
   const recentSowings = sowings.slice(0, 5);
+  const welcomeText = plantOnly
+    ? setupIncomplete
+      ? 'Lägg till en växt och gör en snabb jordkontroll. Därefter lär sig appen hur just ditt exemplar reagerar.'
+      : 'Din växtpuls bygger på hälsa, jord, placering och historiken hemma hos dig.'
+    : setupIncomplete
+      ? 'Börja med en plats och en sådd. Därefter blir råden, påminnelserna och statistiken personliga.'
+      : MONTH_TIPS[currentMonth];
 
   return (
     <div className="space-y-6">
@@ -135,13 +144,13 @@ const Dashboard = () => {
       )}
 
       {showWelcomeBack && (
-        <FadeIn><Card className="border-primary/20 bg-primary/5"><CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-primary/12 flex items-center justify-center"><Hand className="h-5 w-5 text-primary" /></div><div><p className="font-semibold text-sm">Välkommen tillbaka{displayName ? `, ${displayName}` : ''}</p><p className="text-xs text-muted-foreground mt-0.5">Det har gått {daysSinceLastActivity} dagar. Dagens lista hjälper dig hitta tillbaka utan att läsa ikapp allt.</p></div></div><Button size="sm" variant="outline" onClick={() => navigate('/app/timeline')}><Leaf className="h-4 w-4" /> Se vad som hänt</Button></CardContent></Card></FadeIn>
+        <FadeIn><Card className="border-primary/20 bg-primary/5"><CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-primary/12 flex items-center justify-center"><Hand className="h-5 w-5 text-primary" /></div><div><p className="font-semibold text-sm">Välkommen tillbaka{displayName ? `, ${displayName}` : ''}</p><p className="text-xs text-muted-foreground mt-0.5">Det har gått {daysSinceLastActivity} dagar. Dagens lista hjälper dig hitta tillbaka utan att läsa ikapp allt.</p></div></div><Button size="sm" variant="outline" onClick={() => navigate(plantOnly ? '/app/my-plants' : '/app/timeline')}><Leaf className="h-4 w-4" /> {plantOnly ? 'Se växtpulsen' : 'Se vad som hänt'}</Button></CardContent></Card></FadeIn>
       )}
 
       <FadeIn>
         <section className="premium-panel p-4 sm:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div><span className="section-kicker mb-3"><MapPin className="h-3.5 w-3.5" /> Klimatzon {climateZone}</span><h1 className="page-title">{setupIncomplete ? (displayName ? `Välkommen, ${displayName}` : 'Välkommen till din odling') : (displayName ? `Din odling, ${displayName}` : 'Din odling just nu')}</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">{setupIncomplete ? 'Börja med en plats och en sådd. Därefter blir råden, påminnelserna och statistiken personliga.' : MONTH_TIPS[currentMonth]}</p></div>
+            <div><span className="section-kicker mb-3">{plantOnly ? <HeartPulse className="h-3.5 w-3.5" /> : <MapPin className="h-3.5 w-3.5" />} {plantOnly ? 'Personlig växtvård' : `Klimatzon ${climateZone}`}</span><h1 className="page-title">{setupIncomplete ? (displayName ? `Välkommen, ${displayName}` : 'Välkommen till din odling') : (displayName ? `Din odling, ${displayName}` : 'Din odling just nu')}</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">{welcomeText}</p></div>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <div className="rounded-2xl border border-border/65 bg-card/75 px-3.5 py-3"><Thermometer className="h-4 w-4 text-primary" /><p className="mt-2 text-lg font-bold">{temp !== undefined ? `${Math.round(temp)}°` : '–'}</p><p className="text-[9px] uppercase tracking-[0.1em] text-muted-foreground">just nu</p></div>
               <div className="rounded-2xl border border-border/65 bg-card/75 px-3.5 py-3"><CloudSun className="h-4 w-4 text-accent" /><p className="mt-2 text-sm font-bold">{weatherDescription(weather?.current?.weather_code)}</p><p className="text-[9px] uppercase tracking-[0.1em] text-muted-foreground">väder</p></div>
@@ -152,14 +161,16 @@ const Dashboard = () => {
         </section>
       </FadeIn>
 
-      {isLoading ? (
+      {dashboardLoading ? (
         <Skeleton className="h-64 rounded-[1.8rem]" />
       ) : setupIncomplete ? (
-        <GettingStartedGuide />
+        plantOnly ? <PlantGettingStartedGuide /> : <GettingStartedGuide />
+      ) : plantOnly ? (
+        <PlantOnlyDashboard plants={adaptivePlants as any[]} onNavigate={navigate} />
       ) : (
         <>
-          <PlantCareSpotlight plants={carePlants as any[]} />
-          <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={sowings} overduePlants={carePlants} beds={beds} displayName={displayName} />
+          <PlantCareSpotlight plants={attentionPlants as any[]} />
+          <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={sowings} overduePlants={attentionPlants} beds={beds} displayName={displayName} />
 
           <StaggerContainer className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <StaggerItem><Card className="metric-card cursor-pointer hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)]" onClick={() => navigate('/app/beds')}><CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-2"><LayoutGrid className="h-4 w-4 text-primary" /> Aktiva platser</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats?.active_beds ?? 0}</p></CardContent></Card></StaggerItem>
@@ -183,6 +194,14 @@ const Dashboard = () => {
     </div>
   );
 };
+
+function PlantOnlyDashboard({ plants, onNavigate }: { plants: any[]; onNavigate: (path: string) => void }) {
+  const averageHealth = plants.length ? Math.round(plants.reduce((sum, plant) => sum + plant.care_profile.healthScore, 0) / plants.length) : 0;
+  const personalRhythms = plants.filter(plant => plant.care_profile.confidence === 'personal').length;
+  const attention = plants.filter(plant => ['urgent', 'due'].includes(plant.care_profile.status)).length;
+
+  return <><PlantCareSpotlight plants={plants} /><StaggerContainer className="grid grid-cols-1 gap-4 sm:grid-cols-3"><StaggerItem><Card className="metric-card cursor-pointer" onClick={() => onNavigate('/app/my-plants')}><CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-2"><HeartPulse className="h-4 w-4 text-primary" /> Behöver en koll</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{attention}</p></CardContent></Card></StaggerItem><StaggerItem><Card className="metric-card cursor-pointer" onClick={() => onNavigate('/app/my-plants')}><CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> Genomsnittlig hälsa</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{averageHealth}</p></CardContent></Card></StaggerItem><StaggerItem><Card className="metric-card cursor-pointer" onClick={() => onNavigate('/app/my-plants')}><CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-2"><Brain className="h-4 w-4 text-primary" /> Personliga rytmer</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{personalRhythms}</p></CardContent></Card></StaggerItem></StaggerContainer><Card><CardContent className="p-5"><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-serif text-xl">Fånga förändringar, inte bara vattningar</p><p className="mt-1 text-sm text-muted-foreground">Ett foto, en flytt eller en anteckning hjälper dig förstå varför växten blev bättre eller sämre.</p></div><div className="flex flex-wrap gap-2"><Button onClick={() => onNavigate('/app/my-plants')}><HeartPulse className="h-4 w-4" /> Mina växter</Button><Button variant="outline" onClick={() => onNavigate('/app/photos')}><Camera className="h-4 w-4" /> Lägg till foto</Button><Button variant="outline" onClick={() => onNavigate('/app/gro')}><Sparkles className="h-4 w-4" /> Fråga Gro</Button></div></div></CardContent></Card></>;
+}
 
 function SeasonWrapDialog({ open, onOpenChange, beds, year }: { open: boolean; onOpenChange: (open: boolean) => void; beds: any[]; year: number }) {
   const queryClient = useQueryClient();
