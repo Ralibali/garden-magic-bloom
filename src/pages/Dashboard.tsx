@@ -247,6 +247,7 @@ const Dashboard = () => {
               </button>
             </div>
 
+            <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={sowings} overduePlants={attentionPlants} beds={beds} displayName={displayName} maxItems={4} />
             <WeeklyGardenSummary sowings={sowings} harvests={harvests} remindersData={remindersData} photos={photos} />
             <DashboardActionCenter climateZone={climateZone} currentMonth={currentMonth} isNewUser={false} onNavigate={navigate} />
             <HarvestValueLine />
