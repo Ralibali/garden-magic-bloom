@@ -40,6 +40,7 @@ interface TodayInGardenProps {
   overduePlants?: any[];
   beds?: any[];
   displayName?: string;
+  maxItems?: number;
 }
 
 const kindIcons = {
@@ -73,6 +74,7 @@ export default function TodayInGarden({
   overduePlants = [],
   beds = [],
   displayName,
+  maxItems = 4,
 }: TodayInGardenProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -139,7 +141,7 @@ export default function TodayInGarden({
     navigate('/app/gro', { state: { prompt: action.groPrompt, source: 'today_in_garden' } });
   };
 
-  const visible = showAll ? actions : actions.slice(0, 4);
+  const visible = showAll ? actions : actions.slice(0, maxItems);
   const totalToday = actions.length + completedToday;
   const progress = totalToday ? Math.round((completedToday / totalToday) * 100) : 100;
 
@@ -197,7 +199,7 @@ export default function TodayInGarden({
                 );
               })}
 
-              {actions.length > 4 && <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => setShowAll((current) => !current)}>{showAll ? 'Visa färre' : `Visa ${actions.length - 4} fler rekommendationer`} <ArrowRight className={`h-4 w-4 transition-transform ${showAll ? '-rotate-90' : 'rotate-90'}`} /></Button>}
+              {actions.length > maxItems && <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => setShowAll((current) => !current)}>{showAll ? 'Visa färre' : `Visa ${actions.length - maxItems} fler rekommendationer`} <ArrowRight className={`h-4 w-4 transition-transform ${showAll ? '-rotate-90' : 'rotate-90'}`} /></Button>}
             </div>
           )}
         </div>

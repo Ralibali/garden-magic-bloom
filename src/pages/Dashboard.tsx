@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Brain, Camera, Carrot, Crown, ArrowRight, Hand, HeartPulse, LayoutGrid, Leaf, MapPin, Plus, Sparkles, Sprout, Thermometer, CalendarDays, CloudSun } from 'lucide-react';
+import { Brain, Camera, Carrot, Crown, ArrowRight, ChevronDown, Hand, HeartPulse, LayoutGrid, Leaf, MapPin, Plus, Sparkles, Sprout, CalendarDays, CloudSun } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +20,7 @@ import WeeklyGardenSummary from '@/components/WeeklyGardenSummary';
 import PlantWeeklyCareSummary from '@/components/PlantWeeklyCareSummary';
 import PlantCareSpotlight from '@/components/PlantCareSpotlight';
 import { GardenCategory } from '@/lib/gardenModules';
-import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
+import { FadeIn } from '@/components/animations';
 import { getGardenForecast, weatherDescription } from '@/lib/gardenWeather';
 import { buildPlantCareProfile } from '@/lib/plantCareIntelligence';
 
@@ -46,6 +46,7 @@ const Dashboard = () => {
   const currentYear = new Date().getFullYear();
   const showSeasonWrap = currentMonth === 9 || currentMonth === 10;
   const [wrapOpen, setWrapOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const { data: stats, isLoading } = useQuery({ queryKey: ['summary-stats'], queryFn: api.getSummaryStats });
   const { data: profile, isLoading: profileLoading } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
@@ -121,8 +122,6 @@ const Dashboard = () => {
   const daysSinceLastActivity = lastActivityValue ? Math.floor((Date.now() - new Date(lastActivityValue).getTime()) / 86400000) : null;
   const showWelcomeBack = !setupIncomplete && daysSinceLastActivity !== null && daysSinceLastActivity >= 7;
   const temp = weather?.current?.temperature_2m;
-  const minTemp = weather?.daily?.temperature_2m_min?.[0];
-  const maxTemp = weather?.daily?.temperature_2m_max?.[0];
   const rainChance = weather?.daily?.precipitation_probability_max?.[0];
   const trialDaysLeft = (() => {
     if (!profile?.premium_expires_at || (profile as any).subscription_status !== 'premium') return null;
@@ -130,35 +129,32 @@ const Dashboard = () => {
     return days >= 0 && days <= 5 ? days : null;
   })();
   const recentSowings = sowings.slice(0, 5);
-  const welcomeText = plantOnly
+  const primaryMessage = plantOnly
     ? setupIncomplete
-      ? 'Lägg till en växt och gör en snabb jordkontroll. Därefter lär sig appen hur just ditt exemplar reagerar.'
-      : 'Din växtpuls bygger på hälsa, jord, placering och historiken hemma hos dig.'
+      ? 'Lägg till en växt och gör en snabb jordkontroll — därefter börjar appen lära sig.'
+      : attentionPlants.length > 0
+        ? `${attentionPlants.length} ${attentionPlants.length === 1 ? 'växt behöver' : 'växter behöver'} en snabb koll idag.`
+        : 'Dina växter är i rytm — bra jobbat.'
     : setupIncomplete
-      ? 'Börja med en plats och en sådd. Därefter blir råden, påminnelserna och statistiken personliga.'
+      ? 'Börja med en plats och en sådd — därefter blir råden personliga.'
       : MONTH_TIPS[currentMonth];
 
+  const heroGreeting = displayName ? `Hej ${displayName}` : 'Hej';
+  const weatherLine = temp !== undefined
+    ? `${Math.round(temp)}° · ${weatherDescription(weather?.current?.weather_code)}${rainChance !== undefined ? ` · ${Math.round(rainChance)}% regn` : ''}`
+    : null;
+
   return (
-    <div className="space-y-6">
-      {!setupIncomplete && trialDaysLeft !== null && (
-        <FadeIn><Card className="border-accent/25 bg-gradient-to-r from-accent/8 via-card to-primary/8"><CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-accent/12 flex items-center justify-center shrink-0"><Crown className="h-5 w-5 text-accent" /></div><div><p className="font-semibold text-sm">{trialDaysLeft === 0 ? 'Din provperiod går ut idag' : `Din provperiod går ut om ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dag' : 'dagar'}`}</p><p className="text-xs text-muted-foreground mt-0.5">Behåll obegränsad historik, mer Gro och full statistik.</p></div></div><Button size="sm" onClick={() => navigate('/app/premium')}><Crown className="h-4 w-4" /> Behåll Plus <ArrowRight className="h-3.5 w-3.5" /></Button></CardContent></Card></FadeIn>
-      )}
-
-      {showWelcomeBack && (
-        <FadeIn><Card className="border-primary/20 bg-primary/5"><CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-primary/12 flex items-center justify-center"><Hand className="h-5 w-5 text-primary" /></div><div><p className="font-semibold text-sm">Välkommen tillbaka{displayName ? `, ${displayName}` : ''}</p><p className="text-xs text-muted-foreground mt-0.5">Det har gått {daysSinceLastActivity} dagar. Dagens lista hjälper dig hitta tillbaka utan att läsa ikapp allt.</p></div></div><Button size="sm" variant="outline" onClick={() => navigate(plantOnly ? '/app/my-plants' : '/app/timeline')}><Leaf className="h-4 w-4" /> {plantOnly ? 'Se växtpulsen' : 'Se vad som hänt'}</Button></CardContent></Card></FadeIn>
-      )}
-
+    <div className="mx-auto w-full max-w-5xl space-y-6 sm:space-y-8">
+      {/* HERO — kompakt, luftig, ett budskap */}
       <FadeIn>
-        <section className="premium-panel p-4 sm:p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div><span className="section-kicker mb-3">{plantOnly ? <HeartPulse className="h-3.5 w-3.5" /> : <MapPin className="h-3.5 w-3.5" />} {plantOnly ? 'Personlig växtvård' : `Klimatzon ${climateZone}`}</span><h1 className="page-title">{setupIncomplete ? (displayName ? `Välkommen, ${displayName}` : 'Välkommen till din odling') : (displayName ? `Din odling, ${displayName}` : 'Din odling just nu')}</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">{welcomeText}</p></div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <div className="rounded-2xl border border-border/65 bg-card/75 px-3.5 py-3"><Thermometer className="h-4 w-4 text-primary" /><p className="mt-2 text-lg font-bold">{temp !== undefined ? `${Math.round(temp)}°` : '–'}</p><p className="text-[9px] uppercase tracking-[0.1em] text-muted-foreground">just nu</p></div>
-              <div className="rounded-2xl border border-border/65 bg-card/75 px-3.5 py-3"><CloudSun className="h-4 w-4 text-accent" /><p className="mt-2 text-sm font-bold">{weatherDescription(weather?.current?.weather_code)}</p><p className="text-[9px] uppercase tracking-[0.1em] text-muted-foreground">väder</p></div>
-              <div className="rounded-2xl border border-border/65 bg-card/75 px-3.5 py-3"><Thermometer className="h-4 w-4 text-primary" /><p className="mt-2 text-sm font-bold">{minTemp !== undefined && maxTemp !== undefined ? `${Math.round(minTemp)}–${Math.round(maxTemp)}°` : '–'}</p><p className="text-[9px] uppercase tracking-[0.1em] text-muted-foreground">dygn</p></div>
-              <div className="rounded-2xl border border-border/65 bg-card/75 px-3.5 py-3"><CloudSun className="h-4 w-4 text-accent" /><p className="mt-2 text-lg font-bold">{rainChance !== undefined ? `${Math.round(rainChance)}%` : '–'}</p><p className="text-[9px] uppercase tracking-[0.1em] text-muted-foreground">regnrisk</p></div>
-            </div>
+        <section className="pt-2 sm:pt-4">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Klimatzon {climateZone}</span>
+            {weatherLine && <span className="inline-flex items-center gap-1.5"><CloudSun className="h-3.5 w-3.5" /> {weatherLine}</span>}
           </div>
+          <h1 className="mt-3 font-serif text-3xl leading-tight sm:text-4xl">{heroGreeting}.</h1>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">{primaryMessage}</p>
         </section>
       </FadeIn>
 
@@ -167,29 +163,127 @@ const Dashboard = () => {
       ) : setupIncomplete ? (
         plantOnly ? <PlantGettingStartedGuide /> : <GettingStartedGuide />
       ) : plantOnly ? (
-        <PlantOnlyDashboard plants={adaptivePlants as any[]} onNavigate={navigate} />
+        <PlantOnlyDashboard
+          plants={adaptivePlants as any[]}
+          weather={weather}
+          rainData={rainData}
+          climateZone={climateZone}
+          remindersData={remindersData}
+          displayName={displayName}
+          moreOpen={moreOpen}
+          setMoreOpen={setMoreOpen}
+          trialDaysLeft={trialDaysLeft}
+          showWelcomeBack={showWelcomeBack}
+          daysSinceLastActivity={daysSinceLastActivity}
+          onNavigate={navigate}
+        />
       ) : (
         <>
-          <PlantCareSpotlight plants={attentionPlants as any[]} />
-          <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={sowings} overduePlants={attentionPlants} beds={beds} displayName={displayName} />
+          {/* IDAG — max 3 åtgärder */}
+          <TodayInGarden
+            weather={weather}
+            rainData={rainData}
+            climateZone={climateZone}
+            remindersData={remindersData}
+            sowings={sowings}
+            overduePlants={attentionPlants}
+            beds={beds}
+            displayName={displayName}
+            maxItems={3}
+          />
 
-          <StaggerContainer className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <StaggerItem><Card className="metric-card cursor-pointer hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)]" onClick={() => navigate('/app/beds')}><CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-2"><LayoutGrid className="h-4 w-4 text-primary" /> Aktiva platser</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats?.active_beds ?? 0}</p></CardContent></Card></StaggerItem>
-            <StaggerItem><Card className="metric-card cursor-pointer hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)]" onClick={() => navigate('/app/sowings')}><CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-2"><Sprout className="h-4 w-4 text-primary" /> Sådder i år</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats?.sowings_this_year ?? 0}</p></CardContent></Card></StaggerItem>
-            <StaggerItem><Card className="metric-card cursor-pointer hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)]" onClick={() => navigate('/app/harvests')}><CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-2"><Carrot className="h-4 w-4 text-accent" /> Skörd i år</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{(stats?.harvest_kg ?? 0).toFixed(1)} kg</p></CardContent></Card></StaggerItem>
-          </StaggerContainer>
+          {/* Växtpuls — endast om användaren har krukväxter */}
+          {attentionPlants.length > 0 && <PlantCareSpotlight plants={attentionPlants as any[]} />}
 
+          {/* Veckosammanfattning – komprimerad */}
           {adaptivePlants.length > 0 && <PlantWeeklyCareSummary variant="compact" />}
-          <WeeklyGardenSummary sowings={sowings} harvests={harvests} remindersData={remindersData} photos={photos} />
-          <DashboardActionCenter climateZone={climateZone} currentMonth={currentMonth} isNewUser={false} onNavigate={navigate} />
-          <HarvestValueLine />
 
-          <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
-            {recentSowings.length > 0 && <Card><CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><CalendarDays className="h-4 w-4 text-primary" /> Senaste sådder</CardTitle></CardHeader><CardContent><div className="space-y-2.5">{recentSowings.map((sowing: any) => <button key={sowing.id} onClick={() => navigate('/app/sowings')} className="flex w-full items-center justify-between gap-3 rounded-xl p-2 text-left hover:bg-primary/5"><div className="flex min-w-0 items-center gap-2"><Sprout className="h-3.5 w-3.5 text-primary shrink-0" /><span className="font-medium text-sm truncate">{sowing.variety}</span>{sowing.beds?.name && <span className="text-xs text-muted-foreground truncate">· {sowing.beds.name}</span>}</div><span className="text-xs text-muted-foreground shrink-0">{sowing.sow_date}</span></button>)}</div></CardContent></Card>}
-            <div className="flex flex-row flex-wrap gap-2 lg:w-48 lg:flex-col"><Button onClick={() => navigate('/app/sowings')} className="gap-2 lg:w-full"><Plus className="h-4 w-4" /> Ny sådd</Button><Button variant="outline" onClick={() => navigate('/app/harvests')} className="gap-2 lg:w-full"><Carrot className="h-4 w-4" /> Logga skörd</Button><Button variant="outline" onClick={() => navigate('/app/photos')} className="gap-2 lg:w-full"><Camera className="h-4 w-4" /> Lägg till foto</Button></div>
-          </div>
+          {/* Mer från din odling – kollapsbar */}
+          <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Mer från din odling" subtitle="Statistik, senaste sådder och genvägar">
+            {trialDaysLeft !== null && (
+              <Card className="border-accent/25 bg-gradient-to-r from-accent/8 via-card to-primary/8">
+                <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-accent/12 flex items-center justify-center shrink-0"><Crown className="h-5 w-5 text-accent" /></div>
+                    <div>
+                      <p className="font-semibold text-sm">{trialDaysLeft === 0 ? 'Din provperiod går ut idag' : `Din provperiod går ut om ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dag' : 'dagar'}`}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Behåll obegränsad historik, mer Gro och full statistik.</p>
+                    </div>
+                  </div>
+                  <Button size="sm" onClick={() => navigate('/app/premium')}><Crown className="h-4 w-4" /> Behåll Plus <ArrowRight className="h-3.5 w-3.5" /></Button>
+                </CardContent>
+              </Card>
+            )}
 
-          {showSeasonWrap && <Card className="border-accent/25 bg-accent/5"><CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><Leaf className="h-5 w-5 text-accent" /><div><p className="font-semibold text-sm">Dags att summera säsongen</p><p className="text-xs text-muted-foreground mt-0.5">Spara lärdomarna medan du fortfarande minns detaljerna.</p></div></div><Button size="sm" onClick={() => setWrapOpen(true)}><Leaf className="h-4 w-4" /> Summera säsongen</Button></CardContent></Card>}
+            {showWelcomeBack && (
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/12 flex items-center justify-center"><Hand className="h-5 w-5 text-primary" /></div>
+                    <div>
+                      <p className="font-semibold text-sm">Välkommen tillbaka{displayName ? `, ${displayName}` : ''}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Det har gått {daysSinceLastActivity} dagar. Idag-listan hjälper dig hitta tillbaka.</p>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => navigate('/app/timeline')}><Leaf className="h-4 w-4" /> Se vad som hänt</Button>
+                </CardContent>
+              </Card>
+            )}
+
+            <div className="grid grid-cols-3 gap-3">
+              <button onClick={() => navigate('/app/beds')} className="rounded-2xl border border-border/60 bg-card/70 p-3 text-left transition hover:border-primary/30">
+                <LayoutGrid className="h-4 w-4 text-primary" />
+                <p className="mt-2 text-2xl font-bold tabular-nums leading-none">{stats?.active_beds ?? 0}</p>
+                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">Platser</p>
+              </button>
+              <button onClick={() => navigate('/app/sowings')} className="rounded-2xl border border-border/60 bg-card/70 p-3 text-left transition hover:border-primary/30">
+                <Sprout className="h-4 w-4 text-primary" />
+                <p className="mt-2 text-2xl font-bold tabular-nums leading-none">{stats?.sowings_this_year ?? 0}</p>
+                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">Sådder</p>
+              </button>
+              <button onClick={() => navigate('/app/harvests')} className="rounded-2xl border border-border/60 bg-card/70 p-3 text-left transition hover:border-primary/30">
+                <Carrot className="h-4 w-4 text-accent" />
+                <p className="mt-2 text-2xl font-bold tabular-nums leading-none">{(stats?.harvest_kg ?? 0).toFixed(1)}<span className="text-sm font-semibold text-muted-foreground"> kg</span></p>
+                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">Skörd</p>
+              </button>
+            </div>
+
+            <WeeklyGardenSummary sowings={sowings} harvests={harvests} remindersData={remindersData} photos={photos} />
+            <DashboardActionCenter climateZone={climateZone} currentMonth={currentMonth} isNewUser={false} onNavigate={navigate} />
+            <HarvestValueLine />
+
+            {recentSowings.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><CalendarDays className="h-4 w-4 text-primary" /> Senaste sådder</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="space-y-2.5">
+                    {recentSowings.map((sowing: any) => (
+                      <button key={sowing.id} onClick={() => navigate('/app/sowings')} className="flex w-full items-center justify-between gap-3 rounded-xl p-2 text-left hover:bg-primary/5">
+                        <div className="flex min-w-0 items-center gap-2"><Sprout className="h-3.5 w-3.5 text-primary shrink-0" /><span className="font-medium text-sm truncate">{sowing.variety}</span>{sowing.beds?.name && <span className="text-xs text-muted-foreground truncate">· {sowing.beds.name}</span>}</div>
+                        <span className="text-xs text-muted-foreground shrink-0">{sowing.sow_date}</span>
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={() => navigate('/app/sowings')}><Plus className="h-4 w-4" /> Ny sådd</Button>
+              <Button variant="outline" onClick={() => navigate('/app/harvests')}><Carrot className="h-4 w-4" /> Logga skörd</Button>
+              <Button variant="outline" onClick={() => navigate('/app/photos')}><Camera className="h-4 w-4" /> Lägg till foto</Button>
+            </div>
+
+            {showSeasonWrap && (
+              <Card className="border-accent/25 bg-accent/5">
+                <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-3"><Leaf className="h-5 w-5 text-accent" /><div><p className="font-semibold text-sm">Dags att summera säsongen</p><p className="text-xs text-muted-foreground mt-0.5">Spara lärdomarna medan du fortfarande minns detaljerna.</p></div></div>
+                  <Button size="sm" onClick={() => setWrapOpen(true)}><Leaf className="h-4 w-4" /> Summera säsongen</Button>
+                </CardContent>
+              </Card>
+            )}
+          </CollapsibleSection>
+
           <SeasonWrapDialog open={wrapOpen} onOpenChange={setWrapOpen} beds={beds} year={currentYear} />
         </>
       )}
@@ -197,12 +291,133 @@ const Dashboard = () => {
   );
 };
 
-function PlantOnlyDashboard({ plants, onNavigate }: { plants: any[]; onNavigate: (path: string) => void }) {
+function CollapsibleSection({ open, onToggle, title, subtitle, children }: { open: boolean; onToggle: () => void; title: string; subtitle?: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-[1.75rem] border border-border/50 bg-card/50">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 rounded-[1.75rem] px-4 py-3 text-left transition-colors hover:bg-muted/20 sm:px-5 sm:py-4"
+      >
+        <div>
+          <p className="text-sm font-semibold">{title}</p>
+          {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
+        </div>
+        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform motion-reduce:transition-none ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
+      </button>
+      {open && <div className="space-y-4 border-t border-border/40 p-4 sm:p-5">{children}</div>}
+    </section>
+  );
+}
+
+function PlantOnlyDashboard({
+  plants,
+  weather,
+  rainData,
+  climateZone,
+  remindersData,
+  displayName,
+  moreOpen,
+  setMoreOpen,
+  trialDaysLeft,
+  showWelcomeBack,
+  daysSinceLastActivity,
+  onNavigate,
+}: {
+  plants: any[];
+  weather: any;
+  rainData: any;
+  climateZone: number;
+  remindersData: any;
+  displayName: string;
+  moreOpen: boolean;
+  setMoreOpen: (updater: (v: boolean) => boolean) => void;
+  trialDaysLeft: number | null;
+  showWelcomeBack: boolean;
+  daysSinceLastActivity: number | null;
+  onNavigate: (path: string) => void;
+}) {
   const averageHealth = plants.length ? Math.round(plants.reduce((sum, plant) => sum + plant.care_profile.healthScore, 0) / plants.length) : 0;
   const personalRhythms = plants.filter(plant => plant.care_profile.confidence === 'personal').length;
   const attention = plants.filter(plant => ['urgent', 'due'].includes(plant.care_profile.status)).length;
+  const attentionPlants = plants.filter(plant => plant.care_profile.status !== 'good');
 
-  return <><PlantCareSpotlight plants={plants} /><PlantWeeklyCareSummary /><StaggerContainer className="grid grid-cols-1 gap-4 sm:grid-cols-3"><StaggerItem><Card className="metric-card cursor-pointer" onClick={() => onNavigate('/app/my-plants')}><CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-2"><HeartPulse className="h-4 w-4 text-primary" /> Behöver en koll</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{attention}</p></CardContent></Card></StaggerItem><StaggerItem><Card className="metric-card cursor-pointer" onClick={() => onNavigate('/app/my-plants')}><CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> Genomsnittlig hälsa</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{averageHealth}</p></CardContent></Card></StaggerItem><StaggerItem><Card className="metric-card cursor-pointer" onClick={() => onNavigate('/app/my-plants')}><CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-2"><Brain className="h-4 w-4 text-primary" /> Personliga rytmer</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{personalRhythms}</p></CardContent></Card></StaggerItem></StaggerContainer><Card><CardContent className="p-5"><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-serif text-xl">Fånga förändringar, inte bara vattningar</p><p className="mt-1 text-sm text-muted-foreground">Ett foto, en flytt eller en anteckning hjälper dig förstå varför växten blev bättre eller sämre.</p></div><div className="flex flex-wrap gap-2"><Button onClick={() => onNavigate('/app/my-plants')}><HeartPulse className="h-4 w-4" /> Mina växter</Button><Button variant="outline" onClick={() => onNavigate('/app/photos')}><Camera className="h-4 w-4" /> Lägg till foto</Button><Button variant="outline" onClick={() => onNavigate('/app/gro')}><Sparkles className="h-4 w-4" /> Fråga Gro</Button></div></div></CardContent></Card></>;
+  return (
+    <>
+      <TodayInGarden
+        weather={weather}
+        rainData={rainData}
+        climateZone={climateZone}
+        remindersData={remindersData}
+        sowings={[]}
+        overduePlants={attentionPlants}
+        beds={[]}
+        displayName={displayName}
+        maxItems={3}
+      />
+
+      <PlantCareSpotlight plants={attentionPlants} />
+
+      <PlantWeeklyCareSummary variant="compact" />
+
+      <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Mer från dina växter" subtitle="Nyckeltal och genvägar">
+        {trialDaysLeft !== null && (
+          <Card className="border-accent/25 bg-gradient-to-r from-accent/8 via-card to-primary/8">
+            <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-accent/12 flex items-center justify-center shrink-0"><Crown className="h-5 w-5 text-accent" /></div>
+                <div>
+                  <p className="font-semibold text-sm">{trialDaysLeft === 0 ? 'Din provperiod går ut idag' : `Din provperiod går ut om ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dag' : 'dagar'}`}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Behåll obegränsad historik och mer Gro.</p>
+                </div>
+              </div>
+              <Button size="sm" onClick={() => onNavigate('/app/premium')}><Crown className="h-4 w-4" /> Behåll Plus</Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {showWelcomeBack && (
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/12 flex items-center justify-center"><Hand className="h-5 w-5 text-primary" /></div>
+                <div>
+                  <p className="font-semibold text-sm">Välkommen tillbaka{displayName ? `, ${displayName}` : ''}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Det har gått {daysSinceLastActivity} dagar. Börja med en snabbkoll.</p>
+                </div>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => onNavigate('/app/my-plants')}><HeartPulse className="h-4 w-4" /> Se växtpulsen</Button>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="grid grid-cols-3 gap-3">
+          <button onClick={() => onNavigate('/app/my-plants')} className="rounded-2xl border border-border/60 bg-card/70 p-3 text-left transition hover:border-primary/30">
+            <HeartPulse className="h-4 w-4 text-primary" />
+            <p className="mt-2 text-2xl font-bold tabular-nums leading-none">{attention}</p>
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">Behöver koll</p>
+          </button>
+          <button onClick={() => onNavigate('/app/my-plants')} className="rounded-2xl border border-border/60 bg-card/70 p-3 text-left transition hover:border-primary/30">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <p className="mt-2 text-2xl font-bold tabular-nums leading-none">{averageHealth}</p>
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">Snitthälsa</p>
+          </button>
+          <button onClick={() => onNavigate('/app/my-plants')} className="rounded-2xl border border-border/60 bg-card/70 p-3 text-left transition hover:border-primary/30">
+            <Brain className="h-4 w-4 text-primary" />
+            <p className="mt-2 text-2xl font-bold tabular-nums leading-none">{personalRhythms}</p>
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">Personliga rytmer</p>
+          </button>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => onNavigate('/app/my-plants')}><HeartPulse className="h-4 w-4" /> Mina växter</Button>
+          <Button variant="outline" onClick={() => onNavigate('/app/photos')}><Camera className="h-4 w-4" /> Lägg till foto</Button>
+          <Button variant="outline" onClick={() => onNavigate('/app/gro')}><Sparkles className="h-4 w-4" /> Fråga Gro</Button>
+        </div>
+      </CollapsibleSection>
+    </>
+  );
 }
 
 function SeasonWrapDialog({ open, onOpenChange, beds, year }: { open: boolean; onOpenChange: (open: boolean) => void; beds: any[]; year: number }) {
