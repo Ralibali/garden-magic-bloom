@@ -192,8 +192,7 @@ const Dashboard = () => {
             maxItems={3}
           />
 
-          {/* Växtpuls — endast om användaren har krukväxter */}
-          {attentionPlants.length > 0 && <PlantCareSpotlight plants={attentionPlants as any[]} />}
+          {/* Växtpuls flyttad in i "Utforska din odling" för att undvika dubblering med TodayInGarden */}
 
           {/* Veckosammanfattning – komprimerad */}
           {adaptivePlants.length > 0 && <PlantWeeklyCareSummary variant="compact" />}
