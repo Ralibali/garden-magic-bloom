@@ -1,12 +1,15 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { AppSidebar } from './AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { MobileNav } from './MobileNav';
 import PublicPlanHandoff from './PublicPlanHandoff';
-import { Bell, CalendarDays, Menu, Plus, Sparkles, Sprout } from 'lucide-react';
+import { Bell, CalendarDays, Carrot, LayoutGrid, Menu, Plus, Sparkles, Sprout } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { api } from '@/lib/api';
+import { getPrimaryGardenAction } from '@/lib/primaryGardenAction';
 
 function useNoIndex() {
   useEffect(() => {
@@ -40,7 +43,7 @@ function useSavedPublicPlan() {
 }
 
 const routeMeta = [
-  { path: '/app/beds', title: 'Mina bäddar', subtitle: 'Platser, anteckningar och lärdomar' },
+  { path: '/app/beds', title: 'Mina platser', subtitle: 'Bäddar, växthus, balkong och krukor' },
   { path: '/app/sowings', title: 'Sålogg', subtitle: 'Följ varje frö från start' },
   { path: '/app/harvests', title: 'Skördelogg', subtitle: 'Se vad odlingen faktiskt ger' },
   { path: '/app/reminders', title: 'Påminnelser', subtitle: 'Rätt uppgift vid rätt tid' },
@@ -54,8 +57,8 @@ const routeMeta = [
 ];
 
 function getRouteMeta(pathname: string) {
-  if (pathname === '/app') return { title: 'Översikt', subtitle: 'Din odling just nu' };
-  return routeMeta.find((item) => pathname.startsWith(item.path)) || { title: 'Odlingsdagboken', subtitle: 'Planera, följ upp och lär' };
+  if (pathname === '/app') return { title: 'Översikt', subtitle: 'Ditt viktigaste nästa steg' };
+  return routeMeta.find(item => pathname.startsWith(item.path)) || { title: 'Odlingsdagboken', subtitle: 'Planera, följ upp och lär' };
 }
 
 const pageVariants = {
@@ -72,8 +75,12 @@ export default function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { plan, dismiss } = useSavedPublicPlan();
+  const { data: beds = [] } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
+  const { data: sowings = [] } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const meta = useMemo(() => getRouteMeta(location.pathname), [location.pathname]);
   const dateLabel = useMemo(() => new Intl.DateTimeFormat('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()), []);
+  const primaryAction = useMemo(() => getPrimaryGardenAction({ bedCount: beds.length, sowingCount: sowings.length, month: new Date().getMonth() + 1 }), [beds.length, sowings.length]);
+  const PrimaryIcon = primaryAction.kind === 'bed' ? LayoutGrid : primaryAction.kind === 'harvest' ? Carrot : primaryAction.kind === 'calendar' ? CalendarDays : Plus;
   useNoIndex();
 
   return (
@@ -89,13 +96,13 @@ export default function AppLayout() {
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" aria-label="Påminnelser" onClick={() => navigate('/app/reminders')}><Bell className="h-4 w-4" /></Button>
               <Button variant="outline" size="sm" className="hidden lg:inline-flex gap-2" onClick={() => navigate('/app/gro')}><Sparkles className="h-4 w-4 text-primary" /> Fråga Gro</Button>
-              <Button size="sm" className="gap-2" onClick={() => navigate('/app/sowings')}><Plus className="h-4 w-4" /> Ny sådd</Button>
+              <Button size="sm" className="gap-2" title={primaryAction.reason} onClick={() => navigate(primaryAction.path)}><PrimaryIcon className="h-4 w-4" /> {primaryAction.label}</Button>
             </div>
           </header>
 
           <header className="h-16 flex md:hidden items-center justify-between border-b border-border/50 px-4 bg-background/80 backdrop-blur-2xl sticky top-0 z-30">
             <div className="flex items-center gap-3 min-w-0"><div className="w-9 h-9 rounded-xl botanical-panel flex items-center justify-center shrink-0"><Sprout className="h-4.5 w-4.5 text-white" /></div><div className="min-w-0"><p className="font-serif text-[17px] leading-none truncate">{meta.title}</p><p className="text-[10px] text-muted-foreground mt-1 truncate">{meta.subtitle}</p></div></div>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/app/calendar')} aria-label="Öppna såkalender"><CalendarDays className="h-4.5 w-4.5" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate(primaryAction.path)} aria-label={primaryAction.label}><PrimaryIcon className="h-4.5 w-4.5" /></Button>
           </header>
 
           <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 pb-28 md:pb-10 relative z-10">
