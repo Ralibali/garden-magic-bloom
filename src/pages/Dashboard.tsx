@@ -23,6 +23,8 @@ import { GardenCategory } from '@/lib/gardenModules';
 import { FadeIn } from '@/components/animations';
 import { getGardenForecast, weatherDescription } from '@/lib/gardenWeather';
 import { buildPlantCareProfile } from '@/lib/plantCareIntelligence';
+import { computeDashboardPriority } from '@/lib/dashboardPriority';
+import PrimaryActionCard from '@/components/PrimaryActionCard';
 
 const MONTH_TIPS: Record<number, string> = {
   1: 'Planera årets sorter och kontrollera fröförrådet.',
