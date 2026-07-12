@@ -74,6 +74,7 @@ export default function TodayInGarden({
   overduePlants = [],
   beds = [],
   displayName,
+  maxItems = 4,
 }: TodayInGardenProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
