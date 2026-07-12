@@ -198,7 +198,7 @@ const Dashboard = () => {
           {adaptivePlants.length > 0 && <PlantWeeklyCareSummary variant="compact" />}
 
           {/* Mer från din odling – kollapsbar */}
-          <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Mer från din odling" subtitle="Statistik, senaste sådder och genvägar">
+          <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Utforska din odling" subtitle="Veckosammanfattning, statistik och genvägar">
             {trialDaysLeft !== null && (
               <Card className="border-accent/25 bg-gradient-to-r from-accent/8 via-card to-primary/8">
                 <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
