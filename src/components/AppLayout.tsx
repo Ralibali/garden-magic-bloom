@@ -5,11 +5,13 @@ import { AppSidebar } from './AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { MobileNav } from './MobileNav';
 import PublicPlanHandoff from './PublicPlanHandoff';
-import { Bell, CalendarDays, Carrot, LayoutGrid, Menu, Plus, Sparkles, Sprout } from 'lucide-react';
+import { Bell, CalendarDays, Carrot, Flower2, HeartPulse, LayoutGrid, Menu, Plus, Sparkles, Sprout } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { getPrimaryGardenAction } from '@/lib/primaryGardenAction';
+import { useGardenProfile } from '@/hooks/useGardenProfile';
+import { supabase } from '@/integrations/supabase/client';
 
 function useNoIndex() {
   useEffect(() => {
@@ -50,7 +52,7 @@ const routeMeta = [
   { path: '/app/calendar', title: 'Såkalender', subtitle: 'Planera efter säsong och zon' },
   { path: '/app/gro', title: 'Gro', subtitle: 'Din personliga odlingscoach' },
   { path: '/app/statistics', title: 'Statistik', subtitle: 'Mönster från din egen odling' },
-  { path: '/app/my-plants', title: 'Mina växter', subtitle: 'Skötsel och status på ett ställe' },
+  { path: '/app/my-plants', title: 'Mina växter', subtitle: 'Hälsa, rytm och omsorgshistorik' },
   { path: '/app/photos', title: 'Fotodagbok', subtitle: 'Se hur odlingen förändras' },
   { path: '/app/premium', title: 'Odlingsdagboken Plus', subtitle: 'Mer historik, mer Gro, mer insikt' },
   { path: '/app/settings', title: 'Inställningar', subtitle: 'Anpassa din upplevelse' },
@@ -75,12 +77,30 @@ export default function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { plan, dismiss } = useSavedPublicPlan();
+  const { categories } = useGardenProfile();
   const { data: beds = [] } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
   const { data: sowings = [] } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const { data: myPlants = [] } = useQuery({ queryKey: ['my-plants-count'], queryFn: async () => {
+    const { data, error } = await supabase.from('my_plants').select('id');
+    if (error) return [];
+    return data || [];
+  } });
   const meta = useMemo(() => getRouteMeta(location.pathname), [location.pathname]);
   const dateLabel = useMemo(() => new Intl.DateTimeFormat('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()), []);
-  const primaryAction = useMemo(() => getPrimaryGardenAction({ bedCount: beds.length, sowingCount: sowings.length, month: new Date().getMonth() + 1 }), [beds.length, sowings.length]);
-  const PrimaryIcon = primaryAction.kind === 'bed' ? LayoutGrid : primaryAction.kind === 'harvest' ? Carrot : primaryAction.kind === 'calendar' ? CalendarDays : Plus;
+  const plantOnly = categories.length > 0 && categories.every(category => category === 'krukvaxter');
+  const gardenAction = useMemo(() => getPrimaryGardenAction({ bedCount: beds.length, sowingCount: sowings.length, month: new Date().getMonth() + 1 }), [beds.length, sowings.length]);
+  const primaryAction = plantOnly
+    ? { kind: 'plant', label: myPlants.length ? 'Växtpulsen' : 'Lägg till växt', path: '/app/my-plants', reason: myPlants.length ? 'Se vilka växter som behöver en kontroll idag.' : 'Skapa din första personliga växtprofil.' }
+    : gardenAction;
+  const PrimaryIcon = primaryAction.kind === 'plant'
+    ? myPlants.length ? HeartPulse : Flower2
+    : primaryAction.kind === 'bed'
+      ? LayoutGrid
+      : primaryAction.kind === 'harvest'
+        ? Carrot
+        : primaryAction.kind === 'calendar'
+          ? CalendarDays
+          : Plus;
   useNoIndex();
 
   return (
