@@ -669,6 +669,7 @@ export type Database = {
           caption: string | null
           created_at: string
           id: string
+          my_plant_id: string | null
           photo_url: string
           sowing_id: string | null
           taken_at: string
@@ -679,6 +680,7 @@ export type Database = {
           caption?: string | null
           created_at?: string
           id?: string
+          my_plant_id?: string | null
           photo_url: string
           sowing_id?: string | null
           taken_at?: string
@@ -689,6 +691,7 @@ export type Database = {
           caption?: string | null
           created_at?: string
           id?: string
+          my_plant_id?: string | null
           photo_url?: string
           sowing_id?: string | null
           taken_at?: string
@@ -700,6 +703,13 @@ export type Database = {
             columns: ["bed_id"]
             isOneToOne: false
             referencedRelation: "beds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plant_photos_my_plant_id_fkey"
+            columns: ["my_plant_id"]
+            isOneToOne: false
+            referencedRelation: "my_plants"
             referencedColumns: ["id"]
           },
           {

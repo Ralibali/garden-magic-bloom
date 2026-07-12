@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Activity, ArrowRightLeft, Brain, CheckCircle2, Droplets, Flame, Leaf, Scissors, Sparkles, Sprout, StickyNote, Sun } from 'lucide-react';
+import { Activity, ArrowRightLeft, Brain, CheckCircle2, Droplets, Flame, Leaf, Minus, Scissors, Sparkles, Sprout, StickyNote, Sun, TrendingDown, TrendingUp } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,8 @@ import { toast } from '@/hooks/use-toast';
 import PlantCareCheckIn from '@/components/PlantCareCheckIn';
 import PlantHealthRing from '@/components/PlantHealthRing';
 import PlantMoodAvatar from '@/components/PlantMoodAvatar';
-import { buildPlantCareProfile, PlantCareStatus } from '@/lib/plantCareIntelligence';
+import PlantPhotoStrip from '@/components/PlantPhotoStrip';
+import { buildPlantCareProfile, PlantCareStatus, PlantCareTrend } from '@/lib/plantCareIntelligence';
 import { recordProductActivity } from '@/lib/analytics';
 
 const LOG_TYPES = [
@@ -32,6 +33,14 @@ const STATUS_CLASSES: Record<PlantCareStatus, string> = {
   soon: 'border-lime-300/45 bg-lime-100/60 text-lime-800 dark:border-lime-800/50 dark:bg-lime-950/30 dark:text-lime-300',
   good: 'border-emerald-300/45 bg-emerald-100/60 text-emerald-800 dark:border-emerald-800/50 dark:bg-emerald-950/30 dark:text-emerald-300',
 };
+
+const TREND_META: Record<PlantCareTrend, { className: string; Icon: typeof TrendingUp }> = {
+  improving: { className: 'text-emerald-700 dark:text-emerald-300', Icon: TrendingUp },
+  stable: { className: 'text-muted-foreground', Icon: Minus },
+  declining: { className: 'text-rose-700 dark:text-rose-300', Icon: TrendingDown },
+  unknown: { className: 'text-muted-foreground', Icon: Minus },
+};
+
 
 interface PlantDetailProps {
   plant: any;
@@ -166,18 +175,33 @@ export default function PlantDetail({ plant, plantName, open, onClose }: PlantDe
         <div className="space-y-5 bg-[radial-gradient(circle_at_10%_0%,hsl(var(--primary)/.06),transparent_32%),hsl(var(--background))] p-5 sm:p-7">
           <section className="grid gap-4 rounded-[1.6rem] border border-border/60 bg-card/82 p-4 shadow-[0_18px_44px_-32px_rgba(16,85,48,.4)] sm:grid-cols-[1fr_auto] sm:p-5">
             <div>
-              <Badge variant="outline" className={STATUS_CLASSES[profile.status]}>{profile.statusLabel}</Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className={STATUS_CLASSES[profile.status]}>{profile.statusLabel}</Badge>
+                {(() => {
+                  const { className, Icon } = TREND_META[profile.trend];
+                  return (
+                    <Badge variant="outline" className={`gap-1 border-border/60 bg-muted/40 ${className}`} aria-label={`Trend: ${profile.trendLabel}`}>
+                      <Icon className="h-3 w-3" aria-hidden="true" /> {profile.trendLabel}
+                    </Badge>
+                  );
+                })()}
+              </div>
               <h2 className="mt-3 font-serif text-2xl">{healthMessage(profile.healthScore)}</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{profile.reason}</p>
+              {profile.milestone && (
+                <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-primary"><Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> {profile.milestone}</p>
+              )}
               <div className="mt-4 rounded-2xl border border-primary/12 bg-primary/6 p-3.5"><p className="flex items-center gap-1.5 text-xs font-semibold text-primary"><Droplets className="h-3.5 w-3.5" /> {dueLabel}</p><p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{profile.recommendation}</p></div>
               <PlantCareCheckIn plant={plant} plantName={plantName} profile={profile} trigger={<Button className="mt-4 w-full gap-2 rounded-xl shadow-sm sm:w-auto"><Activity className="h-4 w-4" /> Kolla jord och hälsa</Button>} />
             </div>
             <div className="hidden items-center sm:flex"><PlantHealthRing score={profile.healthScore} size="md" /></div>
           </section>
 
+          <PlantPhotoStrip plantId={plant.id} plantName={plantName} />
+
           <section className="rounded-[1.6rem] border border-border/60 bg-card/72 p-4 sm:p-5">
             <div className="flex items-center justify-between gap-3"><div><p className="flex items-center gap-2 text-sm font-semibold"><Brain className="h-4 w-4 text-violet-500" /> Växtens personliga rytm</p><p className="mt-1 text-xs text-muted-foreground">Art, placering, årstid och dina observationer vägs ihop.</p></div><span className="rounded-full bg-primary/9 px-3 py-1 text-xs font-bold text-primary">Nivå {profile.knowledgeLevel}</span></div>
-            <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-lime-400 to-amber-300 transition-all duration-700" style={{ width: `${profile.knowledgeProgress}%` }} /></div>
+            <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-lime-400 to-amber-300 transition-all duration-700 motion-reduce:transition-none" style={{ width: `${profile.knowledgeProgress}%` }} /></div>
             <div className="mt-4 grid grid-cols-2 gap-2 text-xs"><div className="rounded-2xl border border-border/50 bg-muted/28 p-3"><p className="text-muted-foreground">Artens startvärde</p><p className="mt-1 font-semibold">{profile.baseIntervalDays} dagar</p></div><div className="rounded-2xl border border-border/50 bg-muted/28 p-3"><p className="text-muted-foreground">Historiskt hos dig</p><p className="mt-1 font-semibold">{profile.historicalIntervalDays ? `${profile.historicalIntervalDays} dagar` : 'Lär sig fortfarande'}</p></div></div>
             <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground"><Sparkles className="h-3.5 w-3.5 text-primary" /> {profile.knowledgeLabel}: {profile.observationsCount} hälsokontroller och {profile.wateringsCount} registrerade vattningar.</p>
           </section>

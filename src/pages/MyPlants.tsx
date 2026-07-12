@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Activity, Brain, ChevronRight, Droplets, Filter, Flame, Flower2, HeartPulse, MapPin, Plus, Search, Sparkles, X } from 'lucide-react';
+import { Activity, Brain, ChevronRight, Droplets, Filter, Flame, Flower2, HeartPulse, MapPin, Minus, Plus, Search, Sparkles, TrendingDown, TrendingUp, X } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,7 +18,7 @@ import PlantHealthRing from '@/components/PlantHealthRing';
 import PlantMoodAvatar from '@/components/PlantMoodAvatar';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import AppEmptyState from '@/components/AppEmptyState';
-import { buildPlantCareProfile, PlantCareProfile, PlantCareStatus } from '@/lib/plantCareIntelligence';
+import { buildPlantCareProfile, PlantCareProfile, PlantCareStatus, PlantCareTrend } from '@/lib/plantCareIntelligence';
 import { recordProductActivity } from '@/lib/analytics';
 
 const LOCATION_SUGGESTIONS = ['Fönsterbräda sovrum', 'Vardagsrum', 'Kök', 'Balkong', 'Växthus', 'Uteplats'];
@@ -30,6 +30,13 @@ const STATUS_CLASSES: Record<PlantCareStatus, string> = {
   due: 'border-amber-300/45 bg-amber-100/65 text-amber-700 dark:border-amber-800/50 dark:bg-amber-950/35 dark:text-amber-300',
   soon: 'border-lime-300/45 bg-lime-100/60 text-lime-800 dark:border-lime-800/50 dark:bg-lime-950/30 dark:text-lime-300',
   good: 'border-emerald-300/45 bg-emerald-100/60 text-emerald-800 dark:border-emerald-800/50 dark:bg-emerald-950/30 dark:text-emerald-300',
+};
+
+const TREND_META: Record<PlantCareTrend, { className: string; Icon: typeof TrendingUp }> = {
+  improving: { className: 'text-emerald-700 dark:text-emerald-300', Icon: TrendingUp },
+  stable: { className: 'text-muted-foreground', Icon: Minus },
+  declining: { className: 'text-rose-700 dark:text-rose-300', Icon: TrendingDown },
+  unknown: { className: 'text-muted-foreground', Icon: Minus },
 };
 
 async function getUserId() {
@@ -264,7 +271,7 @@ const MyPlants = () => {
                 <CardContent className="space-y-4 p-4 sm:p-5">
                   <div className="flex items-start gap-3">
                     <button onClick={() => setDetailPlant(plant)}><PlantMoodAvatar score={profile.healthScore} status={profile.status} /></button>
-                    <button className="min-w-0 flex-1 pt-1 text-left" onClick={() => setDetailPlant(plant)}><div className="flex items-center gap-1"><h2 className="truncate font-serif text-xl">{plantName(plant)}</h2><ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" /></div>{plant.location && <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> {plant.location}</p>}<Badge variant="outline" className={`mt-2 ${STATUS_CLASSES[profile.status]}`}>{profile.statusLabel}</Badge></button>
+                    <button className="min-w-0 flex-1 pt-1 text-left" onClick={() => setDetailPlant(plant)}><div className="flex items-center gap-1"><h2 className="truncate font-serif text-xl">{plantName(plant)}</h2><ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" /></div>{plant.location && <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> {plant.location}</p>}<div className="mt-2 flex flex-wrap gap-1.5"><Badge variant="outline" className={STATUS_CLASSES[profile.status]}>{profile.statusLabel}</Badge>{(() => { const { className, Icon } = TREND_META[profile.trend]; return profile.trend === 'unknown' ? null : (<Badge variant="outline" className={`gap-1 border-border/60 bg-muted/40 ${className}`} aria-label={`Trend: ${profile.trendLabel}`}><Icon className="h-3 w-3" aria-hidden="true" /> {profile.trendLabel}</Badge>); })()}</div></button>
                     <ConfirmDeleteButton itemName={plantName(plant)} description="Växtprofilen och dess omsorgshistorik tas bort." disabled={deleteMutation.isPending} onConfirm={() => deleteMutation.mutate(plant.id)} />
                   </div>
 
@@ -278,7 +285,7 @@ const MyPlants = () => {
                     <div className="rounded-2xl border border-border/55 bg-background/60 p-3"><Brain className="h-4 w-4 text-violet-500" /><p className="mt-2 font-semibold">Nivå {profile.knowledgeLevel}</p><p className="text-[10px] text-muted-foreground">{profile.knowledgeLabel}</p></div>
                   </div>
 
-                  <div className="rounded-2xl bg-muted/28 p-3"><div className="mb-2 flex items-center justify-between text-[10px]"><span className="font-semibold uppercase tracking-[0.12em] text-muted-foreground">Växtkännedom</span><span className="font-medium text-primary">{profile.confidenceLabel}</span></div><div className="h-2 overflow-hidden rounded-full bg-background"><div className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-lime-400 to-amber-300 transition-all duration-700" style={{ width: `${profile.knowledgeProgress}%` }} /></div>{profile.careStreak >= 2 && <p className="mt-2 flex items-center gap-1 text-[10px] font-medium text-amber-600 dark:text-amber-300"><Flame className="h-3 w-3" /> {profile.careStreak} vattningar i stabil rytm</p>}</div>
+                  <div className="rounded-2xl bg-muted/28 p-3"><div className="mb-2 flex items-center justify-between text-[10px]"><span className="font-semibold uppercase tracking-[0.12em] text-muted-foreground">Växtkännedom</span><span className="font-medium text-primary">{profile.confidenceLabel}</span></div><div className="h-2 overflow-hidden rounded-full bg-background"><div className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-lime-400 to-amber-300 transition-all duration-700 motion-reduce:transition-none" style={{ width: `${profile.knowledgeProgress}%` }} /></div>{profile.careStreak >= 2 && <p className="mt-2 flex items-center gap-1 text-[10px] font-medium text-amber-600 dark:text-amber-300"><Flame className="h-3 w-3" /> {profile.careStreak} vattningar i stabil rytm</p>}{profile.milestone && <p className="mt-1.5 flex items-center gap-1 text-[10px] font-medium text-primary"><Sparkles className="h-3 w-3" aria-hidden="true" /> {profile.milestone}</p>}</div>
 
                   <div className="flex gap-2">
                     <PlantCareCheckIn plant={plant} plantName={plantName(plant)} profile={profile} trigger={<Button className="flex-1 gap-2 rounded-xl shadow-sm"><HeartPulse className="h-4 w-4" /> Kolla & vattna</Button>} />
