@@ -23,6 +23,8 @@ import { GardenCategory } from '@/lib/gardenModules';
 import { FadeIn } from '@/components/animations';
 import { getGardenForecast, weatherDescription } from '@/lib/gardenWeather';
 import { buildPlantCareProfile } from '@/lib/plantCareIntelligence';
+import { computeDashboardPriority } from '@/lib/dashboardPriority';
+import PrimaryActionCard from '@/components/PrimaryActionCard';
 
 const MONTH_TIPS: Record<number, string> = {
   1: 'Planera årets sorter och kontrollera fröförrådet.',
@@ -179,26 +181,24 @@ const Dashboard = () => {
         />
       ) : (
         <>
-          {/* IDAG — max 3 åtgärder */}
-          <TodayInGarden
-            weather={weather}
-            rainData={rainData}
-            climateZone={climateZone}
-            remindersData={remindersData}
-            sowings={sowings}
-            overduePlants={attentionPlants}
-            beds={beds}
-            displayName={displayName}
-            maxItems={3}
-          />
-
-          {/* Växtpuls flyttad in i "Utforska din odling" för att undvika dubblering med TodayInGarden */}
+          {/* Dagens viktigaste åtgärd (deterministisk prioritering) */}
+          {(() => {
+            const priority = computeDashboardPriority({
+              plants: adaptivePlants as any[],
+              reminders: ((remindersData?.settings as any)?.reminders || []),
+              sowings,
+              weather,
+              rainData,
+              climateZone,
+            });
+            return <PrimaryActionCard result={priority} greeting={displayName ? `Hej ${displayName}` : undefined} weatherLine={weatherLine} />;
+          })()}
 
           {/* Veckosammanfattning – komprimerad */}
           {adaptivePlants.length > 0 && <PlantWeeklyCareSummary variant="compact" />}
 
           {/* Mer från din odling – kollapsbar */}
-          <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Mer från din odling" subtitle="Statistik, senaste sådder och genvägar">
+          <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Utforska din odling" subtitle="Veckosammanfattning, statistik och genvägar">
             {trialDaysLeft !== null && (
               <Card className="border-accent/25 bg-gradient-to-r from-accent/8 via-card to-primary/8">
                 <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -247,6 +247,7 @@ const Dashboard = () => {
               </button>
             </div>
 
+            <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={sowings} overduePlants={attentionPlants} beds={beds} displayName={displayName} maxItems={4} />
             <WeeklyGardenSummary sowings={sowings} harvests={harvests} remindersData={remindersData} photos={photos} />
             <DashboardActionCenter climateZone={climateZone} currentMonth={currentMonth} isNewUser={false} onNavigate={navigate} />
             <HarvestValueLine />
@@ -342,25 +343,17 @@ function PlantOnlyDashboard({
   const attention = plants.filter(plant => ['urgent', 'due'].includes(plant.care_profile.status)).length;
   const attentionPlants = plants.filter(plant => plant.care_profile.status !== 'good');
 
+  const priority = computeDashboardPriority({ plants, reminders: ((remindersData?.settings as any)?.reminders || []), weather, rainData, climateZone });
+
   return (
     <>
-      <TodayInGarden
-        weather={weather}
-        rainData={rainData}
-        climateZone={climateZone}
-        remindersData={remindersData}
-        sowings={[]}
-        overduePlants={attentionPlants}
-        beds={[]}
-        displayName={displayName}
-        maxItems={3}
-      />
+      <PrimaryActionCard result={priority} greeting={displayName ? `Hej ${displayName}` : undefined} />
 
-      {attentionPlants.length > 0 && <PlantCareSpotlight plants={attentionPlants} />}
+      {attentionPlants.length > 0 && <PlantCareSpotlight plants={attentionPlants.slice(0, 3)} />}
 
-      <PlantWeeklyCareSummary variant="compact" />
-
-      <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Mer från dina växter" subtitle="Nyckeltal och genvägar">
+      <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Utforska dina växter" subtitle="Veckosammanfattning, statistik och genvägar">
+        <PlantWeeklyCareSummary variant="compact" />
+        <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={[]} overduePlants={attentionPlants} beds={[]} displayName={displayName} maxItems={4} />
         {trialDaysLeft !== null && (
           <Card className="border-accent/25 bg-gradient-to-r from-accent/8 via-card to-primary/8">
             <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
