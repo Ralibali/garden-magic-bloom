@@ -5,6 +5,8 @@ import { GARDEN_CATEGORIES, GardenCategory } from '@/lib/gardenModules';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Check, Leaf, MapPin, Sparkles } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
+import { plausibleEvent } from '@/lib/plausible';
+import { clearPublicPlan, loadPublicPlan } from '@/lib/publicPlan';
 import { toast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
@@ -45,20 +47,21 @@ function ToggleButton({ active, children, onClick }: { active: boolean; children
 
 export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const queryClient = useQueryClient();
-  const [step, setStep] = useState(0);
+  const [importedPlan] = useState(loadPublicPlan);
+  const [step, setStep] = useState(importedPlan ? 4 : 0);
   const [selectedCategories, setSelectedCategories] = useState<GardenCategory[]>(['kokstradgard']);
-  const [climateZone, setClimateZone] = useState(3);
-  const [methods, setMethods] = useState<string[]>(['Pallkrage']);
-  const [crops, setCrops] = useState<string[]>(['Tomat', 'Sallat']);
+  const [climateZone, setClimateZone] = useState(importedPlan?.zone ?? 3);
+  const [methods, setMethods] = useState<string[]>(importedPlan?.method ? [importedPlan.method] : ['Pallkrage']);
+  const [crops, setCrops] = useState<string[]>(importedPlan?.crops.length ? importedPlan.crops : ['Tomat', 'Sallat']);
   const [experience, setExperience] = useState('intermediate');
   const [saving, setSaving] = useState(false);
 
   const toggleCategory = (category: GardenCategory) => {
-    setSelectedCategories((current) => current.includes(category) ? current.filter((item) => item !== category) : [...current, category]);
+    setSelectedCategories(current => current.includes(category) ? current.filter(item => item !== category) : [...current, category]);
   };
 
   const toggleArray = (value: string, setter: React.Dispatch<React.SetStateAction<string[]>>) => {
-    setter((current) => current.includes(value) ? current.filter((item) => item !== value) : [...current, value]);
+    setter(current => current.includes(value) ? current.filter(item => item !== value) : [...current, value]);
   };
 
   const finish = async () => {
@@ -69,7 +72,16 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     }
 
     setSaving(true);
-    const plan = { categories: selectedCategories, methods, crops, experience, climateZone, createdAt: new Date().toISOString() };
+    const plan = {
+      categories: selectedCategories,
+      methods,
+      crops,
+      experience,
+      climateZone,
+      imported_from: importedPlan?.type ?? null,
+      public_plan: importedPlan?.raw ?? null,
+      createdAt: new Date().toISOString(),
+    };
 
     try {
       localStorage.setItem('odlingsdagboken_onboarding_plan', JSON.stringify(plan));
@@ -92,7 +104,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           last_activity: 'onboarding_completed',
         },
       });
-      await trackEvent('onboarding_completed', { categories: selectedCategories, methods, crops, climate_zone: climateZone, experience });
+      await trackEvent('onboarding_completed', { categories: selectedCategories, methods, crops, climate_zone: climateZone, experience, imported_from: importedPlan?.type });
+      plausibleEvent('Onboarding Completed', { imported_plan: Boolean(importedPlan), plan_type: importedPlan?.type ?? 'manual' });
+      clearPublicPlan();
       await queryClient.invalidateQueries({ queryKey: ['profile'] });
     } catch (error: any) {
       toast({ title: 'Kunde inte spara dina val', description: error?.message || 'Försök igen.', variant: 'destructive' });
@@ -101,7 +115,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   };
 
   const progressPercent = ((step + 1) / 5) * 100;
-  const experienceLabel = EXPERIENCE_LEVELS.find((level) => level.id === experience)?.title;
+  const experienceLabel = EXPERIENCE_LEVELS.find(level => level.id === experience)?.title;
 
   return (
     <div className="min-h-[calc(100vh-6rem)] flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/10 p-2 sm:p-4 rounded-3xl">
@@ -116,13 +130,13 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             <motion.div key={step} initial={{ opacity: 0, x: 28 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -28 }} transition={{ duration: 0.22 }}>
               {step === 0 && <div className="text-center space-y-6 py-4 sm:py-8"><div className="w-16 h-16 rounded-3xl bg-primary/10 text-primary flex items-center justify-center mx-auto"><Leaf className="h-8 w-8" /></div><div className="space-y-3"><p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold">Välkommen till din odling</p><h1 className="font-serif text-3xl sm:text-5xl">Låt appen börja med en plan – inte en tom skärm</h1><p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">På ungefär en minut anpassar vi verktyg, såtider och nästa steg efter vad du odlar och var i Sverige du bor.</p></div><Button size="lg" className="gap-2 h-12 px-7" onClick={() => setStep(1)}>Anpassa min dagbok <ArrowRight className="h-4 w-4" /></Button></div>}
 
-              {step === 1 && <div className="space-y-6"><div><p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Vad vill du hålla koll på?</p><h1 className="font-serif text-3xl mb-2">Välj dina odlingsområden</h1><p className="text-sm text-muted-foreground">Vi visar färre, mer relevanta funktioner. Du kan ändra detta senare.</p></div><div className="grid sm:grid-cols-2 gap-3">{GARDEN_CATEGORIES.map((category) => <button key={category.id} type="button" onClick={() => toggleCategory(category.id)} className={`text-left rounded-2xl border p-4 transition-all ${selectedCategories.includes(category.id) ? 'border-primary bg-primary/8 shadow-sm' : 'border-border hover:border-primary/30'}`}><div className="flex gap-3"><span className="text-2xl">{category.emoji}</span><div className="flex-1"><div className="flex items-center justify-between gap-2"><p className="font-medium">{category.label}</p>{selectedCategories.includes(category.id) && <Check className="h-4 w-4 text-primary" />}</div><p className="text-xs text-muted-foreground mt-1">{category.description}</p></div></div></button>)}</div><div className="flex justify-end"><Button className="gap-2" disabled={!selectedCategories.length} onClick={() => setStep(2)}>Nästa <ArrowRight className="h-4 w-4" /></Button></div></div>}
+              {step === 1 && <div className="space-y-6"><div><p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Vad vill du hålla koll på?</p><h1 className="font-serif text-3xl mb-2">Välj dina odlingsområden</h1><p className="text-sm text-muted-foreground">Vi visar färre, mer relevanta funktioner. Du kan ändra detta senare.</p></div><div className="grid sm:grid-cols-2 gap-3">{GARDEN_CATEGORIES.map(category => <button key={category.id} type="button" onClick={() => toggleCategory(category.id)} className={`text-left rounded-2xl border p-4 transition-all ${selectedCategories.includes(category.id) ? 'border-primary bg-primary/8 shadow-sm' : 'border-border hover:border-primary/30'}`}><div className="flex gap-3"><span className="text-2xl">{category.emoji}</span><div className="flex-1"><div className="flex items-center justify-between gap-2"><p className="font-medium">{category.label}</p>{selectedCategories.includes(category.id) && <Check className="h-4 w-4 text-primary" />}</div><p className="text-xs text-muted-foreground mt-1">{category.description}</p></div></div></button>)}</div><div className="flex justify-end"><Button className="gap-2" disabled={!selectedCategories.length} onClick={() => setStep(2)}>Nästa <ArrowRight className="h-4 w-4" /></Button></div></div>}
 
-              {step === 2 && <div className="space-y-6"><div><p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Din säsong</p><h1 className="font-serif text-3xl mb-2">Hur och vad odlar du?</h1><p className="text-sm text-muted-foreground">Välj det som stämmer bäst just nu.</p></div><div><p className="text-sm font-medium mb-2">Odlingssätt</p><div className="grid grid-cols-2 sm:grid-cols-3 gap-2">{GROWING_METHODS.map((method) => <ToggleButton key={method} active={methods.includes(method)} onClick={() => toggleArray(method, setMethods)}>{method}</ToggleButton>)}</div></div><div><p className="text-sm font-medium mb-2">Några grödor du vill odla</p><div className="grid grid-cols-2 sm:grid-cols-5 gap-2">{POPULAR_CROPS.map((crop) => <ToggleButton key={crop} active={crops.includes(crop)} onClick={() => toggleArray(crop, setCrops)}>{crop}</ToggleButton>)}</div></div><div className="flex items-center justify-between"><Button variant="ghost" onClick={() => setStep(1)}>Tillbaka</Button><Button className="gap-2" disabled={!methods.length} onClick={() => setStep(3)}>Nästa <ArrowRight className="h-4 w-4" /></Button></div></div>}
+              {step === 2 && <div className="space-y-6"><div><p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Din säsong</p><h1 className="font-serif text-3xl mb-2">Hur och vad odlar du?</h1><p className="text-sm text-muted-foreground">Välj det som stämmer bäst just nu.</p></div><div><p className="text-sm font-medium mb-2">Odlingssätt</p><div className="grid grid-cols-2 sm:grid-cols-3 gap-2">{GROWING_METHODS.map(method => <ToggleButton key={method} active={methods.includes(method)} onClick={() => toggleArray(method, setMethods)}>{method}</ToggleButton>)}</div></div><div><p className="text-sm font-medium mb-2">Några grödor du vill odla</p><div className="grid grid-cols-2 sm:grid-cols-5 gap-2">{POPULAR_CROPS.map(crop => <ToggleButton key={crop} active={crops.includes(crop)} onClick={() => toggleArray(crop, setCrops)}>{crop}</ToggleButton>)}</div></div><div className="flex items-center justify-between"><Button variant="ghost" onClick={() => setStep(1)}>Tillbaka</Button><Button className="gap-2" disabled={!methods.length} onClick={() => setStep(3)}>Nästa <ArrowRight className="h-4 w-4" /></Button></div></div>}
 
               {step === 3 && <div className="space-y-6"><div><p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Lokala råd</p><h1 className="font-serif text-3xl mb-2">Vilken odlingszon ligger närmast?</h1><p className="text-sm text-muted-foreground">Zonen används för frost, såtider och utplantering. Exemplen är ungefärliga.</p></div><div className="grid sm:grid-cols-2 gap-2 max-h-[48vh] overflow-y-auto pr-1">{ZONE_CITIES.map(({ zone, cities }) => <button key={zone} type="button" onClick={() => setClimateZone(zone)} className={`text-left p-3.5 rounded-2xl border transition-all ${climateZone === zone ? 'border-primary bg-primary/8 shadow-sm' : 'border-border hover:border-primary/30'}`}><div className="flex items-center justify-between"><span className="font-medium text-sm flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Zon {zone}</span>{climateZone === zone && <span className="text-[10px] bg-primary text-primary-foreground px-2 py-0.5 rounded-full">Vald</span>}</div><p className="text-xs text-muted-foreground mt-1 ml-6">{cities.join(', ')}</p></button>)}</div><div className="flex items-center justify-between"><Button variant="ghost" onClick={() => setStep(2)}>Tillbaka</Button><Button className="gap-2" onClick={() => setStep(4)}>Nästa <ArrowRight className="h-4 w-4" /></Button></div></div>}
 
-              {step === 4 && <div className="space-y-6"><div><p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Nivå och sammanfattning</p><h1 className="font-serif text-3xl mb-2">Hur mycket guidning passar dig?</h1><p className="text-sm text-muted-foreground">Det påverkar hur detaljerade rekommendationerna blir.</p></div><div className="grid gap-3">{EXPERIENCE_LEVELS.map((level) => <button key={level.id} type="button" onClick={() => setExperience(level.id)} className={`text-left rounded-2xl border p-4 transition-all ${experience === level.id ? 'border-primary bg-primary/8' : 'border-border hover:border-primary/30'}`}><div className="flex items-center justify-between gap-3"><div><p className="font-medium">{level.title}</p><p className="text-xs text-muted-foreground mt-1">{level.text}</p></div>{experience === level.id && <Check className="h-4 w-4 text-primary shrink-0" />}</div></button>)}</div><div className="rounded-2xl bg-primary/10 border border-primary/20 p-4 flex gap-3"><Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" /><div><p className="text-sm font-medium">Din startprofil är klar</p><p className="text-sm text-muted-foreground mt-1">{selectedCategories.length} odlingsområde{selectedCategories.length === 1 ? '' : 'n'}, zon {climateZone}, {crops.length} valda grödor och nivån “{experienceLabel}”. Valen sparas nu även i ditt konto.</p></div></div><div className="flex items-center justify-between"><Button variant="ghost" onClick={() => setStep(3)}>Tillbaka</Button><Button className="gap-2" onClick={finish} disabled={saving}>{saving ? 'Sparar din plan…' : 'Öppna min Odlingsdagbok'} {!saving && <ArrowRight className="h-4 w-4" />}</Button></div></div>}
+              {step === 4 && <div className="space-y-6"><div>{importedPlan && <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary border border-primary/20 px-3 py-1 text-xs font-medium mb-4"><Check className="h-3.5 w-3.5" /> Din {importedPlan.type === 'sakalender' ? 'såkalender' : 'plan'} är hämtad</div>}<p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Nivå och sammanfattning</p><h1 className="font-serif text-3xl mb-2">{importedPlan ? 'Spara planen i din odlingsdagbok' : 'Hur mycket guidning passar dig?'}</h1><p className="text-sm text-muted-foreground">{importedPlan ? `Vi har hämtat zon ${climateZone}, ${methods.join(', ').toLowerCase()} och ${crops.length} valda grödor från verktyget du nyss använde.` : 'Det påverkar hur detaljerade rekommendationerna blir.'}</p></div><div className="grid gap-3">{EXPERIENCE_LEVELS.map(level => <button key={level.id} type="button" onClick={() => setExperience(level.id)} className={`text-left rounded-2xl border p-4 transition-all ${experience === level.id ? 'border-primary bg-primary/8' : 'border-border hover:border-primary/30'}`}><div className="flex items-center justify-between gap-3"><div><p className="font-medium">{level.title}</p><p className="text-xs text-muted-foreground mt-1">{level.text}</p></div>{experience === level.id && <Check className="h-4 w-4 text-primary shrink-0" />}</div></button>)}</div><div className="rounded-2xl bg-primary/10 border border-primary/20 p-4 flex gap-3"><Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" /><div><p className="text-sm font-medium">Din startprofil är klar</p><p className="text-sm text-muted-foreground mt-1">{selectedCategories.length} odlingsområde{selectedCategories.length === 1 ? '' : 'n'}, zon {climateZone}, {crops.length} valda grödor och nivån “{experienceLabel}”.</p></div></div><div className="flex items-center justify-between"><Button variant="ghost" onClick={() => setStep(importedPlan ? 2 : 3)}>{importedPlan ? 'Justera planen' : 'Tillbaka'}</Button><Button className="gap-2" onClick={finish} disabled={saving}>{saving ? 'Sparar din plan…' : importedPlan ? 'Spara och öppna min dagbok' : 'Öppna min Odlingsdagbok'} {!saving && <ArrowRight className="h-4 w-4" />}</Button></div></div>}
             </motion.div>
           </AnimatePresence>
         </div>
