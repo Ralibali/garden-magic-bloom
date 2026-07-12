@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import VisitorWelcomePopup from '@/components/VisitorWelcomePopup';
 import { useParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
@@ -6,13 +6,14 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Sprout, Loader2, BookOpen, CalendarDays } from 'lucide-react';
+import { ArrowLeft, Sprout, Loader2, BookOpen, CalendarDays, ChevronDown, List } from 'lucide-react';
 import ShareButtons from '@/components/ShareButtons';
 import BlogComments from '@/components/BlogComments';
 import { Seo } from '@/hooks/useSeo';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
 import GroPreviewCTA from '@/components/GroPreviewCTA';
 import PublicNotFound from '@/components/PublicNotFound';
+import { extractHeadings, injectHeadingIds, sortRelatedPosts, pickContextualCta } from '@/lib/blogArticle';
 
 const categoryLabels: Record<string, string> = {
   guide: 'Guide',
