@@ -45,7 +45,8 @@ describe('sortRelatedPosts', () => {
     const related = sortRelatedPosts(posts, { slug: 'current', category: 'guide', tags: ['tomat'] });
     expect(related.map((p) => p.slug)).not.toContain('current');
     expect(related[0].slug).toBe('a'); // guide + tomat -> 3p
-    expect(related[1].slug).toBe('b'); // tomat -> 1p (nyare än c)
+    expect(related[1].slug).toBe('c'); // guide only -> 2p (nyare kategoriträff)
+    expect(related[2].slug).toBe('b'); // tomat only -> 1p
   });
 });
 
