@@ -5,13 +5,12 @@ import { AppSidebar } from './AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { MobileNav } from './MobileNav';
 import PublicPlanHandoff from './PublicPlanHandoff';
-import { Bell, CalendarDays, Carrot, Flower2, HeartPulse, LayoutGrid, Menu, Plus, Sparkles, Sprout } from 'lucide-react';
+import { Bell, CalendarDays, Carrot, HeartPulse, LayoutGrid, Menu, Plus, Sparkles, Sprout } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { getPrimaryGardenAction } from '@/lib/primaryGardenAction';
 import { useGardenProfile } from '@/hooks/useGardenProfile';
-import { supabase } from '@/integrations/supabase/client';
 
 function useNoIndex() {
   useEffect(() => {
@@ -80,20 +79,15 @@ export default function AppLayout() {
   const { categories } = useGardenProfile();
   const { data: beds = [] } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
   const { data: sowings = [] } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
-  const { data: myPlants = [] } = useQuery({ queryKey: ['my-plants-count'], queryFn: async () => {
-    const { data, error } = await supabase.from('my_plants').select('id');
-    if (error) return [];
-    return data || [];
-  } });
   const meta = useMemo(() => getRouteMeta(location.pathname), [location.pathname]);
   const dateLabel = useMemo(() => new Intl.DateTimeFormat('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()), []);
   const plantOnly = categories.length > 0 && categories.every(category => category === 'krukvaxter');
   const gardenAction = useMemo(() => getPrimaryGardenAction({ bedCount: beds.length, sowingCount: sowings.length, month: new Date().getMonth() + 1 }), [beds.length, sowings.length]);
   const primaryAction = plantOnly
-    ? { kind: 'plant', label: myPlants.length ? 'Växtpulsen' : 'Lägg till växt', path: '/app/my-plants', reason: myPlants.length ? 'Se vilka växter som behöver en kontroll idag.' : 'Skapa din första personliga växtprofil.' }
+    ? { kind: 'plant', label: 'Växtpulsen', path: '/app/my-plants', reason: 'Se växternas hälsa, jordstatus och personliga omsorgsrytm.' }
     : gardenAction;
   const PrimaryIcon = primaryAction.kind === 'plant'
-    ? myPlants.length ? HeartPulse : Flower2
+    ? HeartPulse
     : primaryAction.kind === 'bed'
       ? LayoutGrid
       : primaryAction.kind === 'harvest'
