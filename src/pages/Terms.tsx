@@ -189,13 +189,19 @@ export default function Terms() {
           </p>
           <ul className="text-sm text-foreground space-y-1 list-disc pl-5">
             <li><strong>Nödvändiga</strong> – inloggning, säkerhet, cookie-samtycke. Kräver inte samtycke.</li>
-            <li><strong>Statistik</strong> – anonymiserad besöks- och funktionsstatistik. Aktiveras endast om du samtycker.</li>
-            <li><strong>Marknadsföring</strong> – används inte i dagsläget; om detta införs ber vi om separat samtycke.</li>
+            <li><strong>Analys</strong> – anonymiserad besöks- och funktionsstatistik (Plausible, scrolldjup). Aktiveras endast om du samtycker.</li>
+            <li><strong>Marknadsföring</strong> – mätning av annonseffekt (Google Ads-taggen). Aktiveras endast om du samtycker.</li>
           </ul>
           <p className="text-sm text-foreground leading-relaxed">
-            Du kan när som helst ändra ditt val genom att rensa cookies i webbläsaren – bannern visas då på nytt. Utan
-            samtycke visas endast innehåll och funktioner som är strikt nödvändiga.
+            Du kan när som helst ändra ditt val nedan. Ditt val sparas i 12 månader eller tills du återkallar det.
           </p>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('open-cookie-preferences'))}
+            className="mt-2 inline-flex items-center gap-2 text-sm text-primary hover:underline underline-offset-2"
+          >
+            Ändra cookie-inställningar
+          </button>
 
           {/* ---------------------------------------------------------------- */}
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">8. AI-funktioner – transparens enligt EU:s AI-förordning</h2>
