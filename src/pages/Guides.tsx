@@ -46,13 +46,22 @@ export default function Guides() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, excerpt, cover_image_url, category, tags, published_at')
+        .select('id, title, slug, excerpt, cover_image_url, category, tags, published_at, content')
         .eq('is_published', true)
         .order('published_at', { ascending: false });
       if (error) throw error;
       return data;
     },
   });
+
+  const readingTime = (content?: string | null) => {
+    if (!content) return 4;
+    const words = content.replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length;
+    return Math.max(2, Math.round(words / 220));
+  };
+
+  const featured = posts.find(p => p.cover_image_url) || posts[0];
+  const rest = posts.filter(p => p.id !== featured?.id);
 
   return (
     <div className="min-h-screen bg-background">
