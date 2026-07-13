@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import AppEmptyState from '@/components/AppEmptyState';
 import { recordProductActivity } from '@/lib/analytics';
+import { trackOnce } from '@/lib/plausible';
 
 const FREE_SOWING_LIMIT = 10;
 const SEED_BRAND_SUGGESTIONS = ['Impecta', 'Nelson Garden', 'Runåbergs fröer', 'Lindbloms frö', 'Pelargonia', 'Blomsterlandet', 'Egna frön', 'Annat'];
