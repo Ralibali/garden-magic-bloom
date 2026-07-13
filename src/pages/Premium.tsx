@@ -52,6 +52,7 @@ export default function Premium() {
     setLoading(true);
     const consentAt = new Date().toISOString();
     void trackEvent('checkout_started', { plan: 'yearly', price_sek: 99, withdrawal_consent_at: consentAt });
+    track('Premium Checkout Started', { plan: 'plus', billing_interval: 'yearly' });
     try {
       localStorage.setItem('plus-withdrawal-consent', JSON.stringify({ at: consentAt, price_sek: 99, plan: 'yearly-99' }));
     } catch {}
