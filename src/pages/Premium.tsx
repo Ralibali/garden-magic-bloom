@@ -34,6 +34,8 @@ export default function Premium() {
       const { data } = await supabase.functions.invoke('check-subscription');
       if (!cancelled && data?.subscribed) {
         void trackEvent('subscription_activated', { plan: 'yearly', price_sek: 99 });
+        const dedupe = user?.id ? `purchase:${user.id}:yearly` : `purchase:anon:${Date.now()}`;
+        trackOnce('Premium Purchased', { plan: 'plus', billing_interval: 'yearly' }, dedupe);
         toast({ title: 'Välkommen till Plus! 🌱', description: 'Din uppgradering är aktiv.' });
         window.history.replaceState({}, '', '/app/premium');
       }
