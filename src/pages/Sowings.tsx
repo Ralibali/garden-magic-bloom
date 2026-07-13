@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import AppEmptyState from '@/components/AppEmptyState';
 import { recordProductActivity } from '@/lib/analytics';
+import { trackOnce } from '@/lib/plausible';
 
 const FREE_SOWING_LIMIT = 10;
 const SEED_BRAND_SUGGESTIONS = ['Impecta', 'Nelson Garden', 'Runåbergs fröer', 'Lindbloms frö', 'Pelargonia', 'Blomsterlandet', 'Egna frön', 'Annat'];
@@ -61,6 +62,10 @@ const Sowings = () => {
       queryClient.invalidateQueries({ queryKey: ['summary-stats'] });
       setOpen(false); setVariety(''); setBedId(''); setNotes(''); setSeedBrand('');
       void recordProductActivity(wasFirst ? 'first_sowing_created' : 'sowing_created', { sowing_id: sowing.id, type });
+      if (wasFirst && user?.id) {
+        const cultivationType: 'direct' | 'indoor' = type === 'indoor' ? 'indoor' : 'direct';
+        trackOnce('First Cultivation Logged', { cultivation_type: cultivationType }, `first_cultivation:${user.id}`);
+      }
       toast({ title: 'Sådd registrerad! 🌱' });
     },
     onError: (error: any) => {

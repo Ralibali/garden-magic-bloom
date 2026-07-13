@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { markLeadConverted, trackEvent } from '@/lib/analytics';
-import { plausibleEvent } from '@/lib/plausible';
+import { plausibleEvent, track, trackOnce } from '@/lib/plausible';
 
 interface UserProfile {
   id: string;
@@ -195,6 +195,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         method: 'email',
         confirmation_required: !data.session,
       });
+      track('Signup Completed', { method: 'email', confirmation_required: !data.session });
+      if (data.user.id) {
+        trackOnce('Trial Started', { plan: 'free' }, `trial:${data.user.id}`);
+      }
       trackBrowserEvent('sign_up', { method: 'email' });
     }
 

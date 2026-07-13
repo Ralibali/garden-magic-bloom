@@ -7,6 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams } from 'react-router-dom';
 import { trackEvent } from '@/lib/analytics';
+import { track, trackOnce } from '@/lib/plausible';
 
 const YEARLY_PRICE_ID = 'price_1T99UJHzffTezY826uLS56sV';
 
@@ -33,6 +34,8 @@ export default function Premium() {
       const { data } = await supabase.functions.invoke('check-subscription');
       if (!cancelled && data?.subscribed) {
         void trackEvent('subscription_activated', { plan: 'yearly', price_sek: 99 });
+        const dedupe = user?.id ? `purchase:${user.id}:yearly` : `purchase:anon:${Date.now()}`;
+        trackOnce('Premium Purchased', { plan: 'plus', billing_interval: 'yearly' }, dedupe);
         toast({ title: 'Välkommen till Plus! 🌱', description: 'Din uppgradering är aktiv.' });
         window.history.replaceState({}, '', '/app/premium');
       }
@@ -49,6 +52,7 @@ export default function Premium() {
     setLoading(true);
     const consentAt = new Date().toISOString();
     void trackEvent('checkout_started', { plan: 'yearly', price_sek: 99, withdrawal_consent_at: consentAt });
+    track('Premium Checkout Started', { plan: 'plus', billing_interval: 'yearly' });
     try {
       localStorage.setItem('plus-withdrawal-consent', JSON.stringify({ at: consentAt, price_sek: 99, plan: 'yearly-99' }));
     } catch {}
