@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { markLeadConverted, trackEvent } from '@/lib/analytics';
-import { plausibleEvent } from '@/lib/plausible';
+import { plausibleEvent, track, trackOnce } from '@/lib/plausible';
 
 interface UserProfile {
   id: string;
