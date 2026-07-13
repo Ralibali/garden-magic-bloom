@@ -7,6 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams } from 'react-router-dom';
 import { trackEvent } from '@/lib/analytics';
+import { track, trackOnce } from '@/lib/plausible';
 
 const YEARLY_PRICE_ID = 'price_1T99UJHzffTezY826uLS56sV';
 
