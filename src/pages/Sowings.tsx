@@ -62,6 +62,10 @@ const Sowings = () => {
       queryClient.invalidateQueries({ queryKey: ['summary-stats'] });
       setOpen(false); setVariety(''); setBedId(''); setNotes(''); setSeedBrand('');
       void recordProductActivity(wasFirst ? 'first_sowing_created' : 'sowing_created', { sowing_id: sowing.id, type });
+      if (wasFirst && user?.id) {
+        const cultivationType: 'direct' | 'indoor' = type === 'indoor' ? 'indoor' : 'direct';
+        trackOnce('First Cultivation Logged', { cultivation_type: cultivationType }, `first_cultivation:${user.id}`);
+      }
       toast({ title: 'Sådd registrerad! 🌱' });
     },
     onError: (error: any) => {
