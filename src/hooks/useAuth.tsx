@@ -195,6 +195,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         method: 'email',
         confirmation_required: !data.session,
       });
+      track('Signup Completed', { method: 'email', confirmation_required: !data.session });
+      if (data.user.id) {
+        trackOnce('Trial Started', { plan: 'free' }, `trial:${data.user.id}`);
+      }
       trackBrowserEvent('sign_up', { method: 'email' });
     }
 
