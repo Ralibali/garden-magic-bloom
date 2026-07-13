@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import React, { Suspense } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import CookieConsent from "./components/CookieConsent";
+import { attemptRecovery, isChunkLoadError } from "./lib/recovery";
 import { TrackingProvider } from "./components/TrackingProvider";
 
 // Eager: landing + login (critical path)
