@@ -94,16 +94,40 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error('[ErrorBoundary]', error, info.componentStack);
+    if (isChunkLoadError(error)) {
+      void attemptRecovery(error);
+    }
   }
+  handleHardReload = () => {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('v', String(Date.now()));
+      window.location.replace(url.toString());
+    } catch {
+      window.location.reload();
+    }
+  };
   render() {
     if (this.state.hasError) {
+      const chunk = isChunkLoadError(this.state.error);
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-6">
           <div className="max-w-md text-center space-y-4">
-            <span className="text-4xl">⚠️</span>
-            <h1 className="text-xl font-bold text-foreground">Något gick fel</h1>
-            <p className="text-sm text-muted-foreground">{this.state.error?.message}</p>
-            <button onClick={() => window.location.reload()} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm">Ladda om</button>
+            <span className="text-4xl">{chunk ? '🔄' : '⚠️'}</span>
+            <h1 className="text-xl font-bold text-foreground">
+              {chunk ? 'En ny version är tillgänglig' : 'Något gick fel'}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {chunk
+                ? 'Vi behöver ladda om appen för att hämta de senaste ändringarna. Din data är säker.'
+                : this.state.error?.message}
+            </p>
+            <button
+              onClick={this.handleHardReload}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90"
+            >
+              Ladda om appen
+            </button>
           </div>
         </div>
       );
