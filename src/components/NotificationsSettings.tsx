@@ -21,6 +21,7 @@ export default function NotificationsSettings() {
   const { supported, permission, isSubscribed, subscribe, unsubscribe, loading } = usePushNotifications();
 
   const [frostEnabled, setFrostEnabled] = useState<boolean>(true);
+  const [dailyBriefingEnabled, setDailyBriefingEnabled] = useState<boolean>(true);
   const [weeklyEmailEnabled, setWeeklyEmailEnabled] = useState<boolean>(true);
   const [locationName, setLocationName] = useState('');
   const [search, setSearch] = useState('');
