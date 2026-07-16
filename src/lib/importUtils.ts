@@ -2,7 +2,8 @@
  * Smart import utility – parses CSV, XLSX, JSON files and auto-detects
  * whether data maps to sowings, harvests, or seed_inventory.
  */
-import * as XLSX from 'xlsx';
+// OBS: xlsx (SheetJS, ~300 kB) laddas dynamiskt i parseFile() så att
+// biblioteket bara hämtas när användaren faktiskt importerar en fil.
 
 export type ImportTarget = 'sowings' | 'harvests' | 'seed_inventory';
 
