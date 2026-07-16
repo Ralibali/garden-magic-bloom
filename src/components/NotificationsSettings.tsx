@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { Bell, MapPin, Search } from 'lucide-react';
+import { Bell, MapPin, Search, Play, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
@@ -27,6 +27,16 @@ export default function NotificationsSettings() {
   const [search, setSearch] = useState('');
   const [results, setResults] = useState<Geo[]>([]);
   const [searching, setSearching] = useState(false);
+  const [runningBriefing, setRunningBriefing] = useState(false);
+  const [briefingResult, setBriefingResult] = useState<null | {
+    hasSubscription: boolean;
+    briefingEnabled: boolean;
+    taskCount: number;
+    tasks: string[];
+    pushSent: boolean;
+    pushDelivered: number;
+    pushFailed: number;
+  }>(null);
 
   useEffect(() => {
     if (profile) {
@@ -62,6 +72,29 @@ export default function NotificationsSettings() {
   };
 
 
+
+  const runBriefingNow = async () => {
+    setRunningBriefing(true);
+    setBriefingResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('run-my-briefing', { body: {} });
+      if (error) throw error;
+      setBriefingResult(data);
+      if (data?.pushSent) {
+        toast({ title: 'Briefing skickad', description: 'Kolla dina notiser.' });
+      } else if (!data?.hasSubscription) {
+        toast({ title: 'Ingen push-prenumeration', description: 'Aktivera push-notiser först.', variant: 'destructive' });
+      } else if (data?.taskCount === 0) {
+        toast({ title: 'Inga uppgifter idag', description: 'Inget att briefa om just nu.' });
+      } else {
+        toast({ title: 'Kunde inte leverera push', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Fel', description: e.message, variant: 'destructive' });
+    } finally {
+      setRunningBriefing(false);
+    }
+  };
 
   const runSearch = async () => {
     if (!search.trim()) return;
@@ -119,6 +152,30 @@ export default function NotificationsSettings() {
               <p className="text-xs text-muted-foreground">Dagens viktigaste uppgifter kl 06:45. Skickas bara när något behöver göras.</p>
             </div>
             <Switch checked={dailyBriefingEnabled} onCheckedChange={toggleDailyBriefing} />
+          </div>
+          <div className="rounded-lg border border-border/60 p-3 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium">Kör briefing nu</p>
+                <p className="text-xs text-muted-foreground">Testa Dagens 3 direkt — skickar push om du har det på.</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={runBriefingNow} disabled={runningBriefing} className="gap-1.5">
+                {runningBriefing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+                {runningBriefing ? 'Kör…' : 'Kör nu'}
+              </Button>
+            </div>
+            {briefingResult && (
+              <div className="text-xs space-y-1 pt-2 border-t border-border/40">
+                <p><span className="text-muted-foreground">Push-prenumeration:</span> {briefingResult.hasSubscription ? '✅ aktiv' : '❌ saknas'}</p>
+                <p><span className="text-muted-foreground">Uppgifter hittade:</span> {briefingResult.taskCount}</p>
+                {briefingResult.tasks.length > 0 && (
+                  <ul className="pl-4 list-disc space-y-0.5">
+                    {briefingResult.tasks.map((t, i) => <li key={i}>{t}</li>)}
+                  </ul>
+                )}
+                <p><span className="text-muted-foreground">Push levererad:</span> {briefingResult.pushDelivered} / {briefingResult.pushDelivered + briefingResult.pushFailed}</p>
+              </div>
+            )}
           </div>
           <div className="pt-2 border-t border-border/40">
             <p className="text-sm font-medium flex items-center gap-1.5"><MapPin className="h-4 w-4" /> Din ort {locationName && <span className="text-xs text-muted-foreground">(nu: {locationName})</span>}</p>
