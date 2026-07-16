@@ -42,6 +42,10 @@ export default function Premium() {
     };
     void verify();
     return () => { cancelled = true; };
+    // user?.id används enbart för dedupe-nyckeln; att lägga till den som dependency
+    // skulle köra verify() igen när auth laddar (replaceState uppdaterar inte
+    // React Routers searchParams) och dubbelskicka toast + analytics.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const checkout = async () => {
