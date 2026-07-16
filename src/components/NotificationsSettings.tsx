@@ -96,7 +96,7 @@ export default function NotificationsSettings() {
     }
   };
 
-
+  const runSearch = async () => {
     if (!search.trim()) return;
     setSearching(true);
     try {
