@@ -31,6 +31,7 @@ export default function NotificationsSettings() {
   useEffect(() => {
     if (profile) {
       setFrostEnabled((profile as any).frost_alerts_enabled ?? true);
+      setDailyBriefingEnabled((profile as any).daily_briefing_enabled ?? true);
       setWeeklyEmailEnabled((profile as any).weekly_email_enabled ?? true);
       setLocationName((profile as any).location_name || '');
     }
