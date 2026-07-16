@@ -54,6 +54,15 @@ export default function NotificationsSettings() {
     qc.invalidateQueries({ queryKey: ['profile'] });
   };
 
+  const toggleDailyBriefing = async (next: boolean) => {
+    setDailyBriefingEnabled(next);
+    if (!user) return;
+    await supabase.from('profiles').update({ daily_briefing_enabled: next } as any).eq('user_id', user.id);
+    qc.invalidateQueries({ queryKey: ['profile'] });
+  };
+
+
+
   const runSearch = async () => {
     if (!search.trim()) return;
     setSearching(true);
