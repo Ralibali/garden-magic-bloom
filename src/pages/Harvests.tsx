@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Carrot, Scale, Sparkles } from 'lucide-react';
+import { Plus, Carrot, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import AppEmptyState from '@/components/AppEmptyState';
 import { recordProductActivity } from '@/lib/analytics';
+import SeasonHarvestTicker from '@/components/SeasonHarvestTicker';
 
 const Harvests = () => {
   const queryClient = useQueryClient();
@@ -28,7 +29,7 @@ const Harvests = () => {
 
   const { data: harvests, isLoading } = useQuery({ queryKey: ['harvests'], queryFn: api.getHarvests });
   const { data: beds } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
-  const totalKg = (harvests || []).reduce((sum: number, harvest: any) => sum + (harvest.weight_grams || 0), 0) / 1000;
+  
 
   const createMutation = useMutation({
     mutationFn: () => api.createHarvest({ variety: variety.trim(), bed_id: bedId || undefined, harvest_date: harvestDate, weight_grams: Number.parseInt(weightGrams, 10) || 0, notes: notes.trim() || undefined }),
@@ -57,7 +58,7 @@ const Harvests = () => {
           <div><span className="section-kicker mb-3"><Sparkles className="h-3.5 w-3.5" /> Resultatet av säsongen</span><h1 className="page-title">Skördelogg</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Registrera skörden direkt och se hur din odling växer till riktig statistik.</p></div>
           <Button className="gap-2" onClick={() => setOpen(true)}><Plus className="h-4 w-4" /> Registrera skörd</Button>
         </div>
-        <div className="metric-card relative mt-6 max-w-xs p-4"><div className="flex items-center justify-between"><p className="data-label">Totalt skördat i år</p><Scale className="h-4 w-4 text-primary" /></div><p className="mt-2 text-3xl font-bold tracking-tight">{totalKg.toFixed(1)} <span className="text-sm font-medium text-muted-foreground">kg</span></p></div>
+        <SeasonHarvestTicker harvests={harvests || []} />
       </section>
 
       <Dialog open={open} onOpenChange={setOpen}><DialogContent><DialogHeader><DialogTitle>Registrera skörd</DialogTitle></DialogHeader><div className="space-y-4"><Input placeholder="Sort, till exempel Tomat – Sungold" value={variety} onChange={(event) => setVariety(event.target.value)} /><Select value={bedId} onValueChange={setBedId}><SelectTrigger><SelectValue placeholder="Välj bädd (valfritt)" /></SelectTrigger><SelectContent>{(beds || []).map((bed) => <SelectItem key={bed.id} value={bed.id}>{bed.name}</SelectItem>)}</SelectContent></Select><Input type="date" value={harvestDate} onChange={(event) => setHarvestDate(event.target.value)} /><Input type="number" min="0" placeholder="Vikt i gram" value={weightGrams} onChange={(event) => setWeightGrams(event.target.value)} /><Textarea placeholder="Anteckningar (valfritt)" value={notes} onChange={(event) => setNotes(event.target.value)} /><Button onClick={() => createMutation.mutate()} disabled={!variety.trim() || createMutation.isPending} className="w-full">{createMutation.isPending ? 'Sparar…' : 'Spara skörd'}</Button></div></DialogContent></Dialog>

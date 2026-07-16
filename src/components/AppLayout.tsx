@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useAchievementCelebration } from '@/hooks/useAchievementCelebration';
 import { useQuery } from '@tanstack/react-query';
 import { AppSidebar } from './AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -79,6 +80,7 @@ export default function AppLayout() {
   const { categories } = useGardenProfile();
   const { data: beds = [] } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
   const { data: sowings = [] } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  useAchievementCelebration();
   const meta = useMemo(() => getRouteMeta(location.pathname), [location.pathname]);
   const dateLabel = useMemo(() => new Intl.DateTimeFormat('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()), []);
   const plantOnly = categories.length > 0 && categories.every(category => category === 'krukvaxter');

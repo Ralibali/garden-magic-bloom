@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { recordProductActivity } from '@/lib/analytics';
+import { fireConfetti } from '@/lib/confetti';
 import {
   addDaysToDateKey,
   buildGardenActions,
@@ -100,13 +101,19 @@ export default function TodayInGarden({
 
   const completeAction = (action: GardenAction) => {
     const now = new Date().toISOString();
+    const isLastForToday = actions.length === 1;
     const nextState = { ...actionState, [action.id]: { ...actionState[action.id], completedAt: now, snoozedUntil: undefined } };
     const nextReminders = action.sourceReminderId
       ? reminders.map((reminder) => reminder.id === action.sourceReminderId ? { ...reminder, done: true, completed_at: now } : reminder)
       : reminders;
     saveMutation.mutate({ smart_action_state: nextState, reminders: nextReminders });
     void recordProductActivity('smart_action_completed', { action_id: action.id, kind: action.kind });
-    toast({ title: 'Klart för idag! 🌿', description: action.title });
+    if (isLastForToday) {
+      fireConfetti();
+      toast({ title: 'Alla dagens steg klara! 🎉', description: 'Snyggt jobbat — trädgården tackar.' });
+    } else {
+      toast({ title: 'Klart för idag! 🌿', description: action.title });
+    }
   };
 
   const snoozeAction = (action: GardenAction) => {
