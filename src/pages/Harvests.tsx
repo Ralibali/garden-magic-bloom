@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Carrot, Scale, Sparkles } from 'lucide-react';
+import { Plus, Carrot, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import AppEmptyState from '@/components/AppEmptyState';
 import { recordProductActivity } from '@/lib/analytics';
+import SeasonHarvestTicker from '@/components/SeasonHarvestTicker';
 
 const Harvests = () => {
   const queryClient = useQueryClient();
