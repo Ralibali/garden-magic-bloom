@@ -64,7 +64,8 @@ export async function parseFile(file: File): Promise<Record<string, any>[]> {
     return Array.isArray(parsed) ? parsed : parsed.data ?? parsed.rows ?? [parsed];
   }
 
-  // CSV or XLSX via SheetJS
+  // CSV or XLSX via SheetJS (dynamiskt laddad — se kommentar högst upp)
+  const XLSX = await import('xlsx');
   const buffer = await file.arrayBuffer();
   const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
   const sheet = wb.Sheets[wb.SheetNames[0]];
