@@ -17,6 +17,7 @@ import DashboardActionCenter from '@/components/DashboardActionCenter';
 import HarvestValueLine from '@/components/HarvestValueLine';
 import TodayInGarden from '@/components/TodayInGarden';
 import WeeklyGardenSummary from '@/components/WeeklyGardenSummary';
+import AchievementsSection from '@/components/AchievementsSection';
 import PlantWeeklyCareSummary from '@/components/PlantWeeklyCareSummary';
 import PlantCareSpotlight from '@/components/PlantCareSpotlight';
 import { GardenCategory } from '@/lib/gardenModules';
@@ -283,6 +284,8 @@ const Dashboard = () => {
               </Card>
             )}
           </CollapsibleSection>
+
+          <AchievementsSection />
 
           <SeasonWrapDialog open={wrapOpen} onOpenChange={setWrapOpen} beds={beds} year={currentYear} />
         </>

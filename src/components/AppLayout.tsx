@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useAchievementCelebration } from '@/hooks/useAchievementCelebration';
 import { useQuery } from '@tanstack/react-query';
 import { AppSidebar } from './AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
