@@ -27,6 +27,16 @@ export default function NotificationsSettings() {
   const [search, setSearch] = useState('');
   const [results, setResults] = useState<Geo[]>([]);
   const [searching, setSearching] = useState(false);
+  const [runningBriefing, setRunningBriefing] = useState(false);
+  const [briefingResult, setBriefingResult] = useState<null | {
+    hasSubscription: boolean;
+    briefingEnabled: boolean;
+    taskCount: number;
+    tasks: string[];
+    pushSent: boolean;
+    pushDelivered: number;
+    pushFailed: number;
+  }>(null);
 
   useEffect(() => {
     if (profile) {
