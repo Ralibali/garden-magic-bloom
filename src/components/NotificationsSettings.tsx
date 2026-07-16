@@ -73,7 +73,30 @@ export default function NotificationsSettings() {
 
 
 
-  const runSearch = async () => {
+  const runBriefingNow = async () => {
+    setRunningBriefing(true);
+    setBriefingResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('run-my-briefing', { body: {} });
+      if (error) throw error;
+      setBriefingResult(data);
+      if (data?.pushSent) {
+        toast({ title: 'Briefing skickad', description: 'Kolla dina notiser.' });
+      } else if (!data?.hasSubscription) {
+        toast({ title: 'Ingen push-prenumeration', description: 'Aktivera push-notiser först.', variant: 'destructive' });
+      } else if (data?.taskCount === 0) {
+        toast({ title: 'Inga uppgifter idag', description: 'Inget att briefa om just nu.' });
+      } else {
+        toast({ title: 'Kunde inte leverera push', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Fel', description: e.message, variant: 'destructive' });
+    } finally {
+      setRunningBriefing(false);
+    }
+  };
+
+
     if (!search.trim()) return;
     setSearching(true);
     try {
