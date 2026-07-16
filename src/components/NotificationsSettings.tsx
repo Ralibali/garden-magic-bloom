@@ -113,6 +113,13 @@ export default function NotificationsSettings() {
             </div>
             <Switch checked={frostEnabled} onCheckedChange={toggleFrost} />
           </div>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium">🌱 Dagens 3 – morgonbriefing</p>
+              <p className="text-xs text-muted-foreground">Dagens viktigaste uppgifter kl 06:45. Skickas bara när något behöver göras.</p>
+            </div>
+            <Switch checked={dailyBriefingEnabled} onCheckedChange={toggleDailyBriefing} />
+          </div>
           <div className="pt-2 border-t border-border/40">
             <p className="text-sm font-medium flex items-center gap-1.5"><MapPin className="h-4 w-4" /> Din ort {locationName && <span className="text-xs text-muted-foreground">(nu: {locationName})</span>}</p>
             <p className="text-xs text-muted-foreground mb-2">Mer exakt än klimatzonen. Lämna tomt så används zonen.</p>
