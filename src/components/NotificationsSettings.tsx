@@ -153,6 +153,30 @@ export default function NotificationsSettings() {
             </div>
             <Switch checked={dailyBriefingEnabled} onCheckedChange={toggleDailyBriefing} />
           </div>
+          <div className="rounded-lg border border-border/60 p-3 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium">Kör briefing nu</p>
+                <p className="text-xs text-muted-foreground">Testa Dagens 3 direkt — skickar push om du har det på.</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={runBriefingNow} disabled={runningBriefing} className="gap-1.5">
+                {runningBriefing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+                {runningBriefing ? 'Kör…' : 'Kör nu'}
+              </Button>
+            </div>
+            {briefingResult && (
+              <div className="text-xs space-y-1 pt-2 border-t border-border/40">
+                <p><span className="text-muted-foreground">Push-prenumeration:</span> {briefingResult.hasSubscription ? '✅ aktiv' : '❌ saknas'}</p>
+                <p><span className="text-muted-foreground">Uppgifter hittade:</span> {briefingResult.taskCount}</p>
+                {briefingResult.tasks.length > 0 && (
+                  <ul className="pl-4 list-disc space-y-0.5">
+                    {briefingResult.tasks.map((t, i) => <li key={i}>{t}</li>)}
+                  </ul>
+                )}
+                <p><span className="text-muted-foreground">Push levererad:</span> {briefingResult.pushDelivered} / {briefingResult.pushDelivered + briefingResult.pushFailed}</p>
+              </div>
+            )}
+          </div>
           <div className="pt-2 border-t border-border/40">
             <p className="text-sm font-medium flex items-center gap-1.5"><MapPin className="h-4 w-4" /> Din ort {locationName && <span className="text-xs text-muted-foreground">(nu: {locationName})</span>}</p>
             <p className="text-xs text-muted-foreground mb-2">Mer exakt än klimatzonen. Lämna tomt så används zonen.</p>
