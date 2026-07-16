@@ -214,6 +214,33 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_briefing_log: {
+        Row: {
+          briefing_date: string
+          created_at: string
+          id: string
+          task_count: number
+          top_task: string | null
+          user_id: string
+        }
+        Insert: {
+          briefing_date: string
+          created_at?: string
+          id?: string
+          task_count?: number
+          top_task?: string | null
+          user_id: string
+        }
+        Update: {
+          briefing_date?: string
+          created_at?: string
+          id?: string
+          task_count?: number
+          top_task?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -776,6 +803,7 @@ export type Database = {
         Row: {
           climate_zone: number | null
           created_at: string
+          daily_briefing_enabled: boolean
           display_name: string | null
           email: string | null
           frost_alerts_enabled: boolean
@@ -796,6 +824,7 @@ export type Database = {
         Insert: {
           climate_zone?: number | null
           created_at?: string
+          daily_briefing_enabled?: boolean
           display_name?: string | null
           email?: string | null
           frost_alerts_enabled?: boolean
@@ -816,6 +845,7 @@ export type Database = {
         Update: {
           climate_zone?: number | null
           created_at?: string
+          daily_briefing_enabled?: boolean
           display_name?: string | null
           email?: string | null
           frost_alerts_enabled?: boolean
