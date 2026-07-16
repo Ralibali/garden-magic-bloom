@@ -80,8 +80,8 @@ export default function TodayInGarden({
   const queryClient = useQueryClient();
   const [showAll, setShowAll] = useState(false);
   const settings = (remindersData?.settings as any) || {};
-  const reminders = (settings.reminders || []) as GardenReminder[];
-  const actionState = (settings.smart_action_state || {}) as Record<string, GardenActionState>;
+  const reminders = useMemo(() => (settings.reminders || []) as GardenReminder[], [settings.reminders]);
+  const actionState = useMemo(() => (settings.smart_action_state || {}) as Record<string, GardenActionState>, [settings.smart_action_state]);
   const today = localDateKey();
   const tomorrow = addDaysToDateKey(today, 1);
 

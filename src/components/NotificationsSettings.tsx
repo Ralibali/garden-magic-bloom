@@ -21,6 +21,7 @@ export default function NotificationsSettings() {
   const { supported, permission, isSubscribed, subscribe, unsubscribe, loading } = usePushNotifications();
 
   const [frostEnabled, setFrostEnabled] = useState<boolean>(true);
+  const [dailyBriefingEnabled, setDailyBriefingEnabled] = useState<boolean>(true);
   const [weeklyEmailEnabled, setWeeklyEmailEnabled] = useState<boolean>(true);
   const [locationName, setLocationName] = useState('');
   const [search, setSearch] = useState('');
@@ -30,6 +31,7 @@ export default function NotificationsSettings() {
   useEffect(() => {
     if (profile) {
       setFrostEnabled((profile as any).frost_alerts_enabled ?? true);
+      setDailyBriefingEnabled((profile as any).daily_briefing_enabled ?? true);
       setWeeklyEmailEnabled((profile as any).weekly_email_enabled ?? true);
       setLocationName((profile as any).location_name || '');
     }
@@ -51,6 +53,15 @@ export default function NotificationsSettings() {
     await supabase.from('profiles').update({ frost_alerts_enabled: next } as any).eq('user_id', user.id);
     qc.invalidateQueries({ queryKey: ['profile'] });
   };
+
+  const toggleDailyBriefing = async (next: boolean) => {
+    setDailyBriefingEnabled(next);
+    if (!user) return;
+    await supabase.from('profiles').update({ daily_briefing_enabled: next } as any).eq('user_id', user.id);
+    qc.invalidateQueries({ queryKey: ['profile'] });
+  };
+
+
 
   const runSearch = async () => {
     if (!search.trim()) return;
@@ -101,6 +112,13 @@ export default function NotificationsSettings() {
               <p className="text-xs text-muted-foreground">Få en pling kvällen innan natten blir kall.</p>
             </div>
             <Switch checked={frostEnabled} onCheckedChange={toggleFrost} />
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium">🌱 Dagens 3 – morgonbriefing</p>
+              <p className="text-xs text-muted-foreground">Dagens viktigaste uppgifter kl 06:45. Skickas bara när något behöver göras.</p>
+            </div>
+            <Switch checked={dailyBriefingEnabled} onCheckedChange={toggleDailyBriefing} />
           </div>
           <div className="pt-2 border-t border-border/40">
             <p className="text-sm font-medium flex items-center gap-1.5"><MapPin className="h-4 w-4" /> Din ort {locationName && <span className="text-xs text-muted-foreground">(nu: {locationName})</span>}</p>

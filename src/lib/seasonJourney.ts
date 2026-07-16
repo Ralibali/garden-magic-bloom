@@ -54,7 +54,7 @@ function collectActivityDates(input: SeasonJourneyInput): Set<string> {
 }
 
 function streakFromDates(dates: Set<string>, now = new Date()): number {
-  let cursor = new Date(now);
+  const cursor = new Date(now);
   let streak = 0;
 
   for (let i = 0; i < 365; i++) {

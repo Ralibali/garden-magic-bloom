@@ -118,7 +118,7 @@ export async function attemptRecovery(reason: unknown): Promise<boolean> {
   }
 
   recovering = true;
-  // eslint-disable-next-line no-console
+  
   console.warn('[recovery] chunk/preload failure detected, self-healing…', reason);
 
   await purgeAppShellCaches();

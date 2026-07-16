@@ -41,7 +41,7 @@ function isHtmlContent(content: string): boolean {
 
 /** Simple markdown to HTML - handles common patterns */
 function renderMarkdown(md: string): string {
-  let html = md
+  const html = md
     .replace(/^### (.+)$/gm, '<h3>$1</h3>')
     .replace(/^## (.+)$/gm, '<h2>$1</h2>')
     .replace(/^# (.+)$/gm, '<h2>$1</h2>')

@@ -9,6 +9,8 @@ project_id = "ysonnvbkrwajacvdkqut"
     verify_jwt = false
   [functions.customer-portal]
     verify_jwt = false
+  [functions.daily-briefing]
+    verify_jwt = false
   [functions.email-unsubscribe]
     verify_jwt = false
   [functions.gardening-coach]

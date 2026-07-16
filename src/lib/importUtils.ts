@@ -2,7 +2,8 @@
  * Smart import utility – parses CSV, XLSX, JSON files and auto-detects
  * whether data maps to sowings, harvests, or seed_inventory.
  */
-import * as XLSX from 'xlsx';
+// OBS: xlsx (SheetJS, ~300 kB) laddas dynamiskt i parseFile() så att
+// biblioteket bara hämtas när användaren faktiskt importerar en fil.
 
 export type ImportTarget = 'sowings' | 'harvests' | 'seed_inventory';
 
@@ -63,7 +64,8 @@ export async function parseFile(file: File): Promise<Record<string, any>[]> {
     return Array.isArray(parsed) ? parsed : parsed.data ?? parsed.rows ?? [parsed];
   }
 
-  // CSV or XLSX via SheetJS
+  // CSV or XLSX via SheetJS (dynamiskt laddad — se kommentar högst upp)
+  const XLSX = await import('xlsx');
   const buffer = await file.arrayBuffer();
   const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
   const sheet = wb.Sheets[wb.SheetNames[0]];
@@ -101,7 +103,7 @@ function normaliseDate(v: any): string | null {
   const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   if (iso) return `${iso[1]}-${iso[2].padStart(2, '0')}-${iso[3].padStart(2, '0')}`;
   // Swedish dd/mm/yyyy or dd-mm-yyyy
-  const dmy = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  const dmy = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/);
   if (dmy) return `${dmy[3]}-${dmy[2].padStart(2, '0')}-${dmy[1].padStart(2, '0')}`;
   return null;
 }

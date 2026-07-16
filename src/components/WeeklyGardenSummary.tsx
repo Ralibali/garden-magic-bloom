@@ -31,8 +31,8 @@ const nextSteps: Record<number, string> = {
 export default function WeeklyGardenSummary({ sowings = [], harvests = [], remindersData, photos = [] }: WeeklyGardenSummaryProps) {
   const navigate = useNavigate();
   const settings = (remindersData?.settings as any) || {};
-  const reminders = settings.reminders || [];
-  const smartState = settings.smart_action_state || {};
+  const reminders = useMemo(() => settings.reminders || [], [settings.reminders]);
+  const smartState = useMemo(() => settings.smart_action_state || {}, [settings.smart_action_state]);
   const summary = useMemo(() => {
     const weekHarvests = harvests.filter((item) => isThisWeek(item.harvest_date));
     const reminderCount = reminders.filter((item: any) => item.done && isThisWeek(item.completed_at)).length;

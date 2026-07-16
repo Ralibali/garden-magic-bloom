@@ -50,7 +50,7 @@ export default function Reminders() {
 
   const { data: settingsData, isLoading } = useQuery({ queryKey: ['reminder-settings'], queryFn: api.getReminderSettings });
   const settings = ((settingsData?.settings as any) || {}) as { reminders?: Reminder[]; notifications_enabled?: boolean; smart_action_state?: Record<string, any> };
-  const reminders = settings.reminders || [];
+  const reminders = useMemo(() => settings.reminders || [], [settings.reminders]);
 
   const saveSettings = useMutation({
     mutationFn: (nextSettings: Partial<typeof settings>) => api.updateReminderSettings({ settings: { ...settings, ...nextSettings } }),
