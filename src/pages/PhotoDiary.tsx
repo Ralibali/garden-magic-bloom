@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Bot, Camera, Image, Plus, Sparkles } from 'lucide-react';
+import { Bot, Camera, Image, Plus, Sparkles, Sprout } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { api } from '@/lib/api';
@@ -15,6 +15,8 @@ import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import { localDateKey } from '@/lib/gardenToday';
 import { approximateDataUrlBytes, imageUrlToDataUrl } from '@/lib/images';
 import { recordProductActivity } from '@/lib/analytics';
+import { normalizeSowingStatus } from '@/lib/sowingLifecycle';
+import { cn } from '@/lib/utils';
 
 const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
 const MAX_GRO_IMAGE_BYTES = 1_500_000;
@@ -31,6 +33,13 @@ export default function PhotoDiary() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [caption, setCaption] = useState('');
   const [bedId, setBedId] = useState('');
+  const [sowingId, setSowingId] = useState('');
+  const location = useLocation();
+  const prefilterSowing = (location.state as any)?.filterSowing;
+  const [filterSowing, setFilterSowing] = useState<string>(prefilterSowing || 'alla');
+
+  // Nollställ navigation state så att filtret inte fastnar vid tillbakanavigering
+  useEffect(() => { if (prefilterSowing) window.history.replaceState({}, document.title); }, [prefilterSowing]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
@@ -39,7 +48,7 @@ export default function PhotoDiary() {
   const { data: photos = [], isLoading } = useQuery({
     queryKey: ['plant-photos'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('plant_photos').select('*, beds(name)').order('taken_at', { ascending: false });
+      const { data, error } = await supabase.from('plant_photos').select('*, beds(name), sowings(variety)').order('taken_at', { ascending: false });
       if (error) throw error;
       return Promise.all((data || []).map(async (photo: any) => {
         const storagePath = photo.photo_url;
@@ -51,6 +60,24 @@ export default function PhotoDiary() {
     },
   });
   const { data: beds = [] } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
+  const { data: sowings = [] } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+
+  // Aktiva sådder för kopplingsväljaren (avslutade filtreras bort)
+  const activeSowings = useMemo(
+    () => sowings.filter((s: any) => normalizeSowingStatus(s.status) !== 'done'),
+    [sowings],
+  );
+
+  // Sådder som faktiskt har foton — för filterchips
+  const sowingsWithPhotos = useMemo(() => {
+    const ids = new Set(photos.map((p: any) => p.sowing_id).filter(Boolean));
+    return sowings.filter((s: any) => ids.has(s.id));
+  }, [photos, sowings]);
+
+  const visiblePhotos = useMemo(
+    () => (filterSowing === 'alla' ? photos : photos.filter((p: any) => p.sowing_id === filterSowing)),
+    [photos, filterSowing],
+  );
 
   const clearSelection = () => {
     if (preview) URL.revokeObjectURL(preview);
@@ -89,6 +116,7 @@ export default function PhotoDiary() {
         photo_url: path,
         caption: caption.trim() || null,
         bed_id: bedId || null,
+        sowing_id: sowingId || null,
         taken_at: localDateKey(),
       }).select('id').single();
       if (error) {
@@ -104,7 +132,8 @@ export default function PhotoDiary() {
       clearSelection();
       setCaption('');
       setBedId('');
-      void recordProductActivity('garden_photo_uploaded', { photo_id: photo.id, has_caption: !!caption.trim(), has_bed: !!bedId });
+      setSowingId('');
+      void recordProductActivity('garden_photo_uploaded', { photo_id: photo.id, has_caption: !!caption.trim(), has_bed: !!bedId, has_sowing: !!sowingId });
       toast({ title: 'Foto uppladdat! 📸' });
     },
     onError: (error: any) => toast({ title: 'Uppladdningen misslyckades', description: error?.message || 'Försök igen.', variant: 'destructive' }),
@@ -160,9 +189,29 @@ export default function PhotoDiary() {
         </div>
       </section>
 
-      {isLoading ? <Card><CardContent className="p-8 text-sm text-muted-foreground">Laddar fotodagboken…</CardContent></Card> : !photos.length ? <AppEmptyState icon={Camera} eyebrow="Din visuella historik" title="Inga foton ännu" description="Ta bilder med jämna mellanrum. Då blir det lättare att upptäcka förändringar och jämföra säsonger." actionLabel="Ladda upp första fotot" onAction={() => setDialogOpen(true)} secondaryLabel="Öppna Gro" onSecondary={() => navigate('/app/gro')} /> : <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{photos.map((photo: any) => <Card key={photo.id} className="group overflow-hidden hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)]"><div className="aspect-square relative bg-muted">{photo.display_url ? <img src={photo.display_url} alt={photo.caption || 'Odlingsfoto'} className="h-full w-full object-cover" loading="lazy" /> : <div className="flex h-full items-center justify-center text-muted-foreground"><Image className="h-8 w-8" /></div>}<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-70" /><div className="absolute bottom-2 left-2 right-2 flex gap-2"><Button size="sm" className="flex-1 bg-white/92 text-emerald-950 hover:bg-white" onClick={() => void analyzeWithGro(photo)} disabled={analyzingId === photo.id}><Bot className="h-3.5 w-3.5" /> {analyzingId === photo.id ? 'Förbereder…' : 'Analysera'}</Button><ConfirmDeleteButton itemName={photo.caption || 'fotot'} description="Fotot och den lagrade bildfilen tas bort permanent." disabled={deleteMutation.isPending} onConfirm={() => deleteMutation.mutate(photo)} /></div></div><CardContent className="p-3"><p className="truncate text-sm font-semibold">{photo.caption || 'Odlingsfoto'}</p><div className="mt-1 flex items-center justify-between gap-2 text-[10px] text-muted-foreground"><span className="truncate">{photo.beds?.name || 'Ingen bädd'}</span><span className="shrink-0">{photo.taken_at}</span></div></CardContent></Card>)}</div>}
+      {sowingsWithPhotos.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+          <button
+            onClick={() => setFilterSowing('alla')}
+            className={cn('shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all', filterSowing === 'alla' ? 'border-primary bg-primary text-primary-foreground shadow-sm' : 'border-border/70 bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground')}
+          >
+            Alla foton
+          </button>
+          {sowingsWithPhotos.map((s: any) => (
+            <button
+              key={s.id}
+              onClick={() => setFilterSowing(s.id)}
+              className={cn('flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all', filterSowing === s.id ? 'border-primary bg-primary text-primary-foreground shadow-sm' : 'border-border/70 bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground')}
+            >
+              <Sprout className="h-3 w-3" /> {s.variety}
+            </button>
+          ))}
+        </div>
+      )}
 
-      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) clearSelection(); }}><DialogContent><DialogHeader><DialogTitle>Ladda upp foto</DialogTitle></DialogHeader><div className="space-y-4"><input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />{preview ? <div className="relative"><img src={preview} alt="Förhandsvisning" className="h-56 w-full rounded-2xl object-cover" /><Button variant="secondary" size="sm" className="absolute bottom-2 right-2" onClick={() => fileRef.current?.click()}>Byt bild</Button></div> : <button type="button" onClick={() => fileRef.current?.click()} className="flex h-36 w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"><Image className="h-8 w-8" /><span className="text-sm">Välj bild eller öppna kameran</span></button>}<Input placeholder="Bildtext (valfritt)" value={caption} onChange={(event) => setCaption(event.target.value)} /><Select value={bedId} onValueChange={setBedId}><SelectTrigger><SelectValue placeholder="Koppla till bädd (valfritt)" /></SelectTrigger><SelectContent>{beds.map((bed: any) => <SelectItem key={bed.id} value={bed.id}>{bed.name}</SelectItem>)}</SelectContent></Select><Button onClick={() => uploadMutation.mutate()} disabled={!selectedFile || uploadMutation.isPending} className="w-full">{uploadMutation.isPending ? 'Laddar upp…' : 'Ladda upp'}</Button></div></DialogContent></Dialog>
+      {isLoading ? <Card><CardContent className="p-8 text-sm text-muted-foreground">Laddar fotodagboken…</CardContent></Card> : !photos.length ? <AppEmptyState icon={Camera} eyebrow="Din visuella historik" title="Inga foton ännu" description="Ta bilder med jämna mellanrum. Då blir det lättare att upptäcka förändringar och jämföra säsonger." actionLabel="Ladda upp första fotot" onAction={() => setDialogOpen(true)} secondaryLabel="Öppna Gro" onSecondary={() => navigate('/app/gro')} /> : !visiblePhotos.length ? <AppEmptyState icon={Camera} title="Inga foton på den här sådden ännu" description="Ladda upp ett foto och koppla det till sådden för att följa utvecklingen från frö till skörd." actionLabel="Ladda upp foto" onAction={() => { setSowingId(filterSowing); setDialogOpen(true); }} secondaryLabel="Visa alla foton" onSecondary={() => setFilterSowing('alla')} /> : <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{visiblePhotos.map((photo: any) => <Card key={photo.id} className="group overflow-hidden hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)]"><div className="aspect-square relative bg-muted">{photo.display_url ? <img src={photo.display_url} alt={photo.caption || 'Odlingsfoto'} className="h-full w-full object-cover" loading="lazy" /> : <div className="flex h-full items-center justify-center text-muted-foreground"><Image className="h-8 w-8" /></div>}<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-70" /><div className="absolute bottom-2 left-2 right-2 flex gap-2"><Button size="sm" className="flex-1 bg-white/92 text-emerald-950 hover:bg-white" onClick={() => void analyzeWithGro(photo)} disabled={analyzingId === photo.id}><Bot className="h-3.5 w-3.5" /> {analyzingId === photo.id ? 'Förbereder…' : 'Analysera'}</Button><ConfirmDeleteButton itemName={photo.caption || 'fotot'} description="Fotot och den lagrade bildfilen tas bort permanent." disabled={deleteMutation.isPending} onConfirm={() => deleteMutation.mutate(photo)} /></div></div><CardContent className="p-3"><p className="truncate text-sm font-semibold">{photo.caption || 'Odlingsfoto'}</p>{photo.sowings?.variety && <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/8 px-2 py-0.5 text-[10px] font-medium text-primary"><Sprout className="h-2.5 w-2.5" /> {photo.sowings.variety}</p>}<div className="mt-1 flex items-center justify-between gap-2 text-[10px] text-muted-foreground"><span className="truncate">{photo.beds?.name || 'Ingen bädd'}</span><span className="shrink-0">{photo.taken_at}</span></div></CardContent></Card>)}</div>}
+
+      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) clearSelection(); }}><DialogContent><DialogHeader><DialogTitle>Ladda upp foto</DialogTitle></DialogHeader><div className="space-y-4"><input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />{preview ? <div className="relative"><img src={preview} alt="Förhandsvisning" className="h-56 w-full rounded-2xl object-cover" /><Button variant="secondary" size="sm" className="absolute bottom-2 right-2" onClick={() => fileRef.current?.click()}>Byt bild</Button></div> : <button type="button" onClick={() => fileRef.current?.click()} className="flex h-36 w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"><Image className="h-8 w-8" /><span className="text-sm">Välj bild eller öppna kameran</span></button>}<Input placeholder="Bildtext (valfritt)" value={caption} onChange={(event) => setCaption(event.target.value)} />{activeSowings.length > 0 && <Select value={sowingId} onValueChange={setSowingId}><SelectTrigger><SelectValue placeholder="Koppla till sådd (valfritt)" /></SelectTrigger><SelectContent>{activeSowings.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.variety} · {s.sow_date}</SelectItem>)}</SelectContent></Select>}<Select value={bedId} onValueChange={setBedId}><SelectTrigger><SelectValue placeholder="Koppla till bädd (valfritt)" /></SelectTrigger><SelectContent>{beds.map((bed: any) => <SelectItem key={bed.id} value={bed.id}>{bed.name}</SelectItem>)}</SelectContent></Select><Button onClick={() => uploadMutation.mutate()} disabled={!selectedFile || uploadMutation.isPending} className="w-full">{uploadMutation.isPending ? 'Laddar upp…' : 'Ladda upp'}</Button></div></DialogContent></Dialog>
     </div>
   );
 }

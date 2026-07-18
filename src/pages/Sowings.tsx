@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Sprout, Search, Crown, Sparkles, CalendarDays, ArrowRight, ArrowLeft, Pencil, Carrot, MapPin } from 'lucide-react';
+import { Plus, Sprout, Search, Crown, Sparkles, CalendarDays, ArrowRight, ArrowLeft, Pencil, Carrot, MapPin, Camera } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -31,6 +31,7 @@ import {
   sowingAgeLabel,
   sowingStatusIndex,
 } from '@/lib/sowingLifecycle';
+import { getHarvestHint } from '@/lib/harvestForecast';
 import { cn } from '@/lib/utils';
 
 const FREE_SOWING_LIMIT = 10;
@@ -83,6 +84,23 @@ const Sowings = () => {
 
   const { data: sowingsRaw, isLoading } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const { data: beds } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
+  const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
+  const climateZone = profile?.climate_zone ?? 3;
+
+  // Antal foton per sådd — visas som badge på korten
+  const { data: photoCounts = {} } = useQuery({
+    queryKey: ['sowing-photo-counts'],
+    queryFn: async () => {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.from('plant_photos').select('sowing_id').not('sowing_id', 'is', null);
+      if (error) return {};
+      const counts: Record<string, number> = {};
+      for (const row of data || []) {
+        if (row.sowing_id) counts[row.sowing_id] = (counts[row.sowing_id] || 0) + 1;
+      }
+      return counts;
+    },
+  });
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = { alla: sowingsRaw?.length ?? 0, aktiva: 0 };
@@ -268,6 +286,7 @@ const Sowings = () => {
             const next = nextSowingStatus(status);
             const prev = previousSowingStatus(status);
             const age = sowingAgeLabel(sowing.sow_date);
+            const hint = status === 'done' ? null : getHarvestHint(sowing.variety, climateZone);
             return (
               <StaggerItem key={sowing.id}>
                 <Card className="group hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-[var(--card-shadow-hover)]">
@@ -287,6 +306,20 @@ const Sowings = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
+                        {hint && (
+                          <span
+                            title={hint.label}
+                            className={cn(
+                              'hidden md:inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold',
+                              hint.kind === 'now' && 'bg-accent/12 text-accent',
+                              hint.kind === 'upcoming' && 'bg-muted text-muted-foreground',
+                              hint.kind === 'past' && 'bg-muted/60 text-muted-foreground/70',
+                            )}
+                          >
+                            <Carrot className="h-3 w-3" />
+                            {hint.shortLabel}
+                          </span>
+                        )}
                         <Badge variant={status === 'done' ? 'outline' : 'secondary'} className="hidden sm:inline-flex">{SOWING_STATUS_META[status].label}</Badge>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setEditing({ ...sowing })} aria-label={`Redigera ${sowing.variety}`}>
                           <Pencil className="h-4 w-4" />
@@ -298,7 +331,18 @@ const Sowings = () => {
                     <LifecycleProgress status={status} />
 
                     <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-                      <p className="text-xs text-muted-foreground">{SOWING_STATUS_META[status].description}{sowing.transplant_date && status !== 'sown' && status !== 'indoor' ? ` · Utplanterad ${sowing.transplant_date}` : ''}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-muted-foreground">{SOWING_STATUS_META[status].description}{sowing.transplant_date && status !== 'sown' && status !== 'indoor' ? ` · Utplanterad ${sowing.transplant_date}` : ''}</p>
+                        {(photoCounts[sowing.id] ?? 0) > 0 && (
+                          <button
+                            onClick={() => navigate('/app/photos', { state: { filterSowing: sowing.id } })}
+                            className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                            title="Se foton kopplade till den här sådden"
+                          >
+                            <Camera className="h-3 w-3" /> {photoCounts[sowing.id]}
+                          </button>
+                        )}
+                      </div>
                       <div className="flex flex-wrap items-center gap-1.5">
                         {prev && (
                           <Button

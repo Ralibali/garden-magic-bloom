@@ -26,6 +26,8 @@ import { getGardenForecast, weatherDescription } from '@/lib/gardenWeather';
 import { buildPlantCareProfile } from '@/lib/plantCareIntelligence';
 import { computeDashboardPriority } from '@/lib/dashboardPriority';
 import { SOWING_STATUS_META, normalizeSowingStatus } from '@/lib/sowingLifecycle';
+import { getFrostWarning } from '@/lib/frostWarning';
+import { Snowflake } from 'lucide-react';
 import PrimaryActionCard from '@/components/PrimaryActionCard';
 
 const MONTH_TIPS: Record<number, string> = {
@@ -183,6 +185,29 @@ const Dashboard = () => {
         />
       ) : (
         <>
+          {/* Frostvarning i förväg — visas när prognosen spår kalla nätter */}
+          {(() => {
+            const warning = getFrostWarning(weather);
+            if (!warning) return null;
+            const isFrost = warning.firstNight.severity === 'frost';
+            return (
+              <FadeIn>
+                <Card className={`border-2 ${isFrost ? 'border-sky-400/50 bg-sky-50/80 dark:bg-sky-950/30' : 'border-sky-300/40 bg-sky-50/50 dark:bg-sky-950/20'}`}>
+                  <CardContent className="flex items-start gap-3.5 p-4 sm:p-5">
+                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${isFrost ? 'bg-sky-500/15 text-sky-600 dark:text-sky-300' : 'bg-sky-500/10 text-sky-500 dark:text-sky-400'}`}>
+                      <Snowflake className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-sm sm:text-base text-sky-900 dark:text-sky-100">{warning.headline}</p>
+                      <p className="mt-1 text-xs sm:text-sm leading-relaxed text-sky-800/80 dark:text-sky-200/70">{warning.advice}</p>
+                      {warning.totalColdNights > 1 && <p className="mt-1.5 text-xs font-medium text-sky-700 dark:text-sky-300">Totalt {warning.totalColdNights} kalla nätter i prognosen.</p>}
+                    </div>
+                  </CardContent>
+                </Card>
+              </FadeIn>
+            );
+          })()}
+
           {/* Dagens viktigaste åtgärd (deterministisk prioritering) */}
           {(() => {
             const priority = computeDashboardPriority({
