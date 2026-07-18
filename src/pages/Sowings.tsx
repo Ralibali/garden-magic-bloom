@@ -68,6 +68,7 @@ const Sowings = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const prefill = (location.state as any)?.prefill;
+  const presetFilter = (location.state as any)?.statusFilter as StatusFilter | undefined;
   const [open, setOpen] = useState(!!prefill);
   const [variety, setVariety] = useState(prefill?.variety || '');
   const [bedId, setBedId] = useState('');
@@ -76,12 +77,12 @@ const Sowings = () => {
   const [notes, setNotes] = useState('');
   const [seedBrand, setSeedBrand] = useState(prefill?.brand || prefill?.seed_brand || '');
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('aktiva');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(presetFilter || 'aktiva');
   const [showBrandSuggestions, setShowBrandSuggestions] = useState(false);
   const [editing, setEditing] = useState<any>(null);
   const brandRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { if (prefill) window.history.replaceState({}, document.title); }, [prefill]);
+  useEffect(() => { if (prefill || presetFilter) window.history.replaceState({}, document.title); }, [prefill, presetFilter]);
   useEffect(() => { const handler = (event: MouseEvent) => { if (brandRef.current && !brandRef.current.contains(event.target as Node)) setShowBrandSuggestions(false); }; document.addEventListener('mousedown', handler); return () => document.removeEventListener('mousedown', handler); }, []);
 
   const { data: sowingsRaw, isLoading } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });

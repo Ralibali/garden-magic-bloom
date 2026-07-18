@@ -27,6 +27,7 @@ import { buildPlantCareProfile } from '@/lib/plantCareIntelligence';
 import { computeDashboardPriority } from '@/lib/dashboardPriority';
 import { SOWING_STATUS_META, normalizeSowingStatus } from '@/lib/sowingLifecycle';
 import { getFrostWarning } from '@/lib/frostWarning';
+import { getHarvestHint } from '@/lib/harvestForecast';
 import { Snowflake } from 'lucide-react';
 import PrimaryActionCard from '@/components/PrimaryActionCard';
 
@@ -219,6 +220,37 @@ const Dashboard = () => {
               climateZone,
             });
             return <PrimaryActionCard result={priority} greeting={displayName ? `Hej ${displayName}` : undefined} weatherLine={weatherLine} />;
+          })()}
+
+          {/* Skördeläge – grödor i sitt skördefönster just nu */}
+          {(() => {
+            const ready = sowings.filter((s: any) => {
+              if (normalizeSowingStatus(s.status) === 'done') return false;
+              return getHarvestHint(s.variety, climateZone)?.kind === 'now';
+            });
+            if (!ready.length) return null;
+            const names = [...new Set(ready.map((s: any) => getHarvestHint(s.variety, climateZone)!.cropName))];
+            const shown = names.slice(0, 3).join(', ');
+            const extra = names.length > 3 ? ` +${names.length - 3} till` : '';
+            return (
+              <FadeIn>
+                <Card className="border-accent/30 bg-gradient-to-r from-accent/10 via-card to-primary/8">
+                  <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+                    <div className="flex items-center gap-3.5">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent/12 text-accent"><Carrot className="h-5 w-5" /></div>
+                      <div>
+                        <p className="font-semibold text-sm sm:text-base">Skördeläge just nu 🥕</p>
+                        <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">{shown}{extra} är i sitt skördefönster — skörda ofta för bästa smak.</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <Button size="sm" variant="outline" onClick={() => navigate('/app/sowings', { state: { statusFilter: 'harvesting' } })}>Se såloggen</Button>
+                      <Button size="sm" onClick={() => navigate('/app/harvests')}><Plus className="h-4 w-4" /> Logga skörd</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </FadeIn>
+            );
           })()}
 
           {/* Veckosammanfattning – komprimerad */}
