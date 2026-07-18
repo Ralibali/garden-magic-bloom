@@ -10,6 +10,8 @@ import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 import { PremiumGate } from '@/components/PremiumGate';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { valueForHarvest, pricePerKgFor } from '@/data/cropPrices';
+import { buildSeasonSummary, shareSeasonText } from '@/lib/seasonShare';
+import { toast } from '@/hooks/use-toast';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
@@ -122,6 +124,24 @@ const Statistics = () => {
     return { total: Math.round(total), byVariety };
   }, [harvests, currentYear]);
 
+  const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
+
+  // Komplett delbar säsongsrapport
+  const seasonSummaryText = useMemo(() => {
+    const yearHarvests = (harvests || []).filter((h: any) => new Date(h.harvest_date).getFullYear() === currentYear);
+    const totalGrams = yearHarvests.reduce((sum: number, h: any) => sum + (h.weight_grams || 0), 0);
+    return buildSeasonSummary({
+      year: currentYear,
+      totalGrams,
+      harvestCount: yearHarvests.length,
+      sowingsCount: stats?.sowings_this_year ?? 0,
+      bedsCount: stats?.active_beds ?? 0,
+      topCrops: harvestValue.byVariety.map((v) => ({ variety: v.variety, grams: Math.round(v.kg * 1000) })),
+      valueSek: harvestValue.total,
+      climateZone: profile?.climate_zone ?? null,
+    });
+  }, [harvests, currentYear, stats, harvestValue, profile]);
+
   if (isLoading) return <div className="space-y-4"><Skeleton className="h-8 w-48" /><Skeleton className="h-64" /></div>;
 
   const isEmpty = stats?.active_beds === 0 && stats?.sowings_this_year === 0 && stats?.harvest_kg === 0;
@@ -153,15 +173,12 @@ const Statistics = () => {
                 variant="outline"
                 className="gap-1.5"
                 onClick={async () => {
-                  const text = `Min odling har gett grönsaker för ${harvestValue.total.toLocaleString('sv-SE')} kr i år 🌱 – loggat med Odlingsdagboken https://odlingsdagboken.com`;
-                  if (navigator.share) {
-                    try { await navigator.share({ title: 'Min skörd', text }); } catch {}
-                  } else {
-                    await navigator.clipboard.writeText(text);
-                  }
+                  const result = await shareSeasonText(seasonSummaryText);
+                  if (result === 'copied') toast({ title: 'Säsongsrapporten är kopierad! 📋', description: 'Klistra in den var du vill dela din säsong.' });
+                  else if (result === 'failed') toast({ title: 'Kunde inte dela', description: 'Försök igen.', variant: 'destructive' });
                 }}
               >
-                <Share2 className="h-4 w-4" /> Dela
+                <Share2 className="h-4 w-4" /> Dela säsongen
               </Button>
             </CardContent>
           </Card>

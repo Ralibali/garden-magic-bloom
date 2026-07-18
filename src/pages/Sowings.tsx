@@ -32,6 +32,7 @@ import {
   sowingStatusIndex,
 } from '@/lib/sowingLifecycle';
 import { getHarvestHint } from '@/lib/harvestForecast';
+import AskGroButton from '@/components/AskGroButton';
 import { cn } from '@/lib/utils';
 
 const FREE_SOWING_LIMIT = 10;
@@ -321,6 +322,10 @@ const Sowings = () => {
                           </span>
                         )}
                         <Badge variant={status === 'done' ? 'outline' : 'secondary'} className="hidden sm:inline-flex">{SOWING_STATUS_META[status].label}</Badge>
+                        <AskGroButton
+                          source="sowings"
+                          prompt={`Min ${sowing.variety} såddes ${sowing.sow_date}${sowing.beds?.name ? ` i ${sowing.beds.name}` : ''} och är just nu i stadiet "${SOWING_STATUS_META[status].label}". Jag odlar i klimatzon ${climateZone}. Ge mig tre konkreta skötseltips för de närmaste två veckorna.`}
+                        />
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setEditing({ ...sowing })} aria-label={`Redigera ${sowing.variety}`}>
                           <Pencil className="h-4 w-4" />
                         </Button>

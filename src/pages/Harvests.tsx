@@ -17,6 +17,7 @@ import AppEmptyState from '@/components/AppEmptyState';
 import { recordProductActivity } from '@/lib/analytics';
 import SeasonHarvestTicker from '@/components/SeasonHarvestTicker';
 import { normalizeSowingStatus } from '@/lib/sowingLifecycle';
+import AskGroButton from '@/components/AskGroButton';
 import { FadeIn } from '@/components/animations';
 
 const formatWeight = (grams: number) => {
@@ -234,6 +235,10 @@ const Harvests = () => {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <p className="text-lg font-bold tabular-nums">{formatWeight(harvest.weight_grams || 0)}</p>
+                  <AskGroButton
+                    source="harvests"
+                    prompt={`Jag har skördat ${formatWeight(harvest.weight_grams || 0)} ${harvest.variety} den ${harvest.harvest_date}. Ge mig tips på hur jag bäst förvarar skörden och tre enkla sätt att ta vara på den.`}
+                  />
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setEditing({ ...harvest, sowing_id: harvest.sowing_id || '' })} aria-label={`Redigera skörden ${harvest.variety}`}>
                     <Pencil className="h-4 w-4" />
                   </Button>
