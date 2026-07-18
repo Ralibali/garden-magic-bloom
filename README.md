@@ -50,6 +50,14 @@ npm run dev
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
+## Klona utanför Lovable
+
+`package-lock.json` genereras mot Lovables interna npm-registry och fungerar inte utanför Lovables miljö. Efter kloning från GitHub, kör:
+
+    rm package-lock.json && npm install
+
+
+
 ## What technologies are used for this project?
 
 This project is built with:
