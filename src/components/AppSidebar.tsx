@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Home, Sprout, LayoutGrid, Carrot, BarChart3, Settings, LogOut, Crown, Shield, CalendarDays, RefreshCw, Package, Clock, Heart, Bug, Camera, Flower2, BookOpen, Sparkles, Bell, ArrowUpRight, ChevronDown, MoreHorizontal } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useNavigate } from 'react-router-dom';
@@ -66,6 +66,45 @@ export function AppSidebar() {
     navigate('/login?mode=login');
   };
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const storageKey = user?.id ? `sidebar-scroll:${user.id}` : null;
+
+  // Restore scroll position on mount / user change
+  useEffect(() => {
+    if (!storageKey) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const saved = Number(sessionStorage.getItem(storageKey) ?? localStorage.getItem(storageKey));
+    if (Number.isFinite(saved) && saved > 0) {
+      requestAnimationFrame(() => { el.scrollTop = saved; });
+    }
+  }, [storageKey]);
+
+  // Save scroll position (throttled via rAF)
+  useEffect(() => {
+    if (!storageKey) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const top = el.scrollTop;
+        try {
+          sessionStorage.setItem(storageKey, String(top));
+          localStorage.setItem(storageKey, String(top));
+        } catch { /* ignore quota */ }
+      });
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [storageKey]);
+
+
   const renderItems = (items: typeof coreGroups[number]['items']) => items
     .filter(item => isVisible(item.url))
     .map(item => (
@@ -90,7 +129,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="hidden md:flex border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[18px_0_50px_-36px_rgba(10,35,23,0.8)]">
-      <SidebarContent className="pt-4 overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-thumb-white/15 scrollbar-track-transparent">
+      <SidebarContent ref={scrollRef} className="pt-4 overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-thumb-white/15 scrollbar-track-transparent">
         <div className={`mx-3 mb-4 rounded-[1.35rem] border border-white/8 bg-white/[0.045] ${collapsed ? 'p-2' : 'p-3.5'}`}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sidebar-primary to-emerald-300 text-sidebar-primary-foreground flex items-center justify-center shrink-0 shadow-lg shadow-black/15"><Sprout className="h-5 w-5" /></div>
