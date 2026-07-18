@@ -69,7 +69,7 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
               <Sprout className="h-5 w-5 text-white" />
             </span>
             <span className="min-w-0">
-              <span className="block font-serif text-[17px] sm:text-[18px] leading-none text-foreground truncate">Odlingsdagboken</span>
+              <span className="block font-serif text-[15px] sm:text-[18px] leading-none text-foreground whitespace-nowrap">Odlingsdagboken</span>
               <span className="hidden sm:block text-[9px] uppercase tracking-[0.15em] text-muted-foreground mt-1.5">Svensk odlingshjälp</span>
             </span>
           </Link>
@@ -95,8 +95,8 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex min-h-[40px]">
               <Link to="/login?mode=login">Logga in</Link>
             </Button>
-            <Button asChild size="sm" className="gap-1.5 min-h-[40px]">
-              <Link to="/login?mode=register">Testa gratis <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></Link>
+            <Button asChild size="sm" className="gap-1.5 min-h-[40px] px-3 sm:px-4">
+              <Link to="/login?mode=register">Testa gratis <ArrowRight className="hidden sm:inline h-3.5 w-3.5" aria-hidden="true" /></Link>
             </Button>
             <button
               type="button"
