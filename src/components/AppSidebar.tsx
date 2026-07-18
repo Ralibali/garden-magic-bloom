@@ -129,7 +129,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="hidden md:flex border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[18px_0_50px_-36px_rgba(10,35,23,0.8)]">
-      <SidebarContent className="pt-4 overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-thumb-white/15 scrollbar-track-transparent">
+      <SidebarContent ref={scrollRef} className="pt-4 overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-thumb-white/15 scrollbar-track-transparent">
         <div className={`mx-3 mb-4 rounded-[1.35rem] border border-white/8 bg-white/[0.045] ${collapsed ? 'p-2' : 'p-3.5'}`}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sidebar-primary to-emerald-300 text-sidebar-primary-foreground flex items-center justify-center shrink-0 shadow-lg shadow-black/15"><Sprout className="h-5 w-5" /></div>
