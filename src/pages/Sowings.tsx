@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Sprout, Search, Crown, Sparkles, CalendarDays, ArrowRight, ArrowLeft, Pencil, Carrot, MapPin, Camera } from 'lucide-react';
+import { Plus, Sprout, Search, Crown, Sparkles, CalendarDays, ArrowRight, ArrowLeft, Pencil, Carrot, MapPin, Camera, BellPlus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -32,6 +32,7 @@ import {
   sowingStatusIndex,
 } from '@/lib/sowingLifecycle';
 import { getHarvestHint } from '@/lib/harvestForecast';
+import { addReminder } from '@/lib/reminders';
 import AskGroButton from '@/components/AskGroButton';
 import { cn } from '@/lib/utils';
 
@@ -73,7 +74,7 @@ const Sowings = () => {
   const [sowDate, setSowDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [type, setType] = useState('direct');
   const [notes, setNotes] = useState('');
-  const [seedBrand, setSeedBrand] = useState('');
+  const [seedBrand, setSeedBrand] = useState(prefill?.brand || prefill?.seed_brand || '');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('aktiva');
   const [showBrandSuggestions, setShowBrandSuggestions] = useState(false);
@@ -184,6 +185,26 @@ const Sowings = () => {
     mutationFn: api.deleteSowing,
     onSuccess: (_, id) => { queryClient.invalidateQueries({ queryKey: ['sowings'] }); queryClient.invalidateQueries({ queryKey: ['summary-stats'] }); void recordProductActivity('sowing_deleted', { sowing_id: id }); toast({ title: 'Sådd borttagen' }); },
     onError: (error: any) => toast({ title: 'Kunde inte ta bort sådden', description: error?.message, variant: 'destructive' }),
+  });
+
+  const reminderMutation = useMutation({
+    mutationFn: async (sowing: any) => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const ok = await addReminder({
+        title: `Skörda ${sowing.variety}`,
+        type: 'other',
+        date: tomorrow.toISOString().slice(0, 10),
+        bed: sowing.beds?.name,
+        source_action_id: `harvest-reminder-${sowing.id}`,
+      });
+      if (!ok) throw new Error('Kunde inte spara påminnelsen');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reminder-settings'] });
+      toast({ title: 'Påminnelse skapad 🔔', description: 'Vi påminner dig att skörda imorgon. Du hittar den under Påminnelser.' });
+    },
+    onError: () => toast({ title: 'Kunde inte skapa påminnelsen', variant: 'destructive' }),
   });
 
   const openCreate = () => {
@@ -320,6 +341,19 @@ const Sowings = () => {
                             <Carrot className="h-3 w-3" />
                             {hint.shortLabel}
                           </span>
+                        )}
+                        {hint?.kind === 'now' && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-accent hover:text-accent"
+                            title="Påminn mig att skörda imorgon"
+                            aria-label="Påminn mig att skörda imorgon"
+                            disabled={reminderMutation.isPending}
+                            onClick={() => reminderMutation.mutate(sowing)}
+                          >
+                            <BellPlus className="h-4 w-4" />
+                          </Button>
                         )}
                         <Badge variant={status === 'done' ? 'outline' : 'secondary'} className="hidden sm:inline-flex">{SOWING_STATUS_META[status].label}</Badge>
                         <AskGroButton
