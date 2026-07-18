@@ -25,6 +25,7 @@ import { FadeIn } from '@/components/animations';
 import { getGardenForecast, weatherDescription } from '@/lib/gardenWeather';
 import { buildPlantCareProfile } from '@/lib/plantCareIntelligence';
 import { computeDashboardPriority } from '@/lib/dashboardPriority';
+import { SOWING_STATUS_META, normalizeSowingStatus } from '@/lib/sowingLifecycle';
 import PrimaryActionCard from '@/components/PrimaryActionCard';
 
 const MONTH_TIPS: Record<number, string> = {
@@ -261,7 +262,10 @@ const Dashboard = () => {
                     {recentSowings.map((sowing: any) => (
                       <button key={sowing.id} onClick={() => navigate('/app/sowings')} className="flex w-full items-center justify-between gap-3 rounded-xl p-2 text-left hover:bg-primary/5">
                         <div className="flex min-w-0 items-center gap-2"><Sprout className="h-3.5 w-3.5 text-primary shrink-0" /><span className="font-medium text-sm truncate">{sowing.variety}</span>{sowing.beds?.name && <span className="text-xs text-muted-foreground truncate">· {sowing.beds.name}</span>}</div>
-                        <span className="text-xs text-muted-foreground shrink-0">{sowing.sow_date}</span>
+                        <span className="flex items-center gap-2 shrink-0">
+                          <span className="rounded-full bg-primary/8 px-2 py-0.5 text-[10px] font-medium text-primary">{SOWING_STATUS_META[normalizeSowingStatus(sowing.status)].short}</span>
+                          <span className="text-xs text-muted-foreground">{sowing.sow_date}</span>
+                        </span>
                       </button>
                     ))}
                   </div>

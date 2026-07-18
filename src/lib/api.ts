@@ -90,6 +90,19 @@ export async function createHarvest(record: {
   return data;
 }
 
+export async function updateHarvest(id: string, record: {
+  variety?: string;
+  bed_id?: string | null;
+  sowing_id?: string | null;
+  harvest_date?: string;
+  weight_grams?: number;
+  notes?: string | null;
+}) {
+  const { data, error } = await supabase.from('harvests').update(record).eq('id', id).select().single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
 export async function deleteHarvest(id: string) {
   const { error } = await supabase.from('harvests').delete().eq('id', id);
   if (error) throw new Error(error.message);
@@ -318,6 +331,7 @@ export const api = {
   deleteSowing,
   getHarvests,
   createHarvest,
+  updateHarvest,
   deleteHarvest,
   submitFeedback,
   getReminderSettings,
