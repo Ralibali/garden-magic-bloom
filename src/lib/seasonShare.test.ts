@@ -17,7 +17,7 @@ describe('seasonShare', () => {
       ],
       valueSek: 1240,
       climateZone: 3,
-    }).replace(/ /g, ' ');
+    }).replace(/\u00a0/g, ' ');
     expect(text).toContain('Min odlingssäsong 2026');
     expect(text).toContain('12,4 kg');
     expect(text).toContain('23 tillfällen');
