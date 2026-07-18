@@ -66,6 +66,45 @@ export function AppSidebar() {
     navigate('/login?mode=login');
   };
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const storageKey = user?.id ? `sidebar-scroll:${user.id}` : null;
+
+  // Restore scroll position on mount / user change
+  useEffect(() => {
+    if (!storageKey) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const saved = Number(sessionStorage.getItem(storageKey) ?? localStorage.getItem(storageKey));
+    if (Number.isFinite(saved) && saved > 0) {
+      requestAnimationFrame(() => { el.scrollTop = saved; });
+    }
+  }, [storageKey]);
+
+  // Save scroll position (throttled via rAF)
+  useEffect(() => {
+    if (!storageKey) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const top = el.scrollTop;
+        try {
+          sessionStorage.setItem(storageKey, String(top));
+          localStorage.setItem(storageKey, String(top));
+        } catch { /* ignore quota */ }
+      });
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [storageKey]);
+
+
   const renderItems = (items: typeof coreGroups[number]['items']) => items
     .filter(item => isVisible(item.url))
     .map(item => (
