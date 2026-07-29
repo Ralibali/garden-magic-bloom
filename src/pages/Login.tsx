@@ -23,6 +23,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable/index';
 import { plausibleEvent } from '@/lib/plausible';
 
 type AuthMode = 'login' | 'register' | 'forgot' | 'verify';
@@ -43,6 +44,15 @@ function GoogleIcon() {
     </svg>
   );
 }
+
+function AppleIcon() {
+  return (
+    <svg className="h-4 w-4 shrink-0 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M16.36 12.72c.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.71-3.19-1.73-1.36-.14-2.65.8-3.34.8-.69 0-1.75-.78-2.88-.76-1.48.02-2.85.86-3.61 2.18-1.54 2.67-.39 6.62 1.11 8.79.73 1.06 1.6 2.25 2.74 2.21 1.1-.04 1.52-.71 2.85-.71 1.33 0 1.7.71 2.87.69 1.18-.02 1.93-1.08 2.65-2.15.84-1.23 1.18-2.42 1.2-2.48-.03-.01-2.3-.88-2.28-3.53zM14.2 5.9c.61-.74 1.02-1.77.91-2.8-.88.04-1.94.59-2.57 1.32-.56.65-1.05 1.7-.92 2.7.98.08 1.98-.5 2.58-1.22z" />
+    </svg>
+  );
+}
+
 
 function AuthDivider({ label }: { label: string }) {
   return (
@@ -77,6 +87,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const formViewTracked = useRef(false);
   const source = searchParams.get('source') || 'direct';
@@ -122,11 +133,42 @@ export default function Login() {
   };
 
   const renderGoogleButton = () => (
-    <Button type="button" variant="outline" className="w-full h-12 gap-3 font-medium" onClick={handleGoogleAuth} disabled={googleLoading || loading}>
+    <Button type="button" variant="outline" className="w-full h-12 gap-3 font-medium" onClick={handleGoogleAuth} disabled={googleLoading || appleLoading || loading}>
       {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
       Fortsätt med Google
     </Button>
   );
+
+  const handleAppleAuth = async () => {
+    setAppleLoading(true);
+    plausibleEvent('Signup Started', { method: 'apple' });
+    try {
+      const result = await lovable.auth.signInWithOAuth('apple', {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) return; // Webbläsaren omdirigerar till Apple.
+      navigate('/app', { replace: true });
+
+    } catch (error: any) {
+      plausibleEvent('Signup Error', { reason: 'apple_unavailable' });
+      toast({
+        title: 'Apple-inloggning är inte aktiverad ännu',
+        description: 'Skapa konto med e-post istället – det tar under en minut.',
+        variant: 'destructive',
+      });
+      setAppleLoading(false);
+    }
+  };
+
+  const renderAppleButton = () => (
+    <Button type="button" variant="outline" className="w-full h-12 gap-3 font-medium" onClick={handleAppleAuth} disabled={appleLoading || googleLoading || loading}>
+      {appleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <AppleIcon />}
+      Fortsätt med Apple
+    </Button>
+  );
+
+
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -264,6 +306,7 @@ export default function Login() {
               <form onSubmit={handleLogin} className="space-y-5">
                 <div><h2 className="font-serif text-3xl mb-2">Välkommen tillbaka</h2><p className="text-sm text-muted-foreground">Fortsätt bygga din odlingshistorik.</p></div>
                 {renderGoogleButton()}
+                {renderAppleButton()}
                 <AuthDivider label="eller med e-post" />
                 <div className="space-y-4">
                   <div><Label htmlFor="email">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="pl-10 h-11" required /></div></div>
@@ -279,6 +322,7 @@ export default function Login() {
                 <div><div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 px-3 py-1 text-xs font-medium mb-4"><Check className="h-3.5 w-3.5" /> Gratis att börja</div><h2 className="font-serif text-3xl mb-2">Spara din odling</h2><p className="text-sm text-muted-foreground">Skapa kontot på under en minut. Din plan på den här enheten följer med automatiskt.</p></div>
                 <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4 space-y-2">{registerBenefits.map(item => <div key={item} className="flex items-center gap-2 text-sm text-muted-foreground"><Check className="h-4 w-4 text-primary shrink-0" />{item}</div>)}</div>
                 {renderGoogleButton()}
+                {renderAppleButton()}
                 <AuthDivider label="eller med e-post" />
                 <div className="space-y-4">
                   <div><Label htmlFor="name">Förnamn</Label><div className="relative mt-1.5"><User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="name" autoComplete="given-name" value={name} onChange={(event) => setName(event.target.value)} className="pl-10 h-11" required /></div></div>
