@@ -304,6 +304,7 @@ export default function Login() {
               <form onSubmit={handleLogin} className="space-y-5">
                 <div><h2 className="font-serif text-3xl mb-2">Välkommen tillbaka</h2><p className="text-sm text-muted-foreground">Fortsätt bygga din odlingshistorik.</p></div>
                 {renderGoogleButton()}
+                {renderAppleButton()}
                 <AuthDivider label="eller med e-post" />
                 <div className="space-y-4">
                   <div><Label htmlFor="email">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="pl-10 h-11" required /></div></div>
