@@ -23,6 +23,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable/index';
 import { plausibleEvent } from '@/lib/plausible';
 
 type AuthMode = 'login' | 'register' | 'forgot' | 'verify';
