@@ -132,11 +132,41 @@ export default function Login() {
   };
 
   const renderGoogleButton = () => (
-    <Button type="button" variant="outline" className="w-full h-12 gap-3 font-medium" onClick={handleGoogleAuth} disabled={googleLoading || loading}>
+    <Button type="button" variant="outline" className="w-full h-12 gap-3 font-medium" onClick={handleGoogleAuth} disabled={googleLoading || appleLoading || loading}>
       {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
       Fortsätt med Google
     </Button>
   );
+
+  const handleAppleAuth = async () => {
+    setAppleLoading(true);
+    plausibleEvent('Signup Started', { method: 'apple' });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: { redirectTo: `${window.location.origin}/app` },
+      });
+      if (error) throw error;
+      // Webbläsaren omdirigerar till Apple — laddningsläget lämnas kvar.
+    } catch (error: any) {
+      plausibleEvent('Signup Error', { reason: 'apple_unavailable' });
+      toast({
+        title: 'Apple-inloggning är inte aktiverad ännu',
+        description: 'Skapa konto med e-post istället – det tar under en minut.',
+        variant: 'destructive',
+      });
+      setAppleLoading(false);
+    }
+  };
+
+  const renderAppleButton = () => (
+    <Button type="button" variant="outline" className="w-full h-12 gap-3 font-medium" onClick={handleAppleAuth} disabled={appleLoading || googleLoading || loading}>
+      {appleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <AppleIcon />}
+      Fortsätt med Apple
+    </Button>
+  );
+
+
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
