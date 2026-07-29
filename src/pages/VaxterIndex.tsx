@@ -9,6 +9,7 @@ import { ArrowRight, Loader2, Sprout, Search } from 'lucide-react';
 import { CATEGORY_LABEL, formatMonthRange } from '@/lib/seoData';
 import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
+import InlineSignupCTA from '@/components/InlineSignupCTA';
 
 export default function VaxterIndex() {
   const [q, setQ] = useState('');
@@ -163,6 +164,14 @@ export default function VaxterIndex() {
             ))}
           </div>
         )}
+      
+        <InlineSignupCTA
+          variant="card"
+          title="Logga din odling – gratis"
+          description="Skapa ett gratis konto och följ dina sådder, skördar och lärdomar från dessa växter – år efter år."
+          buttonLabel="Börja gratis"
+          className="mt-16"
+        />
       </section>
     </PublicLayout>
   );

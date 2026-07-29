@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, MapPin, ArrowRight } from 'lucide-react';
+import InlineSignupCTA from '@/components/InlineSignupCTA';
 
 export default function ZonerIndex() {
   const { data: zones = [], isLoading } = useQuery({
@@ -90,6 +91,14 @@ export default function ZonerIndex() {
             })}
           </div>
         )}
+      
+        <InlineSignupCTA
+          variant="card"
+          title="Appen anpassar allt efter din zon"
+          description="Skapa ett gratis konto och välj din klimatzon – såkalender, påminnelser och råd justeras automatiskt."
+          buttonLabel="Börja gratis"
+          className="mt-16"
+        />
       </section>
     </PublicLayout>
   );

@@ -54,7 +54,6 @@ export default function Login() {
   const [verificationEmail, setVerificationEmail] = useState('');
   const [referralCode, setReferralCode] = useState(searchParams.get('ref') || '');
   const [showReferralField, setShowReferralField] = useState(!!searchParams.get('ref'));
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
@@ -233,9 +232,9 @@ export default function Login() {
                   <div><Label htmlFor="reg-email">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="reg-email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="pl-10 h-11" required /></div></div>
                   <div><Label htmlFor="reg-password">Lösenord</Label>{renderPasswordField('reg-password', 'new-password')}<p className="mt-1.5 text-[11px] text-muted-foreground">Minst 8 tecken. Använd gärna en unik lösenfras.</p></div>
                   {!showReferralField ? <button type="button" className="text-xs text-primary hover:underline" onClick={() => setShowReferralField(true)}>Har du en värvningskod?</button> : <div><Label htmlFor="referral">Värvningskod</Label><div className="relative mt-1.5"><Gift className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="referral" value={referralCode} onChange={(event) => setReferralCode(event.target.value.toUpperCase())} className="pl-10 h-11 uppercase" maxLength={6} /></div></div>}
-                  <div className="flex items-start gap-2"><input type="checkbox" id="terms" checked={acceptedTerms} onChange={(event) => setAcceptedTerms(event.target.checked)} className="mt-1" required /><label htmlFor="terms" className="text-xs text-muted-foreground">Jag godkänner <a href="/terms" target="_blank" rel="noreferrer" className="text-primary hover:underline">villkoren och integritetspolicyn</a>.</label></div>
                 </div>
-                <Button type="submit" className="w-full h-12" disabled={loading || !acceptedTerms}>{loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Skapa gratis konto <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                <Button type="submit" className="w-full h-12" disabled={loading}>{loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Skapa gratis konto <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                <p className="text-[11px] text-muted-foreground text-center leading-relaxed">Genom att skapa ett konto godkänner du <a href="/terms" target="_blank" rel="noreferrer" className="text-primary hover:underline">villkoren och integritetspolicyn</a>.</p>
                 <div className="flex justify-between text-sm"><Link to="/sakalender" className="text-muted-foreground hover:text-foreground">Testa såkalendern</Link><button type="button" className="text-primary hover:underline" onClick={() => setAuthMode('login')}>Jag har konto</button></div>
               </form>
             )}
@@ -254,6 +253,10 @@ export default function Login() {
                 <div className="w-16 h-16 rounded-3xl bg-primary/10 text-primary flex items-center justify-center mx-auto"><Mail className="h-7 w-7" /></div>
                 <div><h2 className="font-serif text-3xl mb-2">Bekräfta din e-post</h2><p className="text-sm text-muted-foreground leading-relaxed">Vi har skickat en bekräftelselänk till <strong className="text-foreground">{verificationEmail}</strong>. Klicka på länken så öppnas din sparade odlingsplan.</p></div>
                 <div className="rounded-2xl border border-border bg-muted/30 p-4 text-left text-sm text-muted-foreground">Mejlet brukar komma inom någon minut. Kontrollera skräpposten och fliken Kampanjer om det inte syns.</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" asChild><a href="https://mail.google.com" target="_blank" rel="noreferrer">Öppna Gmail</a></Button>
+                  <Button variant="outline" asChild><a href="https://outlook.live.com" target="_blank" rel="noreferrer">Öppna Outlook</a></Button>
+                </div>
                 <Button className="w-full" onClick={resendConfirmation} disabled={resending}>{resending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Skicka en ny bekräftelselänk</Button>
                 <Button variant="outline" className="w-full" onClick={() => setAuthMode('login')}>Jag har bekräftat – logga in</Button>
                 <button type="button" className="text-sm text-muted-foreground hover:text-foreground" onClick={() => { setEmail(verificationEmail); setAuthMode('register'); }}>Ändra e-postadress</button>

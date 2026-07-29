@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import VisitorWelcomePopup from '@/components/VisitorWelcomePopup';
 import { useParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { useQuery } from '@tanstack/react-query';
@@ -224,8 +223,6 @@ export default function GuideArticle() {
         jsonLd={jsonLd}
         articleMeta={articleMeta}
       />
-      <VisitorWelcomePopup />
-
       {/* Breadcrumb-ish back bar */}
       <div className="border-b border-border/40 bg-card/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">

@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Calendar, ArrowRight } from 'lucide-react';
 import { MONTH_NAMES_SV, MONTH_NAMES_TITLE, SEASON_LABEL } from '@/lib/seoData';
+import InlineSignupCTA from '@/components/InlineSignupCTA';
 
 export default function ManadIndex() {
   const { data: months = [], isLoading } = useQuery({
@@ -95,6 +96,14 @@ export default function ManadIndex() {
             })}
           </div>
         )}
+      
+        <InlineSignupCTA
+          variant="card"
+          title="Få månadens så- och skördetips i din egen dagbok"
+          description="Skapa ett gratis konto – appen anpassar varje månad efter din klimatzon och dina bäddar."
+          buttonLabel="Börja gratis"
+          className="mt-16"
+        />
       </section>
     </PublicLayout>
   );

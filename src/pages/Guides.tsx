@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import PublicLayout from '@/components/PublicLayout';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
-import VisitorWelcomePopup from '@/components/VisitorWelcomePopup';
 import { ArrowRight, BookOpen, Loader2, Search, Sprout } from 'lucide-react';
 import { CURRENT_YEAR } from '@/lib/currentYear';
 import { trackEvent } from '@/lib/analytics';
@@ -116,8 +115,6 @@ export default function Guides() {
           },
         ]}
       />
-      <VisitorWelcomePopup />
-
       {posts.length > 0 && (
         <script
           type="application/ld+json"

@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Instagram, Leaf, Menu, Sprout, X } from 'lucide-react';
+import StickySignupBar from '@/components/StickySignupBar';
 
 interface PublicLayoutProps {
   children: ReactNode;
@@ -149,6 +150,8 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
       </header>
 
       <main id="public-main" className="flex-1">{children}</main>
+
+      <StickySignupBar />
 
       <footer className="mt-20 border-t border-white/8 bg-[hsl(151_34%_12%)] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
