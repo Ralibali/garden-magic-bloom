@@ -142,12 +142,13 @@ export default function Login() {
     setAppleLoading(true);
     plausibleEvent('Signup Started', { method: 'apple' });
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: { redirectTo: `${window.location.origin}/app` },
+      const result = await lovable.auth.signInWithOAuth('apple', {
+        redirect_uri: window.location.origin,
       });
-      if (error) throw error;
-      // Webbläsaren omdirigerar till Apple — laddningsläget lämnas kvar.
+      if (result.error) throw result.error;
+      if (result.redirected) return; // Webbläsaren omdirigerar till Apple.
+      navigate('/app', { replace: true });
+
     } catch (error: any) {
       plausibleEvent('Signup Error', { reason: 'apple_unavailable' });
       toast({
