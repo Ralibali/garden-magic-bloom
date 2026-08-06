@@ -48,6 +48,7 @@ const GroLanding = React.lazy(() => import("./pages/Gro"));
 const Sakalender = React.lazy(() => import("./pages/Sakalender"));
 const Odlingsplan = React.lazy(() => import("./pages/Odlingsplan"));
 const Odlingsakuten = React.lazy(() => import("./pages/Odlingsakuten"));
+const PublicPlantDoctor = React.lazy(() => import("./pages/PublicPlantDoctor"));
 const VaxterIndex = React.lazy(() => import("./pages/VaxterIndex"));
 const VaxtDetail = React.lazy(() => import("./pages/VaxtDetail"));
 const ManadIndex = React.lazy(() => import("./pages/ManadIndex"));
@@ -185,6 +186,7 @@ const AppRoutes = () => (
           <Route path="/sakalender" element={<Sakalender />} />
           <Route path="/odlingsplan" element={<Odlingsplan />} />
           <Route path="/odlingsakuten" element={<Odlingsakuten />} />
+          <Route path="/vaxtdoktorn" element={<PublicPlantDoctor />} />
           {/* Programmatic SEO routes */}
           <Route path="/vaxter" element={<VaxterIndex />} />
           <Route path="/vaxter/:slug" element={<VaxtDetail />} />
