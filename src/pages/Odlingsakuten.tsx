@@ -67,17 +67,17 @@ export default function Odlingsakuten() {
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">📸 Nyhet</p>
           <h2 className="font-serif text-3xl sm:text-4xl text-foreground leading-tight mb-3">Fota din planta – få AI-diagnos av Gro</h2>
-          <p className="text-muted-foreground leading-relaxed mb-5 max-w-xl">Skicka en bild på den sjuka plantan i appen och få en personlig diagnos från Gro, vår AI-odlingscoach. Hon ser bladfärg, fläckar och tecken på skadedjur – och ger dig en åtgärdsplan i steg.</p>
+          <p className="text-muted-foreground leading-relaxed mb-5 max-w-xl">Skicka en bild på den sjuka plantan och få en första försiktig AI-bedömning. Du behöver inget konto för din första analys.</p>
           <ol className="space-y-2 text-sm text-foreground/85 mb-6 max-w-md">
-            <li><span className="font-semibold text-primary">1.</span> Öppna Gro i appen</li>
-            <li><span className="font-semibold text-primary">2.</span> Tryck på kamera-ikonen och fota din planta</li>
-            <li><span className="font-semibold text-primary">3.</span> Få en diagnos och konkreta steg att prova</li>
+            <li><span className="font-semibold text-primary">1.</span> Ta eller välj ett tydligt foto</li>
+            <li><span className="font-semibold text-primary">2.</span> Berätta kort vad du ser</li>
+            <li><span className="font-semibold text-primary">3.</span> Få möjliga orsaker och konkreta nästa steg</li>
           </ol>
-          <Button asChild size="lg" className="gap-2"><Link to="/login?mode=register&source=odlingsakuten-foto">Prova gratis <ArrowRight className="h-4 w-4" /></Link></Button>
+          <Button asChild size="lg" className="gap-2"><Link to="/vaxtdoktorn">Fota och få en gratis analys <ArrowRight className="h-4 w-4" /></Link></Button>
         </div>
-        <div className="rounded-3xl border border-border bg-background/60 p-6 text-sm text-muted-foreground italic shadow-sm">
-          "Jag fotade tomatbladen och Gro såg direkt att det var bladmögel. Fick en åtgärdsplan på minuter."
-          <p className="not-italic text-xs mt-3 text-foreground/70">— Anna, zon 3</p>
+        <div className="rounded-3xl border border-border bg-background/60 p-6 text-sm text-muted-foreground shadow-sm">
+          <p className="font-medium text-foreground">En gratis analys utan registrering</p>
+          <p className="mt-2">För fler analyser, sparad historik och uppföljning skapar besökaren konto och kan därefter uppgradera till Plus.</p>
         </div>
       </div>
     </section>
