@@ -322,11 +322,14 @@ const Sowings = () => {
       ) : (
         <StaggerContainer className="grid gap-3">
           {sowings.map((sowing: any) => {
-            const status = normalizeSowingStatus(sowing.status);
-            const next = nextSowingStatus(status);
-            const prev = previousSowingStatus(status);
+            const kind = normalizePlantKind(sowing.plant_kind);
+            const isOrnamental = kind === 'ornamental';
+            const status = normalizeSowingStatus(sowing.status, kind);
+            const next = nextSowingStatus(status, kind);
+            const prev = previousSowingStatus(status, kind);
             const age = sowingAgeLabel(sowing.sow_date);
-            const hint = status === 'done' ? null : getHarvestHint(sowing.variety, climateZone);
+            const hint = status === 'done' || isOrnamental ? null : getHarvestHint(sowing.variety, climateZone);
+
             return (
               <StaggerItem key={sowing.id}>
                 <Card className="group hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-[var(--card-shadow-hover)]">
