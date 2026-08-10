@@ -1,81 +1,55 @@
-# Welcome to your Lovable project
+# Odlingsdagboken
 
-## Project info
+Webbapp för svenska hemmaodlare: odlingsdagbok för bäddar, sådder, skörd, krukväxter, frölager och skadedjur — med zonanpassade råd, väderintelligens, påminnelser och AI-coachen Gro.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Produktion: [odlingsdagboken.com](https://odlingsdagboken.com)
 
-## How can I edit this code?
+## Teknik
 
-There are several ways of editing your application.
+- React 18 + TypeScript + Vite 5
+- Tailwind CSS + shadcn/ui
+- Lovable Cloud (Postgres, auth, storage, edge functions) med RLS på samtliga tabeller
+- Stripe för Plus-abonnemang (99 kr/år, fjorton dagars provperiod)
+- Gemini via Lovable AI Gateway för Gro, dagliga tips och fotoanalys
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Kom igång
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Appen startar på `http://localhost:8080`. Miljövariabler finns i `.env.example`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Skript
 
-**Use GitHub Codespaces**
+| Kommando | Gör |
+|---|---|
+| `npm run dev` | Utvecklingsserver |
+| `npm run build` | Produktionsbygge + prerendering av publika sidor |
+| `npm run typecheck` | `tsc --noEmit` mot appens tsconfig |
+| `npm run lint` | ESLint |
+| `npm test` | Vitest |
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Struktur
 
-## Klona utanför Lovable
+```
+src/pages/          Sidor och routes (app + publika SEO-sidor)
+src/components/     UI-komponenter
+src/lib/            Domänlogik (prioritering, livscykel, väder, statistik)
+src/data/           Grödmatris, priser, zondata
+supabase/functions/ Edge functions (mejl, AI, sitemap, Stripe m.m.)
+docs/               Driftsanteckningar
+```
 
-`package-lock.json` genereras mot Lovables interna npm-registry och fungerar inte utanför Lovables miljö. Efter kloning från GitHub, kör:
+Domänlogiken i `src/lib` är avsiktligt ren och enhetstestad — nya regler ska läggas där, inte i komponenter.
 
-    rm package-lock.json && npm install
+## Odlingsdata
 
+`src/data/sowingMatrix.ts` är enda källan för såtider per klimatzon. Kör `node scripts/export-sowing-weeks.mjs` efter ändringar så att edge functions får samma veckor via `supabase/functions/_shared/sowingWeeks.ts`.
 
+Sådder har `plant_kind` (`edible` eller `ornamental`). Prydnadsväxter får blomnings- och övervintringsflöde i stället för skörd och räknas inte in i kg-statistiken.
 
-## What technologies are used for this project?
+## CI
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+`.github/workflows/verify.yml` kör typecheck, tester, lint och produktionsbygge på Node 22, plus `deno check` på edge functions.
