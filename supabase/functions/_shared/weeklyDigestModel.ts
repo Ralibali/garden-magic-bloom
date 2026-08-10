@@ -119,9 +119,15 @@ export function buildDigestModel(input: DigestModelInput): DigestModel {
     })
     .slice(0, 5)
 
-  const soonHarvest = crops
-    .filter((crop) => inRange(iso.week, getSowingWeekTiming(crop, zone)?.harvest, 3))
-    .slice(0, 5)
+  const soonHarvest = Array.from(new Set(
+    input.sowings
+      .filter((sowing) => (sowing.plant_kind ?? 'edible') === 'edible')
+      .filter((sowing) => !inactiveStatuses.has(String(sowing.status ?? '').trim().toLowerCase()))
+      .map((sowing) => findCropForVariety(sowing.variety))
+      .filter((crop): crop is string => Boolean(crop))
+      .filter((crop) => inRange(iso.week, getSowingWeekTiming(crop, zone)?.harvest, 3)),
+  )).slice(0, 5)
+
 
   const active = activeSowings(input.sowings)
   const harvestKg = harvestKgForYear(input.harvests, iso.year)
