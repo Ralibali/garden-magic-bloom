@@ -377,6 +377,23 @@ function AdminUsers() {
   );
 }
 
+function UserActivityTimeline({ userId }: { userId: string }) {
+  const { data, isLoading } = useUserActivity(50, userId);
+  if (isLoading) return <Skeleton className="h-16 mt-3" />;
+  if (!data?.length) return <p className="mt-3 text-[11px] text-muted-foreground">Inga händelser loggade.</p>;
+  return (
+    <div className="mt-3 pt-3 border-t border-border/50 space-y-1.5 animate-fade-in">
+      <p className="text-[11px] font-medium text-foreground">Senaste händelser</p>
+      {data.slice(0, 15).map((row) => (
+        <div key={row.activity_id} className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+          <span className="truncate">{row.title}{row.detail ? ` · ${row.detail}` : ''}</span>
+          <span className="shrink-0">{new Date(row.occurred_at).toLocaleDateString('sv-SE')}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function UsageStat({ icon: Icon, label, value }: { icon: any; label: string; value: number }) {
   return (
     <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
