@@ -14,5 +14,6 @@ if (savedTheme === 'dark') {
 
 // Self-healing recovery for stale PWA / chunk load failures after deploy.
 installRecoveryHandlers();
+setupServiceWorker();
 
 createRoot(document.getElementById("root")!).render(<App />);
