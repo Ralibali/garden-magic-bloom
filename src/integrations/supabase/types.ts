@@ -1600,6 +1600,19 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: undefined
       }
+      get_recent_user_activity: {
+        Args: { _limit?: number; _user_id?: string }
+        Returns: {
+          activity_id: string
+          activity_type: string
+          detail: string
+          display_name: string
+          email: string
+          occurred_at: string
+          title: string
+          user_id: string
+        }[]
+      }
       get_user_activity_stats: {
         Args: never
         Returns: {

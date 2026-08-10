@@ -19,12 +19,14 @@ import {
 } from '@/components/ui/alert-dialog';
 import BlogEditor from '@/components/admin/BlogEditor';
 import GlossaryManager from '@/components/admin/GlossaryManager';
+import { useUserActivity } from '@/components/admin/UserActivityFeed';
 
 const AnalyticsDashboard = React.lazy(() => import('@/components/admin/AnalyticsDashboard'));
 const KeywordExplorer = React.lazy(() => import('@/components/admin/KeywordExplorer'));
 const PlatformOverview = React.lazy(() => import('@/components/admin/PlatformOverview'));
 const SeoContentManager = React.lazy(() => import('@/components/admin/SeoContentManager'));
 const AdminAffiliateProducts = React.lazy(() => import('@/components/admin/AdminAffiliateProducts'));
+const UserActivityFeed = React.lazy(() => import('@/components/admin/UserActivityFeed'));
 
 export default function Admin() {
   const { user } = useAuth();
@@ -70,6 +72,7 @@ export default function Admin() {
           <TabsTrigger value="overview" className="gap-1.5"><LayoutDashboard className="h-4 w-4" /> Översikt</TabsTrigger>
           <TabsTrigger value="analytics" className="gap-1.5"><BarChart3 className="h-4 w-4" /> Trafik</TabsTrigger>
           <TabsTrigger value="users" className="gap-1.5"><Users className="h-4 w-4" /> Användare</TabsTrigger>
+          <TabsTrigger value="activity" className="gap-1.5"><Clock className="h-4 w-4" /> Aktivitet</TabsTrigger>
           <TabsTrigger value="feedback" className="gap-1.5"><MessageSquare className="h-4 w-4" /> Feedback</TabsTrigger>
           <TabsTrigger value="blog" className="gap-1.5"><FileText className="h-4 w-4" /> Blogg</TabsTrigger>
           <TabsTrigger value="glossary" className="gap-1.5"><Link2 className="h-4 w-4" /> Länkord</TabsTrigger>
@@ -89,6 +92,11 @@ export default function Admin() {
           </React.Suspense>
         </TabsContent>
         <TabsContent value="users"><AdminUsers /></TabsContent>
+        <TabsContent value="activity">
+          <React.Suspense fallback={<Skeleton className="h-64" />}>
+            <UserActivityFeed />
+          </React.Suspense>
+        </TabsContent>
         <TabsContent value="feedback"><AdminFeedback /></TabsContent>
         <TabsContent value="blog"><BlogEditor /></TabsContent>
         <TabsContent value="glossary"><GlossaryManager /></TabsContent>
@@ -359,12 +367,30 @@ function AdminUsers() {
                       </div>
                     </div>
                   )}
+                  {isExpanded && <UserActivityTimeline userId={user.user_id} />}
                 </CardContent>
               </Card>
             );
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+function UserActivityTimeline({ userId }: { userId: string }) {
+  const { data, isLoading } = useUserActivity(50, userId);
+  if (isLoading) return <Skeleton className="h-16 mt-3" />;
+  if (!data?.length) return <p className="mt-3 text-[11px] text-muted-foreground">Inga händelser loggade.</p>;
+  return (
+    <div className="mt-3 pt-3 border-t border-border/50 space-y-1.5 animate-fade-in">
+      <p className="text-[11px] font-medium text-foreground">Senaste händelser</p>
+      {data.slice(0, 15).map((row) => (
+        <div key={row.activity_id} className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+          <span className="truncate">{row.title}{row.detail ? ` · ${row.detail}` : ''}</span>
+          <span className="shrink-0">{new Date(row.occurred_at).toLocaleDateString('sv-SE')}</span>
+        </div>
+      ))}
     </div>
   );
 }
