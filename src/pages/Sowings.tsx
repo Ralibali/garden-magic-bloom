@@ -85,6 +85,9 @@ const Sowings = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(presetFilter || 'aktiva');
   const [showBrandSuggestions, setShowBrandSuggestions] = useState(false);
   const [editing, setEditing] = useState<any>(null);
+  const [plantKind, setPlantKind] = useState<string>(guessPlantKind(prefill?.variety || ''));
+  const [plantKindTouched, setPlantKindTouched] = useState(false);
+
   const brandRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { if (prefill || presetFilter) window.history.replaceState({}, document.title); }, [prefill, presetFilter]);
