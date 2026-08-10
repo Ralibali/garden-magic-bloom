@@ -17,6 +17,8 @@ import AppEmptyState from '@/components/AppEmptyState';
 import { recordProductActivity } from '@/lib/analytics';
 import SeasonHarvestTicker from '@/components/SeasonHarvestTicker';
 import { normalizeSowingStatus } from '@/lib/sowingLifecycle';
+import { normalizePlantKind } from '@/lib/plantKind';
+
 import AskGroButton from '@/components/AskGroButton';
 import { FadeIn } from '@/components/animations';
 
