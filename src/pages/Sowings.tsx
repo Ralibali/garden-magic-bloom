@@ -42,11 +42,12 @@ const SEED_BRAND_SUGGESTIONS = ['Impecta', 'Nelson Garden', 'Runåbergs fröer',
 type StatusFilter = 'alla' | 'aktiva' | SowingStatus;
 
 /** Visuell stegindikator för såddens livscykel. */
-const LifecycleProgress = ({ status }: { status: string }) => {
-  const activeIdx = sowingStatusIndex(status);
+const LifecycleProgress = ({ status, plantKind }: { status: string; plantKind?: string }) => {
+  const activeIdx = sowingStatusIndex(status, plantKind);
+  const order = getSowingStatusOrder(plantKind);
   return (
-    <div className="flex items-center gap-1" aria-label={`Status: ${SOWING_STATUS_META[normalizeSowingStatus(status)].label}`}>
-      {SOWING_STATUS_ORDER.map((step, idx) => (
+    <div className="flex items-center gap-1" aria-label={`Status: ${SOWING_STATUS_META[normalizeSowingStatus(status, plantKind)].label}`}>
+      {order.map((step, idx) => (
         <div
           key={step}
           title={SOWING_STATUS_META[step].label}
@@ -60,6 +61,7 @@ const LifecycleProgress = ({ status }: { status: string }) => {
     </div>
   );
 };
+
 
 const Sowings = () => {
   const { user } = useAuth();
