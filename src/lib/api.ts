@@ -50,6 +50,8 @@ export async function createSowing(record: {
   status?: string;
   notes?: string;
   seed_brand?: string;
+  plant_kind?: string;
+
 }) {
   const userId = await getUserId();
   const { data, error } = await supabase.from('sowings').insert({ ...record, user_id: userId } as any).select().single();
