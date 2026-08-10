@@ -71,6 +71,7 @@ export default function Admin() {
           <TabsTrigger value="overview" className="gap-1.5"><LayoutDashboard className="h-4 w-4" /> Översikt</TabsTrigger>
           <TabsTrigger value="analytics" className="gap-1.5"><BarChart3 className="h-4 w-4" /> Trafik</TabsTrigger>
           <TabsTrigger value="users" className="gap-1.5"><Users className="h-4 w-4" /> Användare</TabsTrigger>
+          <TabsTrigger value="activity" className="gap-1.5"><Clock className="h-4 w-4" /> Aktivitet</TabsTrigger>
           <TabsTrigger value="feedback" className="gap-1.5"><MessageSquare className="h-4 w-4" /> Feedback</TabsTrigger>
           <TabsTrigger value="blog" className="gap-1.5"><FileText className="h-4 w-4" /> Blogg</TabsTrigger>
           <TabsTrigger value="glossary" className="gap-1.5"><Link2 className="h-4 w-4" /> Länkord</TabsTrigger>
