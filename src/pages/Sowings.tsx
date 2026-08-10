@@ -140,7 +140,7 @@ const Sowings = () => {
   const createMutation = useMutation({
     mutationFn: () => {
       if (!isPremium && (sowingsRaw?.length ?? 0) >= FREE_SOWING_LIMIT) throw new Error('SOWING_LIMIT');
-      return api.createSowing({ variety: variety.trim(), bed_id: bedId || undefined, sow_date: sowDate, type, notes: notes.trim() || undefined, seed_brand: seedBrand.trim() || undefined });
+      return api.createSowing({ variety: variety.trim(), bed_id: bedId || undefined, sow_date: sowDate, type, notes: notes.trim() || undefined, seed_brand: seedBrand.trim() || undefined, plant_kind: plantKind });
     },
     onSuccess: (sowing) => {
       const wasFirst = (sowingsRaw?.length ?? 0) === 0;
