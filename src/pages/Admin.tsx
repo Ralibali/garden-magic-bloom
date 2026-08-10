@@ -25,6 +25,7 @@ const KeywordExplorer = React.lazy(() => import('@/components/admin/KeywordExplo
 const PlatformOverview = React.lazy(() => import('@/components/admin/PlatformOverview'));
 const SeoContentManager = React.lazy(() => import('@/components/admin/SeoContentManager'));
 const AdminAffiliateProducts = React.lazy(() => import('@/components/admin/AdminAffiliateProducts'));
+const UserActivityFeed = React.lazy(() => import('@/components/admin/UserActivityFeed'));
 
 export default function Admin() {
   const { user } = useAuth();
