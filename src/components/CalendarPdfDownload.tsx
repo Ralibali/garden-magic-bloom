@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Download, Loader2, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { trackEvent } from '@/lib/plausible';
+import { plausibleEvent } from '@/lib/plausible';
 
 const FUNCTIONS_BASE = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1`;
 
@@ -31,7 +31,7 @@ export default function CalendarPdfDownload({ zone, className = '' }: Props) {
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
-      trackEvent('calendar_pdf_download', { zone: String(zone) });
+      plausibleEvent('calendar_pdf_download', { zone: String(zone) });
     } catch {
       setError('Kunde inte skapa PDF:en just nu. Försök igen om en stund.');
     } finally {

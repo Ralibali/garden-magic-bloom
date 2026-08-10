@@ -9,6 +9,7 @@ import { Calendar, ArrowRight, Sprout, Scissors, Snowflake } from 'lucide-react'
 import { MONTH_NAMES_SV, MONTH_NAMES_TITLE, SEASON_LABEL, buildBreadcrumbs } from '@/lib/seoData';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
 import CalendarZonePicker from '@/components/CalendarZonePicker';
+import CalendarPdfDownload from '@/components/CalendarPdfDownload';
 import { useOdlingszon } from '@/hooks/useOdlingszon';
 import { getMonthActivities } from '@/lib/calendarMonth';
 import { CURRENT_YEAR } from '@/lib/currentYear';
@@ -145,6 +146,8 @@ export default function OdlingskalenderIndex() {
             <p className="text-sm text-muted-foreground">Vet du inte vilken zon du bor i? Läs om zon ett till åtta och vad de betyder.</p>
           </Link>
         </section>
+
+        <CalendarPdfDownload zone={zone} className="mt-12" />
 
         <InlineSignupCTA
           variant="card"
