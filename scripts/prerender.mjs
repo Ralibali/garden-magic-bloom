@@ -38,7 +38,7 @@ const staticPages = [
   { route: '/gro', title: 'Gro – personlig AI-coach för din odling', description: 'Fråga Gro om såtider, växtproblem, väder, växtföljd och planering utifrån din egen odlingshistorik.', heading: 'Möt odlingscoachen Gro' },
   { route: '/blogg', title: `Odlingstips och guider ${currentYear} | Odlingsdagboken`, description: 'Praktiska guider om sådd, jord, pallkrage, växtföljd, skötsel och skörd för svenska hobbyodlare.', heading: 'Odlingstips och guider för svenska hobbyodlare', schemaType: 'CollectionPage' },
   { route: '/vaxter', title: 'Växtbibliotek – såtid, skötsel och skörd', description: 'Se såtid, placering, plantavstånd, skötsel och skörd för populära grönsaker, örter och blommor i Sverige.', heading: 'Växtbibliotek för svenska odlare', schemaType: 'CollectionPage' },
-  { route: '/manad', title: 'Odla månad för månad i Sverige', description: 'Se vad du kan så, förodla, plantera och skörda varje månad i svenska trädgårdar och odlingszoner.', heading: 'Odla månad för månad', schemaType: 'CollectionPage' },
+  { route: '/odlingskalender', title: `Odlingskalender ${currentYear} – månad för månad i din zon`, description: 'Se vad du ska så, förodla, plantera och skörda varje månad. Anpassad efter svenska klimatzoner 1–8.', heading: `Odlingskalender ${currentYear}`, schemaType: 'CollectionPage' },
   { route: '/zoner', title: 'Odlingszoner i Sverige – frost, såtid och utplantering', description: 'Lär dig hur svensk odlingszon påverkar frost, såtid, utplantering och vilka växter som passar där du bor.', heading: 'Odlingszoner i Sverige', schemaType: 'CollectionPage' },
   { route: '/install', title: 'Installera Odlingsdagboken som app', description: 'Installera Odlingsdagboken på mobil, surfplatta eller dator och öppna din odling direkt från hemskärmen.', heading: 'Installera Odlingsdagboken' },
   { route: '/terms', title: 'Villkor och integritet | Odlingsdagboken', description: 'Läs användarvillkor och information om hur Odlingsdagboken behandlar personuppgifter.', heading: 'Villkor och integritet' },
@@ -279,9 +279,9 @@ async function loadDynamicPages() {
 
     for (const month of months || []) {
       pages.push({
-        route: `/manad/${month.slug}`,
-        title: `${month.title} | Odlingsdagboken`,
-        heading: month.title,
+        route: `/odlingskalender/${month.slug}`,
+        title: `Odlingskalender ${month.month_name.toLowerCase()} – så, plantera och skörda i din zon`,
+        heading: `Odlingskalender för ${month.month_name.toLowerCase()}`,
         description: truncate(month.intro || `Vad du kan så, plantera och skörda i ${month.month_name}.`),
         body: month.intro,
         type: 'article',
