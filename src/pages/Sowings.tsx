@@ -232,9 +232,11 @@ const Sowings = () => {
     { key: 'indoor', label: SOWING_STATUS_META.indoor.label },
     { key: 'transplanted', label: SOWING_STATUS_META.transplanted.label },
     { key: 'harvesting', label: SOWING_STATUS_META.harvesting.label },
+    { key: 'flowering', label: SOWING_STATUS_META.flowering.label },
     { key: 'done', label: SOWING_STATUS_META.done.label },
     { key: 'alla', label: 'Alla' },
   ];
+
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
