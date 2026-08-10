@@ -31,3 +31,5 @@ project_id = "ysonnvbkrwajacvdkqut"
     verify_jwt = false
   [functions.run-my-briefing]
     verify_jwt = true
+  [functions.calendar-pdf]
+    verify_jwt = false

@@ -14,10 +14,11 @@ type NavItem = { label: string; to: string; anchor?: string; matchPrefix?: strin
 const NAV: NavItem[] = [
   { label: 'Hur det fungerar', to: '/#hur-det-fungerar', anchor: 'hur-det-fungerar' },
   { label: 'Funktioner', to: '/#funktioner', anchor: 'funktioner' },
-  { label: 'För vem', to: '/#for-vem', anchor: 'for-vem' },
+  { label: 'Odlingskalender', to: '/odlingskalender', matchPrefix: '/odlingskalender' },
   { label: 'Blogg', to: '/blogg', matchPrefix: '/blogg' },
   { label: 'Pris', to: '/#pris', anchor: 'pris' },
 ];
+
 
 function buildHref(item: NavItem, isHome: boolean): string {
   if (!item.anchor) return item.to;

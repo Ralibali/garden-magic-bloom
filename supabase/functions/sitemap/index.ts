@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
     { loc: "/om-oss" },
     { loc: "/blogg", lastmod: latestDate(posts.map((post) => post.updated_at || post.published_at)) },
     { loc: "/vaxter", lastmod: latestDate(plants.map((plant) => plant.updated_at || plant.created_at)) },
-    { loc: "/manad", lastmod: latestDate(months.map((month) => month.updated_at || month.created_at)) },
+    { loc: "/odlingskalender", lastmod: latestDate(months.map((month) => month.updated_at || month.created_at)) },
     { loc: "/zoner", lastmod: latestDate(zones.map((zone) => zone.updated_at || zone.created_at)) },
     { loc: "/install" },
     { loc: "/terms" },
@@ -103,7 +103,7 @@ Deno.serve(async (req) => {
 
   for (const month of months) {
     entries.push({
-      loc: `/manad/${month.slug}`,
+      loc: `/odlingskalender/${month.slug}`,
       lastmod: dateOnly(month.updated_at || month.created_at),
     });
   }

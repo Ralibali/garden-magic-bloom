@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Seo } from '@/hooks/useSeo';
 import { Button } from '@/components/ui/button';
 import PublicEmailCapture from '@/components/PublicEmailCapture';
+import CalendarCrossLink from '@/components/CalendarCrossLink';
 import { ArrowRight, CalendarDays, Check, Copy, Sprout } from 'lucide-react';
 import { sowingMatrix, formatRange, getCropTiming, type CropTiming } from '@/data/sowingMatrix';
 import { CURRENT_YEAR } from '@/lib/currentYear';
@@ -181,6 +182,10 @@ export default function Sakalender() {
                 <Copy className="h-4 w-4" /> {copied ? 'Kopierat!' : 'Kopiera text'}
               </Button>
             </div>
+            <CalendarCrossLink
+              className="mt-6"
+              description="Såkalendern visar tiderna gröda för gröda. Odlingskalendern visar i stället allt som ska göras just den här månaden i din zon."
+            />
           </section>
         )}
       </main>

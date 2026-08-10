@@ -50,8 +50,8 @@ const Odlingsplan = React.lazy(() => import("./pages/Odlingsplan"));
 const Odlingsakuten = React.lazy(() => import("./pages/Odlingsakuten"));
 const VaxterIndex = React.lazy(() => import("./pages/VaxterIndex"));
 const VaxtDetail = React.lazy(() => import("./pages/VaxtDetail"));
-const ManadIndex = React.lazy(() => import("./pages/ManadIndex"));
-const ManadDetail = React.lazy(() => import("./pages/ManadDetail"));
+const OdlingskalenderIndex = React.lazy(() => import("./pages/OdlingskalenderIndex"));
+const OdlingskalenderManad = React.lazy(() => import("./pages/OdlingskalenderManad"));
 const ZonerIndex = React.lazy(() => import("./pages/ZonerIndex"));
 const ZonDetail = React.lazy(() => import("./pages/ZonDetail"));
 
@@ -149,6 +149,13 @@ function GuiderRedirect() {
   return <Navigate to={`/blogg/${slug}`} replace />;
 }
 
+// Redirect /manad/:slug → /odlingskalender/:slug (sökordsmatchning)
+function LegacyMonthRedirect() {
+  const { slug } = useParams();
+  return <Navigate to={`/odlingskalender/${slug}`} replace />;
+}
+
+
 function CacheClearer() {
   const { user } = useAuth();
   const prevUserId = React.useRef<string | null>(user?.id ?? null);
@@ -188,8 +195,10 @@ const AppRoutes = () => (
           {/* Programmatic SEO routes */}
           <Route path="/vaxter" element={<VaxterIndex />} />
           <Route path="/vaxter/:slug" element={<VaxtDetail />} />
-          <Route path="/manad" element={<ManadIndex />} />
-          <Route path="/manad/:slug" element={<ManadDetail />} />
+          <Route path="/odlingskalender" element={<OdlingskalenderIndex />} />
+          <Route path="/odlingskalender/:slug" element={<OdlingskalenderManad />} />
+          <Route path="/manad" element={<Navigate to="/odlingskalender" replace />} />
+          <Route path="/manad/:slug" element={<LegacyMonthRedirect />} />
           <Route path="/zoner" element={<ZonerIndex />} />
           <Route path="/zoner/:slug" element={<ZonDetail />} />
           <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
