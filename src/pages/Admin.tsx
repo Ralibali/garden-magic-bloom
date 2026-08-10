@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import BlogEditor from '@/components/admin/BlogEditor';
 import GlossaryManager from '@/components/admin/GlossaryManager';
+import { useUserActivity } from '@/components/admin/UserActivityFeed';
 
 const AnalyticsDashboard = React.lazy(() => import('@/components/admin/AnalyticsDashboard'));
 const KeywordExplorer = React.lazy(() => import('@/components/admin/KeywordExplorer'));
