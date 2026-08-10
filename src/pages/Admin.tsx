@@ -366,6 +366,7 @@ function AdminUsers() {
                       </div>
                     </div>
                   )}
+                  {isExpanded && <UserActivityTimeline userId={user.user_id} />}
                 </CardContent>
               </Card>
             );
