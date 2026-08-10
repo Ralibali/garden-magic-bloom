@@ -161,7 +161,6 @@ export default function OdlingskalenderManad() {
           `Odlingskalender för ${monthName} ${CURRENT_YEAR}: förodling, direktsådd, utplantering, skörd och skötsel med vecknummer för din klimatzon.`
         }
         path={`/odlingskalender/${monthName}`}
-        canonical={`${ORIGIN}/odlingskalender/${monthName}`}
         ogType="article"
         articleMeta={{ publishedTime: month?.created_at, modifiedTime: month?.updated_at }}
         jsonLd={jsonLd}
