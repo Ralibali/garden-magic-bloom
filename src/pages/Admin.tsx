@@ -91,6 +91,11 @@ export default function Admin() {
           </React.Suspense>
         </TabsContent>
         <TabsContent value="users"><AdminUsers /></TabsContent>
+        <TabsContent value="activity">
+          <React.Suspense fallback={<Skeleton className="h-64" />}>
+            <UserActivityFeed />
+          </React.Suspense>
+        </TabsContent>
         <TabsContent value="feedback"><AdminFeedback /></TabsContent>
         <TabsContent value="blog"><BlogEditor /></TabsContent>
         <TabsContent value="glossary"><GlossaryManager /></TabsContent>
