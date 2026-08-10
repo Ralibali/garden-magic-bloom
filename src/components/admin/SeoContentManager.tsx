@@ -30,7 +30,7 @@ const TABLE_BY_TYPE: Record<SeoType, "seo_plants" | "seo_months" | "seo_zones"> 
 
 const PUBLIC_PATH_BY_TYPE: Record<SeoType, string> = {
   plant: "/vaxter",
-  month: "/manad",
+  month: "/odlingskalender",
   zone: "/zoner",
 };
 
@@ -48,7 +48,7 @@ export default function SeoContentManager() {
     try {
       const tables = ["seo_plants", "seo_months", "seo_zones"] as const;
       const prefixByTable: Record<string, string> = {
-        seo_plants: "/vaxter/", seo_months: "/manad/", seo_zones: "/zoner/",
+        seo_plants: "/vaxter/", seo_months: "/odlingskalender/", seo_zones: "/zoner/",
       };
       const paths: string[] = [];
       for (const t of tables) {

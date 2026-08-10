@@ -203,7 +203,7 @@ export default function VaxtDetail() {
             <h2 className="font-serif text-2xl text-foreground mb-3">Året med {plant.name}</h2>
             <div className="flex flex-wrap gap-2">
               {plant.months.map((m: any, i: number) => m.month && (
-                <Link key={i} to={`/manad/${m.month.slug}`} className="px-3 py-1.5 rounded-full bg-secondary text-xs hover:bg-secondary/70 transition-colors">
+                <Link key={i} to={`/odlingskalender/${m.month.slug}`} className="px-3 py-1.5 rounded-full bg-secondary text-xs hover:bg-secondary/70 transition-colors">
                   {m.month.month_name} <span className="text-muted-foreground">· {m.activity.replace('_', ' ')}</span>
                 </Link>
               ))}
