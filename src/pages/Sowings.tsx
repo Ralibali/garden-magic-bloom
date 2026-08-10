@@ -23,14 +23,17 @@ import { trackOnce } from '@/lib/plausible';
 import {
   SOWING_STATUS_ORDER,
   SOWING_STATUS_META,
-  SowingStatus,
+  getSowingStatusOrder,
   buildStatusPatch,
   nextSowingStatus,
   normalizeSowingStatus,
   previousSowingStatus,
   sowingAgeLabel,
   sowingStatusIndex,
+  type SowingStatus,
 } from '@/lib/sowingLifecycle';
+import { guessPlantKind, normalizePlantKind, PLANT_KIND_LABELS } from '@/lib/plantKind';
+
 import { getHarvestHint } from '@/lib/harvestForecast';
 import { addReminder } from '@/lib/reminders';
 import AskGroButton from '@/components/AskGroButton';
@@ -42,11 +45,12 @@ const SEED_BRAND_SUGGESTIONS = ['Impecta', 'Nelson Garden', 'Runåbergs fröer',
 type StatusFilter = 'alla' | 'aktiva' | SowingStatus;
 
 /** Visuell stegindikator för såddens livscykel. */
-const LifecycleProgress = ({ status }: { status: string }) => {
-  const activeIdx = sowingStatusIndex(status);
+const LifecycleProgress = ({ status, plantKind }: { status: string; plantKind?: string }) => {
+  const activeIdx = sowingStatusIndex(status, plantKind);
+  const order = getSowingStatusOrder(plantKind);
   return (
-    <div className="flex items-center gap-1" aria-label={`Status: ${SOWING_STATUS_META[normalizeSowingStatus(status)].label}`}>
-      {SOWING_STATUS_ORDER.map((step, idx) => (
+    <div className="flex items-center gap-1" aria-label={`Status: ${SOWING_STATUS_META[normalizeSowingStatus(status, plantKind)].label}`}>
+      {order.map((step, idx) => (
         <div
           key={step}
           title={SOWING_STATUS_META[step].label}
@@ -60,6 +64,7 @@ const LifecycleProgress = ({ status }: { status: string }) => {
     </div>
   );
 };
+
 
 const Sowings = () => {
   const { user } = useAuth();
@@ -80,6 +85,9 @@ const Sowings = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(presetFilter || 'aktiva');
   const [showBrandSuggestions, setShowBrandSuggestions] = useState(false);
   const [editing, setEditing] = useState<any>(null);
+  const [plantKind, setPlantKind] = useState<string>(guessPlantKind(prefill?.variety || ''));
+  const [plantKindTouched, setPlantKindTouched] = useState(false);
+
   const brandRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { if (prefill || presetFilter) window.history.replaceState({}, document.title); }, [prefill, presetFilter]);
@@ -120,7 +128,7 @@ const Sowings = () => {
       const query = search.trim().toLowerCase();
       const matchesQuery = !query || sowing.variety?.toLowerCase().includes(query) || sowing.seed_brand?.toLowerCase().includes(query);
       if (!matchesQuery) return false;
-      const st = normalizeSowingStatus(sowing.status);
+      const st = normalizeSowingStatus(sowing.status, sowing.plant_kind);
       if (statusFilter === 'alla') return true;
       if (statusFilter === 'aktiva') return st !== 'done';
       return st === statusFilter;
@@ -132,7 +140,7 @@ const Sowings = () => {
   const createMutation = useMutation({
     mutationFn: () => {
       if (!isPremium && (sowingsRaw?.length ?? 0) >= FREE_SOWING_LIMIT) throw new Error('SOWING_LIMIT');
-      return api.createSowing({ variety: variety.trim(), bed_id: bedId || undefined, sow_date: sowDate, type, notes: notes.trim() || undefined, seed_brand: seedBrand.trim() || undefined });
+      return api.createSowing({ variety: variety.trim(), bed_id: bedId || undefined, sow_date: sowDate, type, notes: notes.trim() || undefined, seed_brand: seedBrand.trim() || undefined, plant_kind: plantKind });
     },
     onSuccess: (sowing) => {
       const wasFirst = (sowingsRaw?.length ?? 0) === 0;
@@ -173,6 +181,8 @@ const Sowings = () => {
       type: editing.type,
       notes: editing.notes?.trim() || null,
       seed_brand: editing.seed_brand?.trim() || null,
+      plant_kind: normalizePlantKind(editing.plant_kind),
+
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sowings'] });
@@ -222,9 +232,11 @@ const Sowings = () => {
     { key: 'indoor', label: SOWING_STATUS_META.indoor.label },
     { key: 'transplanted', label: SOWING_STATUS_META.transplanted.label },
     { key: 'harvesting', label: SOWING_STATUS_META.harvesting.label },
+    { key: 'flowering', label: SOWING_STATUS_META.flowering.label },
     { key: 'done', label: SOWING_STATUS_META.done.label },
     { key: 'alla', label: 'Alla' },
   ];
+
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -264,7 +276,7 @@ const Sowings = () => {
         </FadeIn>
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}><DialogContent><DialogHeader><DialogTitle>Lägg till sådd</DialogTitle></DialogHeader><div className="space-y-4"><Input placeholder="Sort, till exempel Tomat – Sungold" value={variety} onChange={(event) => setVariety(event.target.value)} /><div className="relative" ref={brandRef}><Input placeholder="Frömärke eller leverantör" value={seedBrand} onChange={(event) => { setSeedBrand(event.target.value); setShowBrandSuggestions(true); }} onFocus={() => setShowBrandSuggestions(true)} />{showBrandSuggestions && filteredBrands.length > 0 && <div className="absolute z-50 top-full left-0 right-0 mt-2 rounded-2xl border border-border/70 bg-popover/98 p-1.5 shadow-xl">{filteredBrands.map((brand) => <button key={brand} type="button" className="w-full rounded-xl px-3 py-2.5 text-left text-sm hover:bg-primary/8" onClick={() => { setSeedBrand(brand); setShowBrandSuggestions(false); }}>{brand}</button>)}</div>}</div><Select value={bedId} onValueChange={setBedId}><SelectTrigger><SelectValue placeholder="Välj bädd (valfritt)" /></SelectTrigger><SelectContent>{(beds || []).map((bed) => <SelectItem key={bed.id} value={bed.id}>{bed.name}</SelectItem>)}</SelectContent></Select><Input type="date" value={sowDate} onChange={(event) => setSowDate(event.target.value)} /><Select value={type} onValueChange={setType}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="direct">Direktsådd</SelectItem><SelectItem value="indoor">Förodling</SelectItem></SelectContent></Select><Textarea placeholder="Anteckningar (valfritt)" value={notes} onChange={(event) => setNotes(event.target.value)} /><Button onClick={() => createMutation.mutate()} disabled={!variety.trim() || createMutation.isPending} className="w-full">{createMutation.isPending ? 'Sparar…' : 'Spara sådd'}</Button></div></DialogContent></Dialog>
+      <Dialog open={open} onOpenChange={setOpen}><DialogContent><DialogHeader><DialogTitle>Lägg till sådd</DialogTitle></DialogHeader><div className="space-y-4"><Input placeholder="Sort, till exempel Tomat – Sungold" value={variety} onChange={(event) => { setVariety(event.target.value); if (!plantKindTouched) setPlantKind(guessPlantKind(event.target.value)); }} /><div className="relative" ref={brandRef}><Input placeholder="Frömärke eller leverantör" value={seedBrand} onChange={(event) => { setSeedBrand(event.target.value); setShowBrandSuggestions(true); }} onFocus={() => setShowBrandSuggestions(true)} />{showBrandSuggestions && filteredBrands.length > 0 && <div className="absolute z-50 top-full left-0 right-0 mt-2 rounded-2xl border border-border/70 bg-popover/98 p-1.5 shadow-xl">{filteredBrands.map((brand) => <button key={brand} type="button" className="w-full rounded-xl px-3 py-2.5 text-left text-sm hover:bg-primary/8" onClick={() => { setSeedBrand(brand); setShowBrandSuggestions(false); }}>{brand}</button>)}</div>}</div><Select value={plantKind} onValueChange={(v) => { setPlantKind(v); setPlantKindTouched(true); }}><SelectTrigger aria-label="Typ av växt"><SelectValue placeholder="Typ av växt" /></SelectTrigger><SelectContent><SelectItem value="edible">{PLANT_KIND_LABELS.edible}</SelectItem><SelectItem value="ornamental">{PLANT_KIND_LABELS.ornamental}</SelectItem></SelectContent></Select><Select value={bedId} onValueChange={setBedId}><SelectTrigger><SelectValue placeholder="Välj bädd (valfritt)" /></SelectTrigger><SelectContent>{(beds || []).map((bed) => <SelectItem key={bed.id} value={bed.id}>{bed.name}</SelectItem>)}</SelectContent></Select><Input type="date" value={sowDate} onChange={(event) => setSowDate(event.target.value)} /><Select value={type} onValueChange={setType}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="direct">Direktsådd</SelectItem><SelectItem value="indoor">Förodling</SelectItem></SelectContent></Select><Textarea placeholder="Anteckningar (valfritt)" value={notes} onChange={(event) => setNotes(event.target.value)} /><Button onClick={() => createMutation.mutate()} disabled={!variety.trim() || createMutation.isPending} className="w-full">{createMutation.isPending ? 'Sparar…' : 'Spara sådd'}</Button></div></DialogContent></Dialog>
 
       {/* Redigeringsdialog */}
       <Dialog open={!!editing} onOpenChange={(isOpen) => !isOpen && setEditing(null)}>
@@ -279,7 +291,12 @@ const Sowings = () => {
                 <SelectContent>{(beds || []).map((bed) => <SelectItem key={bed.id} value={bed.id}>{bed.name}</SelectItem>)}</SelectContent>
               </Select>
               <Input type="date" value={editing.sow_date} onChange={(e) => setEditing({ ...editing, sow_date: e.target.value })} />
+              <Select value={normalizePlantKind(editing.plant_kind)} onValueChange={(v) => setEditing({ ...editing, plant_kind: v })}>
+                <SelectTrigger aria-label="Typ av växt"><SelectValue placeholder="Typ av växt" /></SelectTrigger>
+                <SelectContent><SelectItem value="edible">{PLANT_KIND_LABELS.edible}</SelectItem><SelectItem value="ornamental">{PLANT_KIND_LABELS.ornamental}</SelectItem></SelectContent>
+              </Select>
               <Select value={editing.type} onValueChange={(v) => setEditing({ ...editing, type: v })}>
+
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="direct">Direktsådd</SelectItem><SelectItem value="indoor">Förodling</SelectItem></SelectContent>
               </Select>
@@ -305,11 +322,14 @@ const Sowings = () => {
       ) : (
         <StaggerContainer className="grid gap-3">
           {sowings.map((sowing: any) => {
-            const status = normalizeSowingStatus(sowing.status);
-            const next = nextSowingStatus(status);
-            const prev = previousSowingStatus(status);
+            const kind = normalizePlantKind(sowing.plant_kind);
+            const isOrnamental = kind === 'ornamental';
+            const status = normalizeSowingStatus(sowing.status, kind);
+            const next = nextSowingStatus(status, kind);
+            const prev = previousSowingStatus(status, kind);
             const age = sowingAgeLabel(sowing.sow_date);
-            const hint = status === 'done' ? null : getHarvestHint(sowing.variety, climateZone);
+            const hint = status === 'done' || isOrnamental ? null : getHarvestHint(sowing.variety, climateZone);
+
             return (
               <StaggerItem key={sowing.id}>
                 <Card className="group hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-[var(--card-shadow-hover)]">
@@ -368,7 +388,7 @@ const Sowings = () => {
                       </div>
                     </div>
 
-                    <LifecycleProgress status={status} />
+                    <LifecycleProgress status={status} plantKind={kind} />
 
                     <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
                       <div className="flex items-center gap-2">
@@ -405,7 +425,7 @@ const Sowings = () => {
                           >
                             {next === 'done' ? 'Avsluta' : `Markera som ${SOWING_STATUS_META[next].short.toLowerCase()}`} <ArrowRight className="h-3.5 w-3.5" />
                           </Button>
-                        ) : (
+                        ) : !isOrnamental ? (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -414,8 +434,8 @@ const Sowings = () => {
                           >
                             <Carrot className="h-3.5 w-3.5" /> Logga skörd
                           </Button>
-                        )}
-                        {status === 'harvesting' && (
+                        ) : null}
+                        {!isOrnamental && status === 'harvesting' && (
                           <Button
                             size="sm"
                             className="h-8 gap-1 px-3 text-xs"
@@ -424,6 +444,7 @@ const Sowings = () => {
                             <Carrot className="h-3.5 w-3.5" /> Skörda
                           </Button>
                         )}
+
                       </div>
                     </div>
                   </CardContent>

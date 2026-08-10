@@ -12,6 +12,8 @@ export interface DigestSowing {
   sow_date?: string | null
   transplant_date?: string | null
   type?: string | null
+  plant_kind?: string | null
+
 }
 
 export interface DigestHarvest {
@@ -60,7 +62,16 @@ const subjects = [
   'Dags att kolla sådd, skörd och frost',
 ]
 
-const inactiveStatuses = new Set(['skördad', 'skordad', 'harvested', 'misslyckad', 'failed', 'död', 'dod'])
+// Appens faktiska sådd-statusar: sown | indoor | transplanted | harvesting | flowering | overwintering | done
+const inactiveStatuses = new Set(['done'])
+
+/** Matchar en fritextsort mot grödmatrisen. Ingen match → undefined (gissa aldrig). */
+function findCropForVariety(variety: string | null | undefined): string | undefined {
+  const value = String(variety ?? '').toLowerCase()
+  if (!value) return undefined
+  return Object.keys(sowingWeeks).find((crop) => value.includes(crop.toLowerCase()))
+}
+
 
 export function getIsoWeek(date: Date): { year: number; week: number } {
   const target = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
@@ -110,9 +121,15 @@ export function buildDigestModel(input: DigestModelInput): DigestModel {
     })
     .slice(0, 5)
 
-  const soonHarvest = crops
-    .filter((crop) => inRange(iso.week, getSowingWeekTiming(crop, zone)?.harvest, 3))
-    .slice(0, 5)
+  const soonHarvest = Array.from(new Set(
+    input.sowings
+      .filter((sowing) => (sowing.plant_kind ?? 'edible') === 'edible')
+      .filter((sowing) => !inactiveStatuses.has(String(sowing.status ?? '').trim().toLowerCase()))
+      .map((sowing) => findCropForVariety(sowing.variety))
+      .filter((crop): crop is string => Boolean(crop))
+      .filter((crop) => inRange(iso.week, getSowingWeekTiming(crop, zone)?.harvest, 3)),
+  )).slice(0, 5)
+
 
   const active = activeSowings(input.sowings)
   const harvestKg = harvestKgForYear(input.harvests, iso.year)

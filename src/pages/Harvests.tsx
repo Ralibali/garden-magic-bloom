@@ -17,6 +17,8 @@ import AppEmptyState from '@/components/AppEmptyState';
 import { recordProductActivity } from '@/lib/analytics';
 import SeasonHarvestTicker from '@/components/SeasonHarvestTicker';
 import { normalizeSowingStatus } from '@/lib/sowingLifecycle';
+import { normalizePlantKind } from '@/lib/plantKind';
+
 import AskGroButton from '@/components/AskGroButton';
 import { FadeIn } from '@/components/animations';
 
@@ -44,7 +46,12 @@ const Harvests = () => {
 
   const { data: harvests, isLoading } = useQuery({ queryKey: ['harvests'], queryFn: api.getHarvests });
   const { data: beds } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
-  const { data: sowings } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const { data: sowingsRaw } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const sowings = useMemo(
+    () => (sowingsRaw || []).filter((s: any) => normalizePlantKind(s.plant_kind) === 'edible'),
+    [sowingsRaw],
+  );
+
 
   // Sådder som går att skörda ifrån (inte avslutade), för kopplingsväljaren
   const harvestableSowings = useMemo(

@@ -12,6 +12,8 @@ import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger }
 import { valueForHarvest, pricePerKgFor } from '@/data/cropPrices';
 import { buildSeasonSummary, shareSeasonText } from '@/lib/seasonShare';
 import { toast } from '@/hooks/use-toast';
+import { normalizePlantKind } from '@/lib/plantKind';
+
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
@@ -36,7 +38,12 @@ const Statistics = () => {
 
   const { data: stats, isLoading } = useQuery({ queryKey: ['summary-stats'], queryFn: api.getSummaryStats });
   const { data: harvests } = useQuery({ queryKey: ['harvests'], queryFn: api.getHarvests });
-  const { data: sowings } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const { data: sowingsRaw } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const sowings = useMemo(
+    () => (sowingsRaw || []).filter((s: any) => normalizePlantKind(s.plant_kind) === 'edible'),
+    [sowingsRaw],
+  );
+
 
   // Harvest per month (current year vs previous year)
   const harvestByMonth = useMemo(() => {

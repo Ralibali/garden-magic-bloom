@@ -1,43 +1,84 @@
 /**
- * Livscykel för en sådd: sown → indoor → transplanted → harvesting → done.
- * Delad logik för såloggen så att statusflödet är konsekvent överallt.
+ * Livscykel för en sådd. Ätbara grödor slutar i skörd, prydnadsväxter
+ * i blomning och övervintring.
+ *
+ * edible:     sown → indoor → transplanted → harvesting → done
+ * ornamental: sown → indoor → transplanted → flowering → overwintering → done
  */
 
-export type SowingStatus = 'sown' | 'indoor' | 'transplanted' | 'harvesting' | 'done';
+import { normalizePlantKind, type PlantKind } from '@/lib/plantKind';
 
-export const SOWING_STATUS_ORDER: SowingStatus[] = ['sown', 'indoor', 'transplanted', 'harvesting', 'done'];
+export type SowingStatus =
+  | 'sown'
+  | 'indoor'
+  | 'transplanted'
+  | 'harvesting'
+  | 'flowering'
+  | 'overwintering'
+  | 'done';
+
+const EDIBLE_ORDER: SowingStatus[] = ['sown', 'indoor', 'transplanted', 'harvesting', 'done'];
+const ORNAMENTAL_ORDER: SowingStatus[] = ['sown', 'indoor', 'transplanted', 'flowering', 'overwintering', 'done'];
+
+/** Bakåtkompatibel export – ordningen för ätbara grödor. */
+export const SOWING_STATUS_ORDER: SowingStatus[] = EDIBLE_ORDER;
+
+/** Livscykelns steg för en given växttyp. */
+export function getSowingStatusOrder(plantKind: PlantKind | string | null | undefined): SowingStatus[] {
+  return normalizePlantKind(plantKind as string) === 'ornamental' ? ORNAMENTAL_ORDER : EDIBLE_ORDER;
+}
 
 export const SOWING_STATUS_META: Record<SowingStatus, { label: string; short: string; description: string }> = {
   sown: { label: 'Sådd', short: 'Sådd', description: 'Fröet är i jorden' },
   indoor: { label: 'Förodlad', short: 'Förodling', description: 'Plantan växer inomhus eller i växthus' },
   transplanted: { label: 'Utplanterad', short: 'Utplanterad', description: 'Plantan är på sin slutliga växtplats' },
   harvesting: { label: 'Skörd', short: 'Ger skörd', description: 'Plantan producerar och kan skördas' },
+  flowering: { label: 'Blommar', short: 'Blommar', description: 'Plantan blommar nu' },
+  overwintering: { label: 'Övervintras', short: 'Övervintring', description: 'Knölar/lökar tas upp eller täcks inför vintern' },
   done: { label: 'Avslutad', short: 'Avslutad', description: 'Säsongen är över för den här sådden' },
 };
 
-/** Normaliserar okända/saknade statusvärden till närmaste giltiga steg. */
-export function normalizeSowingStatus(status: string | null | undefined): SowingStatus {
-  if (status && (SOWING_STATUS_ORDER as string[]).includes(status)) return status as SowingStatus;
+/** Normaliserar okända/saknade statusvärden till närmaste giltiga steg för växttypen. */
+export function normalizeSowingStatus(
+  status: string | null | undefined,
+  plantKind?: PlantKind | string | null,
+): SowingStatus {
+  const order = getSowingStatusOrder(plantKind);
+  if (status && (order as string[]).includes(status)) return status as SowingStatus;
+  // Statusvärde från den andra livscykeln – mappa till motsvarande steg.
+  if (status === 'harvesting') return order.includes('flowering') ? 'flowering' : 'harvesting';
+  if (status === 'flowering') return order.includes('flowering') ? 'flowering' : 'harvesting';
+  if (status === 'overwintering') return order.includes('overwintering') ? 'overwintering' : 'done';
+  if (status === 'done') return 'done';
   return 'sown';
 }
 
 /** Nästa steg i livscykeln, eller null om sådden är avslutad. */
-export function nextSowingStatus(status: string | null | undefined): SowingStatus | null {
-  const current = normalizeSowingStatus(status);
-  const idx = SOWING_STATUS_ORDER.indexOf(current);
-  return idx < SOWING_STATUS_ORDER.length - 1 ? SOWING_STATUS_ORDER[idx + 1] : null;
+export function nextSowingStatus(
+  status: string | null | undefined,
+  plantKind?: PlantKind | string | null,
+): SowingStatus | null {
+  const order = getSowingStatusOrder(plantKind);
+  const idx = order.indexOf(normalizeSowingStatus(status, plantKind));
+  return idx < order.length - 1 ? order[idx + 1] : null;
 }
 
 /** Föregående steg i livscykeln, eller null om sådden är i första steget. */
-export function previousSowingStatus(status: string | null | undefined): SowingStatus | null {
-  const current = normalizeSowingStatus(status);
-  const idx = SOWING_STATUS_ORDER.indexOf(current);
-  return idx > 0 ? SOWING_STATUS_ORDER[idx - 1] : null;
+export function previousSowingStatus(
+  status: string | null | undefined,
+  plantKind?: PlantKind | string | null,
+): SowingStatus | null {
+  const order = getSowingStatusOrder(plantKind);
+  const idx = order.indexOf(normalizeSowingStatus(status, plantKind));
+  return idx > 0 ? order[idx - 1] : null;
 }
 
-/** Stegindex (0–4) för progressvisning. */
-export function sowingStatusIndex(status: string | null | undefined): number {
-  return SOWING_STATUS_ORDER.indexOf(normalizeSowingStatus(status));
+/** Stegindex för progressvisning. */
+export function sowingStatusIndex(
+  status: string | null | undefined,
+  plantKind?: PlantKind | string | null,
+): number {
+  return getSowingStatusOrder(plantKind).indexOf(normalizeSowingStatus(status, plantKind));
 }
 
 /** Antal hela dagar sedan ett datum (YYYY-MM-DD). Negativt om datumet ligger i framtiden. */
