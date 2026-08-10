@@ -1,4 +1,7 @@
+import { normalizePlantKind } from '@/lib/plantKind';
+
 export type GardenActionPriority = 'urgent' | 'today' | 'soon';
+
 export type GardenActionKind = 'reminder' | 'watering' | 'weather' | 'frost' | 'sowing' | 'harvest' | 'start';
 
 export interface GardenAction {
