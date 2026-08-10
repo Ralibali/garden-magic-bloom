@@ -11,18 +11,5233 @@ export interface SowingWeekTiming {
 }
 
 export const sowingWeeks = {
-  "Tomat": {"1":{"pre":[9,11],"out":[17,19],"direct":null,"harvest":[29,42]},"2":{"pre":[10,12],"out":[18,20],"direct":null,"harvest":[30,41]},"3":{"pre":[12,14],"out":[20,22],"direct":null,"harvest":[32,40]},"4":{"pre":[13,15],"out":[21,23],"direct":null,"harvest":[33,39]},"5":{"pre":[15,17],"out":[23,25],"direct":null,"harvest":[35,37]},"6":{"pre":[16,18],"out":[24,26],"direct":null,"harvest":[35,35]},"7":{"pre":[17,19],"out":[25,27],"direct":null,"harvest":[33,33]},"8":{"pre":[18,20],"out":[26,28],"direct":null,"harvest":[32,32]}},
-  "Chili": {"1":{"pre":[4,6],"out":[18,20],"direct":null,"harvest":[30,42]},"2":{"pre":[5,7],"out":[19,21],"direct":null,"harvest":[31,41]},"3":{"pre":[7,9],"out":[21,23],"direct":null,"harvest":[33,40]},"4":{"pre":[8,10],"out":[22,24],"direct":null,"harvest":[34,39]},"5":{"pre":[10,12],"out":[24,26],"direct":null,"harvest":[36,37]},"6":{"pre":[11,13],"out":[25,27],"direct":null,"harvest":[35,35]},"7":{"pre":[12,14],"out":null,"direct":null,"harvest":null},"8":{"pre":[13,15],"out":null,"direct":null,"harvest":null}},
-  "Gurka": {"1":{"pre":[13,15],"out":[17,19],"direct":[18,21],"harvest":[28,42]},"2":{"pre":[14,16],"out":[18,20],"direct":[19,22],"harvest":[29,41]},"3":{"pre":[16,18],"out":[20,22],"direct":[21,24],"harvest":[31,40]},"4":{"pre":[17,19],"out":[21,23],"direct":[22,25],"harvest":[32,39]},"5":{"pre":[19,21],"out":[23,25],"direct":[24,27],"harvest":[34,37]},"6":{"pre":[20,22],"out":[24,26],"direct":[25,28],"harvest":[35,35]},"7":{"pre":[21,23],"out":[25,27],"direct":[26,29],"harvest":[33,33]},"8":{"pre":[22,24],"out":[26,28],"direct":[27,30],"harvest":[32,32]}},
-  "Morot": {"1":{"pre":null,"out":null,"direct":[15,24],"harvest":[28,42]},"2":{"pre":null,"out":null,"direct":[16,25],"harvest":[29,41]},"3":{"pre":null,"out":null,"direct":[18,27],"harvest":[31,40]},"4":{"pre":null,"out":null,"direct":[19,28],"harvest":[32,39]},"5":{"pre":null,"out":null,"direct":[21,30],"harvest":[34,37]},"6":{"pre":null,"out":null,"direct":[22,31],"harvest":[35,35]},"7":{"pre":null,"out":null,"direct":[23,32],"harvest":[33,33]},"8":{"pre":null,"out":null,"direct":[24,33],"harvest":[32,32]}},
-  "Sallat": {"1":{"pre":[12,14],"out":[15,36],"direct":[14,36],"harvest":[19,42]},"2":{"pre":[13,15],"out":[16,35],"direct":[15,35],"harvest":[20,41]},"3":{"pre":[15,17],"out":[18,34],"direct":[17,34],"harvest":[22,40]},"4":{"pre":[16,18],"out":[19,33],"direct":[18,33],"harvest":[23,39]},"5":{"pre":[18,20],"out":[21,31],"direct":[20,31],"harvest":[25,37]},"6":{"pre":[19,21],"out":[22,29],"direct":[21,29],"harvest":[26,35]},"7":{"pre":[20,22],"out":[23,27],"direct":[22,27],"harvest":[27,33]},"8":{"pre":[21,23],"out":[24,26],"direct":[23,26],"harvest":[28,32]}},
-  "Potatis": {"1":{"pre":[11,13],"out":[15,18],"direct":[15,18],"harvest":[26,42]},"2":{"pre":[12,14],"out":[16,19],"direct":[16,19],"harvest":[27,41]},"3":{"pre":[14,16],"out":[18,21],"direct":[18,21],"harvest":[29,40]},"4":{"pre":[15,17],"out":[19,22],"direct":[19,22],"harvest":[30,39]},"5":{"pre":[17,19],"out":[21,24],"direct":[21,24],"harvest":[32,37]},"6":{"pre":[18,20],"out":[22,25],"direct":[22,25],"harvest":[33,35]},"7":{"pre":[19,21],"out":[23,26],"direct":[23,26],"harvest":[33,33]},"8":{"pre":[20,22],"out":[24,27],"direct":[24,27],"harvest":[32,32]}},
-  "Lök": {"1":{"pre":[6,8],"out":[16,19],"direct":[16,19],"harvest":[28,42]},"2":{"pre":[7,9],"out":[17,20],"direct":[17,20],"harvest":[29,41]},"3":{"pre":[9,11],"out":[19,22],"direct":[19,22],"harvest":[31,40]},"4":{"pre":[10,12],"out":[20,23],"direct":[20,23],"harvest":[32,39]},"5":{"pre":[12,14],"out":[22,25],"direct":[22,25],"harvest":[34,37]},"6":{"pre":[13,15],"out":[23,26],"direct":[23,26],"harvest":[35,35]},"7":{"pre":[14,16],"out":[24,27],"direct":[24,27],"harvest":[33,33]},"8":{"pre":[15,17],"out":[25,28],"direct":[25,28],"harvest":[32,32]}},
-  "Vitlök": {"1":{"pre":null,"out":[38,44],"direct":[38,44],"harvest":[28,32]},"2":{"pre":null,"out":[38,44],"direct":[38,44],"harvest":[29,33]},"3":{"pre":null,"out":[38,44],"direct":[38,44],"harvest":[31,35]},"4":{"pre":null,"out":[38,44],"direct":[38,44],"harvest":[32,36]},"5":{"pre":null,"out":[38,44],"direct":[38,44],"harvest":[34,38]},"6":{"pre":null,"out":[38,44],"direct":[38,44],"harvest":[35,39]},"7":{"pre":null,"out":[38,44],"direct":[38,44],"harvest":[36,40]},"8":{"pre":null,"out":[38,44],"direct":[38,44],"harvest":[37,41]}},
-  "Jordgubbar": {"1":{"pre":null,"out":[15,19],"direct":null,"harvest":[24,28]},"2":{"pre":null,"out":[16,20],"direct":null,"harvest":[25,29]},"3":{"pre":null,"out":[18,22],"direct":null,"harvest":[27,31]},"4":{"pre":null,"out":[19,23],"direct":null,"harvest":[28,32]},"5":{"pre":null,"out":[21,25],"direct":null,"harvest":[30,34]},"6":{"pre":null,"out":[22,26],"direct":null,"harvest":[31,35]},"7":{"pre":null,"out":[23,27],"direct":null,"harvest":[32,36]},"8":{"pre":null,"out":[24,28],"direct":null,"harvest":[33,37]}},
-  "Basilika": {"1":{"pre":[10,12],"out":[18,20],"direct":null,"harvest":[24,42]},"2":{"pre":[11,13],"out":[19,21],"direct":null,"harvest":[25,41]},"3":{"pre":[13,15],"out":[21,23],"direct":null,"harvest":[27,40]},"4":{"pre":[14,16],"out":[22,24],"direct":null,"harvest":[28,39]},"5":{"pre":[16,18],"out":[24,26],"direct":null,"harvest":[30,37]},"6":{"pre":[17,19],"out":[25,27],"direct":null,"harvest":[31,35]},"7":{"pre":[18,20],"out":[26,28],"direct":null,"harvest":[32,33]},"8":{"pre":[19,21],"out":[27,29],"direct":null,"harvest":[32,32]}},
-  "Ärtor": {"1":{"pre":null,"out":null,"direct":[14,22],"harvest":[24,38]},"2":{"pre":null,"out":null,"direct":[15,23],"harvest":[25,37]},"3":{"pre":null,"out":null,"direct":[17,25],"harvest":[27,36]},"4":{"pre":null,"out":null,"direct":[18,26],"harvest":[28,35]},"5":{"pre":null,"out":null,"direct":[20,28],"harvest":[30,33]},"6":{"pre":null,"out":null,"direct":[21,29],"harvest":[31,31]},"7":{"pre":null,"out":null,"direct":[22,30],"harvest":[32,29]},"8":{"pre":null,"out":null,"direct":[23,31],"harvest":[32,28]}},
-  "Bönor": {"1":{"pre":null,"out":null,"direct":[17,22],"harvest":[26,42]},"2":{"pre":null,"out":null,"direct":[18,23],"harvest":[27,41]},"3":{"pre":null,"out":null,"direct":[20,25],"harvest":[29,40]},"4":{"pre":null,"out":null,"direct":[21,26],"harvest":[30,39]},"5":{"pre":null,"out":null,"direct":[23,28],"harvest":[32,37]},"6":{"pre":null,"out":null,"direct":[24,29],"harvest":[33,35]},"7":{"pre":null,"out":null,"direct":[25,30],"harvest":[33,33]},"8":{"pre":null,"out":null,"direct":[26,31],"harvest":[32,32]}}
+  "Tomat": {
+    "1": {
+      "pre": [
+        9,
+        11
+      ],
+      "out": [
+        17,
+        19
+      ],
+      "direct": null,
+      "harvest": [
+        29,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        18,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        30,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        20,
+        22
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        21,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        23,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        24,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        25,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        26,
+        28
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Chili": {
+    "1": {
+      "pre": [
+        4,
+        6
+      ],
+      "out": [
+        18,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        30,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        5,
+        7
+      ],
+      "out": [
+        19,
+        21
+      ],
+      "direct": null,
+      "harvest": [
+        31,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        7,
+        9
+      ],
+      "out": [
+        21,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        8,
+        10
+      ],
+      "out": [
+        22,
+        24
+      ],
+      "direct": null,
+      "harvest": [
+        34,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        24,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        36,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        11,
+        13
+      ],
+      "out": [
+        25,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": null,
+      "direct": null,
+      "harvest": null
+    },
+    "8": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": null,
+      "direct": null,
+      "harvest": null
+    }
+  },
+  "Gurka": {
+    "1": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        17,
+        19
+      ],
+      "direct": [
+        18,
+        21
+      ],
+      "harvest": [
+        28,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        18,
+        20
+      ],
+      "direct": [
+        19,
+        22
+      ],
+      "harvest": [
+        29,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        20,
+        22
+      ],
+      "direct": [
+        21,
+        24
+      ],
+      "harvest": [
+        31,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        21,
+        23
+      ],
+      "direct": [
+        22,
+        25
+      ],
+      "harvest": [
+        32,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        23,
+        25
+      ],
+      "direct": [
+        24,
+        27
+      ],
+      "harvest": [
+        34,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        20,
+        22
+      ],
+      "out": [
+        24,
+        26
+      ],
+      "direct": [
+        25,
+        28
+      ],
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        21,
+        23
+      ],
+      "out": [
+        25,
+        27
+      ],
+      "direct": [
+        26,
+        29
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        22,
+        24
+      ],
+      "out": [
+        26,
+        28
+      ],
+      "direct": [
+        27,
+        30
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Squash": {
+    "1": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        17,
+        19
+      ],
+      "direct": [
+        18,
+        21
+      ],
+      "harvest": [
+        25,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        18,
+        20
+      ],
+      "direct": [
+        19,
+        22
+      ],
+      "harvest": [
+        26,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        20,
+        22
+      ],
+      "direct": [
+        21,
+        24
+      ],
+      "harvest": [
+        28,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        21,
+        23
+      ],
+      "direct": [
+        22,
+        25
+      ],
+      "harvest": [
+        29,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        23,
+        25
+      ],
+      "direct": [
+        24,
+        27
+      ],
+      "harvest": [
+        31,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        20,
+        22
+      ],
+      "out": [
+        24,
+        26
+      ],
+      "direct": [
+        25,
+        28
+      ],
+      "harvest": [
+        32,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        21,
+        23
+      ],
+      "out": [
+        25,
+        27
+      ],
+      "direct": [
+        26,
+        29
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        22,
+        24
+      ],
+      "out": [
+        26,
+        28
+      ],
+      "direct": [
+        27,
+        30
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Pumpa": {
+    "1": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        17,
+        19
+      ],
+      "direct": [
+        18,
+        20
+      ],
+      "harvest": [
+        31,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        18,
+        20
+      ],
+      "direct": [
+        19,
+        21
+      ],
+      "harvest": [
+        32,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        20,
+        22
+      ],
+      "direct": [
+        21,
+        23
+      ],
+      "harvest": [
+        34,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        21,
+        23
+      ],
+      "direct": [
+        22,
+        24
+      ],
+      "harvest": [
+        35,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        23,
+        25
+      ],
+      "direct": [
+        24,
+        26
+      ],
+      "harvest": [
+        37,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        24,
+        26
+      ],
+      "direct": [
+        25,
+        27
+      ],
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        20,
+        22
+      ],
+      "out": [
+        25,
+        27
+      ],
+      "direct": [
+        26,
+        28
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        21,
+        23
+      ],
+      "out": [
+        26,
+        28
+      ],
+      "direct": [
+        27,
+        29
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Majs": {
+    "1": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        17,
+        19
+      ],
+      "direct": [
+        18,
+        20
+      ],
+      "harvest": [
+        29,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        18,
+        20
+      ],
+      "direct": [
+        19,
+        21
+      ],
+      "harvest": [
+        30,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        20,
+        22
+      ],
+      "direct": [
+        21,
+        23
+      ],
+      "harvest": [
+        32,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        21,
+        23
+      ],
+      "direct": [
+        22,
+        24
+      ],
+      "harvest": [
+        33,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        23,
+        25
+      ],
+      "direct": [
+        24,
+        26
+      ],
+      "harvest": [
+        35,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        24,
+        26
+      ],
+      "direct": [
+        25,
+        27
+      ],
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        20,
+        22
+      ],
+      "out": [
+        25,
+        27
+      ],
+      "direct": [
+        26,
+        28
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        21,
+        23
+      ],
+      "out": null,
+      "direct": null,
+      "harvest": null
+    }
+  },
+  "Morot": {
+    "1": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        15,
+        24
+      ],
+      "harvest": [
+        28,
+        42
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        16,
+        25
+      ],
+      "harvest": [
+        29,
+        41
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        18,
+        27
+      ],
+      "harvest": [
+        31,
+        40
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        19,
+        28
+      ],
+      "harvest": [
+        32,
+        39
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        21,
+        30
+      ],
+      "harvest": [
+        34,
+        37
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        22,
+        31
+      ],
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        23,
+        32
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        24,
+        32
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Rödbeta": {
+    "1": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        16,
+        19
+      ],
+      "direct": [
+        15,
+        23
+      ],
+      "harvest": [
+        27,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        17,
+        20
+      ],
+      "direct": [
+        16,
+        24
+      ],
+      "harvest": [
+        28,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        19,
+        22
+      ],
+      "direct": [
+        18,
+        26
+      ],
+      "harvest": [
+        30,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        20,
+        23
+      ],
+      "direct": [
+        19,
+        27
+      ],
+      "harvest": [
+        31,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        22,
+        25
+      ],
+      "direct": [
+        21,
+        29
+      ],
+      "harvest": [
+        33,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        23,
+        26
+      ],
+      "direct": [
+        22,
+        30
+      ],
+      "harvest": [
+        34,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        20,
+        22
+      ],
+      "out": [
+        24,
+        27
+      ],
+      "direct": [
+        23,
+        31
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        21,
+        23
+      ],
+      "out": [
+        25,
+        28
+      ],
+      "direct": [
+        24,
+        32
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Palsternacka": {
+    "1": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        14,
+        19
+      ],
+      "harvest": [
+        34,
+        42
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        15,
+        20
+      ],
+      "harvest": [
+        35,
+        41
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        17,
+        22
+      ],
+      "harvest": [
+        37,
+        40
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        18,
+        23
+      ],
+      "harvest": [
+        38,
+        39
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        20,
+        25
+      ],
+      "harvest": [
+        37,
+        37
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        21,
+        26
+      ],
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        22,
+        27
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        23,
+        28
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Kålrot": {
+    "1": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        17,
+        20
+      ],
+      "direct": [
+        16,
+        20
+      ],
+      "harvest": [
+        32,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        18,
+        21
+      ],
+      "direct": [
+        17,
+        21
+      ],
+      "harvest": [
+        33,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        20,
+        23
+      ],
+      "direct": [
+        19,
+        23
+      ],
+      "harvest": [
+        35,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        21,
+        24
+      ],
+      "direct": [
+        20,
+        24
+      ],
+      "harvest": [
+        36,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        23,
+        26
+      ],
+      "direct": [
+        22,
+        26
+      ],
+      "harvest": [
+        37,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        20,
+        22
+      ],
+      "out": [
+        24,
+        27
+      ],
+      "direct": [
+        23,
+        27
+      ],
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        21,
+        23
+      ],
+      "out": [
+        25,
+        28
+      ],
+      "direct": [
+        24,
+        28
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        22,
+        24
+      ],
+      "out": [
+        26,
+        29
+      ],
+      "direct": [
+        25,
+        29
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Rädisa": {
+    "1": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        13,
+        26
+      ],
+      "harvest": [
+        17,
+        42
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        14,
+        27
+      ],
+      "harvest": [
+        18,
+        41
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        16,
+        29
+      ],
+      "harvest": [
+        20,
+        40
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        17,
+        30
+      ],
+      "harvest": [
+        21,
+        39
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        19,
+        32
+      ],
+      "harvest": [
+        23,
+        37
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        20,
+        33
+      ],
+      "harvest": [
+        24,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        21,
+        33
+      ],
+      "harvest": [
+        25,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        22,
+        32
+      ],
+      "harvest": [
+        26,
+        32
+      ]
+    }
+  },
+  "Potatis": {
+    "1": {
+      "pre": [
+        11,
+        13
+      ],
+      "out": [
+        15,
+        18
+      ],
+      "direct": null,
+      "harvest": [
+        26,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        16,
+        19
+      ],
+      "direct": null,
+      "harvest": [
+        27,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        18,
+        21
+      ],
+      "direct": null,
+      "harvest": [
+        29,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        19,
+        22
+      ],
+      "direct": null,
+      "harvest": [
+        30,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        21,
+        24
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        22,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        23,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        20,
+        22
+      ],
+      "out": [
+        24,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Jordärtskocka": {
+    "1": {
+      "pre": null,
+      "out": [
+        13,
+        17
+      ],
+      "direct": null,
+      "harvest": [
+        40,
+        45
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": [
+        14,
+        18
+      ],
+      "direct": null,
+      "harvest": [
+        40,
+        45
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": [
+        16,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        40,
+        45
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": [
+        17,
+        21
+      ],
+      "direct": null,
+      "harvest": [
+        40,
+        45
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": [
+        19,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        40,
+        45
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": [
+        20,
+        24
+      ],
+      "direct": null,
+      "harvest": [
+        40,
+        45
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": [
+        21,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        40,
+        45
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": [
+        22,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        40,
+        45
+      ]
+    }
+  },
+  "Lök": {
+    "1": {
+      "pre": [
+        6,
+        8
+      ],
+      "out": [
+        16,
+        19
+      ],
+      "direct": [
+        16,
+        19
+      ],
+      "harvest": [
+        28,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        7,
+        9
+      ],
+      "out": [
+        17,
+        20
+      ],
+      "direct": [
+        17,
+        20
+      ],
+      "harvest": [
+        29,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        9,
+        11
+      ],
+      "out": [
+        19,
+        22
+      ],
+      "direct": [
+        19,
+        22
+      ],
+      "harvest": [
+        31,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        20,
+        23
+      ],
+      "direct": [
+        20,
+        23
+      ],
+      "harvest": [
+        32,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        22,
+        25
+      ],
+      "direct": [
+        22,
+        25
+      ],
+      "harvest": [
+        34,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        23,
+        26
+      ],
+      "direct": [
+        23,
+        26
+      ],
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        24,
+        27
+      ],
+      "direct": [
+        24,
+        27
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        25,
+        28
+      ],
+      "direct": [
+        25,
+        28
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Vitlök": {
+    "1": {
+      "pre": null,
+      "out": [
+        38,
+        44
+      ],
+      "direct": null,
+      "harvest": [
+        28,
+        32
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": [
+        38,
+        44
+      ],
+      "direct": null,
+      "harvest": [
+        29,
+        33
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": [
+        38,
+        44
+      ],
+      "direct": null,
+      "harvest": [
+        31,
+        35
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": [
+        38,
+        44
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        36
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": [
+        38,
+        44
+      ],
+      "direct": null,
+      "harvest": [
+        34,
+        37
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": [
+        38,
+        44
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": [
+        38,
+        44
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": [
+        38,
+        44
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Purjolök": {
+    "1": {
+      "pre": [
+        5,
+        7
+      ],
+      "out": [
+        16,
+        19
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        6,
+        8
+      ],
+      "out": [
+        17,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        8,
+        10
+      ],
+      "out": [
+        19,
+        22
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        9,
+        11
+      ],
+      "out": [
+        20,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        36,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        11,
+        13
+      ],
+      "out": [
+        22,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        37,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        23,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        24,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        25,
+        28
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Gräslök": {
+    "1": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        15,
+        20
+      ],
+      "direct": [
+        15,
+        20
+      ],
+      "harvest": [
+        19,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        11,
+        13
+      ],
+      "out": [
+        16,
+        21
+      ],
+      "direct": [
+        16,
+        21
+      ],
+      "harvest": [
+        20,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        18,
+        23
+      ],
+      "direct": [
+        18,
+        23
+      ],
+      "harvest": [
+        22,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        19,
+        24
+      ],
+      "direct": [
+        19,
+        24
+      ],
+      "harvest": [
+        23,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        21,
+        26
+      ],
+      "direct": [
+        21,
+        26
+      ],
+      "harvest": [
+        25,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        22,
+        27
+      ],
+      "direct": [
+        22,
+        27
+      ],
+      "harvest": [
+        26,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        23,
+        28
+      ],
+      "direct": [
+        23,
+        28
+      ],
+      "harvest": [
+        27,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        24,
+        29
+      ],
+      "direct": [
+        24,
+        29
+      ],
+      "harvest": [
+        28,
+        32
+      ]
+    }
+  },
+  "Broccoli": {
+    "1": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        16,
+        19
+      ],
+      "direct": [
+        16,
+        19
+      ],
+      "harvest": [
+        28,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        11,
+        13
+      ],
+      "out": [
+        17,
+        20
+      ],
+      "direct": [
+        17,
+        20
+      ],
+      "harvest": [
+        29,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        19,
+        22
+      ],
+      "direct": [
+        19,
+        22
+      ],
+      "harvest": [
+        31,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        20,
+        23
+      ],
+      "direct": [
+        20,
+        23
+      ],
+      "harvest": [
+        32,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        22,
+        25
+      ],
+      "direct": [
+        22,
+        25
+      ],
+      "harvest": [
+        34,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        23,
+        26
+      ],
+      "direct": [
+        23,
+        26
+      ],
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        24,
+        27
+      ],
+      "direct": [
+        24,
+        27
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        25,
+        28
+      ],
+      "direct": [
+        25,
+        28
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Blomkål": {
+    "1": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        16,
+        19
+      ],
+      "direct": null,
+      "harvest": [
+        29,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        11,
+        13
+      ],
+      "out": [
+        17,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        30,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        19,
+        22
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        20,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        22,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        23,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        24,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        25,
+        28
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Vitkål": {
+    "1": {
+      "pre": [
+        9,
+        11
+      ],
+      "out": [
+        16,
+        19
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        17,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        19,
+        22
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        20,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        36,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        22,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        37,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        23,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        24,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        25,
+        28
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Grönkål": {
+    "1": {
+      "pre": [
+        11,
+        13
+      ],
+      "out": [
+        16,
+        21
+      ],
+      "direct": [
+        16,
+        21
+      ],
+      "harvest": [
+        30,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        17,
+        22
+      ],
+      "direct": [
+        17,
+        22
+      ],
+      "harvest": [
+        31,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        19,
+        24
+      ],
+      "direct": [
+        19,
+        24
+      ],
+      "harvest": [
+        33,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        20,
+        25
+      ],
+      "direct": [
+        20,
+        25
+      ],
+      "harvest": [
+        34,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        22,
+        27
+      ],
+      "direct": [
+        22,
+        27
+      ],
+      "harvest": [
+        36,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        23,
+        28
+      ],
+      "direct": [
+        23,
+        28
+      ],
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        24,
+        29
+      ],
+      "direct": [
+        24,
+        29
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        20,
+        22
+      ],
+      "out": [
+        25,
+        30
+      ],
+      "direct": [
+        25,
+        30
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Brysselkål": {
+    "1": {
+      "pre": [
+        9,
+        11
+      ],
+      "out": [
+        16,
+        19
+      ],
+      "direct": null,
+      "harvest": [
+        36,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        17,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        37,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        19,
+        22
+      ],
+      "direct": null,
+      "harvest": [
+        39,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        20,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        39,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        22,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        37,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        23,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        24,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        25,
+        28
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Pak choi": {
+    "1": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        16,
+        24
+      ],
+      "direct": [
+        16,
+        26
+      ],
+      "harvest": [
+        21,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        17,
+        25
+      ],
+      "direct": [
+        17,
+        27
+      ],
+      "harvest": [
+        22,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        19,
+        27
+      ],
+      "direct": [
+        19,
+        29
+      ],
+      "harvest": [
+        24,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        20,
+        28
+      ],
+      "direct": [
+        20,
+        30
+      ],
+      "harvest": [
+        25,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        22,
+        30
+      ],
+      "direct": [
+        22,
+        32
+      ],
+      "harvest": [
+        27,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        20,
+        22
+      ],
+      "out": [
+        23,
+        31
+      ],
+      "direct": [
+        23,
+        33
+      ],
+      "harvest": [
+        28,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        21,
+        23
+      ],
+      "out": [
+        24,
+        32
+      ],
+      "direct": [
+        24,
+        33
+      ],
+      "harvest": [
+        29,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        22,
+        24
+      ],
+      "out": [
+        25,
+        32
+      ],
+      "direct": [
+        25,
+        32
+      ],
+      "harvest": [
+        30,
+        32
+      ]
+    }
+  },
+  "Sallat": {
+    "1": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        15,
+        28
+      ],
+      "direct": [
+        14,
+        28
+      ],
+      "harvest": [
+        19,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        16,
+        29
+      ],
+      "direct": [
+        15,
+        29
+      ],
+      "harvest": [
+        20,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        18,
+        31
+      ],
+      "direct": [
+        17,
+        31
+      ],
+      "harvest": [
+        22,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        19,
+        32
+      ],
+      "direct": [
+        18,
+        32
+      ],
+      "harvest": [
+        23,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        21,
+        34
+      ],
+      "direct": [
+        20,
+        34
+      ],
+      "harvest": [
+        25,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        22,
+        35
+      ],
+      "direct": [
+        21,
+        35
+      ],
+      "harvest": [
+        26,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        20,
+        22
+      ],
+      "out": [
+        23,
+        33
+      ],
+      "direct": [
+        22,
+        33
+      ],
+      "harvest": [
+        27,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        21,
+        23
+      ],
+      "out": [
+        24,
+        32
+      ],
+      "direct": [
+        23,
+        32
+      ],
+      "harvest": [
+        28,
+        32
+      ]
+    }
+  },
+  "Spenat": {
+    "1": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        12,
+        26
+      ],
+      "harvest": [
+        19,
+        42
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        13,
+        27
+      ],
+      "harvest": [
+        20,
+        41
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        15,
+        29
+      ],
+      "harvest": [
+        22,
+        40
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        16,
+        30
+      ],
+      "harvest": [
+        23,
+        39
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        18,
+        32
+      ],
+      "harvest": [
+        25,
+        37
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        19,
+        33
+      ],
+      "harvest": [
+        26,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        20,
+        33
+      ],
+      "harvest": [
+        27,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        21,
+        32
+      ],
+      "harvest": [
+        28,
+        32
+      ]
+    }
+  },
+  "Mangold": {
+    "1": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        16,
+        20
+      ],
+      "direct": [
+        15,
+        22
+      ],
+      "harvest": [
+        24,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        17,
+        21
+      ],
+      "direct": [
+        16,
+        23
+      ],
+      "harvest": [
+        25,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        19,
+        23
+      ],
+      "direct": [
+        18,
+        25
+      ],
+      "harvest": [
+        27,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        20,
+        24
+      ],
+      "direct": [
+        19,
+        26
+      ],
+      "harvest": [
+        28,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        22,
+        26
+      ],
+      "direct": [
+        21,
+        28
+      ],
+      "harvest": [
+        30,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        23,
+        27
+      ],
+      "direct": [
+        22,
+        29
+      ],
+      "harvest": [
+        31,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        20,
+        22
+      ],
+      "out": [
+        24,
+        28
+      ],
+      "direct": [
+        23,
+        30
+      ],
+      "harvest": [
+        32,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        21,
+        23
+      ],
+      "out": [
+        25,
+        29
+      ],
+      "direct": [
+        24,
+        31
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Ruccola": {
+    "1": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        13,
+        28
+      ],
+      "harvest": [
+        19,
+        42
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        14,
+        29
+      ],
+      "harvest": [
+        20,
+        41
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        16,
+        31
+      ],
+      "harvest": [
+        22,
+        40
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        17,
+        32
+      ],
+      "harvest": [
+        23,
+        39
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        19,
+        34
+      ],
+      "harvest": [
+        25,
+        37
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        20,
+        35
+      ],
+      "harvest": [
+        26,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        21,
+        33
+      ],
+      "harvest": [
+        27,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        22,
+        32
+      ],
+      "harvest": [
+        28,
+        32
+      ]
+    }
+  },
+  "Selleri": {
+    "1": {
+      "pre": [
+        7,
+        9
+      ],
+      "out": [
+        17,
+        19
+      ],
+      "direct": null,
+      "harvest": [
+        31,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        8,
+        10
+      ],
+      "out": [
+        18,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        20,
+        22
+      ],
+      "direct": null,
+      "harvest": [
+        34,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        11,
+        13
+      ],
+      "out": [
+        21,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        23,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        37,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        24,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        25,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        26,
+        28
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Ärtor": {
+    "1": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        14,
+        22
+      ],
+      "harvest": [
+        24,
+        28
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        15,
+        23
+      ],
+      "harvest": [
+        25,
+        29
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        17,
+        25
+      ],
+      "harvest": [
+        27,
+        31
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        18,
+        26
+      ],
+      "harvest": [
+        28,
+        32
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        20,
+        28
+      ],
+      "harvest": [
+        30,
+        34
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        21,
+        29
+      ],
+      "harvest": [
+        31,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        22,
+        30
+      ],
+      "harvest": [
+        32,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        23,
+        31
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Sockerärt": {
+    "1": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        14,
+        22
+      ],
+      "harvest": [
+        25,
+        29
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        15,
+        23
+      ],
+      "harvest": [
+        26,
+        30
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        17,
+        25
+      ],
+      "harvest": [
+        28,
+        32
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        18,
+        26
+      ],
+      "harvest": [
+        29,
+        33
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        20,
+        28
+      ],
+      "harvest": [
+        31,
+        35
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        21,
+        29
+      ],
+      "harvest": [
+        32,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        22,
+        30
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        23,
+        31
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Bönor": {
+    "1": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        17,
+        22
+      ],
+      "harvest": [
+        26,
+        42
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        18,
+        23
+      ],
+      "harvest": [
+        27,
+        41
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        20,
+        25
+      ],
+      "harvest": [
+        29,
+        40
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        21,
+        26
+      ],
+      "harvest": [
+        30,
+        39
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        23,
+        28
+      ],
+      "harvest": [
+        32,
+        37
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        24,
+        29
+      ],
+      "harvest": [
+        33,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        25,
+        30
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        26,
+        31
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Bondböna": {
+    "1": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        11,
+        18
+      ],
+      "harvest": [
+        28,
+        32
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        12,
+        19
+      ],
+      "harvest": [
+        29,
+        33
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        14,
+        21
+      ],
+      "harvest": [
+        31,
+        35
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        15,
+        22
+      ],
+      "harvest": [
+        32,
+        36
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        17,
+        24
+      ],
+      "harvest": [
+        34,
+        37
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        18,
+        25
+      ],
+      "harvest": [
+        35,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        19,
+        26
+      ],
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        20,
+        27
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Basilika": {
+    "1": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        18,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        24,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        11,
+        13
+      ],
+      "out": [
+        19,
+        21
+      ],
+      "direct": null,
+      "harvest": [
+        25,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        21,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        27,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        22,
+        24
+      ],
+      "direct": null,
+      "harvest": [
+        28,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        24,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        30,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        25,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        31,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        26,
+        28
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        27,
+        29
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Dill": {
+    "1": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        14,
+        26
+      ],
+      "harvest": [
+        21,
+        42
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        15,
+        27
+      ],
+      "harvest": [
+        22,
+        41
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        17,
+        29
+      ],
+      "harvest": [
+        24,
+        40
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        18,
+        30
+      ],
+      "harvest": [
+        25,
+        39
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        20,
+        32
+      ],
+      "harvest": [
+        27,
+        37
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        21,
+        33
+      ],
+      "harvest": [
+        28,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        22,
+        33
+      ],
+      "harvest": [
+        29,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        23,
+        32
+      ],
+      "harvest": [
+        30,
+        32
+      ]
+    }
+  },
+  "Persilja": {
+    "1": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        16,
+        20
+      ],
+      "direct": [
+        15,
+        22
+      ],
+      "harvest": [
+        24,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        11,
+        13
+      ],
+      "out": [
+        17,
+        21
+      ],
+      "direct": [
+        16,
+        23
+      ],
+      "harvest": [
+        25,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        19,
+        23
+      ],
+      "direct": [
+        18,
+        25
+      ],
+      "harvest": [
+        27,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        14,
+        16
+      ],
+      "out": [
+        20,
+        24
+      ],
+      "direct": [
+        19,
+        26
+      ],
+      "harvest": [
+        28,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        22,
+        26
+      ],
+      "direct": [
+        21,
+        28
+      ],
+      "harvest": [
+        30,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        23,
+        27
+      ],
+      "direct": [
+        22,
+        29
+      ],
+      "harvest": [
+        31,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        24,
+        28
+      ],
+      "direct": [
+        23,
+        30
+      ],
+      "harvest": [
+        32,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        19,
+        21
+      ],
+      "out": [
+        25,
+        29
+      ],
+      "direct": [
+        24,
+        31
+      ],
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Koriander": {
+    "1": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        15,
+        26
+      ],
+      "harvest": [
+        20,
+        42
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        16,
+        27
+      ],
+      "harvest": [
+        21,
+        41
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        18,
+        29
+      ],
+      "harvest": [
+        23,
+        40
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        19,
+        30
+      ],
+      "harvest": [
+        24,
+        39
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        21,
+        32
+      ],
+      "harvest": [
+        26,
+        37
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        22,
+        33
+      ],
+      "harvest": [
+        27,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        23,
+        33
+      ],
+      "harvest": [
+        28,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": null,
+      "direct": [
+        24,
+        32
+      ],
+      "harvest": [
+        29,
+        32
+      ]
+    }
+  },
+  "Timjan": {
+    "1": {
+      "pre": [
+        9,
+        11
+      ],
+      "out": [
+        17,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        22,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        18,
+        21
+      ],
+      "direct": null,
+      "harvest": [
+        23,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        20,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        25,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        21,
+        24
+      ],
+      "direct": null,
+      "harvest": [
+        26,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        23,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        28,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        24,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        29,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        25,
+        28
+      ],
+      "direct": null,
+      "harvest": [
+        30,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        26,
+        29
+      ],
+      "direct": null,
+      "harvest": [
+        31,
+        32
+      ]
+    }
+  },
+  "Oregano": {
+    "1": {
+      "pre": [
+        9,
+        11
+      ],
+      "out": [
+        17,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        22,
+        42
+      ]
+    },
+    "2": {
+      "pre": [
+        10,
+        12
+      ],
+      "out": [
+        18,
+        21
+      ],
+      "direct": null,
+      "harvest": [
+        23,
+        41
+      ]
+    },
+    "3": {
+      "pre": [
+        12,
+        14
+      ],
+      "out": [
+        20,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        25,
+        40
+      ]
+    },
+    "4": {
+      "pre": [
+        13,
+        15
+      ],
+      "out": [
+        21,
+        24
+      ],
+      "direct": null,
+      "harvest": [
+        26,
+        39
+      ]
+    },
+    "5": {
+      "pre": [
+        15,
+        17
+      ],
+      "out": [
+        23,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        28,
+        37
+      ]
+    },
+    "6": {
+      "pre": [
+        16,
+        18
+      ],
+      "out": [
+        24,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        29,
+        35
+      ]
+    },
+    "7": {
+      "pre": [
+        17,
+        19
+      ],
+      "out": [
+        25,
+        28
+      ],
+      "direct": null,
+      "harvest": [
+        30,
+        33
+      ]
+    },
+    "8": {
+      "pre": [
+        18,
+        20
+      ],
+      "out": [
+        26,
+        29
+      ],
+      "direct": null,
+      "harvest": [
+        31,
+        32
+      ]
+    }
+  },
+  "Jordgubbar": {
+    "1": {
+      "pre": null,
+      "out": [
+        15,
+        19
+      ],
+      "direct": null,
+      "harvest": [
+        24,
+        28
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": [
+        16,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        25,
+        29
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": [
+        18,
+        22
+      ],
+      "direct": null,
+      "harvest": [
+        27,
+        31
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": [
+        19,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        28,
+        32
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": [
+        21,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        30,
+        34
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": [
+        22,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        31,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": [
+        23,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": [
+        24,
+        28
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Hallon": {
+    "1": {
+      "pre": null,
+      "out": [
+        13,
+        18
+      ],
+      "direct": null,
+      "harvest": [
+        27,
+        33
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": [
+        14,
+        19
+      ],
+      "direct": null,
+      "harvest": [
+        28,
+        34
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": [
+        16,
+        21
+      ],
+      "direct": null,
+      "harvest": [
+        30,
+        36
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": [
+        17,
+        22
+      ],
+      "direct": null,
+      "harvest": [
+        31,
+        37
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": [
+        19,
+        24
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        37
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": [
+        20,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        34,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": [
+        21,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": [
+        22,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Vinbär": {
+    "1": {
+      "pre": null,
+      "out": [
+        12,
+        18
+      ],
+      "direct": null,
+      "harvest": [
+        26,
+        30
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": [
+        13,
+        19
+      ],
+      "direct": null,
+      "harvest": [
+        27,
+        31
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": [
+        15,
+        21
+      ],
+      "direct": null,
+      "harvest": [
+        29,
+        33
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": [
+        16,
+        22
+      ],
+      "direct": null,
+      "harvest": [
+        30,
+        34
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": [
+        18,
+        24
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        36
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": [
+        19,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": [
+        20,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": [
+        21,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Krusbär": {
+    "1": {
+      "pre": null,
+      "out": [
+        12,
+        18
+      ],
+      "direct": null,
+      "harvest": [
+        26,
+        30
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": [
+        13,
+        19
+      ],
+      "direct": null,
+      "harvest": [
+        27,
+        31
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": [
+        15,
+        21
+      ],
+      "direct": null,
+      "harvest": [
+        29,
+        33
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": [
+        16,
+        22
+      ],
+      "direct": null,
+      "harvest": [
+        30,
+        34
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": [
+        18,
+        24
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        36
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": [
+        19,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": [
+        20,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        33,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": [
+        21,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        32,
+        32
+      ]
+    }
+  },
+  "Rabarber": {
+    "1": {
+      "pre": null,
+      "out": [
+        12,
+        18
+      ],
+      "direct": null,
+      "harvest": [
+        19,
+        28
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": [
+        13,
+        19
+      ],
+      "direct": null,
+      "harvest": [
+        20,
+        29
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": [
+        15,
+        21
+      ],
+      "direct": null,
+      "harvest": [
+        22,
+        31
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": [
+        16,
+        22
+      ],
+      "direct": null,
+      "harvest": [
+        23,
+        32
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": [
+        18,
+        24
+      ],
+      "direct": null,
+      "harvest": [
+        25,
+        34
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": [
+        19,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        26,
+        35
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": [
+        20,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        27,
+        33
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": [
+        21,
+        27
+      ],
+      "direct": null,
+      "harvest": [
+        28,
+        32
+      ]
+    }
+  },
+  "Sparris": {
+    "1": {
+      "pre": null,
+      "out": [
+        13,
+        17
+      ],
+      "direct": null,
+      "harvest": [
+        17,
+        23
+      ]
+    },
+    "2": {
+      "pre": null,
+      "out": [
+        14,
+        18
+      ],
+      "direct": null,
+      "harvest": [
+        18,
+        24
+      ]
+    },
+    "3": {
+      "pre": null,
+      "out": [
+        16,
+        20
+      ],
+      "direct": null,
+      "harvest": [
+        20,
+        26
+      ]
+    },
+    "4": {
+      "pre": null,
+      "out": [
+        17,
+        21
+      ],
+      "direct": null,
+      "harvest": [
+        21,
+        27
+      ]
+    },
+    "5": {
+      "pre": null,
+      "out": [
+        19,
+        23
+      ],
+      "direct": null,
+      "harvest": [
+        23,
+        29
+      ]
+    },
+    "6": {
+      "pre": null,
+      "out": [
+        20,
+        24
+      ],
+      "direct": null,
+      "harvest": [
+        24,
+        30
+      ]
+    },
+    "7": {
+      "pre": null,
+      "out": [
+        21,
+        25
+      ],
+      "direct": null,
+      "harvest": [
+        25,
+        31
+      ]
+    },
+    "8": {
+      "pre": null,
+      "out": [
+        22,
+        26
+      ],
+      "direct": null,
+      "harvest": [
+        26,
+        32
+      ]
+    }
+  }
 } as const satisfies Record<string, Record<string, SowingWeekTiming>>
 
 export function normalizeZone(zone: unknown): number {
