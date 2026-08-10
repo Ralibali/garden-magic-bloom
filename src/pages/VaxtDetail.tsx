@@ -229,7 +229,7 @@ export default function VaxtDetail() {
         )}
 
         <CalendarCrossLink
-          month={plant.sowing_month_start || undefined}
+          month={plant.sow_indoor_start ?? plant.sow_outdoor_start ?? undefined}
           className="mb-10"
           description={`Vill du se vad mer än ${plant.name} som ska sås, planteras ut och skördas den här månaden?`}
         />
