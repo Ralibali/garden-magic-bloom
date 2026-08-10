@@ -12,6 +12,8 @@ import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger }
 import { valueForHarvest, pricePerKgFor } from '@/data/cropPrices';
 import { buildSeasonSummary, shareSeasonText } from '@/lib/seasonShare';
 import { toast } from '@/hooks/use-toast';
+import { normalizePlantKind } from '@/lib/plantKind';
+
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
