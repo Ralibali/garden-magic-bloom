@@ -1434,6 +1434,7 @@ export type Database = {
           created_at: string
           id: string
           notes: string | null
+          plant_kind: string
           seed_brand: string | null
           sow_date: string
           status: string
@@ -1448,6 +1449,7 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          plant_kind?: string
           seed_brand?: string | null
           sow_date: string
           status?: string
@@ -1462,6 +1464,7 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          plant_kind?: string
           seed_brand?: string | null
           sow_date?: string
           status?: string
