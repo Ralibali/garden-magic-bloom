@@ -197,9 +197,13 @@ async function fetchTable(table, query) {
 async function loadDynamicPages() {
   const configured = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL) && (process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY);
   if (!configured) {
+    if (process.env.NODE_ENV === 'production' || process.env.VERCEL === '1' || process.env.CI === 'true') {
+      throw new Error('[prerender] Supabase-miljö saknas i produktionsbygget. Sätt VITE_SUPABASE_URL och VITE_SUPABASE_PUBLISHABLE_KEY – annars levereras alla månads-, växt- och zonsidor som tom React-shell.');
+    }
     console.warn('[prerender] Supabase-miljö saknas; hoppar över dynamiska slug-sidor i denna build.');
     return [];
   }
+
 
   try {
     const [posts, plants, months, zones] = await Promise.all([
