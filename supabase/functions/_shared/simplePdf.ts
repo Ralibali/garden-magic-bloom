@@ -18,7 +18,13 @@ function escapePdfText(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)')
 }
 
-function latin1Bytes(value: string): Uint8Array {
+const TRANSLITERATE: Record<string, string> = {
+  '\u2013': '-', '\u2014': '-', '\u2018': "'", '\u2019': "'",
+  '\u201c': '"', '\u201d': '"', '\u2026': '...', '\u00a0': ' ', '\u00b7': '-',
+}
+
+function latin1Bytes(rawValue: string): Uint8Array {
+  const value = rawValue.replace(/[\u2013\u2014\u2018\u2019\u201c\u201d\u2026\u00a0\u00b7]/g, (ch) => TRANSLITERATE[ch] ?? '?')
   const out = new Uint8Array(value.length)
   for (let i = 0; i < value.length; i++) {
     const code = value.charCodeAt(i)
