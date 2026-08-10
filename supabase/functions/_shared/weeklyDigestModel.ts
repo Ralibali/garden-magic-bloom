@@ -60,7 +60,16 @@ const subjects = [
   'Dags att kolla sådd, skörd och frost',
 ]
 
-const inactiveStatuses = new Set(['skördad', 'skordad', 'harvested', 'misslyckad', 'failed', 'död', 'dod'])
+// Appens faktiska sådd-statusar: sown | indoor | transplanted | harvesting | flowering | overwintering | done
+const inactiveStatuses = new Set(['done'])
+
+/** Matchar en fritextsort mot grödmatrisen. Ingen match → undefined (gissa aldrig). */
+function findCropForVariety(variety: string | null | undefined): string | undefined {
+  const value = String(variety ?? '').toLowerCase()
+  if (!value) return undefined
+  return Object.keys(sowingWeeks).find((crop) => value.includes(crop.toLowerCase()))
+}
+
 
 export function getIsoWeek(date: Date): { year: number; week: number } {
   const target = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
