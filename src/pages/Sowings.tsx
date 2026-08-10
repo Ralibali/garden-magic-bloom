@@ -23,14 +23,17 @@ import { trackOnce } from '@/lib/plausible';
 import {
   SOWING_STATUS_ORDER,
   SOWING_STATUS_META,
-  SowingStatus,
+  getSowingStatusOrder,
   buildStatusPatch,
   nextSowingStatus,
   normalizeSowingStatus,
   previousSowingStatus,
   sowingAgeLabel,
   sowingStatusIndex,
+  type SowingStatus,
 } from '@/lib/sowingLifecycle';
+import { guessPlantKind, normalizePlantKind, PLANT_KIND_LABELS } from '@/lib/plantKind';
+
 import { getHarvestHint } from '@/lib/harvestForecast';
 import { addReminder } from '@/lib/reminders';
 import AskGroButton from '@/components/AskGroButton';
