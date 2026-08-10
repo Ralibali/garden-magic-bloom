@@ -4,6 +4,7 @@ import "./index.css";
 import "./design-system.css";
 import "./design-compat.css";
 import { installRecoveryHandlers } from "./lib/recovery";
+import { setupServiceWorker } from "./lib/pwa";
 
 // Restore theme preference before render to avoid flash
 const savedTheme = localStorage.getItem('theme');
