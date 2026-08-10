@@ -291,7 +291,12 @@ const Sowings = () => {
                 <SelectContent>{(beds || []).map((bed) => <SelectItem key={bed.id} value={bed.id}>{bed.name}</SelectItem>)}</SelectContent>
               </Select>
               <Input type="date" value={editing.sow_date} onChange={(e) => setEditing({ ...editing, sow_date: e.target.value })} />
+              <Select value={normalizePlantKind(editing.plant_kind)} onValueChange={(v) => setEditing({ ...editing, plant_kind: v })}>
+                <SelectTrigger aria-label="Typ av växt"><SelectValue placeholder="Typ av växt" /></SelectTrigger>
+                <SelectContent><SelectItem value="edible">{PLANT_KIND_LABELS.edible}</SelectItem><SelectItem value="ornamental">{PLANT_KIND_LABELS.ornamental}</SelectItem></SelectContent>
+              </Select>
               <Select value={editing.type} onValueChange={(v) => setEditing({ ...editing, type: v })}>
+
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="direct">Direktsådd</SelectItem><SelectItem value="indoor">Förodling</SelectItem></SelectContent>
               </Select>
