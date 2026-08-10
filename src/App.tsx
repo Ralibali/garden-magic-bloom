@@ -149,6 +149,13 @@ function GuiderRedirect() {
   return <Navigate to={`/blogg/${slug}`} replace />;
 }
 
+// Redirect /manad/:slug → /odlingskalender/:slug (sökordsmatchning)
+function LegacyMonthRedirect() {
+  const { slug } = useParams();
+  return <Navigate to={`/odlingskalender/${slug}`} replace />;
+}
+
+
 function CacheClearer() {
   const { user } = useAuth();
   const prevUserId = React.useRef<string | null>(user?.id ?? null);
