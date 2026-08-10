@@ -128,7 +128,7 @@ const Sowings = () => {
       const query = search.trim().toLowerCase();
       const matchesQuery = !query || sowing.variety?.toLowerCase().includes(query) || sowing.seed_brand?.toLowerCase().includes(query);
       if (!matchesQuery) return false;
-      const st = normalizeSowingStatus(sowing.status);
+      const st = normalizeSowingStatus(sowing.status, sowing.plant_kind);
       if (statusFilter === 'alla') return true;
       if (statusFilter === 'aktiva') return st !== 'done';
       return st === statusFilter;
