@@ -181,6 +181,8 @@ const Sowings = () => {
       type: editing.type,
       notes: editing.notes?.trim() || null,
       seed_brand: editing.seed_brand?.trim() || null,
+      plant_kind: normalizePlantKind(editing.plant_kind),
+
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sowings'] });
