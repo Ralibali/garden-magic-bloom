@@ -36,7 +36,12 @@ const Statistics = () => {
 
   const { data: stats, isLoading } = useQuery({ queryKey: ['summary-stats'], queryFn: api.getSummaryStats });
   const { data: harvests } = useQuery({ queryKey: ['harvests'], queryFn: api.getHarvests });
-  const { data: sowings } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const { data: sowingsRaw } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const sowings = useMemo(
+    () => (sowingsRaw || []).filter((s: any) => normalizePlantKind(s.plant_kind) === 'edible'),
+    [sowingsRaw],
+  );
+
 
   // Harvest per month (current year vs previous year)
   const harvestByMonth = useMemo(() => {
