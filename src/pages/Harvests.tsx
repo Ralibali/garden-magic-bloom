@@ -44,7 +44,12 @@ const Harvests = () => {
 
   const { data: harvests, isLoading } = useQuery({ queryKey: ['harvests'], queryFn: api.getHarvests });
   const { data: beds } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
-  const { data: sowings } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const { data: sowingsRaw } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const sowings = useMemo(
+    () => (sowingsRaw || []).filter((s: any) => normalizePlantKind(s.plant_kind) === 'edible'),
+    [sowingsRaw],
+  );
+
 
   // Sådder som går att skörda ifrån (inte avslutade), för kopplingsväljaren
   const harvestableSowings = useMemo(
