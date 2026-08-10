@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Seo } from '@/hooks/useSeo';
 import { Button } from '@/components/ui/button';
 import PublicEmailCapture from '@/components/PublicEmailCapture';
+import CalendarCrossLink from '@/components/CalendarCrossLink';
 import { ArrowRight, Check, Copy, Sprout } from 'lucide-react';
 import { CURRENT_YEAR } from '@/lib/currentYear';
 
@@ -61,5 +62,6 @@ export default function Odlingsplan() {
     )}
 
     {created && <section className="max-w-6xl mx-auto px-4 sm:px-8 py-10"><div className="grid md:grid-cols-3 gap-4 mb-8">{plan.tips.map((tip, index) => <div key={tip} className="bg-muted/40 border border-border rounded-2xl p-5"><span className="text-xs uppercase tracking-[0.15em] text-primary font-semibold">Experttips {index + 1}</span><p className="mt-2 text-sm text-muted-foreground leading-relaxed">{tip}</p></div>)}</div><div className="bg-card border border-border rounded-2xl p-6"><h2 className="font-serif text-xl text-foreground mb-2">Dela din odlingsplan</h2><p className="text-sm text-muted-foreground mb-4">Visa vad du planerar att odla i år och inspirera fler att komma igång.</p><div className="rounded-xl bg-muted p-3 text-sm text-muted-foreground mb-4">{shareText}</div><Button variant="outline" className="gap-2" onClick={async () => { await navigator.clipboard?.writeText(shareText); setCopied(true); }}><Copy className="h-4 w-4" /> {copied ? 'Kopierat!' : 'Kopiera text'}</Button></div></section>}
+  <section className="max-w-6xl mx-auto px-4 sm:px-8 pb-14"><CalendarCrossLink description="Planen är klar – nu är frågan vad du gör den här månaden. Odlingskalendern räknar veckorna efter din klimatzon." /></section>
   </main></div>;
 }

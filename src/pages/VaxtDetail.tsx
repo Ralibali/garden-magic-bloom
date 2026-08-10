@@ -11,6 +11,7 @@ import DOMPurify from 'dompurify';
 import { formatMonthRange, CATEGORY_LABEL, ORG_AUTHOR, ORG_PUBLISHER, buildBreadcrumbs, rangeOrSingle } from '@/lib/seoData';
 import { ArticleAttribution } from '@/components/ArticleAttribution';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
+import CalendarCrossLink from '@/components/CalendarCrossLink';
 import PublicNotFound from '@/components/PublicNotFound';
 
 export default function VaxtDetail() {
@@ -226,6 +227,12 @@ export default function VaxtDetail() {
             </div>
           </section>
         )}
+
+        <CalendarCrossLink
+          month={plant.sowing_month_start || undefined}
+          className="mb-10"
+          description={`Vill du se vad mer än ${plant.name} som ska sås, planteras ut och skördas den här månaden?`}
+        />
 
         {/* Mjuk inline-CTA mitt i innehållet */}
         <InlineSignupCTA
