@@ -422,7 +422,7 @@ const Sowings = () => {
                           >
                             {next === 'done' ? 'Avsluta' : `Markera som ${SOWING_STATUS_META[next].short.toLowerCase()}`} <ArrowRight className="h-3.5 w-3.5" />
                           </Button>
-                        ) : (
+                        ) : !isOrnamental ? (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -431,8 +431,8 @@ const Sowings = () => {
                           >
                             <Carrot className="h-3.5 w-3.5" /> Logga skörd
                           </Button>
-                        )}
-                        {status === 'harvesting' && (
+                        ) : null}
+                        {!isOrnamental && status === 'harvesting' && (
                           <Button
                             size="sm"
                             className="h-8 gap-1 px-3 text-xs"
@@ -441,6 +441,7 @@ const Sowings = () => {
                             <Carrot className="h-3.5 w-3.5" /> Skörda
                           </Button>
                         )}
+
                       </div>
                     </div>
                   </CardContent>
