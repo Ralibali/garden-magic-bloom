@@ -23,15 +23,29 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
+      injectRegister: null,
+      devOptions: { enabled: false },
       includeAssets: ["favicon.ico", "favicon.svg"],
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,webp,woff2}"],
+        globPatterns: ["**/*.{js,css,ico,png,svg,jpg,webp,woff2}"],
+        navigateFallback: undefined,
         navigateFallbackDenylist: [/^\/~oauth/],
         importScripts: ["push-sw.js"],
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
+          {
+            // HTML navigations must never be served cache-first, otherwise a
+            // new release keeps showing the previously cached app shell.
+            urlPattern: ({ request }) => request.mode === "navigate",
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "html-navigations",
+              networkTimeoutSeconds: 5,
+              expiration: { maxEntries: 20 },
+            },
+          },
           {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
             handler: "CacheFirst",
