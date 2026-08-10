@@ -12,6 +12,8 @@ export interface DigestSowing {
   sow_date?: string | null
   transplant_date?: string | null
   type?: string | null
+  plant_kind?: string | null
+
 }
 
 export interface DigestHarvest {
