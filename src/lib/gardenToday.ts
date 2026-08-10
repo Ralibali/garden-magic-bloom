@@ -187,6 +187,23 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
     const name = sowing.variety || 'sådden';
     const status = sowing.status || 'sown';
     const isIndoor = sowing.type === 'indoor' || status === 'indoor';
+    const plantKind = normalizePlantKind(sowing.plant_kind);
+    const isOrnamental = plantKind === 'ornamental';
+
+    if (isOrnamental && typeof minTemp === 'number' && minTemp <= 0 && (status === 'flowering' || status === 'transplanted')) {
+      actions.push({
+        id: `lift-tubers-${sowing.id}`,
+        title: `Ta upp knölarna på ${name}`,
+        description: 'Första frosten är här. Gräv upp knölarna, låt torka några dagar och förvara frostfritt vid 5–10 °C.',
+        priority: 'today',
+        kind: 'sowing',
+        actionPath: '/app/sowings',
+        actionLabel: 'Öppna såloggen',
+        groPrompt: `Min ${name} har fått frost. Hur tar jag upp och förvarar knölarna över vintern i klimatzon ${climateZone}?`,
+        reminderType: 'other',
+      });
+      return;
+    }
 
     if (isIndoor && age >= 35 && age <= 75) {
       actions.push({
@@ -212,7 +229,7 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
         groPrompt: `${name} såddes för ${age} dagar sedan. Vad bör jag kontrollera nu och när är utebliven groning ett problem?`,
         reminderType: 'sowing',
       });
-    } else if (age >= 70 && age <= 150 && (sowing.type === 'direct' || status === 'transplanted' || status === 'harvesting')) {
+    } else if (!isOrnamental && age >= 70 && age <= 150 && (sowing.type === 'direct' || status === 'transplanted' || status === 'harvesting')) {
       actions.push({
         id: `harvest-check-${sowing.id}`,
         title: `Kontrollera skördeläget för ${name}`,
@@ -226,6 +243,7 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
       });
     }
   });
+
 
   if (!beds.length) {
     actions.push({
