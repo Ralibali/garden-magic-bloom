@@ -29,6 +29,8 @@ project_id = "ysonnvbkrwajacvdkqut"
     verify_jwt = false
   [functions.analyze-plant-photo]
     verify_jwt = false
+  [functions.public-plant-diagnosis]
+    verify_jwt = false
   [functions.run-my-briefing]
     verify_jwt = true
   [functions.calendar-pdf]
