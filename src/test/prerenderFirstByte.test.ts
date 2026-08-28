@@ -74,6 +74,18 @@ describe('prerender first-byte for existing article/month URLs', () => {
     },
   );
 
+  it('compares first-byte title after HTML entity encoding', () => {
+    const page = {
+      route: '/blogg/example',
+      title: 'Pallkrage Storlek & Djup',
+      heading: 'Pallkrage Storlek & Djup',
+      description: 'Guide.',
+    };
+    const html = renderPage(TEMPLATE, page);
+    expect(html).toContain('<title>Pallkrage Storlek &amp; Djup</title>');
+    expect(firstByteSignals(html).title).toBe('Pallkrage Storlek & Djup');
+  });
+
   it('rejects homepage collapse', () => {
     const collapsed = renderPage(TEMPLATE, {
       route: '/',

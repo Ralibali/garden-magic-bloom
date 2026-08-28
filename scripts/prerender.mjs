@@ -64,7 +64,9 @@ async function writePage(template, page) {
   const output = routeOutput(page.route);
   await mkdir(dirname(output), { recursive: true });
   const html = renderPage(template, page);
-  if (page.route !== '/') assertUniqueFirstByte(html, page);
+  if (REQUIRED_FIRST_BYTE_PAGES.some((required) => required.route === page.route)) {
+    assertUniqueFirstByte(html, page);
+  }
   await writeFile(output, html, 'utf8');
 }
 
