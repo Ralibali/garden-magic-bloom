@@ -1,9 +1,30 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import fs from "node:fs";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 import { visualizer } from "rollup-plugin-visualizer";
+
+/** Serve prerendered dist/<route>/index.html in `vite preview` so first-byte matches production hosting. */
+function servePrerenderedHtml(): Plugin {
+  return {
+    name: "serve-prerendered-html",
+    configurePreviewServer(server) {
+      const dist = path.resolve(__dirname, "dist");
+      server.middlewares.use((req, res, next) => {
+        const url = req.url?.split("?")[0] || "";
+        if (req.method !== "GET" && req.method !== "HEAD") return next();
+        if (url.startsWith("/assets/") || url.includes(".")) return next();
+        const route = url === "/" ? "" : url.replace(/\/+$/, "");
+        const file = route ? path.join(dist, route.replace(/^\//, ""), "index.html") : path.join(dist, "index.html");
+        if (!file.startsWith(dist) || !fs.existsSync(file)) return next();
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        fs.createReadStream(file).pipe(res);
+      });
+    },
+  };
+}
 
 export default defineConfig(({ mode }) => ({
   define: {
@@ -84,6 +105,7 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     visualizer({ filename: "bundle-stats.html", gzipSize: true, brotliSize: true, open: false }),
+    servePrerenderedHtml(),
   ].filter(Boolean),
   build: {
     cssCodeSplit: true,
