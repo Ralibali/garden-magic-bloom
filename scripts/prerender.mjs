@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
   REQUIRED_FIRST_BYTE_PAGES,
   assertUniqueFirstByte,
+  extractIndexAsset,
   mergeRequiredPages,
   renderPage,
   supabaseConfig,
@@ -237,11 +238,26 @@ export async function prerenderDist(dist = join(root, 'dist')) {
     await access(file);
   }
 
+  const shellAsset = extractIndexAsset(template);
+  if (shellAsset) {
+    for (const page of allPages) {
+      const file = routeOutput(dist, page.route);
+      const html = await readFile(file, 'utf8');
+      const pageAsset = extractIndexAsset(html);
+      if (pageAsset && pageAsset !== shellAsset) {
+        await writeFile(file, html.replaceAll(pageAsset, shellAsset), 'utf8');
+      }
+    }
+  }
+
+  const publishId = process.env.OD_PUBLISH_ID || null;
   await writeFile(
     join(dist, '_prerender-manifest.json'),
     `${JSON.stringify({
       host: 'lovable-static+spa-fallback',
       generatedAt: new Date().toISOString(),
+      publishId,
+      indexAsset: shellAsset,
       routes: allPages.map((page) => page.route),
       required: REQUIRED_FIRST_BYTE_PAGES.map((page) => page.route),
     }, null, 2)}\n`,

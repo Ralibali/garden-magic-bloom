@@ -5,14 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/assert-lovable-host.mjs",
+    "build": "vite build && node scripts/assert-lovable-host.mjs && node scripts/assert-publish-unit.mjs",
     "build:dev": "vite build --mode development",
-    "build:prerender": "vite build && node scripts/assert-lovable-host.mjs",
+    "build:prerender": "vite build && node scripts/assert-lovable-host.mjs && node scripts/assert-publish-unit.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "preview": "vite preview",
     "serve:host": "node scripts/lovable-host.mjs",
     "test:host": "node scripts/assert-lovable-host.mjs",
+    "test:publish": "node scripts/assert-publish-unit.mjs",
+    "test:hydrate": "node scripts/assert-hydrate.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },

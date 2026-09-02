@@ -204,5 +204,30 @@ export function renderPage(template, page) {
   if (page.modifiedTime) html = replaceMetaProperty(html, 'article:modified_time', page.modifiedTime);
   html = injectJsonLd(html, pageSchema(page));
   html = html.replace('<div id="root"></div>', fallbackMarkup(page));
+  html = injectPrerenderBoot(html, page);
   return html;
+}
+
+export function prerenderBootPayload(page) {
+  const route = page.route || '/';
+  const slug = route.startsWith('/vaxter/') && route !== '/vaxter' ? route.slice('/vaxter/'.length) : null;
+  return {
+    route,
+    heading: page.heading || page.title || '',
+    plantName: page.plantName || null,
+    slug,
+  };
+}
+
+export function injectPrerenderBoot(html, page) {
+  const payload = JSON.stringify(prerenderBootPayload(page)).replace(/</g, '\\u003c');
+  const script = `<script id="od-prerender-boot">window.__OD_PRERENDER__=${payload}</script>`;
+  const cleaned = html.replace(/\s*<script id="od-prerender-boot">[\s\S]*?<\/script>/i, '');
+  if (/<\/body>/i.test(cleaned)) return cleaned.replace(/<\/body>/i, `  ${script}\n  </body>`);
+  return `${cleaned}\n${script}\n`;
+}
+
+export function extractIndexAsset(html) {
+  const match = String(html).match(/\/assets\/index-[^"' ]+\.js/);
+  return match ? match[0] : null;
 }
