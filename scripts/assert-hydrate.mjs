@@ -21,9 +21,14 @@ function dumpDom(url) {
       '--no-sandbox',
       '--disable-dev-shm-usage',
       '--disable-extensions',
+      '--disable-background-networking',
+      '--disable-sync',
+      '--disable-default-apps',
+      '--no-first-run',
       `--user-data-dir=/tmp/od-hydrate-${process.pid}-${Math.random().toString(36).slice(2)}`,
-      '--virtual-time-budget=8000',
-      '--timeout=20000',
+      // Do not wait on Plausible / fonts / Supabase — this is a router+CTA proof.
+      '--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1, EXCLUDE localhost',
+      '--virtual-time-budget=4000',
       '--dump-dom',
       url,
     ];
@@ -34,14 +39,25 @@ function dumpDom(url) {
     child.stderr.setEncoding('utf8');
     child.stdout.on('data', (chunk) => { html += chunk; });
     child.stderr.on('data', (chunk) => { err += chunk; });
-    const killer = setTimeout(() => {
-      child.kill('SIGKILL');
-      reject(new Error(`chrome timed out for ${url}`));
-    }, 25000);
-    child.on('exit', (code) => {
+    let settled = false;
+    const finish = (why) => {
+      if (settled) return;
+      settled = true;
+      try { child.kill('SIGKILL'); } catch { /* already gone */ }
+      if (html.includes('This site can’t be reached') || html.includes('ERR_CONNECTION')) {
+        reject(new Error(`${url} chrome neterror (${why})`));
+        return;
+      }
+      if (html.length > 800) {
+        resolve(html);
+        return;
+      }
+      reject(new Error(`chrome ${why} for ${url}: ${err.slice(0, 400)}`));
+    };
+    const killer = setTimeout(() => finish('timeout-with-dom'), 9000);
+    child.on('exit', () => {
       clearTimeout(killer);
-      if (!html && code !== 0) reject(new Error(`chrome ${code} for ${url}: ${err.slice(0, 400)}`));
-      else resolve(html);
+      finish('exit');
     });
   });
 }
@@ -59,6 +75,10 @@ function navHref(html, label) {
 
 const host = createLovableHost(defaultDist(), PORT);
 const origin = await host.listen();
+const ready = await fetch(`${origin}/funktioner`).then((r) => r.text());
+if (!ready.includes('Funktioner som gör odlingen lättare att minnas')) {
+  fail('lovable-host first-byte for /funktioner is not unique — run npm run build first');
+}
 
 try {
   const pages = [
