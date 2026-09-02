@@ -116,6 +116,14 @@ export function groupPulseBuckets(
   return { late, today: todayItems, week };
 }
 
+function isWeatherKind(kind: GardenActionKind) {
+  return kind === 'weather' || kind === 'frost';
+}
+
+function openMeteoDrivesGardenToday(input: GardenPulseInput) {
+  return Boolean(input.weather) || Boolean(input.rainData);
+}
+
 export function buildGardenPulse(input: GardenPulseInput): GardenPulseResult {
   const today = input.today || localDateKey();
   const reminders = input.reminders || [];
@@ -128,14 +136,20 @@ export function buildGardenPulse(input: GardenPulseInput): GardenPulseResult {
     rainData: input.rainData,
     climateZone: input.climateZone,
   });
-  const visible = visibleGardenActions(generated, input.actionState)
-    .filter((action) => action.kind !== 'start');
+  const honest = generated.filter((action) => {
+    if (action.kind === 'start') return false;
+    if (isWeatherKind(action.kind) && !openMeteoDrivesGardenToday(input)) return false;
+    return true;
+  });
+  const visible = visibleGardenActions(honest, input.actionState);
   const alreadyCovered = new Set(
     visible.map((action) => action.sourceReminderId).filter(Boolean) as string[],
   );
-  const upcoming = upcomingWeekActions(reminders, today).filter(
-    (action) => !action.sourceReminderId || !alreadyCovered.has(action.sourceReminderId),
-  );
+  const upcoming = upcomingWeekActions(reminders, today).filter((action) => {
+    if (!action.sourceReminderId) return true;
+    if (alreadyCovered.has(action.sourceReminderId)) return false;
+    return true;
+  });
   const buckets = groupPulseBuckets([...visible, ...upcoming]);
   const empty = buckets.late.length + buckets.today.length + buckets.week.length === 0;
   return { ...buckets, empty };

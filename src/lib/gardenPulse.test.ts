@@ -112,7 +112,7 @@ describe('buildGardenPulse', () => {
     expect(pulse.today.some((item) => item.id === 'reminder-r-1')).toBe(false);
   });
 
-  it('does not invent onboarding tasks for an empty garden', () => {
+  it('does not invent start actions for an empty user', () => {
     const pulse = buildGardenPulse({
       climateZone: 3,
       today: localDateKey(),
@@ -125,24 +125,33 @@ describe('buildGardenPulse', () => {
     expect([...pulse.late, ...pulse.today, ...pulse.week].some((item) => item.id.startsWith('start-'))).toBe(false);
   });
 
-  it('stays empty when beds exist but nothing is due', () => {
+  it('does not invent extra actions for one bed or many beds', () => {
     const now = localDateKey();
-    const pulse = buildGardenPulse({
+    const one = buildGardenPulse({
       climateZone: 3,
       today: now,
-      beds: [{ id: 'a' }, { id: 'b' }, { id: 'c' }],
+      beds: [{ id: 'bed-1' }],
+      sowings: [{ id: 's-1', variety: 'Sallat', sow_date: now, type: 'direct', status: 'sown' }],
+      reminders: [],
+    });
+    const many = buildGardenPulse({
+      climateZone: 3,
+      today: now,
+      beds: [{ id: 'bed-1' }, { id: 'bed-2' }, { id: 'bed-3' }],
       sowings: [
-        { id: 's-1', variety: 'Tomat – Sungold', sow_date: now, type: 'direct', status: 'sown', bed_id: 'a' },
-        { id: 's-2', variety: 'Morot', sow_date: now, type: 'direct', status: 'sown', bed_id: 'b' },
+        { id: 's-1', variety: 'Sallat', sow_date: now, type: 'direct', status: 'sown', bed_id: 'bed-1' },
+        { id: 's-2', variety: 'Morot', sow_date: now, type: 'direct', status: 'sown', bed_id: 'bed-2' },
+        { id: 's-3', variety: 'Dill', sow_date: now, type: 'direct', status: 'sown', bed_id: 'bed-3' },
       ],
       reminders: [],
     });
-    expect(pulse.empty).toBe(true);
+    expect(one.empty).toBe(true);
+    expect(many.empty).toBe(true);
   });
 
-  it('hides done reminders and snoozed actions', () => {
+  it('hides done reminders, snoozed actions, and stale completed sowing actions', () => {
     const now = localDateKey();
-    const pulse = buildGardenPulse({
+    const snoozed = buildGardenPulse({
       climateZone: 3,
       today: now,
       beds: [{ id: 'bed-1' }],
@@ -155,12 +164,38 @@ describe('buildGardenPulse', () => {
         'reminder-open': { snoozedUntil: addDaysToDateKey(now, 2) },
       },
     });
-    expect(pulse.late.some((item) => item.sourceReminderId === 'done')).toBe(false);
-    expect(pulse.today.some((item) => item.sourceReminderId === 'open')).toBe(false);
-    expect(pulse.empty).toBe(true);
+    expect(snoozed.late.some((item) => item.sourceReminderId === 'done')).toBe(false);
+    expect(snoozed.today.some((item) => item.sourceReminderId === 'open')).toBe(false);
+    expect(snoozed.empty).toBe(true);
+
+    const stale = buildGardenPulse({
+      climateZone: 3,
+      today: now,
+      beds: [{ id: 'bed-1' }],
+      sowings: [{
+        id: 's-harden',
+        variety: 'Tomat – Sungold',
+        sow_date: addDaysToDateKey(now, -40),
+        type: 'indoor',
+        status: 'indoor',
+      }],
+      reminders: [{
+        id: 'r-done',
+        title: 'Gallra',
+        type: 'other',
+        date: addDaysToDateKey(now, -2),
+        done: true,
+      }],
+      actionState: {
+        'harden-s-harden': { completedAt: addDaysToDateKey(now, -1) + 'T12:00:00.000Z' },
+      },
+    });
+    expect(stale.late.some((item) => item.sourceReminderId === 'r-done')).toBe(false);
+    expect(stale.today.some((item) => item.id === 'harden-s-harden')).toBe(false);
+    expect(stale.week.some((item) => item.id === 'harden-s-harden')).toBe(false);
   });
 
-  it('does not duplicate the same reminder across buckets', () => {
+  it('does not duplicate a reminder across today and week', () => {
     const now = localDateKey();
     const pulse = buildGardenPulse({
       climateZone: 3,
@@ -168,46 +203,51 @@ describe('buildGardenPulse', () => {
       beds: [{ id: 'bed-1' }],
       sowings: [{ id: 's-1', variety: 'Sallat', sow_date: now, type: 'direct', status: 'sown' }],
       reminders: [{
-        id: 'r-dup',
-        title: 'Kolla växthuset',
-        type: 'other',
+        id: 'r-today',
+        title: 'Vattna',
+        type: 'watering',
         date: now,
         done: false,
       }],
     });
-    const ids = [...pulse.late, ...pulse.today, ...pulse.week]
-      .filter((item) => item.sourceReminderId === 'r-dup')
-      .map((item) => item.id);
-    expect(ids).toHaveLength(1);
+    const ids = [...pulse.late, ...pulse.today, ...pulse.week].map((item) => item.sourceReminderId);
+    expect(ids.filter((id) => id === 'r-today')).toHaveLength(1);
+    expect(pulse.week.some((item) => item.sourceReminderId === 'r-today')).toBe(false);
   });
 
-  it('adds a frost row only when Open-Meteo min temperature is present and cold', () => {
+  it('adds a weather row only when Open-Meteo already drives gardenToday', () => {
     const now = localDateKey();
-    const base = {
+    const garden = {
       climateZone: 3,
       today: now,
       beds: [{ id: 'bed-1' }],
       sowings: [{ id: 's-1', variety: 'Sallat', sow_date: now, type: 'direct', status: 'sown' }],
       reminders: [] as { id: string; title: string; type: 'other'; date: string; done: boolean }[],
     };
-    const withoutWeather = buildGardenPulse(base);
-    expect([...withoutWeather.late, ...withoutWeather.today].some((item) => item.kind === 'frost')).toBe(false);
+    const withoutWeather = buildGardenPulse(garden);
+    expect([...withoutWeather.late, ...withoutWeather.today, ...withoutWeather.week].some((item) => item.kind === 'frost' || item.kind === 'weather')).toBe(false);
 
     const missingTemp = buildGardenPulse({
-      ...base,
+      ...garden,
       weather: { daily: { precipitation_sum: [0, 0], wind_speed_10m_max: [10] } },
     });
     expect([...missingTemp.late, ...missingTemp.today].some((item) => item.kind === 'frost')).toBe(false);
 
-    const frost = buildGardenPulse({
-      ...base,
-      weather: { daily: { temperature_2m_min: [-2], precipitation_sum: [0, 0], wind_speed_10m_max: [10] } },
+    const withWeather = buildGardenPulse({
+      ...garden,
+      weather: { daily: { temperature_2m_min: [-1], wind_speed_10m_max: [10], precipitation_sum: [0, 0] } },
     });
-    expect([...frost.late, ...frost.today].some((item) => item.id.startsWith('frost-'))).toBe(true);
+    expect(withWeather.late.some((item) => item.kind === 'frost') || withWeather.today.some((item) => item.kind === 'frost')).toBe(true);
   });
 
-  it('treats missing collections as empty, not invented work', () => {
-    const pulse = buildGardenPulse({ climateZone: 3 });
+  it('stays empty when weather and reminder data are missing', () => {
+    const pulse = buildGardenPulse({
+      climateZone: 3,
+      today: localDateKey(),
+      beds: [{ id: 'bed-1' }],
+      sowings: [{ id: 's-1', variety: 'Sallat', sow_date: localDateKey(), type: 'direct', status: 'sown' }],
+    });
     expect(pulse.empty).toBe(true);
+    expect(buildGardenPulse({ climateZone: 3 }).empty).toBe(true);
   });
 });

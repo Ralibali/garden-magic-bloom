@@ -46,7 +46,7 @@ describe('gardenToday', () => {
     expect(actions.some((action) => action.id.startsWith('dry-'))).toBe(false);
   });
 
-  it('prioritizes overdue reminders and hides completed actions for today', () => {
+  it('prioritizes overdue reminders and hides completed actions', () => {
     const today = localDateKey();
     const yesterday = addDaysToDateKey(today, -1);
     const actions = buildGardenActions({
@@ -58,6 +58,7 @@ describe('gardenToday', () => {
     const reminder = actions.find((action) => action.id === 'reminder-r-1');
     expect(reminder?.priority).toBe('urgent');
     expect(visibleGardenActions(actions, { 'reminder-r-1': { completedAt: new Date().toISOString() } })).not.toContainEqual(reminder);
+    expect(visibleGardenActions(actions, { 'reminder-r-1': { completedAt: addDaysToDateKey(today, -1) + 'T12:00:00.000Z' } })).not.toContainEqual(reminder);
   });
 
   it('ignores sowings dated in the future', () => {

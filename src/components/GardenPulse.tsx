@@ -150,9 +150,13 @@ export default function GardenPulse({
 
   if (isLoading) {
     return (
-      <section className="premium-panel p-5 sm:p-6" aria-busy="true" aria-label="Garden Pulse">
+      <section className="premium-panel p-5 sm:p-6" aria-label="Garden Pulse" aria-busy="true">
         <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Garden Pulse</p>
         <p className="mt-2 text-sm text-muted-foreground">Hämtar din odling…</p>
+        <div className="mt-3 space-y-2">
+          <div className="h-16 animate-pulse rounded-2xl bg-muted/60" />
+          <div className="h-16 animate-pulse rounded-2xl bg-muted/40" />
+        </div>
       </section>
     );
   }
@@ -161,8 +165,10 @@ export default function GardenPulse({
     return (
       <section className="premium-panel p-5 sm:p-6" aria-label="Garden Pulse">
         <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Garden Pulse</p>
-        <h2 className="mt-1 font-serif text-2xl leading-tight">Kunde inte läsa odlingen</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Inga uppgifter hittades på. Prova att ladda om — vi hittar inte på nya steg.</p>
+        <h2 className="mt-1 font-serif text-2xl leading-tight">Kunde inte läsa dagens lista.</h2>
+        <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
+          Inget är påhittat. Öppna såloggen eller påminnelserna om du vill kolla manuellt.
+        </p>
       </section>
     );
   }

@@ -7,13 +7,15 @@ import GardenPulse from './GardenPulse';
 import { addDaysToDateKey, localDateKey } from '@/lib/gardenToday';
 
 vi.mock('@/lib/api', () => ({
-  api: {
-    updateReminderSettings: vi.fn(),
-  },
+  api: { updateReminderSettings: vi.fn() },
 }));
 
 vi.mock('@/lib/analytics', () => ({
   recordProductActivity: vi.fn(),
+}));
+
+vi.mock('@/hooks/use-toast', () => ({
+  toast: vi.fn(),
 }));
 
 function renderPulse(props: Partial<ComponentProps<typeof GardenPulse>> = {}) {
@@ -28,31 +30,26 @@ function renderPulse(props: Partial<ComponentProps<typeof GardenPulse>> = {}) {
 }
 
 describe('GardenPulse UI', () => {
-  it('shows a useful empty state when nothing is due', () => {
-    const now = localDateKey();
-    renderPulse({
-      beds: [{ id: 'bed-1' }],
-      sowings: [{ id: 's-1', variety: 'Sallat', sow_date: now, type: 'direct', status: 'sown' }],
-      remindersData: { settings: { reminders: [] } },
-    });
-    expect(screen.getByRole('heading', { name: /inget viktigt just nu/i })).toBeInTheDocument();
+  it('shows a quiet loading state without inventing actions', () => {
+    renderPulse({ isLoading: true });
+    expect(screen.getByLabelText('Garden Pulse')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByText(/hämtar din odling/i)).toBeInTheDocument();
+    expect(screen.queryByText('Klar')).not.toBeInTheDocument();
+    expect(screen.queryByText('Skapa din första odlingsplats')).not.toBeInTheDocument();
+  });
+
+  it('shows an error without fake advice', () => {
+    renderPulse({ isError: true });
+    expect(screen.getByText('Kunde inte läsa dagens lista.')).toBeInTheDocument();
+    expect(screen.queryByText('Klar')).not.toBeInTheDocument();
     expect(screen.queryByText(/skapa din första/i)).not.toBeInTheDocument();
   });
 
-  it('shows overdue work under Saker som är sena', () => {
-    const now = localDateKey();
-    renderPulse({
-      beds: [{ id: 'bed-1' }],
-      sowings: [{ id: 's-1', variety: 'Sallat', sow_date: now, type: 'direct', status: 'sown' }],
-      remindersData: {
-        settings: {
-          reminders: [{ id: 'r-late', title: 'Gallra Sungold', type: 'other', date: addDaysToDateKey(now, -2), done: false }],
-        },
-      },
-    });
-    expect(screen.getByText('Saker som är sena')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Gallra Sungold' })).toBeInTheDocument();
-    expect(screen.getByText(/försenad/i)).toBeInTheDocument();
+  it('shows the empty-user nothing-important copy', () => {
+    renderPulse({ beds: [], sowings: [], remindersData: { settings: { reminders: [] } } });
+    expect(screen.getByText('Inget viktigt just nu.')).toBeInTheDocument();
+    expect(screen.queryByText('Saker som är sena')).not.toBeInTheDocument();
+    expect(screen.queryByText(/skapa din första/i)).not.toBeInTheDocument();
   });
 
   it('does not show completed or dismissed work', () => {
@@ -72,20 +69,30 @@ describe('GardenPulse UI', () => {
         },
       },
     });
-    expect(screen.getByRole('heading', { name: /inget viktigt just nu/i })).toBeInTheDocument();
+    expect(screen.getByText('Inget viktigt just nu.')).toBeInTheDocument();
     expect(screen.queryByText('Klar uppgift')).not.toBeInTheDocument();
     expect(screen.queryByText('Snoozad uppgift')).not.toBeInTheDocument();
   });
 
-  it('shows loading without inventing tasks', () => {
-    renderPulse({ isLoading: true });
-    expect(screen.getByText(/hämtar din odling/i)).toBeInTheDocument();
-    expect(screen.queryByText(/skapa din första/i)).not.toBeInTheDocument();
-  });
-
-  it('shows error without inventing tasks', () => {
-    renderPulse({ isError: true });
-    expect(screen.getByRole('heading', { name: /kunde inte läsa odlingen/i })).toBeInTheDocument();
-    expect(screen.queryByText(/skapa din första/i)).not.toBeInTheDocument();
+  it('lists overdue and week-ahead reminders in separate buckets', () => {
+    const today = localDateKey();
+    renderPulse({
+      beds: [{ id: 'bed-1' }],
+      sowings: [{ id: 's-1', variety: 'Sallat', sow_date: today, type: 'direct', status: 'sown' }],
+      remindersData: {
+        settings: {
+          reminders: [
+            { id: 'late', title: 'Gallra morötter', type: 'other', date: addDaysToDateKey(today, -3), done: false },
+            { id: 'soon', title: 'Plantera ut Sungold', type: 'transplant', date: addDaysToDateKey(today, 3), done: false },
+          ],
+        },
+      },
+    });
+    expect(screen.getByText('Saker som är sena')).toBeInTheDocument();
+    expect(screen.getByText('Den här veckan')).toBeInTheDocument();
+    expect(screen.getByText('Gallra morötter')).toBeInTheDocument();
+    expect(screen.getByText('Plantera ut Sungold')).toBeInTheDocument();
+    expect(screen.getAllByText('Klar').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Imorgon').length).toBeGreaterThan(0);
   });
 });
