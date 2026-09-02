@@ -198,8 +198,25 @@ async function loadDynamicPages() {
   }
 }
 
+async function loadViteShell(dist) {
+  const indexPath = join(dist, 'index.html');
+  const shellPath = join(dist, '_vite-shell.html');
+  const current = await readFile(indexPath, 'utf8');
+  if (current.includes('<div id="root"></div>')) {
+    await writeFile(shellPath, current, 'utf8');
+    return current;
+  }
+  try {
+    const saved = await readFile(shellPath, 'utf8');
+    if (saved.includes('<div id="root"></div>')) return saved;
+  } catch {
+    /* first write may have replaced #root without saving the shell */
+  }
+  throw new Error('[prerender] Vite-skalet saknas (tom #root). Kör vite build innan prerender, inte en andra gång mot redan skriven homepage-HTML.');
+}
+
 export async function prerenderDist(dist = join(root, 'dist')) {
-  const template = await readFile(join(dist, 'index.html'), 'utf8');
+  const template = await loadViteShell(dist);
   const staticPages = staticPagesForYear();
 
   async function writePage(page) {

@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/prerender.mjs && node scripts/assert-lovable-host.mjs",
+    "build": "vite build && node scripts/assert-lovable-host.mjs",
     "build:dev": "vite build --mode development",
-    "build:prerender": "vite build && node scripts/prerender.mjs && node scripts/assert-lovable-host.mjs",
+    "build:prerender": "vite build && node scripts/assert-lovable-host.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "preview": "vite preview",
