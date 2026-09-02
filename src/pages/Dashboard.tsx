@@ -16,6 +16,7 @@ import PlantGettingStartedGuide from '@/components/PlantGettingStartedGuide';
 import DashboardActionCenter from '@/components/DashboardActionCenter';
 import HarvestValueLine from '@/components/HarvestValueLine';
 import TodayInGarden from '@/components/TodayInGarden';
+import GardenPulse from '@/components/GardenPulse';
 import WeeklyGardenSummary from '@/components/WeeklyGardenSummary';
 import AchievementsSection from '@/components/AchievementsSection';
 import PlantWeeklyCareSummary from '@/components/PlantWeeklyCareSummary';
@@ -209,18 +210,15 @@ const Dashboard = () => {
             );
           })()}
 
-          {/* Dagens viktigaste åtgärd (deterministisk prioritering) */}
-          {(() => {
-            const priority = computeDashboardPriority({
-              plants: adaptivePlants as any[],
-              reminders: ((remindersData?.settings as any)?.reminders || []),
-              sowings,
-              weather,
-              rainData,
-              climateZone,
-            });
-            return <PrimaryActionCard result={priority} greeting={displayName ? `Hej ${displayName}` : undefined} weatherLine={weatherLine} />;
-          })()}
+          <GardenPulse
+            weather={weather}
+            rainData={rainData}
+            climateZone={climateZone}
+            remindersData={remindersData}
+            sowings={sowings}
+            overduePlants={attentionPlants}
+            beds={beds}
+          />
 
           {/* Skördeläge – grödor i sitt skördefönster just nu */}
           {(() => {
@@ -306,7 +304,6 @@ const Dashboard = () => {
               </button>
             </div>
 
-            <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={sowings} overduePlants={attentionPlants} beds={beds} displayName={displayName} maxItems={4} />
             <WeeklyGardenSummary sowings={sowings} harvests={harvests} remindersData={remindersData} photos={photos} />
             <DashboardActionCenter climateZone={climateZone} currentMonth={currentMonth} isNewUser={false} onNavigate={navigate} />
             <HarvestValueLine />

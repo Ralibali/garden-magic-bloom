@@ -38,7 +38,7 @@ const CompanionPlanting = () => {
           <div className="relative">
             <span className="section-kicker mb-3"><Sparkles className="h-3.5 w-3.5" /> Naturens egen skyddsverkstad</span>
             <h1 className="page-title">Samplantering</h1>
-            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Rätt grannar håller skadedjur borta och hjälper varandra att växa. Vi kollar din odling mot beprövade kombinationer.</p>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Rätt grannar sägs enligt odlartradition kunna hålla skadedjur borta och hjälpa varandra att växa. Vi jämför din odling mot den här traditionella tabellen — inte mot fältförsök.</p>
           </div>
         </section>
       </FadeIn>
