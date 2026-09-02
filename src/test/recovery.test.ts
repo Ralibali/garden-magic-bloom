@@ -12,6 +12,7 @@ describe('recovery', () => {
     expect(isChunkLoadError(new Error('Loading CSS chunk 3 failed'))).toBe(true);
     const err = new Error('boom'); err.name = 'ChunkLoadError';
     expect(isChunkLoadError(err)).toBe(true);
+    expect(isChunkLoadError(new Error('publish-unit-mismatch html=a js=b'))).toBe(true);
     expect(isChunkLoadError(new Error('unrelated'))).toBe(false);
     expect(isChunkLoadError(null)).toBe(false);
   });

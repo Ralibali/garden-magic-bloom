@@ -14,9 +14,11 @@ import InlineSignupCTA from '@/components/InlineSignupCTA';
 import CalendarCrossLink from '@/components/CalendarCrossLink';
 import PublicNotFound from '@/components/PublicNotFound';
 import AddPlantCta from '@/components/AddPlantCta';
+import { plantCtaCrop, readPrerenderBoot } from '@/lib/prerenderBoot';
 
 export default function VaxtDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const boot = readPrerenderBoot();
 
   const { data: plant, isLoading, error } = useQuery({
     queryKey: ['seo-plant', slug],
@@ -37,15 +39,41 @@ export default function VaxtDetail() {
     enabled: !!slug,
   });
 
+  const cropName = plantCtaCrop(plant, boot, slug);
+
   if (isLoading) {
     return (
       <PublicLayout>
-        <div className="flex justify-center py-24"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+        <div className="max-w-3xl mx-auto px-4 py-10 sm:py-14">
+          {cropName && (
+            <>
+              <h1 className="text-4xl sm:text-5xl font-serif text-foreground leading-tight mb-6">
+                Odla {cropName} i Sverige – komplett guide
+              </h1>
+              <AddPlantCta crop={cropName} slug={slug} className="mb-10" />
+            </>
+          )}
+          <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+        </div>
       </PublicLayout>
     );
   }
 
-  if (error || !plant) return <PublicNotFound path={`/vaxter/${slug || ''}`} title="Växtguiden hittades inte" description="Växtguiden finns inte eller är inte publicerad." backTo="/vaxter" backLabel="Alla växtguider" />;
+  if (error || !plant) {
+    if (cropName) {
+      return (
+        <PublicLayout>
+          <article className="max-w-3xl mx-auto px-4 py-10 sm:py-14">
+            <h1 className="text-4xl sm:text-5xl font-serif text-foreground leading-tight mb-6">
+              Odla {cropName} i Sverige – komplett guide
+            </h1>
+            <AddPlantCta crop={cropName} slug={slug} className="mb-10" />
+          </article>
+        </PublicLayout>
+      );
+    }
+    return <PublicNotFound path={`/vaxter/${slug || ''}`} title="Växtguiden hittades inte" description="Växtguiden finns inte eller är inte publicerad." backTo="/vaxter" backLabel="Alla växtguider" />;
+  }
 
   const sowIndoor = formatMonthRange(plant.sow_indoor_start, plant.sow_indoor_end);
   const sowOutdoor = formatMonthRange(plant.sow_outdoor_start, plant.sow_outdoor_end);

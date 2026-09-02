@@ -86,6 +86,9 @@ describe('prerender first-byte for rebuilt homepage shells', () => {
     expect(html).toContain('Lägg till Morot i min odling');
     expect(html).toContain('data-cta="add-plant"');
     expect(html).toContain('crop=Morot');
+    expect(html).toContain('__OD_PRERENDER__');
+    expect(html).toContain('"plantName":"Morot"');
+    expect(html).toContain('"slug":"morot"');
     expect(firstByteSignals(html).canonical).toBe('https://odlingsdagboken.com/vaxter/morot');
   });
 });

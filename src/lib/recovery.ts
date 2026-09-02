@@ -60,7 +60,8 @@ function looksLikeChunkLoadError(reason: unknown): boolean {
     /Loading chunk [\w-]+ failed/i.test(msg) ||
     /Loading CSS chunk [\w-]+ failed/i.test(msg) ||
     /ChunkLoadError/i.test(msg) ||
-    /modulepreload/i.test(msg)
+    /modulepreload/i.test(msg) ||
+    /publish-unit-mismatch/i.test(msg)
   );
 }
 

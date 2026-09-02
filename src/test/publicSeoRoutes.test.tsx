@@ -38,6 +38,10 @@ describe('standalone marketing routes (hydrate must not 404)', () => {
     expect(app).toContain('path="/hur-det-fungerar"');
     expect(app).toContain('element={<Funktioner />}');
     expect(app).toContain('element={<HurDetFungerar />}');
+    expect(app).toMatch(/import Funktioner from ["'].\/pages\/Funktioner["']/);
+    expect(app).toMatch(/import HurDetFungerar from ["'].\/pages\/HurDetFungerar["']/);
+    expect(app).not.toMatch(/lazy\(\(\) => import\(["'].\/pages\/Funktioner["']\)\)/);
+    expect(app).not.toMatch(/lazy\(\(\) => import\(["'].\/pages\/HurDetFungerar["']\)\)/);
     expect(funktioner).toContain('Funktioner som gör odlingen lättare att minnas');
     expect(how).toContain('Så fungerar Odlingsdagboken i praktiken');
     expect(funktioner).toContain('path="/funktioner"');

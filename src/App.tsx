@@ -10,9 +10,14 @@ import CookieConsent from "./components/CookieConsent";
 import { attemptRecovery, isChunkLoadError } from "./lib/recovery";
 import { TrackingProvider } from "./components/TrackingProvider";
 
-// Eager: landing + login (critical path)
+// Eager: landing + login + SEO shells that must survive JS takeover.
+// Lazy chunks for /funktioner and /hur-det-fungerar were the split-deploy
+// failure: prerender HTML published, then createRoot loaded an older index
+// whose dynamic import 404'd or whose router never registered the paths.
 import GrowthHome from "./pages/GrowthHome";
 import Login from "./pages/Login";
+import Funktioner from "./pages/Funktioner";
+import HurDetFungerar from "./pages/HurDetFungerar";
 
 // Lazy: everything behind auth
 const AppLayout = React.lazy(() => import("./components/AppLayout"));
@@ -54,8 +59,6 @@ const OdlingskalenderIndex = React.lazy(() => import("./pages/OdlingskalenderInd
 const OdlingskalenderManad = React.lazy(() => import("./pages/OdlingskalenderManad"));
 const ZonerIndex = React.lazy(() => import("./pages/ZonerIndex"));
 const ZonDetail = React.lazy(() => import("./pages/ZonDetail"));
-const Funktioner = React.lazy(() => import("./pages/Funktioner"));
-const HurDetFungerar = React.lazy(() => import("./pages/HurDetFungerar"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
