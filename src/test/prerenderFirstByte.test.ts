@@ -73,4 +73,19 @@ describe('prerender first-byte for rebuilt homepage shells', () => {
       assertUniqueFirstByte(collapsed, REQUIRED_FIRST_BYTE_PAGES[0]),
     ).toThrow(/collapsed to homepage/);
   });
+
+  it('embeds plant CTA on /vaxter/:slug first-byte HTML', () => {
+    const html = renderPage(TEMPLATE, {
+      route: '/vaxter/morot',
+      title: 'Odla Morot i Sverige – komplett guide | Odlingsdagboken',
+      heading: 'Odla Morot i Sverige – komplett guide',
+      description: 'Så odlar du morot.',
+      body: 'Morot trivs i lucker jord.',
+      plantName: 'Morot',
+    });
+    expect(html).toContain('Lägg till Morot i min odling');
+    expect(html).toContain('data-cta="add-plant"');
+    expect(html).toContain('crop=Morot');
+    expect(firstByteSignals(html).canonical).toBe('https://odlingsdagboken.com/vaxter/morot');
+  });
 });

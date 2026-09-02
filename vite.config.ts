@@ -1,26 +1,32 @@
+import { spawn } from "node:child_process";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
-import fs from "node:fs";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 import { visualizer } from "rollup-plugin-visualizer";
 
-/** Serve prerendered dist/<route>/index.html in `vite preview` so first-byte matches production hosting. */
-function servePrerenderedHtml(): Plugin {
+/**
+ * Production (Lovable Cloud) serves dist files, then SPA-falls back to index.html.
+ * `vite preview` is not that host. Run prerender inside closeBundle so a bare
+ * `vite build` (what Lovable may invoke) still writes dist/funktioner/index.html.
+ */
+function prerenderOnBuild(): Plugin {
   return {
-    name: "serve-prerendered-html",
-    configurePreviewServer(server) {
-      const dist = path.resolve(__dirname, "dist");
-      server.middlewares.use((req, res, next) => {
-        const url = req.url?.split("?")[0] || "";
-        if (req.method !== "GET" && req.method !== "HEAD") return next();
-        if (url.startsWith("/assets/") || url.includes(".")) return next();
-        const route = url === "/" ? "" : url.replace(/\/+$/, "");
-        const file = route ? path.join(dist, route.replace(/^\//, ""), "index.html") : path.join(dist, "index.html");
-        if (!file.startsWith(dist) || !fs.existsSync(file)) return next();
-        res.setHeader("Content-Type", "text/html; charset=utf-8");
-        fs.createReadStream(file).pipe(res);
+    name: "prerender-on-build",
+    apply: "build",
+    enforce: "post",
+    closeBundle() {
+      return new Promise<void>((resolve, reject) => {
+        const child = spawn(process.execPath, ["scripts/prerender.mjs"], {
+          cwd: path.resolve(__dirname),
+          stdio: "inherit",
+        });
+        child.on("exit", (code) => {
+          if (code === 0) resolve();
+          else reject(new Error(`prerender exited ${code}`));
+        });
+        child.on("error", reject);
       });
     },
   };
@@ -105,7 +111,7 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     visualizer({ filename: "bundle-stats.html", gzipSize: true, brotliSize: true, open: false }),
-    servePrerenderedHtml(),
+    prerenderOnBuild(),
   ].filter(Boolean),
   build: {
     cssCodeSplit: true,

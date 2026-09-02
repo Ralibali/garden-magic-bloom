@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   REQUIRED_FIRST_BYTE_PAGES,
@@ -15,61 +15,51 @@ import {
 } from './prerender-lib.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const dist = join(root, 'dist');
-const currentYear = new Date().getFullYear();
-const origin = 'https://odlingsdagboken.com';
 
-const staticPages = [
-  {
-    route: '/',
-    title: HOMEPAGE_TITLE,
-    description: 'Planera sådd, logga skördar och se vad som fungerar i din trädgård år efter år. Gratis digital odlingsdagbok för svenska odlare.',
-    heading: HOMEPAGE_H1,
-    type: 'website',
-    schema: {
-      '@type': 'SoftwareApplication',
-      name: 'Odlingsdagboken',
-      applicationCategory: 'LifestyleApplication',
-      operatingSystem: 'Web',
-      description: 'Digital odlingsdagbok, såkalender och odlingsplanering för svenska hobbyodlare.',
-      url: origin,
-      inLanguage: 'sv-SE',
-      offers: [
-        { '@type': 'Offer', price: '0', priceCurrency: 'SEK', description: 'Gratis grundversion' },
-        { '@type': 'Offer', price: '99', priceCurrency: 'SEK', description: 'Odlingsdagboken Plus per år' },
-      ],
+function staticPagesForYear(currentYear = new Date().getFullYear()) {
+  const origin = 'https://odlingsdagboken.com';
+  return [
+    {
+      route: '/',
+      title: HOMEPAGE_TITLE,
+      description: 'Planera sådd, logga skördar och se vad som fungerar i din trädgård år efter år. Gratis digital odlingsdagbok för svenska odlare.',
+      heading: HOMEPAGE_H1,
+      type: 'website',
+      schema: {
+        '@type': 'SoftwareApplication',
+        name: 'Odlingsdagboken',
+        applicationCategory: 'LifestyleApplication',
+        operatingSystem: 'Web',
+        description: 'Digital odlingsdagbok, såkalender och odlingsplanering för svenska hobbyodlare.',
+        url: origin,
+        inLanguage: 'sv-SE',
+        offers: [
+          { '@type': 'Offer', price: '0', priceCurrency: 'SEK', description: 'Gratis grundversion' },
+          { '@type': 'Offer', price: '99', priceCurrency: 'SEK', description: 'Odlingsdagboken Plus per år' },
+        ],
+      },
     },
-  },
-  { route: '/priser', title: 'Priser – Odlingsdagboken Plus 99 kr/år', description: 'Börja gratis och uppgradera till Plus för fler bäddar, Gro, statistik och säsongsjämförelser.', heading: 'Priser för Odlingsdagboken' },
-  { route: '/om-oss', title: 'Om Odlingsdagboken', description: 'Läs varför Odlingsdagboken är byggd för svenska hobbyodlare och hur tjänsten hjälper dig lära av varje säsong.', heading: 'Om Odlingsdagboken' },
-  { route: '/sakalender', title: `Såkalender ${currentYear} – personlig såkalender för din zon`, description: 'Skapa en gratis såkalender för svenska odlare. Välj klimatzon och få tider för förodling, utplantering, direktsådd och skörd.', heading: `Såkalender ${currentYear} för Sverige` },
-  { route: '/odlingsplan', title: 'Skapa en odlingsplan för pallkrage, växthus och friland', description: 'Planera pallkrage, växthus, friland, balkong eller kolonilott och spara planen i din digitala odlingsdagbok.', heading: 'Skapa din odlingsplan' },
-  { route: '/odlingsakuten', title: 'Odlingsakuten – hjälp med gula blad och växtproblem', description: 'Felsök gula blad, slokande plantor, skadedjur och svag tillväxt med råd anpassade för svenska förhållanden.', heading: 'Odlingsakuten' },
-  { route: '/gro', title: 'Gro – personlig AI-coach för din odling', description: 'Fråga Gro om såtider, växtproblem, väder, växtföljd och planering utifrån din egen odlingshistorik.', heading: 'Möt odlingscoachen Gro' },
-  { route: '/blogg', title: `Odlingstips och guider ${currentYear} | Odlingsdagboken`, description: 'Praktiska guider om sådd, jord, pallkrage, växtföljd, skötsel och skörd för svenska hobbyodlare.', heading: 'Odlingstips och guider för svenska hobbyodlare', schemaType: 'CollectionPage' },
-  { route: '/vaxter', title: 'Växtbibliotek – såtid, skötsel och skörd', description: 'Se såtid, placering, plantavstånd, skötsel och skörd för populära grönsaker, örter och blommor i Sverige.', heading: 'Växtbibliotek för svenska odlare', schemaType: 'CollectionPage' },
-  { route: '/odlingskalender', title: `Odlingskalender ${currentYear} – månad för månad i din zon`, description: 'Se vad du ska så, förodla, plantera och skörda varje månad. Anpassad efter svenska klimatzoner 1–8.', heading: `Odlingskalender ${currentYear}`, schemaType: 'CollectionPage' },
-  { route: '/zoner', title: 'Odlingszoner i Sverige – frost, såtid och utplantering', description: 'Lär dig hur svensk odlingszon påverkar frost, såtid, utplantering och vilka växter som passar där du bor.', heading: 'Odlingszoner i Sverige', schemaType: 'CollectionPage' },
-  { route: '/install', title: 'Installera Odlingsdagboken som app', description: 'Installera Odlingsdagboken på mobil, surfplatta eller dator och öppna din odling direkt från hemskärmen.', heading: 'Installera Odlingsdagboken' },
-  { route: '/terms', title: 'Villkor och integritet | Odlingsdagboken', description: 'Läs användarvillkor och information om hur Odlingsdagboken behandlar personuppgifter.', heading: 'Villkor och integritet' },
-  { route: '/login', title: 'Skapa gratis konto | Odlingsdagboken', description: 'Skapa ett gratis konto och börja spara såkalender, odlingsplan, skördar och anteckningar.', heading: 'Skapa konto eller logga in', noindex: true },
-  { route: '/reset-password', title: 'Återställ lösenord | Odlingsdagboken', description: 'Återställ lösenordet till ditt konto i Odlingsdagboken.', heading: 'Återställ lösenord', noindex: true },
-  { route: '/app', title: 'Min odlingsdagbok', description: 'Din privata odlingsdagbok.', heading: 'Min odlingsdagbok', noindex: true },
-  ...REQUIRED_FIRST_BYTE_PAGES,
-];
-
-const template = await readFile(join(dist, 'index.html'), 'utf8');
-
-function routeOutput(route) {
-  return route === '/' ? join(dist, 'index.html') : join(dist, route.replace(/^\//, ''), 'index.html');
+    { route: '/priser', title: 'Priser – Odlingsdagboken Plus 99 kr/år', description: 'Börja gratis och uppgradera till Plus för fler bäddar, Gro, statistik och säsongsjämförelser.', heading: 'Priser för Odlingsdagboken' },
+    { route: '/om-oss', title: 'Om Odlingsdagboken', description: 'Läs varför Odlingsdagboken är byggd för svenska hobbyodlare och hur tjänsten hjälper dig lära av varje säsong.', heading: 'Om Odlingsdagboken' },
+    { route: '/sakalender', title: `Såkalender ${currentYear} – personlig såkalender för din zon`, description: 'Skapa en gratis såkalender för svenska odlare. Välj klimatzon och få tider för förodling, utplantering, direktsådd och skörd.', heading: `Såkalender ${currentYear} för Sverige` },
+    { route: '/odlingsplan', title: 'Skapa en odlingsplan för pallkrage, växthus och friland', description: 'Planera pallkrage, växthus, friland, balkong eller kolonilott och spara planen i din digitala odlingsdagbok.', heading: 'Skapa din odlingsplan' },
+    { route: '/odlingsakuten', title: 'Odlingsakuten – hjälp med gula blad och växtproblem', description: 'Felsök gula blad, slokande plantor, skadedjur och svag tillväxt med råd anpassade för svenska förhållanden.', heading: 'Odlingsakuten' },
+    { route: '/gro', title: 'Gro – personlig AI-coach för din odling', description: 'Fråga Gro om såtider, växtproblem, väder, växtföljd och planering utifrån din egen odlingshistorik.', heading: 'Möt odlingscoachen Gro' },
+    { route: '/blogg', title: `Odlingstips och guider ${currentYear} | Odlingsdagboken`, description: 'Praktiska guider om sådd, jord, pallkrage, växtföljd, skötsel och skörd för svenska hobbyodlare.', heading: 'Odlingstips och guider för svenska hobbyodlare', schemaType: 'CollectionPage' },
+    { route: '/vaxter', title: 'Växtbibliotek – såtid, skötsel och skörd', description: 'Se såtid, placering, plantavstånd, skötsel och skörd för populära grönsaker, örter och blommor i Sverige.', heading: 'Växtbibliotek för svenska odlare', schemaType: 'CollectionPage' },
+    { route: '/odlingskalender', title: `Odlingskalender ${currentYear} – månad för månad i din zon`, description: 'Se vad du ska så, förodla, plantera och skörda varje månad. Anpassad efter svenska klimatzoner 1–8.', heading: `Odlingskalender ${currentYear}`, schemaType: 'CollectionPage' },
+    { route: '/zoner', title: 'Odlingszoner i Sverige – frost, såtid och utplantering', description: 'Lär dig hur svensk odlingszon påverkar frost, såtid, utplantering och vilka växter som passar där du bor.', heading: 'Odlingszoner i Sverige', schemaType: 'CollectionPage' },
+    { route: '/install', title: 'Installera Odlingsdagboken som app', description: 'Installera Odlingsdagboken på mobil, surfplatta eller dator och öppna din odling direkt från hemskärmen.', heading: 'Installera Odlingsdagboken' },
+    { route: '/terms', title: 'Villkor och integritet | Odlingsdagboken', description: 'Läs användarvillkor och information om hur Odlingsdagboken behandlar personuppgifter.', heading: 'Villkor och integritet' },
+    { route: '/login', title: 'Skapa gratis konto | Odlingsdagboken', description: 'Skapa ett gratis konto och börja spara såkalender, odlingsplan, skördar och anteckningar.', heading: 'Skapa konto eller logga in', noindex: true },
+    { route: '/reset-password', title: 'Återställ lösenord | Odlingsdagboken', description: 'Återställ lösenordet till ditt konto i Odlingsdagboken.', heading: 'Återställ lösenord', noindex: true },
+    { route: '/app', title: 'Min odlingsdagbok', description: 'Din privata odlingsdagbok.', heading: 'Min odlingsdagbok', noindex: true },
+    ...REQUIRED_FIRST_BYTE_PAGES,
+  ];
 }
 
-async function writePage(page) {
-  const output = routeOutput(page.route);
-  const html = renderPage(template, page);
-  if (page.route !== '/') assertUniqueFirstByte(html, page);
-  await mkdir(dirname(output), { recursive: true });
-  await writeFile(output, html, 'utf8');
+function routeOutput(dist, route) {
+  return route === '/' ? join(dist, 'index.html') : join(dist, route.replace(/^\//, ''), 'index.html');
 }
 
 async function fetchTable(table, query) {
@@ -90,16 +80,12 @@ async function fetchTable(table, query) {
 
 async function loadDynamicPages() {
   const { url, key } = supabaseConfig();
-  const envConfigured = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL) && (process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY);
-  if (!envConfigured) {
-    // Hosted deploys must not ship empty SEO shells. GitHub Verify has no Supabase secrets.
-    if (process.env.VERCEL === '1' || process.env.NETLIFY === 'true') {
-      throw new Error('[prerender] Supabase-miljö saknas i produktionsbygget. Sätt VITE_SUPABASE_URL och VITE_SUPABASE_PUBLISHABLE_KEY – annars levereras alla månads-, växt- och zonsidor som tom React-shell.');
+  if (!url || !key) {
+    if (process.env.VERCEL === '1' || process.env.NETLIFY === 'true' || process.env.LOVABLE === 'true') {
+      throw new Error('[prerender] Supabase-miljö saknas i produktionsbygget. Utan den levereras slug-sidor som homepage SPA-fallback.');
     }
-    if (!url || !key) {
-      console.warn('[prerender] Supabase-miljö saknas; hoppar över dynamiska slug-sidor i denna build.');
-      return [];
-    }
+    console.warn('[prerender] Supabase-miljö saknas; hoppar över dynamiska slug-sidor i denna build.');
+    return [];
   }
 
   try {
@@ -175,6 +161,7 @@ async function loadDynamicPages() {
         imageAlt: plant.image_alt || plant.name,
         publishedTime: plant.created_at,
         modifiedTime: plant.updated_at || plant.created_at,
+        plantName: plant.name,
       });
     }
 
@@ -211,9 +198,62 @@ async function loadDynamicPages() {
   }
 }
 
-const dynamicPages = await loadDynamicPages();
-const allPages = mergeRequiredPages([...staticPages, ...dynamicPages]);
-for (const page of allPages) await writePage(page);
+async function loadViteShell(dist) {
+  const indexPath = join(dist, 'index.html');
+  const shellPath = join(dist, '_vite-shell.html');
+  const current = await readFile(indexPath, 'utf8');
+  if (current.includes('<div id="root"></div>')) {
+    await writeFile(shellPath, current, 'utf8');
+    return current;
+  }
+  try {
+    const saved = await readFile(shellPath, 'utf8');
+    if (saved.includes('<div id="root"></div>')) return saved;
+  } catch {
+    /* first write may have replaced #root without saving the shell */
+  }
+  throw new Error('[prerender] Vite-skalet saknas (tom #root). Kör vite build innan prerender, inte en andra gång mot redan skriven homepage-HTML.');
+}
 
-const rebuilt = REQUIRED_FIRST_BYTE_PAGES.map((page) => page.route).join(', ');
-console.log(`[prerender] skapade ${allPages.length} HTML-sidor (${staticPages.length} fasta, ${dynamicPages.length} dynamiska). Unika first-byte-sidor: ${rebuilt}`);
+export async function prerenderDist(dist = join(root, 'dist')) {
+  const template = await loadViteShell(dist);
+  const staticPages = staticPagesForYear();
+
+  async function writePage(page) {
+    const output = routeOutput(dist, page.route);
+    const html = renderPage(template, page);
+    if (page.route !== '/') assertUniqueFirstByte(html, page);
+    await mkdir(dirname(output), { recursive: true });
+    await writeFile(output, html, 'utf8');
+    return output;
+  }
+
+  const dynamicPages = await loadDynamicPages();
+  const allPages = mergeRequiredPages([...staticPages, ...dynamicPages]);
+  for (const page of allPages) await writePage(page);
+
+  for (const required of REQUIRED_FIRST_BYTE_PAGES) {
+    const file = routeOutput(dist, required.route);
+    await access(file);
+  }
+
+  await writeFile(
+    join(dist, '_prerender-manifest.json'),
+    `${JSON.stringify({
+      host: 'lovable-static+spa-fallback',
+      generatedAt: new Date().toISOString(),
+      routes: allPages.map((page) => page.route),
+      required: REQUIRED_FIRST_BYTE_PAGES.map((page) => page.route),
+    }, null, 2)}\n`,
+    'utf8',
+  );
+
+  const rebuilt = REQUIRED_FIRST_BYTE_PAGES.map((page) => page.route).join(', ');
+  console.log(`[prerender] skapade ${allPages.length} HTML-sidor (${staticPages.length} fasta, ${dynamicPages.length} dynamiska). Unika first-byte-sidor: ${rebuilt}`);
+  return { pages: allPages.length, staticPages: staticPages.length, dynamicPages: dynamicPages.length };
+}
+
+const isDirect = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
+if (isDirect) {
+  await prerenderDist();
+}
