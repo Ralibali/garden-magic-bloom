@@ -137,11 +137,19 @@ function injectJsonLd(html, schema) {
   return cleaned.replace('</head>', `  ${script}\n  </head>`);
 }
 
+export function plantAddCtaMarkup(crop) {
+  const name = String(crop || '').trim();
+  if (!name) return '';
+  const href = `/login?mode=register&source=vaxt&return=${encodeURIComponent('/app/sowings')}&crop=${encodeURIComponent(name)}`;
+  return `<aside aria-label="Lägg till ${escapeHtml(name)} i din odling" data-cta="add-plant"><h2>Lägg till ${escapeHtml(name)} i min odling</h2><p>Prefyll såloggen med ${escapeHtml(name.toLowerCase())} så du kan välja bädd, sådatum och sort.</p><p><a href="${escapeHtml(href)}">Lägg till ${escapeHtml(name)} i min odling</a></p></aside>`;
+}
+
 export function fallbackMarkup(page) {
   const body = truncate(page.body || page.description, 900);
   const image = page.image ? `<img src="${escapeHtml(page.image)}" alt="${escapeHtml(page.imageAlt || page.heading || page.title)}" style="display:block;width:100%;max-width:760px;aspect-ratio:16/9;object-fit:cover;border-radius:18px;margin:24px 0" />` : '';
   const published = page.publishedTime ? `<p><small>Publicerad ${escapeHtml(page.publishedTime.slice(0, 10))}</small></p>` : '';
-  return `<div id="root"><main id="main-content" style="max-width:900px;margin:56px auto;padding:24px;font-family:system-ui,-apple-system,sans-serif;line-height:1.65;color:#173226"><nav aria-label="Huvudnavigation" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:36px"><a href="/">Odlingsdagboken</a><a href="/funktioner">Funktioner</a><a href="/hur-det-fungerar">Hur det fungerar</a><a href="/sakalender">Såkalender</a><a href="/vaxter">Växter</a><a href="/blogg">Blogg</a></nav><article><h1>${escapeHtml(page.heading || page.title)}</h1>${published}${image}<p>${escapeHtml(body)}</p></article><p style="margin-top:32px"><a href="/login?mode=register">Skapa gratis konto</a></p></main></div>`;
+  const plantCta = page.plantName ? plantAddCtaMarkup(page.plantName) : '';
+  return `<div id="root"><main id="main-content" style="max-width:900px;margin:56px auto;padding:24px;font-family:system-ui,-apple-system,sans-serif;line-height:1.65;color:#173226"><nav aria-label="Huvudnavigation" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:36px"><a href="/">Odlingsdagboken</a><a href="/funktioner">Funktioner</a><a href="/hur-det-fungerar">Hur det fungerar</a><a href="/sakalender">Såkalender</a><a href="/vaxter">Växter</a><a href="/blogg">Blogg</a></nav><article><h1>${escapeHtml(page.heading || page.title)}</h1>${published}${image}<p>${escapeHtml(body)}</p>${plantCta}</article><p style="margin-top:32px"><a href="/login?mode=register">Skapa gratis konto</a></p></main></div>`;
 }
 
 export function pageSchema(page) {

@@ -11,13 +11,15 @@ interface PublicLayoutProps {
 
 type NavItem = { label: string; to: string; anchor?: string; matchPrefix?: string };
 
-const NAV: NavItem[] = [
+export const PUBLIC_NAV: NavItem[] = [
   { label: 'Hur det fungerar', to: '/hur-det-fungerar', matchPrefix: '/hur-det-fungerar' },
   { label: 'Funktioner', to: '/funktioner', matchPrefix: '/funktioner' },
   { label: 'Odlingskalender', to: '/odlingskalender', matchPrefix: '/odlingskalender' },
   { label: 'Blogg', to: '/blogg', matchPrefix: '/blogg' },
   { label: 'Pris', to: '/#pris', anchor: 'pris' },
 ];
+
+const NAV = PUBLIC_NAV;
 
 
 function buildHref(item: NavItem, isHome: boolean): string {
