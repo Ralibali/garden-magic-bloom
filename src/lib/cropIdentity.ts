@@ -15,7 +15,7 @@ export interface CropIdentity {
 }
 
 const CATALOGUE: { key: string; names: string[] }[] = [
-  { key: 'tomat', names: ['tomat', 'tomato', 'tomater', 'cherry tomato', 'körsbärstomat'] },
+  { key: 'tomat', names: ['tomat', 'tomato', 'tomater', 'cherry tomato', 'körsbärstomat', 'sungold', 'moneymaker'] },
   { key: 'chili', names: ['chili', 'chilli', 'paprika'] },
   { key: 'gurka', names: ['gurka', 'cucumber'] },
   { key: 'squash', names: ['squash', 'zucchini', 'courgette'] },
@@ -112,7 +112,9 @@ export function deriveCropIdentity(displayText: string | null | undefined): Crop
     };
   }
 
-  const variety_name = split.varietyPart || (fold(split.cropPart) === hit.matched ? '' : split.cropPart);
+  const exactCatalogueName = fold(split.cropPart) === hit.matched && fold(hit.matched) === fold(hit.key);
+  const variety_name = split.varietyPart
+    || (exactCatalogueName ? '' : fold(split.cropPart) === hit.matched ? display_text : split.cropPart);
   return {
     crop_key: hit.key,
     variety_name,

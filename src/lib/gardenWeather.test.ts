@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { resolveGardenLocation, getGardenForecast } from './gardenWeather';
+import { resolveGardenLocation, getGardenForecast, weatherAnalyticsSafe } from './gardenWeather';
 
 describe('resolveGardenLocation', () => {
   it('prefers saved approximate coordinates over the zone centroid', () => {
@@ -13,6 +13,13 @@ describe('resolveGardenLocation', () => {
     expect(resolveGardenLocation(3, null).location_source).toBe('zone');
     expect(resolveGardenLocation(3, { lat: 999, lon: 18 }).location_source).toBe('zone');
     expect(resolveGardenLocation(1, {}).lat).toBe(55.6);
+    expect(resolveGardenLocation(null, null).location_source).toBe('regional');
+  });
+
+  it('never puts coordinates in the analytics-safe payload', () => {
+    const resolved = resolveGardenLocation(3, { lat: 59.12, lon: 18.05 });
+    expect(JSON.stringify(weatherAnalyticsSafe(resolved, 3))).not.toMatch(/59\.|18\./);
+    expect(weatherAnalyticsSafe(resolved, 3)).toEqual({ weather_source: 'saved', climate_zone: 3 });
   });
 });
 

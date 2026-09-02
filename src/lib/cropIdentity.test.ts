@@ -12,6 +12,8 @@ describe('deriveCropIdentity', () => {
 
   it('matches aliases and keeps custom names', () => {
     expect(deriveCropIdentity('Cherry tomato Sungold').crop_key).toBe('tomat');
+    expect(deriveCropIdentity('Sungold').crop_key).toBe('tomat');
+    expect(deriveCropIdentity('Sungold').variety_name).toBe('Sungold');
     expect(deriveCropIdentity('Rödbetor').crop_key).toBe('rodbeta');
   });
 

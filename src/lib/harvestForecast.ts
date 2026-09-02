@@ -3,6 +3,7 @@
  * räknar ut skördefönstret för användarens klimatzon.
  */
 import { sowingMatrix } from '@/data/sowingMatrix';
+import { deriveCropIdentity, fold, UNKNOWN_CROP_KEY } from '@/lib/cropIdentity';
 
 export type HarvestHintKind = 'now' | 'upcoming' | 'past' | 'unknown';
 
@@ -19,16 +20,16 @@ export interface HarvestHint {
 }
 
 /** Extraherar basgrödan ur ett sortnamn, t.ex. "Tomat – Sungold" → "tomat". */
+function catalogueNameForKey(cropKey: string): string | null {
+  const compact = cropKey.replace(/-/g, '');
+  const crop = sowingMatrix.find((entry) => fold(entry.name).replace(/\s+/g, '') === compact);
+  return crop?.name ?? null;
+}
+
 export function findCropForVariety(variety: string | null | undefined): string | null {
-  if (!variety) return null;
-  const normalized = variety.toLowerCase();
-  // Längsta match först så att t.ex. "jordgubbar" inte krockar med kortare ord
-  const names = sowingMatrix.map((c) => c.name).sort((a, b) => b.length - a.length);
-  for (const name of names) {
-    const lower = name.toLowerCase();
-    if (normalized.includes(lower)) return name;
-  }
-  return null;
+  const identity = deriveCropIdentity(variety);
+  if (identity.crop_key === UNKNOWN_CROP_KEY) return null;
+  return catalogueNameForKey(identity.crop_key);
 }
 
 /** ISO-veckonummer för ett datum (svensk/ISO 8601-räkning). */

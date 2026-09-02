@@ -14,6 +14,7 @@ import AppEmptyState from '@/components/AppEmptyState';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 import { getExpiryStatus, EXPIRY_LABELS, type ExpiryStatus } from '@/lib/seedExpiry';
+import { sowingPayloadFromVariety } from '@/lib/cropIdentity';
 import { cn } from '@/lib/utils';
 
 async function getUserId() {
@@ -46,9 +47,11 @@ const SeedInventory = () => {
   const createMutation = useMutation({
     mutationFn: async () => {
       const userId = await getUserId();
+      const identity = sowingPayloadFromVariety(form.variety.trim());
       const { error } = await supabase.from('seed_inventory').insert({
         user_id: userId,
-        variety: form.variety.trim(),
+        variety: identity.variety,
+        crop_key: identity.crop_key,
         brand: form.brand.trim() || null,
         quantity: form.quantity.trim() || null,
         expiry_date: form.expiry_date || null,
@@ -67,8 +70,10 @@ const SeedInventory = () => {
 
   const editMutation = useMutation({
     mutationFn: async () => {
+      const identity = sowingPayloadFromVariety(editing.variety.trim());
       const { error } = await supabase.from('seed_inventory').update({
-        variety: editing.variety.trim(),
+        variety: identity.variety,
+        crop_key: identity.crop_key,
         brand: editing.brand?.trim() || null,
         quantity: editing.quantity?.trim() || null,
         expiry_date: editing.expiry_date || null,
@@ -237,7 +242,7 @@ const SeedInventory = () => {
                         variant="outline"
                         size="sm"
                         className="w-full gap-1.5 border-primary/25 text-primary hover:bg-primary/8"
-                        onClick={() => navigate('/app/sowings', { state: { prefill: { variety: seed.variety, brand: seed.brand || '' } } })}
+                        onClick={() => navigate('/app/sowings', { state: { prefill: { variety: seed.variety, brand: seed.brand || '', seed_inventory_id: seed.id } } })}
                       >
                         <Sprout className="h-3.5 w-3.5" /> Så detta frö
                       </Button>
