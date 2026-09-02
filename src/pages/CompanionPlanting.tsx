@@ -36,7 +36,7 @@ const CompanionPlanting = () => {
         <section className="premium-panel relative overflow-hidden p-5 sm:p-6">
           <div className="absolute right-0 top-0 h-28 w-28 rounded-full bg-primary/8 blur-3xl" />
           <div className="relative">
-            <span className="section-kicker mb-3"><Sparkles className="h-3.5 w-3.5" /> Naturens egen skyddsverkstad</span>
+            <span className="section-kicker mb-3"><Sparkles className="h-3.5 w-3.5" /> Odlartradition, inte fältförsök</span>
             <h1 className="page-title">Samplantering</h1>
             <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Rätt grannar sägs enligt odlartradition kunna hålla skadedjur borta och hjälpa varandra att växa. Vi jämför din odling mot den här traditionella tabellen — inte mot fältförsök.</p>
           </div>
@@ -47,7 +47,7 @@ const CompanionPlanting = () => {
       {hasActiveSowings && (
         <FadeIn delay={0.05}>
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">I din odling just nu</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Traditionell läsning av din odling</h2>
 
             {analysis.bad.length > 0 && (
               <div className="space-y-2">
@@ -56,9 +56,11 @@ const CompanionPlanting = () => {
                     <CardContent className="flex items-start gap-3 p-4">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-destructive/10 text-destructive"><AlertTriangle className="h-4 w-4" /></div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold">{pair.plantA} + {pair.plantB} — undvik ihop</p>
+                        <p className="text-sm font-semibold">{pair.plantA} + {pair.plantB} — enligt tradition ofta isär</p>
                         <p className="mt-0.5 text-xs text-muted-foreground">
-                          {pair.bedName ? `Båda finns i ${pair.bedName}. Överväg att flytta en av dem nästa säsong.` : 'Du odlar båda i år. Håll dem gärna i olika bäddar.'}
+                          {pair.bedName
+                            ? `Båda finns i ${pair.bedName}. Det är odlartradition, inte bevisad skadedjursbekämpning — flytta bara om du själv vill testa.`
+                            : 'Du odlar båda i år. Traditionen håller dem gärna isär; det är inte ett bevisat pest-skydd.'}
                         </p>
                       </div>
                     </CardContent>
@@ -74,9 +76,9 @@ const CompanionPlanting = () => {
                     <CardContent className="flex items-start gap-3 p-4">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><HeartHandshake className="h-4 w-4" /></div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold">{pair.plantA} + {pair.plantB} — bra grannar!</p>
+                        <p className="text-sm font-semibold">{pair.plantA} + {pair.plantB} — enligt tradition ofta bra grannar</p>
                         <p className="mt-0.5 text-xs text-muted-foreground">
-                          {pair.bedName ? `Samplanterade i ${pair.bedName}. Snyggt jobbat!` : 'Du odlar båda — de trivs gärna nära varandra.'}
+                          {pair.bedName ? `Samplanterade i ${pair.bedName}. Folklore, inte fältförsök.` : 'Du odlar båda — traditionen säger att de kan stå nära varandra.'}
                         </p>
                       </div>
                     </CardContent>
@@ -97,7 +99,7 @@ const CompanionPlanting = () => {
           <AppEmptyState
             icon={Sprout}
             title="Logga dina sådder för personliga tips"
-            description="När du har aktiva sådder visar vi vilka av dina grödor som är bra grannar — och vilka som bör flyttas isär."
+            description="När du har aktiva sådder visar vi vilka par som nämns i odlartraditionen. Inget av det är bevisad skadedjursbekämpning."
             actionLabel="Logga en sådd"
             onAction={() => navigate('/app/sowings')}
           />

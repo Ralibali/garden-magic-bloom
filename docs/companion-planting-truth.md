@@ -26,4 +26,6 @@ The pair table is a feature users can browse. Deleting it in this PR would look 
 2. Add `source: 'folklore'` on each pair, or drop pairs with no source.
 3. Stop auto-warning beds until a pair has a cited source.
 
-No second content rewrite in this PR beyond the one-line qualifier.
+Spine PR (2026-09-02): hero kicker is now “Odlartradition, inte fältförsök”. Same-bed rows say folklore, not “undvik ihop / snyggt jobbat”. `analyzeUserSowings` still lists pairs so the browse table remains; it must not be read as a pest-control engine.
+
+No auto-warning of real beds as proven pest-control. Keep tradition framing.

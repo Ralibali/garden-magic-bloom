@@ -250,4 +250,32 @@ describe('buildGardenPulse', () => {
     expect(pulse.empty).toBe(true);
     expect(buildGardenPulse({ climateZone: 3 }).empty).toBe(true);
   });
+
+  it('hides dismissed Pulse rows', () => {
+    const now = localDateKey();
+    const pulse = buildGardenPulse({
+      climateZone: 3,
+      today: now,
+      beds: [{ id: 'bed-1' }],
+      sowings: [{ id: 's-1', variety: 'Sallat', sow_date: now, type: 'direct', status: 'sown' }],
+      reminders: [{ id: 'r-d', title: 'Inte relevant', type: 'other', date: now, done: false }],
+      actionState: { 'reminder-r-d': { dismissedAt: new Date().toISOString() } },
+    });
+    expect(pulse.today.some((item) => item.id === 'reminder-r-d')).toBe(false);
+    expect(pulse.empty).toBe(true);
+  });
+
+  it('wires TODAY garden context and keeps reminder why as user_data', () => {
+    const now = localDateKey();
+    const pulse = buildGardenPulse({
+      climateZone: 3,
+      today: now,
+      beds: [{ id: 'bed-1', name: 'Växthus' }],
+      sowings: [{ id: 's-1', variety: 'Tomat – Sungold', sow_date: now, type: 'direct', status: 'sown', bed_id: 'bed-1' }],
+      reminders: [{ id: 'r-why', title: 'Gallra', type: 'other', date: now, done: false, sowing_id: 's-1', bed_id: 'bed-1' }],
+    });
+    expect(pulse.context.scope).toBe('TODAY');
+    expect(pulse.context.items.some((item) => item.id === 'r-why' && item.sowing_id === 's-1')).toBe(true);
+    expect(pulse.today.find((item) => item.sourceReminderId === 'r-why')?.why).toBe('user_data');
+  });
 });

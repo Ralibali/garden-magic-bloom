@@ -32,7 +32,7 @@ export default function PestLog() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ pest_name: '', bed_id: '', severity: 'medium', treatment: '', observed_date: localDateKey(), notes: '' });
+  const [form, setForm] = useState({ pest_name: '', bed_id: '', sowing_id: '', severity: 'medium', treatment: '', observed_date: localDateKey(), notes: '' });
 
   const { data: logs = [], isLoading } = useQuery({
     queryKey: ['pest-logs'],
@@ -43,6 +43,7 @@ export default function PestLog() {
     },
   });
   const { data: beds = [] } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
+  const { data: sowings = [] } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const openProblems = logs.filter((log: any) => !log.resolved);
   const resolvedProblems = logs.filter((log: any) => log.resolved);
 
@@ -54,7 +55,8 @@ export default function PestLog() {
       const { data, error } = await supabase.from('pest_logs').insert({
         user_id: userId,
         pest_name: pestName,
-        bed_id: form.bed_id || null,
+        bed_id: form.bed_id || sowings.find((sowing: any) => sowing.id === form.sowing_id)?.bed_id || null,
+        sowing_id: form.sowing_id || null,
         severity,
         treatment: form.treatment.trim() || null,
         observed_date: form.observed_date,
@@ -76,6 +78,10 @@ export default function PestLog() {
           created_at: new Date().toISOString(),
           completed_at: null,
           source_pest_log_id: data.id,
+          sowing_id: form.sowing_id || null,
+          bed_id: form.bed_id || sowings.find((sowing: any) => sowing.id === form.sowing_id)?.bed_id || null,
+          display_text: `Följ upp ${pestName}`,
+          source: 'pest',
         };
         await api.updateReminderSettings({ settings: { ...settings, reminders: [...reminders, reminder] } });
         followUpCreated = true;
@@ -89,7 +95,7 @@ export default function PestLog() {
       queryClient.invalidateQueries({ queryKey: ['pest-logs'] });
       queryClient.invalidateQueries({ queryKey: ['reminder-settings'] });
       setDialogOpen(false);
-      setForm({ pest_name: '', bed_id: '', severity: 'medium', treatment: '', observed_date: localDateKey(), notes: '' });
+      setForm({ pest_name: '', bed_id: '', sowing_id: '', severity: 'medium', treatment: '', observed_date: localDateKey(), notes: '' });
       void recordProductActivity('pest_problem_logged', { pest_log_id: id, severity, follow_up_created: followUpCreated });
       toast({
         title: 'Problemet är loggat',
@@ -132,7 +138,7 @@ export default function PestLog() {
 
       {isLoading ? <Card><CardContent className="p-8 text-sm text-muted-foreground">Laddar problemboken…</CardContent></Card> : !logs.length ? <AppEmptyState icon={Bug} eyebrow="Bra utgångsläge" title="Inga problem är loggade" description="När något ser fel ut kan du spara symtom, behandling och bilder. Då kan nästa bedömning bygga på vad som faktiskt hänt i din odling." actionLabel="Logga ett problem" onAction={() => setDialogOpen(true)} secondaryLabel="Fråga Gro" onSecondary={() => navigate('/app/gro')} /> : <div className="space-y-3">{logs.map((log: any) => { const severity = severityMap[log.severity] || severityMap.medium; return <Card key={log.id} className={log.resolved ? 'opacity-65' : 'hover:border-destructive/20 hover:shadow-[var(--card-shadow-hover)]'}><CardContent className="p-4 sm:p-5"><div className="flex items-start gap-3"><button onClick={() => toggleResolved.mutate({ id: log.id, resolved: !!log.resolved })} className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${log.resolved ? 'border-primary bg-primary/15' : 'border-border hover:border-primary'}`} aria-label={log.resolved ? 'Öppna problemet igen' : 'Markera problemet som löst'}>{log.resolved && <Check className="h-3.5 w-3.5 text-primary" />}</button><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className={`font-semibold ${log.resolved ? 'line-through' : ''}`}>{log.pest_name}</h2><Badge variant="outline" className={severity.className}>{severity.label}</Badge>{log.beds?.name && <span className="text-xs text-muted-foreground">· {log.beds.name}</span>}</div><p className="mt-1 text-xs text-muted-foreground">Observerat {log.observed_date}</p>{log.treatment && <p className="mt-2 text-sm"><strong>Behandling:</strong> {log.treatment}</p>}{log.notes && <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{log.notes}</p>}</div><Button variant="outline" size="sm" onClick={() => askGro(log)}><Bot className="h-3.5 w-3.5" /> Fråga Gro</Button></div></CardContent></Card>; })}</div>}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}><DialogContent><DialogHeader><DialogTitle>Logga problem</DialogTitle></DialogHeader><div className="space-y-4"><Input placeholder="Skadedjur, sjukdom eller symtom" value={form.pest_name} onChange={(event) => setForm((current) => ({ ...current, pest_name: event.target.value }))} /><Select value={form.bed_id} onValueChange={(value) => setForm((current) => ({ ...current, bed_id: value }))}><SelectTrigger><SelectValue placeholder="Välj bädd (valfritt)" /></SelectTrigger><SelectContent>{beds.map((bed: any) => <SelectItem key={bed.id} value={bed.id}>{bed.name}</SelectItem>)}</SelectContent></Select><Select value={form.severity} onValueChange={(value) => setForm((current) => ({ ...current, severity: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="low">Låg allvarlighetsgrad</SelectItem><SelectItem value="medium">Medel</SelectItem><SelectItem value="high">Hög</SelectItem></SelectContent></Select><Input type="date" value={form.observed_date} onChange={(event) => setForm((current) => ({ ...current, observed_date: event.target.value }))} /><Input placeholder="Behandling du redan provat" value={form.treatment} onChange={(event) => setForm((current) => ({ ...current, treatment: event.target.value }))} /><Textarea placeholder="Beskriv symtom, omfattning och förändring över tid" value={form.notes} onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))} /><div className="rounded-xl border border-primary/15 bg-primary/5 p-3 text-xs text-muted-foreground"><AlertTriangle className="mr-1.5 inline h-3.5 w-3.5 text-primary" /> En uppföljning skapas automatiskt om 2–3 dagar.</div><Button onClick={() => createMutation.mutate()} disabled={!form.pest_name.trim() || createMutation.isPending} className="w-full">{createMutation.isPending ? 'Sparar…' : 'Spara och skapa uppföljning'}</Button></div></DialogContent></Dialog>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}><DialogContent><DialogHeader><DialogTitle>Logga problem</DialogTitle></DialogHeader><div className="space-y-4"><Input placeholder="Skadedjur, sjukdom eller symtom" value={form.pest_name} onChange={(event) => setForm((current) => ({ ...current, pest_name: event.target.value }))} /><Select value={form.bed_id} onValueChange={(value) => setForm((current) => ({ ...current, bed_id: value }))}><SelectTrigger><SelectValue placeholder="Välj bädd (valfritt)" /></SelectTrigger><SelectContent>{beds.map((bed: any) => <SelectItem key={bed.id} value={bed.id}>{bed.name}</SelectItem>)}</SelectContent></Select><Select value={form.sowing_id} onValueChange={(value) => setForm((current) => ({ ...current, sowing_id: value, bed_id: current.bed_id || sowings.find((sowing: any) => sowing.id === value)?.bed_id || '' }))}><SelectTrigger><SelectValue placeholder="Koppla till sådd (valfritt)" /></SelectTrigger><SelectContent>{sowings.map((sowing: any) => <SelectItem key={sowing.id} value={sowing.id}>{sowing.variety}</SelectItem>)}</SelectContent></Select><Select value={form.severity} onValueChange={(value) => setForm((current) => ({ ...current, severity: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="low">Låg allvarlighetsgrad</SelectItem><SelectItem value="medium">Medel</SelectItem><SelectItem value="high">Hög</SelectItem></SelectContent></Select><Input type="date" value={form.observed_date} onChange={(event) => setForm((current) => ({ ...current, observed_date: event.target.value }))} /><Input placeholder="Behandling du redan provat" value={form.treatment} onChange={(event) => setForm((current) => ({ ...current, treatment: event.target.value }))} /><Textarea placeholder="Beskriv symtom, omfattning och förändring över tid" value={form.notes} onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))} /><div className="rounded-xl border border-primary/15 bg-primary/5 p-3 text-xs text-muted-foreground"><AlertTriangle className="mr-1.5 inline h-3.5 w-3.5 text-primary" /> En uppföljning skapas automatiskt om 2–3 dagar.</div><Button onClick={() => createMutation.mutate()} disabled={!form.pest_name.trim() || createMutation.isPending} className="w-full">{createMutation.isPending ? 'Sparar…' : 'Spara och skapa uppföljning'}</Button></div></DialogContent></Dialog>
     </div>
   );
 }

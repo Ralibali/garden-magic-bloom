@@ -59,8 +59,19 @@ const Dashboard = () => {
   const { data: stats, isLoading } = useQuery({ queryKey: ['summary-stats'], queryFn: api.getSummaryStats });
   const { data: profile, isLoading: profileLoading } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
   const climateZone = profile?.climate_zone ?? 3;
-  const { data: weather } = useQuery({ queryKey: ['garden-forecast', climateZone], queryFn: () => getGardenForecast(climateZone), staleTime: 600_000, retry: 1 });
-  const { data: rainData } = useQuery({ queryKey: ['rain-history', climateZone], queryFn: () => api.getRainHistory(climateZone), staleTime: 600_000, retry: 1 });
+  const locationMode = profile?.location_lat != null && profile?.location_lon != null ? 'saved' : 'zone';
+  const { data: weather } = useQuery({
+    queryKey: ['garden-forecast', climateZone, locationMode],
+    queryFn: () => getGardenForecast(climateZone, { lat: profile?.location_lat, lon: profile?.location_lon }),
+    staleTime: 600_000,
+    retry: 1,
+  });
+  const { data: rainData } = useQuery({
+    queryKey: ['rain-history', climateZone, locationMode],
+    queryFn: () => api.getRainHistory(climateZone, { lat: profile?.location_lat, lon: profile?.location_lon }),
+    staleTime: 600_000,
+    retry: 1,
+  });
   const { data: beds = [], isLoading: bedsLoading, isError: bedsError } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
   const { data: sowings = [], isLoading: sowingsLoading, isError: sowingsError } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const { data: harvests = [] } = useQuery({ queryKey: ['harvests'], queryFn: api.getHarvests });

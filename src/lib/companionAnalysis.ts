@@ -1,6 +1,6 @@
 /**
- * Analyserar användarens faktiska sådder mot samplanteringstabellen
- * och hittar bra grannar respektive kombinationer att undvika.
+ * Matches user sowings against the folklore companion table.
+ * Same-bed hits are tradition labels, not proven pest-control.
  */
 import { COMPANION_DATA } from '@/lib/weatherTips';
 

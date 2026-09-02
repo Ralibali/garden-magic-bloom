@@ -323,9 +323,9 @@ Rank: **8**
 | **Monetization** | L |
 | **Differentiation** | L (every garden app mockup) |
 | **Cheapest prototype** | Do not. A named list of beds *is* the map. |
-| **Kill condition** | **Killed now.** Fails dirty-hands and 3-season tests. |
+| **Status** | **UNVALIDATED HOLD** — not killed. No build this sprint. |
 
-Rank: **9 — do not build**
+Rank: **9 — hold, do not build**
 
 ### Ranking
 
@@ -337,7 +337,7 @@ Rank: **9 — do not build**
 6. Personal growing recipes (per-variety history card)
 7. Weather-adaptive *tasks* (lat/lon; no card)
 8. Shareable season story (surface `seasonShare`)
-9. Garden map — **kill**
+9. Garden map — **UNVALIDATED HOLD** (no build)
 
 ---
 
@@ -356,7 +356,7 @@ Constraints: 3-season test, dirty-hands &lt;10s, existing data, no school/koloni
 | **Monetization test** | Plus CTA only when Pulse action hits a free limit (4th bed / 11th sowing / 4th Gro) | Limits and checkout exist | `PremiumGate`, Stripe | New SKU or “Pulse Pro” |
 | **Technical quality** | Reminder JSON: add `sowing_id` + `bed_id` on create; harvest/photo already know how | No migration | `addReminder`, Harvests, PhotoDiary | New `actions` table |
 
-Lane C (school, kolonilott, B2B) stays off the first sprint.
+Lane C (school, kolonilott, community, creator, garden map) is **UNVALIDATED HOLD**, not kill. No build this sprint. See §8.
 
 ---
 
@@ -365,7 +365,7 @@ Lane C (school, kolonilott, B2B) stays off the first sprint.
 - Weather **card** that does not add or remove a Pulse task.
 - `DashboardActionCenter` month folklore (“Förodla tomat”) for users who already have sowings — generic, not their garden.
 - Rebuilding Ask My Garden as a new product.
-- Garden map / digital twin.
+- Garden map / digital twin **as a build this sprint** (HOLD, not kill — see §8).
 - Companion-planting pest-control as fact (see truth note).
 - A second analytics tracker (Plausible + `recordProductActivity` is enough).
 - Fake frost from `LAST_FROST_DATES` when Open-Meteo is already in repo — zone-average dates are fallback only.
@@ -373,7 +373,6 @@ Lane C (school, kolonilott, B2B) stays off the first sprint.
 - New `gardens` table before a user has two properties.
 - Graph database, embeddings garden, or “knowledge graph” rewrite.
 - Stayboost / updro (out of scope).
-- Merging or publishing this PR.
 
 ---
 
@@ -399,4 +398,20 @@ No new tables. No new nav. No companion folklore in Pulse. No second tracker. Fr
 - [x] Audit in `docs/garden-os-audit.md` and in the PR body
 - [x] Pulse is a thin existing-data screen (not a schema-blocked NO-SHIP)
 - [x] Blocking OS join named: **canonical crop/variety identity** (`sowings.variety` text vs catalogues); Pulse does not wait on it
-- [x] PR stays draft; do not merge
+- [x] Independent verification + CI, then merge Pulse (Phase 2)
+
+---
+
+## 8. UNVALIDATED HOLD — do not permanently kill
+
+These surfaces are **not validated** and must not be built this sprint. They are also **not killed**. Leave the door open if a later season proves dirty-hands value.
+
+| Surface | Why hold | What would unhold |
+|---|---|---|
+| **School** | No classroom, teacher, or cohort object in the graph | A real school asking to share one garden across students |
+| **Kolonilott** | User = one garden. No plot, association, or shared bed | A user with two properties or a named kolonilott |
+| **Community** | No public garden, follow, or comment graph | A shareable season story that people actually open |
+| **Creator** | No creator profile, recipe publish, or audience | Personal growing recipes used for a second season |
+| **Garden map** | Beds are a named list. No width, path, GPS, neighbors | A user who cannot find a bed by name and needs a sketch |
+
+No schema, no route, no prototype. Stayboost / updro stay out of scope.

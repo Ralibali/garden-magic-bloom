@@ -1,3 +1,17 @@
+export type GardenLocationSource = 'saved' | 'zone';
+
+export interface GardenLocationInput {
+  lat?: number | null;
+  lon?: number | null;
+}
+
+export interface ResolvedGardenLocation {
+  lat: number;
+  lon: number;
+  label: string;
+  location_source: GardenLocationSource;
+}
+
 function coordinatesForZone(zone: number | null | undefined) {
   switch (zone) {
     case 1: return { lat: 55.60, lon: 13.00, label: 'Malmöregionen' };
@@ -12,11 +26,35 @@ function coordinatesForZone(zone: number | null | undefined) {
   }
 }
 
-export async function getGardenForecast(climateZone?: number | null) {
-  const { lat, lon, label } = coordinatesForZone(climateZone);
+function isUsableCoordinate(value: number | null | undefined, maxAbs: number) {
+  return typeof value === 'number' && Number.isFinite(value) && Math.abs(value) <= maxAbs;
+}
+
+/** Saved approximate lat/lon if present, else climate-zone centroid. Never log these to analytics. */
+export function resolveGardenLocation(
+  climateZone?: number | null,
+  location?: GardenLocationInput | null,
+): ResolvedGardenLocation {
+  const zone = coordinatesForZone(climateZone);
+  if (isUsableCoordinate(location?.lat, 90) && isUsableCoordinate(location?.lon, 180)) {
+    return {
+      lat: location!.lat as number,
+      lon: location!.lon as number,
+      label: 'Sparad plats',
+      location_source: 'saved',
+    };
+  }
+  return { ...zone, location_source: 'zone' };
+}
+
+export async function getGardenForecast(
+  climateZone?: number | null,
+  location?: GardenLocationInput | null,
+) {
+  const resolved = resolveGardenLocation(climateZone, location);
   const params = new URLSearchParams({
-    latitude: String(lat),
-    longitude: String(lon),
+    latitude: String(resolved.lat),
+    longitude: String(resolved.lon),
     timezone: 'Europe/Stockholm',
     forecast_days: '5',
     current: 'temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m',
@@ -25,7 +63,12 @@ export async function getGardenForecast(climateZone?: number | null) {
   const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
   if (!response.ok) throw new Error('Kunde inte hämta väderprognosen');
   const data = await response.json();
-  return { ...data, location_label: label, climate_zone: climateZone ?? 3 };
+  return {
+    ...data,
+    location_label: resolved.label,
+    climate_zone: climateZone ?? 3,
+    location_source: resolved.location_source,
+  };
 }
 
 export function weatherDescription(code?: number) {
