@@ -6,6 +6,7 @@ import { AppSidebar } from './AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { MobileNav } from './MobileNav';
 import PublicPlanHandoff from './PublicPlanHandoff';
+import { consumeIntentNavigation } from '@/lib/productIntent';
 import { Bell, CalendarDays, Carrot, HeartPulse, LayoutGrid, Menu, Plus, Sparkles, Sprout } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -99,6 +100,13 @@ export default function AppLayout() {
           : Plus;
   useNoIndex();
 
+  useEffect(() => {
+    if (location.pathname !== '/app') return;
+    const dest = consumeIntentNavigation();
+    if (!dest || dest.path === '/app') return;
+    navigate(dest.path, { state: dest.state, replace: true });
+  }, [location.pathname, navigate]);
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full app-canvas">
@@ -126,7 +134,7 @@ export default function AppLayout() {
               <Suspense fallback={<ContentLoader />}>
                 <AnimatePresence mode="wait">
                   <motion.div key={location.pathname} variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }} className="space-y-6">
-                    {plan && <PublicPlanHandoff plan={plan} onNavigate={navigate} onDismiss={dismiss} />}
+                    {plan && <PublicPlanHandoff plan={plan} onNavigate={(path, state) => navigate(path, state ? { state } : undefined)} onDismiss={dismiss} />}
                     <Outlet />
                   </motion.div>
                 </AnimatePresence>

@@ -13,6 +13,7 @@ import { ArticleAttribution } from '@/components/ArticleAttribution';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
 import CalendarCrossLink from '@/components/CalendarCrossLink';
 import PublicNotFound from '@/components/PublicNotFound';
+import AddPlantCta from '@/components/AddPlantCta';
 
 export default function VaxtDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -233,6 +234,8 @@ export default function VaxtDetail() {
           className="mb-10"
           description={`Vill du se vad mer än ${plant.name} som ska sås, planteras ut och skördas den här månaden?`}
         />
+
+        <AddPlantCta crop={plant.name} slug={plant.slug} className="mb-10" />
 
         {/* Mjuk inline-CTA mitt i innehållet */}
         <InlineSignupCTA

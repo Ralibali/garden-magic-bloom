@@ -35,7 +35,9 @@ export function parsePublicPlan(value: unknown): ImportedPublicPlan | null {
   const type = raw.type;
   if (type !== 'sakalender' && type !== 'odlingsplan' && type !== 'odlingsakuten') return null;
 
-  const crops = normalizeStringArray(raw.crops ?? raw.selectedCrops ?? raw.plants);
+  const crops = normalizeStringArray(
+    raw.crops ?? raw.selectedCrops ?? raw.plants ?? (typeof raw.crop === 'string' ? [raw.crop] : []),
+  );
   const method = String(raw.method ?? raw.growingMethod ?? raw.place ?? 'Pallkrage').trim() || 'Pallkrage';
 
   return {

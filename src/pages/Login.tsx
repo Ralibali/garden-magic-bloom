@@ -25,6 +25,7 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
 import { plausibleEvent } from '@/lib/plausible';
+import { clearProductIntent, destinationFromSearch, loadProductIntent } from '@/lib/productIntent';
 
 type AuthMode = 'login' | 'register' | 'forgot' | 'verify';
 
@@ -92,8 +93,15 @@ export default function Login() {
   const formViewTracked = useRef(false);
   const source = searchParams.get('source') || 'direct';
 
+  const goAfterAuth = () => {
+    const dest = destinationFromSearch(searchParams, loadProductIntent());
+    clearProductIntent();
+    navigate(dest.path, { replace: true, state: dest.state });
+  };
+
   useEffect(() => {
-    if (!authLoading && isAuthenticated) navigate('/app', { replace: true });
+    if (!authLoading && isAuthenticated) goAfterAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, isAuthenticated, navigate]);
 
   useEffect(() => {
@@ -148,7 +156,7 @@ export default function Login() {
       });
       if (result.error) throw result.error;
       if (result.redirected) return; // Webbläsaren omdirigerar till Apple.
-      navigate('/app', { replace: true });
+      goAfterAuth();
 
     } catch (error: any) {
       plausibleEvent('Signup Error', { reason: 'apple_unavailable' });
@@ -175,7 +183,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email.trim(), password);
-      navigate('/app', { replace: true });
+      goAfterAuth();
     } catch (error: any) {
       toast({ title: 'Kunde inte logga in', description: authError(error.message), variant: 'destructive' });
     } finally {
@@ -201,7 +209,7 @@ export default function Login() {
 
       if (data?.session) {
         toast({ title: 'Välkommen! 🌱', description: 'Nu anpassar vi Odlingsdagboken efter din odling.' });
-        navigate('/app', { replace: true });
+        goAfterAuth();
       } else {
         setVerificationEmail(normalizedEmail);
         setAuthMode('verify');

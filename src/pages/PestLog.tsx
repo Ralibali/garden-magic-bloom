@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,9 +30,22 @@ const severityMap: Record<string, { label: string; className: string }> = {
 
 export default function PestLog() {
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ pest_name: '', bed_id: '', severity: 'medium', treatment: '', observed_date: localDateKey(), notes: '' });
+
+  useEffect(() => {
+    const prefill = (location.state as any)?.prefill;
+    if (!prefill) return;
+    setForm((current) => ({
+      ...current,
+      pest_name: prefill.pest_name || current.pest_name,
+      notes: prefill.notes || current.notes,
+    }));
+    setDialogOpen(true);
+    window.history.replaceState({}, document.title);
+  }, [location.state]);
 
   const { data: logs = [], isLoading } = useQuery({
     queryKey: ['pest-logs'],
