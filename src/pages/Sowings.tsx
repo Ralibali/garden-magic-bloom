@@ -33,6 +33,8 @@ import {
   type SowingStatus,
 } from '@/lib/sowingLifecycle';
 import { guessPlantKind, normalizePlantKind, PLANT_KIND_LABELS } from '@/lib/plantKind';
+import { sowingPayloadFromVariety } from '@/lib/cropIdentity';
+import { reminderFromSowing } from '@/lib/sowingAttach';
 
 import { getHarvestHint } from '@/lib/harvestForecast';
 import { addReminder } from '@/lib/reminders';
@@ -92,6 +94,7 @@ const Sowings = () => {
   const [editing, setEditing] = useState<any>(null);
   const [plantKind, setPlantKind] = useState<string>(guessPlantKind(prefill?.variety || ''));
   const [plantKindTouched, setPlantKindTouched] = useState(false);
+  const [seedInventoryId, setSeedInventoryId] = useState('');
 
   const brandRef = useRef<HTMLDivElement>(null);
 
@@ -102,6 +105,15 @@ const Sowings = () => {
   const { data: beds } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
   const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
   const climateZone = profile?.climate_zone ?? 3;
+  const { data: seeds = [] } = useQuery({
+    queryKey: ['seed-inventory'],
+    queryFn: async () => {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.from('seed_inventory').select('id, variety, brand').order('created_at', { ascending: false });
+      if (error) return [];
+      return data || [];
+    },
+  });
 
   // Antal foton per sådd — visas som badge på korten
   const { data: photoCounts = {} } = useQuery({
@@ -145,13 +157,23 @@ const Sowings = () => {
   const createMutation = useMutation({
     mutationFn: () => {
       if (!isPremium && (sowingsRaw?.length ?? 0) >= FREE_SOWING_LIMIT) throw new Error('SOWING_LIMIT');
-      return api.createSowing({ variety: variety.trim(), bed_id: bedId || undefined, sow_date: sowDate, type, notes: notes.trim() || undefined, seed_brand: seedBrand.trim() || undefined, plant_kind: plantKind });
+      return api.createSowing({
+        ...sowingPayloadFromVariety(variety.trim(), {
+          bed_id: bedId || undefined,
+          sow_date: sowDate,
+          type,
+          notes: notes.trim() || undefined,
+          seed_brand: seedBrand.trim() || undefined,
+          plant_kind: plantKind,
+          seed_inventory_id: seedInventoryId || undefined,
+        }),
+      });
     },
     onSuccess: (sowing) => {
       const wasFirst = (sowingsRaw?.length ?? 0) === 0;
       queryClient.invalidateQueries({ queryKey: ['sowings'] });
       queryClient.invalidateQueries({ queryKey: ['summary-stats'] });
-      setOpen(false); setVariety(''); setBedId(''); setNotes(''); setSeedBrand('');
+      setOpen(false); setVariety(''); setBedId(''); setNotes(''); setSeedBrand(''); setSeedInventoryId('');
       void recordProductActivity(wasFirst ? 'first_sowing_created' : 'sowing_created', { sowing_id: sowing.id, type });
       if (wasFirst && user?.id) {
         const cultivationType: 'direct' | 'indoor' = type === 'indoor' ? 'indoor' : 'direct';
@@ -180,14 +202,14 @@ const Sowings = () => {
 
   const editMutation = useMutation({
     mutationFn: () => api.updateSowing(editing.id, {
-      variety: editing.variety.trim(),
-      bed_id: editing.bed_id || null,
-      sow_date: editing.sow_date,
-      type: editing.type,
-      notes: editing.notes?.trim() || null,
-      seed_brand: editing.seed_brand?.trim() || null,
-      plant_kind: normalizePlantKind(editing.plant_kind),
-
+      ...sowingPayloadFromVariety(editing.variety.trim(), {
+        bed_id: editing.bed_id || null,
+        sow_date: editing.sow_date,
+        type: editing.type,
+        notes: editing.notes?.trim() || null,
+        seed_brand: editing.seed_brand?.trim() || null,
+        plant_kind: normalizePlantKind(editing.plant_kind),
+      }),
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sowings'] });
@@ -207,11 +229,13 @@ const Sowings = () => {
     mutationFn: async (sowing: any) => {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      const ok = await addReminder({
+      const payload = reminderFromSowing(sowing, {
         title: `Skörda ${sowing.variety}`,
         type: 'other',
         date: tomorrow.toISOString().slice(0, 10),
-        bed: sowing.beds?.name,
+      });
+      const ok = await addReminder({
+        ...payload,
         source_action_id: `harvest-reminder-${sowing.id}`,
       });
       if (!ok) throw new Error('Kunde inte spara påminnelsen');
@@ -281,7 +305,7 @@ const Sowings = () => {
         </FadeIn>
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}><DialogContent><DialogHeader><DialogTitle>Lägg till sådd</DialogTitle></DialogHeader><div className="space-y-4"><Input placeholder="Sort, till exempel Tomat – Sungold" value={variety} onChange={(event) => { setVariety(event.target.value); if (!plantKindTouched) setPlantKind(guessPlantKind(event.target.value)); }} /><div className="relative" ref={brandRef}><Input placeholder="Frömärke eller leverantör" value={seedBrand} onChange={(event) => { setSeedBrand(event.target.value); setShowBrandSuggestions(true); }} onFocus={() => setShowBrandSuggestions(true)} />{showBrandSuggestions && filteredBrands.length > 0 && <div className="absolute z-50 top-full left-0 right-0 mt-2 rounded-2xl border border-border/70 bg-popover/98 p-1.5 shadow-xl">{filteredBrands.map((brand) => <button key={brand} type="button" className="w-full rounded-xl px-3 py-2.5 text-left text-sm hover:bg-primary/8" onClick={() => { setSeedBrand(brand); setShowBrandSuggestions(false); }}>{brand}</button>)}</div>}</div><Select value={plantKind} onValueChange={(v) => { setPlantKind(v); setPlantKindTouched(true); }}><SelectTrigger aria-label="Typ av växt"><SelectValue placeholder="Typ av växt" /></SelectTrigger><SelectContent><SelectItem value="edible">{PLANT_KIND_LABELS.edible}</SelectItem><SelectItem value="ornamental">{PLANT_KIND_LABELS.ornamental}</SelectItem></SelectContent></Select><Select value={bedId} onValueChange={setBedId}><SelectTrigger><SelectValue placeholder="Välj bädd (valfritt)" /></SelectTrigger><SelectContent>{(beds || []).map((bed) => <SelectItem key={bed.id} value={bed.id}>{bed.name}</SelectItem>)}</SelectContent></Select><Input type="date" value={sowDate} onChange={(event) => setSowDate(event.target.value)} /><Select value={type} onValueChange={setType}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="direct">Direktsådd</SelectItem><SelectItem value="indoor">Förodling</SelectItem></SelectContent></Select><Textarea placeholder="Anteckningar (valfritt)" value={notes} onChange={(event) => setNotes(event.target.value)} /><Button onClick={() => createMutation.mutate()} disabled={!variety.trim() || createMutation.isPending} className="w-full">{createMutation.isPending ? 'Sparar…' : 'Spara sådd'}</Button></div></DialogContent></Dialog>
+      <Dialog open={open} onOpenChange={setOpen}><DialogContent><DialogHeader><DialogTitle>Lägg till sådd</DialogTitle></DialogHeader><div className="space-y-4"><Input placeholder="Sort, till exempel Tomat – Sungold" value={variety} onChange={(event) => { setVariety(event.target.value); if (!plantKindTouched) setPlantKind(guessPlantKind(event.target.value)); }} /><div className="relative" ref={brandRef}><Input placeholder="Frömärke eller leverantör" value={seedBrand} onChange={(event) => { setSeedBrand(event.target.value); setShowBrandSuggestions(true); }} onFocus={() => setShowBrandSuggestions(true)} />{showBrandSuggestions && filteredBrands.length > 0 && <div className="absolute z-50 top-full left-0 right-0 mt-2 rounded-2xl border border-border/70 bg-popover/98 p-1.5 shadow-xl">{filteredBrands.map((brand) => <button key={brand} type="button" className="w-full rounded-xl px-3 py-2.5 text-left text-sm hover:bg-primary/8" onClick={() => { setSeedBrand(brand); setShowBrandSuggestions(false); }}>{brand}</button>)}</div>}</div>{seeds.length > 0 && <Select value={seedInventoryId || 'none'} onValueChange={(value) => { const next = value === 'none' ? '' : value; setSeedInventoryId(next); const seed = seeds.find((item: any) => item.id === next); if (seed && !variety.trim()) { setVariety(seed.variety || ''); if (!plantKindTouched) setPlantKind(guessPlantKind(seed.variety || '')); } }}><SelectTrigger aria-label="Fröparti (valfritt)"><SelectValue placeholder="Koppla till fröparti (valfritt)" /></SelectTrigger><SelectContent><SelectItem value="none">Inget fröparti</SelectItem>{seeds.map((seed: any) => <SelectItem key={seed.id} value={seed.id}>{seed.variety}{seed.brand ? ` · ${seed.brand}` : ''}</SelectItem>)}</SelectContent></Select>}<Select value={plantKind} onValueChange={(v) => { setPlantKind(v); setPlantKindTouched(true); }}><SelectTrigger aria-label="Typ av växt"><SelectValue placeholder="Typ av växt" /></SelectTrigger><SelectContent><SelectItem value="edible">{PLANT_KIND_LABELS.edible}</SelectItem><SelectItem value="ornamental">{PLANT_KIND_LABELS.ornamental}</SelectItem></SelectContent></Select><Select value={bedId} onValueChange={setBedId}><SelectTrigger><SelectValue placeholder="Välj bädd (valfritt)" /></SelectTrigger><SelectContent>{(beds || []).map((bed) => <SelectItem key={bed.id} value={bed.id}>{bed.name}</SelectItem>)}</SelectContent></Select><Input type="date" value={sowDate} onChange={(event) => setSowDate(event.target.value)} /><Select value={type} onValueChange={setType}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="direct">Direktsådd</SelectItem><SelectItem value="indoor">Förodling</SelectItem></SelectContent></Select><Textarea placeholder="Anteckningar (valfritt)" value={notes} onChange={(event) => setNotes(event.target.value)} /><Button onClick={() => createMutation.mutate()} disabled={!variety.trim() || createMutation.isPending} className="w-full">{createMutation.isPending ? 'Sparar…' : 'Spara sådd'}</Button></div></DialogContent></Dialog>
 
       {/* Redigeringsdialog */}
       <Dialog open={!!editing} onOpenChange={(isOpen) => !isOpen && setEditing(null)}>

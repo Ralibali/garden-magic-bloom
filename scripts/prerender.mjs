@@ -90,12 +90,16 @@ async function fetchTable(table, query) {
 
 async function loadDynamicPages() {
   const { url, key } = supabaseConfig();
-  if (!url || !key) {
-    if (process.env.NODE_ENV === 'production' || process.env.VERCEL === '1' || process.env.CI === 'true') {
+  const envConfigured = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL) && (process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY);
+  if (!envConfigured) {
+    // Hosted deploys must not ship empty SEO shells. GitHub Verify has no Supabase secrets.
+    if (process.env.VERCEL === '1' || process.env.NETLIFY === 'true') {
       throw new Error('[prerender] Supabase-miljö saknas i produktionsbygget. Sätt VITE_SUPABASE_URL och VITE_SUPABASE_PUBLISHABLE_KEY – annars levereras alla månads-, växt- och zonsidor som tom React-shell.');
     }
-    console.warn('[prerender] Supabase-miljö saknas; hoppar över dynamiska slug-sidor i denna build.');
-    return [];
+    if (!url || !key) {
+      console.warn('[prerender] Supabase-miljö saknas; hoppar över dynamiska slug-sidor i denna build.');
+      return [];
+    }
   }
 
   try {

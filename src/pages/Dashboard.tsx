@@ -16,6 +16,7 @@ import PlantGettingStartedGuide from '@/components/PlantGettingStartedGuide';
 import DashboardActionCenter from '@/components/DashboardActionCenter';
 import HarvestValueLine from '@/components/HarvestValueLine';
 import TodayInGarden from '@/components/TodayInGarden';
+import GardenPulse from '@/components/GardenPulse';
 import WeeklyGardenSummary from '@/components/WeeklyGardenSummary';
 import AchievementsSection from '@/components/AchievementsSection';
 import PlantWeeklyCareSummary from '@/components/PlantWeeklyCareSummary';
@@ -58,12 +59,23 @@ const Dashboard = () => {
   const { data: stats, isLoading } = useQuery({ queryKey: ['summary-stats'], queryFn: api.getSummaryStats });
   const { data: profile, isLoading: profileLoading } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
   const climateZone = profile?.climate_zone ?? 3;
-  const { data: weather } = useQuery({ queryKey: ['garden-forecast', climateZone], queryFn: () => getGardenForecast(climateZone), staleTime: 600_000, retry: 1 });
-  const { data: rainData } = useQuery({ queryKey: ['rain-history', climateZone], queryFn: () => api.getRainHistory(climateZone), staleTime: 600_000, retry: 1 });
-  const { data: beds = [] } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
-  const { data: sowings = [] } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const locationMode = profile?.location_lat != null && profile?.location_lon != null ? 'saved' : 'zone';
+  const { data: weather } = useQuery({
+    queryKey: ['garden-forecast', climateZone, locationMode],
+    queryFn: () => getGardenForecast(climateZone, { lat: profile?.location_lat, lon: profile?.location_lon }),
+    staleTime: 600_000,
+    retry: 1,
+  });
+  const { data: rainData } = useQuery({
+    queryKey: ['rain-history', climateZone, locationMode],
+    queryFn: () => api.getRainHistory(climateZone, { lat: profile?.location_lat, lon: profile?.location_lon }),
+    staleTime: 600_000,
+    retry: 1,
+  });
+  const { data: beds = [], isLoading: bedsLoading, isError: bedsError } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
+  const { data: sowings = [], isLoading: sowingsLoading, isError: sowingsError } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const { data: harvests = [] } = useQuery({ queryKey: ['harvests'], queryFn: api.getHarvests });
-  const { data: remindersData } = useQuery({ queryKey: ['reminder-settings'], queryFn: api.getReminderSettings });
+  const { data: remindersData, isLoading: remindersLoading, isError: remindersError } = useQuery({ queryKey: ['reminder-settings'], queryFn: api.getReminderSettings });
   const { data: photos = [] } = useQuery({
     queryKey: ['dashboard-photos'],
     queryFn: async () => {
@@ -209,18 +221,17 @@ const Dashboard = () => {
             );
           })()}
 
-          {/* Dagens viktigaste åtgärd (deterministisk prioritering) */}
-          {(() => {
-            const priority = computeDashboardPriority({
-              plants: adaptivePlants as any[],
-              reminders: ((remindersData?.settings as any)?.reminders || []),
-              sowings,
-              weather,
-              rainData,
-              climateZone,
-            });
-            return <PrimaryActionCard result={priority} greeting={displayName ? `Hej ${displayName}` : undefined} weatherLine={weatherLine} />;
-          })()}
+          <GardenPulse
+            weather={weather}
+            rainData={rainData}
+            climateZone={climateZone}
+            remindersData={remindersData}
+            sowings={sowings}
+            overduePlants={attentionPlants}
+            beds={beds}
+            isLoading={bedsLoading || sowingsLoading || remindersLoading}
+            isError={bedsError || sowingsError || remindersError}
+          />
 
           {/* Skördeläge – grödor i sitt skördefönster just nu */}
           {(() => {
@@ -306,7 +317,6 @@ const Dashboard = () => {
               </button>
             </div>
 
-            <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={sowings} overduePlants={attentionPlants} beds={beds} displayName={displayName} maxItems={4} />
             <WeeklyGardenSummary sowings={sowings} harvests={harvests} remindersData={remindersData} photos={photos} />
             <DashboardActionCenter climateZone={climateZone} currentMonth={currentMonth} isNewUser={false} onNavigate={navigate} />
             <HarvestValueLine />

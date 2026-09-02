@@ -5,6 +5,7 @@ import { sowingMatrix } from '@/data/sowingMatrix';
 describe('harvestForecast', () => {
   it('matchar sortnamn mot basgrödor', () => {
     expect(findCropForVariety('Tomat – Sungold')).toBe('Tomat');
+    expect(findCropForVariety('Sungold')).toBe('Tomat');
     expect(findCropForVariety('morot napoli')).toBe('Morot');
     expect(findCropForVariety('Jordgubbar – Mara des Bois')).toBe('Jordgubbar');
     expect(findCropForVariety('Okänd växt XYZ')).toBeNull();

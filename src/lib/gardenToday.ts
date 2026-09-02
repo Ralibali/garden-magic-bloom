@@ -1,3 +1,4 @@
+import { identityFromSowing } from '@/lib/cropIdentity';
 import { normalizePlantKind } from '@/lib/plantKind';
 
 export type GardenActionPriority = 'urgent' | 'today' | 'soon';
@@ -15,11 +16,17 @@ export interface GardenAction {
   groPrompt: string;
   reminderType: 'sowing' | 'transplant' | 'watering' | 'other';
   sourceReminderId?: string;
+  sourceSowingId?: string;
+  sourceBedId?: string;
+  why?: PulseWhy;
 }
+
+export type PulseWhy = 'user_data' | 'weather' | 'trusted' | 'inference';
 
 export interface GardenActionState {
   completedAt?: string;
   snoozedUntil?: string;
+  dismissedAt?: string;
 }
 
 export interface GardenReminder {
@@ -32,6 +39,10 @@ export interface GardenReminder {
   created_at?: string;
   completed_at?: string | null;
   source_action_id?: string;
+  sowing_id?: string;
+  bed_id?: string;
+  display_text?: string;
+  source?: string;
 }
 
 interface GardenTodayInput {
@@ -103,6 +114,9 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
         groPrompt: `Hjälp mig genomföra uppgiften "${reminder.title}" i min odling idag. Ge mig en kort steg-för-steg-plan.`,
         reminderType: reminder.type,
         sourceReminderId: reminder.id,
+        sourceSowingId: (reminder as any).sowing_id,
+        sourceBedId: (reminder as any).bed_id,
+        why: 'user_data',
       });
     });
 
@@ -120,6 +134,7 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
       actionLabel: 'Öppna växten',
       groPrompt: `Min växt ${name} har inte vattnats på ${daysAgo ?? 'okänt antal'} dagar. Hur kontrollerar jag om den behöver vatten och hur vattnar jag rätt?`,
       reminderType: 'watering',
+      why: 'user_data',
     });
   });
 
@@ -138,6 +153,7 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
       actionLabel: 'Se mina växter',
       groPrompt: `Det väntas cirka ${Math.round(minTemp)} grader i natt i klimatzon ${climateZone}. Vilka av mina växter behöver skydd och hur gör jag?`,
       reminderType: 'other',
+      why: 'weather',
     });
   }
 
@@ -152,6 +168,7 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
       actionLabel: 'Se mina bäddar',
       groPrompt: `Det väntas vindar på omkring ${Math.round(maxWind)} km/h idag. Hjälp mig prioritera vad jag ska säkra i min odling.`,
       reminderType: 'other',
+      why: 'weather',
     });
   }
 
@@ -167,6 +184,7 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
         actionLabel: 'Kontrollera bäddarna',
         groPrompt: `Det har varit torrt i ${rainData.dryDays} dagar men regn väntas. Vad bör jag ändå vattna idag?`,
         reminderType: 'watering',
+        why: 'weather',
       });
     } else {
       actions.push({
@@ -179,6 +197,7 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
         actionLabel: 'Se bäddarna',
         groPrompt: `Det har varit torrt i ${rainData.dryDays} dagar i min odling. Hur prioriterar jag vattningen idag?`,
         reminderType: 'watering',
+        why: 'weather',
       });
     }
   }
@@ -204,6 +223,9 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
         actionLabel: 'Öppna såloggen',
         groPrompt: `Min ${name} har fått frost. Hur tar jag upp och förvarar knölarna över vintern i klimatzon ${climateZone}?`,
         reminderType: 'other',
+        sourceSowingId: sowing.id,
+        sourceBedId: sowing.bed_id,
+        why: 'weather',
       });
       return;
     }
@@ -219,6 +241,9 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
         actionLabel: 'Öppna sådden',
         groPrompt: `${name} såddes för ${age} dagar sedan och förodlas inomhus. Är det dags att härda eller plantera om den i klimatzon ${climateZone}?`,
         reminderType: 'transplant',
+        sourceSowingId: sowing.id,
+        sourceBedId: sowing.bed_id,
+        why: 'inference',
       });
     } else if (age >= 7 && age <= 18 && status === 'sown') {
       actions.push({
@@ -231,6 +256,9 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
         actionLabel: 'Öppna såloggen',
         groPrompt: `${name} såddes för ${age} dagar sedan. Vad bör jag kontrollera nu och när är utebliven groning ett problem?`,
         reminderType: 'sowing',
+        sourceSowingId: sowing.id,
+        sourceBedId: sowing.bed_id,
+        why: 'inference',
       });
     } else if (!isOrnamental && age >= 70 && age <= 150 && (sowing.type === 'direct' || status === 'transplanted' || status === 'harvesting')) {
       actions.push({
@@ -243,6 +271,9 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
         actionLabel: 'Logga skörd',
         groPrompt: `${name} såddes för ${age} dagar sedan. Vilka mognadstecken ska jag leta efter och hur skördar jag bäst?`,
         reminderType: 'other',
+        sourceSowingId: sowing.id,
+        sourceBedId: sowing.bed_id,
+        why: identityFromSowing(sowing).source === 'unknown' ? 'inference' : 'trusted',
       });
     }
   });
@@ -283,7 +314,9 @@ export function visibleGardenActions(actions: GardenAction[], state: Record<stri
   const today = localDateKey();
   return actions.filter((action) => {
     const actionState = state[action.id];
-    if (actionState?.completedAt && localDateKey(new Date(actionState.completedAt)) === today) return false;
+    if (actionState?.dismissedAt) return false;
+    // Completed is durable for that action id. Daily ids (frost-YYYY-MM-DD) reset next day.
+    if (actionState?.completedAt) return false;
     if (actionState?.snoozedUntil && actionState.snoozedUntil > today) return false;
     return true;
   });

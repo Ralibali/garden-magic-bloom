@@ -11,6 +11,10 @@ export interface NewReminder {
   date: string;
   bed?: string;
   source_action_id?: string;
+  sowing_id?: string | null;
+  bed_id?: string | null;
+  display_text?: string;
+  source?: string;
 }
 
 /** Lägger till en påminnelse. Returnerar true om den sparades. */
@@ -35,6 +39,10 @@ export async function addReminder(reminder: NewReminder): Promise<boolean> {
         date: reminder.date,
         done: false,
         bed: reminder.bed,
+        sowing_id: reminder.sowing_id ?? null,
+        bed_id: reminder.bed_id ?? null,
+        display_text: reminder.display_text || reminder.title,
+        source: reminder.source,
         created_at: new Date().toISOString(),
         completed_at: null,
         source_action_id: reminder.source_action_id,
