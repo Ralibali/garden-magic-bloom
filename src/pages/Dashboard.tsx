@@ -61,8 +61,8 @@ const Dashboard = () => {
   const climateZone = profile?.climate_zone ?? 3;
   const { data: weather } = useQuery({ queryKey: ['garden-forecast', climateZone], queryFn: () => getGardenForecast(climateZone), staleTime: 600_000, retry: 1 });
   const { data: rainData } = useQuery({ queryKey: ['rain-history', climateZone], queryFn: () => api.getRainHistory(climateZone), staleTime: 600_000, retry: 1 });
-  const { data: beds = [] } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
-  const { data: sowings = [] } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const { data: beds = [], isError: bedsError } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
+  const { data: sowings = [], isError: sowingsError } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const { data: harvests = [] } = useQuery({ queryKey: ['harvests'], queryFn: api.getHarvests });
   const { data: remindersData } = useQuery({ queryKey: ['reminder-settings'], queryFn: api.getReminderSettings });
   const { data: photos = [] } = useQuery({
@@ -218,6 +218,7 @@ const Dashboard = () => {
             sowings={sowings}
             overduePlants={attentionPlants}
             beds={beds}
+            isError={bedsError || sowingsError}
           />
 
           {/* Skördeläge – grödor i sitt skördefönster just nu */}

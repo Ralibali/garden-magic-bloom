@@ -128,7 +128,8 @@ export function buildGardenPulse(input: GardenPulseInput): GardenPulseResult {
     rainData: input.rainData,
     climateZone: input.climateZone,
   });
-  const visible = visibleGardenActions(generated, input.actionState);
+  const visible = visibleGardenActions(generated, input.actionState)
+    .filter((action) => action.kind !== 'start');
   const alreadyCovered = new Set(
     visible.map((action) => action.sourceReminderId).filter(Boolean) as string[],
   );

@@ -111,4 +111,103 @@ describe('buildGardenPulse', () => {
     });
     expect(pulse.today.some((item) => item.id === 'reminder-r-1')).toBe(false);
   });
+
+  it('does not invent onboarding tasks for an empty garden', () => {
+    const pulse = buildGardenPulse({
+      climateZone: 3,
+      today: localDateKey(),
+      beds: [],
+      sowings: [],
+      reminders: [],
+    });
+    expect(pulse.empty).toBe(true);
+    expect([...pulse.late, ...pulse.today, ...pulse.week].some((item) => item.kind === 'start')).toBe(false);
+    expect([...pulse.late, ...pulse.today, ...pulse.week].some((item) => item.id.startsWith('start-'))).toBe(false);
+  });
+
+  it('stays empty when beds exist but nothing is due', () => {
+    const now = localDateKey();
+    const pulse = buildGardenPulse({
+      climateZone: 3,
+      today: now,
+      beds: [{ id: 'a' }, { id: 'b' }, { id: 'c' }],
+      sowings: [
+        { id: 's-1', variety: 'Tomat – Sungold', sow_date: now, type: 'direct', status: 'sown', bed_id: 'a' },
+        { id: 's-2', variety: 'Morot', sow_date: now, type: 'direct', status: 'sown', bed_id: 'b' },
+      ],
+      reminders: [],
+    });
+    expect(pulse.empty).toBe(true);
+  });
+
+  it('hides done reminders and snoozed actions', () => {
+    const now = localDateKey();
+    const pulse = buildGardenPulse({
+      climateZone: 3,
+      today: now,
+      beds: [{ id: 'bed-1' }],
+      sowings: [{ id: 's-1', variety: 'Sallat', sow_date: now, type: 'direct', status: 'sown' }],
+      reminders: [
+        { id: 'done', title: 'Redan klar', type: 'other', date: addDaysToDateKey(now, -1), done: true },
+        { id: 'open', title: 'Öppen idag', type: 'other', date: now, done: false },
+      ],
+      actionState: {
+        'reminder-open': { snoozedUntil: addDaysToDateKey(now, 2) },
+      },
+    });
+    expect(pulse.late.some((item) => item.sourceReminderId === 'done')).toBe(false);
+    expect(pulse.today.some((item) => item.sourceReminderId === 'open')).toBe(false);
+    expect(pulse.empty).toBe(true);
+  });
+
+  it('does not duplicate the same reminder across buckets', () => {
+    const now = localDateKey();
+    const pulse = buildGardenPulse({
+      climateZone: 3,
+      today: now,
+      beds: [{ id: 'bed-1' }],
+      sowings: [{ id: 's-1', variety: 'Sallat', sow_date: now, type: 'direct', status: 'sown' }],
+      reminders: [{
+        id: 'r-dup',
+        title: 'Kolla växthuset',
+        type: 'other',
+        date: now,
+        done: false,
+      }],
+    });
+    const ids = [...pulse.late, ...pulse.today, ...pulse.week]
+      .filter((item) => item.sourceReminderId === 'r-dup')
+      .map((item) => item.id);
+    expect(ids).toHaveLength(1);
+  });
+
+  it('adds a frost row only when Open-Meteo min temperature is present and cold', () => {
+    const now = localDateKey();
+    const base = {
+      climateZone: 3,
+      today: now,
+      beds: [{ id: 'bed-1' }],
+      sowings: [{ id: 's-1', variety: 'Sallat', sow_date: now, type: 'direct', status: 'sown' }],
+      reminders: [] as { id: string; title: string; type: 'other'; date: string; done: boolean }[],
+    };
+    const withoutWeather = buildGardenPulse(base);
+    expect([...withoutWeather.late, ...withoutWeather.today].some((item) => item.kind === 'frost')).toBe(false);
+
+    const missingTemp = buildGardenPulse({
+      ...base,
+      weather: { daily: { precipitation_sum: [0, 0], wind_speed_10m_max: [10] } },
+    });
+    expect([...missingTemp.late, ...missingTemp.today].some((item) => item.kind === 'frost')).toBe(false);
+
+    const frost = buildGardenPulse({
+      ...base,
+      weather: { daily: { temperature_2m_min: [-2], precipitation_sum: [0, 0], wind_speed_10m_max: [10] } },
+    });
+    expect([...frost.late, ...frost.today].some((item) => item.id.startsWith('frost-'))).toBe(true);
+  });
+
+  it('treats missing collections as empty, not invented work', () => {
+    const pulse = buildGardenPulse({ climateZone: 3 });
+    expect(pulse.empty).toBe(true);
+  });
 });

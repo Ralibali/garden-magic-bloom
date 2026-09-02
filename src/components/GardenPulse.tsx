@@ -23,6 +23,8 @@ interface GardenPulseProps {
   sowings?: any[];
   overduePlants?: any[];
   beds?: any[];
+  isLoading?: boolean;
+  isError?: boolean;
 }
 
 const BUCKETS: { key: PulseBucket; title: string }[] = [
@@ -89,6 +91,8 @@ export default function GardenPulse({
   sowings = [],
   overduePlants = [],
   beds = [],
+  isLoading = false,
+  isError = false,
 }: GardenPulseProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -143,6 +147,25 @@ export default function GardenPulse({
     void recordProductActivity('smart_action_opened_in_gro', { action_id: item.id, kind: item.kind });
     navigate('/app/gro', { state: { prompt: item.groPrompt, source: 'garden_pulse' } });
   };
+
+  if (isLoading) {
+    return (
+      <section className="premium-panel p-5 sm:p-6" aria-busy="true" aria-label="Garden Pulse">
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Garden Pulse</p>
+        <p className="mt-2 text-sm text-muted-foreground">Hämtar din odling…</p>
+      </section>
+    );
+  }
+
+  if (isError) {
+    return (
+      <section className="premium-panel p-5 sm:p-6" aria-label="Garden Pulse">
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Garden Pulse</p>
+        <h2 className="mt-1 font-serif text-2xl leading-tight">Kunde inte läsa odlingen</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Inga uppgifter hittades på. Prova att ladda om — vi hittar inte på nya steg.</p>
+      </section>
+    );
+  }
 
   if (pulse.empty) {
     return (
