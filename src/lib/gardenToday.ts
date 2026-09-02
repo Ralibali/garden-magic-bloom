@@ -283,7 +283,8 @@ export function visibleGardenActions(actions: GardenAction[], state: Record<stri
   const today = localDateKey();
   return actions.filter((action) => {
     const actionState = state[action.id];
-    if (actionState?.completedAt && localDateKey(new Date(actionState.completedAt)) === today) return false;
+    // Completed is durable for that action id. Daily ids (frost-YYYY-MM-DD) reset next day.
+    if (actionState?.completedAt) return false;
     if (actionState?.snoozedUntil && actionState.snoozedUntil > today) return false;
     return true;
   });
