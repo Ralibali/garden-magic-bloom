@@ -12,8 +12,8 @@ interface PublicLayoutProps {
 type NavItem = { label: string; to: string; anchor?: string; matchPrefix?: string };
 
 const NAV: NavItem[] = [
-  { label: 'Hur det fungerar', to: '/#hur-det-fungerar', anchor: 'hur-det-fungerar' },
-  { label: 'Funktioner', to: '/#funktioner', anchor: 'funktioner' },
+  { label: 'Hur det fungerar', to: '/hur-det-fungerar', matchPrefix: '/hur-det-fungerar' },
+  { label: 'Funktioner', to: '/funktioner', matchPrefix: '/funktioner' },
   { label: 'Odlingskalender', to: '/odlingskalender', matchPrefix: '/odlingskalender' },
   { label: 'Blogg', to: '/blogg', matchPrefix: '/blogg' },
   { label: 'Pris', to: '/#pris', anchor: 'pris' },
@@ -177,7 +177,8 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
               <div className="grid gap-3 text-sm text-white/70">
                 {[
                   ['Såkalender', '/sakalender'],
-                  ['Odlingsplan', '/odlingsplan'],
+                  ['Funktioner', '/funktioner'],
+                  ['Hur det fungerar', '/hur-det-fungerar'],
                   ['Växtguider', '/vaxter'],
                   ['Odlingsakuten', '/odlingsakuten'],
                   ['Gro AI', '/gro'],

@@ -10,6 +10,7 @@ import { MONTH_NAMES_SV, MONTH_NAMES_TITLE, SEASON_LABEL, buildBreadcrumbs } fro
 import InlineSignupCTA from '@/components/InlineSignupCTA';
 import CalendarZonePicker from '@/components/CalendarZonePicker';
 import CalendarPdfDownload from '@/components/CalendarPdfDownload';
+import PersonalizeZoneCta from '@/components/PersonalizeZoneCta';
 import { useOdlingszon } from '@/hooks/useOdlingszon';
 import { getMonthActivities } from '@/lib/calendarMonth';
 import { CURRENT_YEAR } from '@/lib/currentYear';
@@ -87,7 +88,8 @@ export default function OdlingskalenderIndex() {
           </p>
         </header>
 
-        <CalendarZonePicker zone={zone} onChange={setZone} className="mb-8" />
+        <CalendarZonePicker zone={zone} onChange={setZone} className="mb-6" />
+        <PersonalizeZoneCta source="odlingskalender" className="mb-8" />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {allMonths.map(m => (

@@ -16,6 +16,19 @@ describe('public plan import', () => {
     });
   });
 
+  it('keeps a singular crop from Odlingsakuten', () => {
+    expect(parsePublicPlan({
+      type: 'odlingsakuten',
+      crop: 'Tomat',
+      symptom: 'Gula blad',
+      place: 'Pallkrage',
+    })).toMatchObject({
+      type: 'odlingsakuten',
+      crops: ['Tomat'],
+      method: 'Pallkrage',
+    });
+  });
+
   it('rejects unknown payloads and normalizes unsafe values', () => {
     expect(parsePublicPlan({ type: 'unknown' })).toBeNull();
     expect(parsePublicPlan({

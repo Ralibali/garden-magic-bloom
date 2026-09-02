@@ -54,6 +54,8 @@ const OdlingskalenderIndex = React.lazy(() => import("./pages/OdlingskalenderInd
 const OdlingskalenderManad = React.lazy(() => import("./pages/OdlingskalenderManad"));
 const ZonerIndex = React.lazy(() => import("./pages/ZonerIndex"));
 const ZonDetail = React.lazy(() => import("./pages/ZonDetail"));
+const Funktioner = React.lazy(() => import("./pages/Funktioner"));
+const HurDetFungerar = React.lazy(() => import("./pages/HurDetFungerar"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -186,6 +188,8 @@ const AppRoutes = () => (
           <Route path="/blogg/tagg/:tag" element={<Guides />} />
           <Route path="/blogg/:slug" element={<GuideArticle />} />
           {/* Public marketing/SEO pages */}
+          <Route path="/funktioner" element={<Funktioner />} />
+          <Route path="/hur-det-fungerar" element={<HurDetFungerar />} />
           <Route path="/om-oss" element={<OmOss />} />
           <Route path="/priser" element={<Priser />} />
           <Route path="/gro" element={<GroLanding />} />

@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, MapPin, ArrowRight } from 'lucide-react';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
+import PersonalizeZoneCta from '@/components/PersonalizeZoneCta';
 
 export default function ZonerIndex() {
   const { data: zones = [], isLoading } = useQuery({
@@ -92,12 +93,14 @@ export default function ZonerIndex() {
           </div>
         )}
       
+        <PersonalizeZoneCta source="zoner" className="mt-12" />
+
         <InlineSignupCTA
           variant="card"
           title="Appen anpassar allt efter din zon"
           description="Skapa ett gratis konto och välj din klimatzon – såkalender, påminnelser och råd justeras automatiskt."
           buttonLabel="Börja gratis"
-          className="mt-16"
+          className="mt-10"
         />
       </section>
     </PublicLayout>

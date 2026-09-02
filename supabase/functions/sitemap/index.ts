@@ -76,6 +76,8 @@ Deno.serve(async (req) => {
     { loc: "/odlingsakuten" },
     { loc: "/gro" },
     { loc: "/priser" },
+    { loc: "/funktioner" },
+    { loc: "/hur-det-fungerar" },
     { loc: "/om-oss" },
     { loc: "/blogg", lastmod: latestDate(posts.map((post) => post.updated_at || post.published_at)) },
     { loc: "/vaxter", lastmod: latestDate(plants.map((plant) => plant.updated_at || plant.created_at)) },

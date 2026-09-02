@@ -7,20 +7,12 @@ import { ArrowRight, Check, Leaf, MapPin, Sparkles } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
 import { plausibleEvent } from '@/lib/plausible';
 import { clearPublicPlan, loadPublicPlan } from '@/lib/publicPlan';
+import { ZONE_PLACES } from '@/lib/swedishZones';
 import { toast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 
-const ZONE_CITIES = [
-  { zone: 1, cities: ['Malmö', 'Helsingborg', 'Ystad', 'Trelleborg'] },
-  { zone: 2, cities: ['Göteborg', 'Kalmar', 'Karlskrona', 'Halmstad', 'Växjö'] },
-  { zone: 3, cities: ['Stockholm', 'Linköping', 'Örebro', 'Norrköping'] },
-  { zone: 4, cities: ['Västerås', 'Gävle', 'Karlstad', 'Eskilstuna', 'Borlänge'] },
-  { zone: 5, cities: ['Falun', 'Sundsvall', 'Hudiksvall'] },
-  { zone: 6, cities: ['Östersund', 'Umeå', 'Härnösand', 'Sollefteå'] },
-  { zone: 7, cities: ['Luleå', 'Skellefteå', 'Piteå'] },
-  { zone: 8, cities: ['Kiruna', 'Gällivare', 'Jokkmokk', 'Arvidsjaur'] },
-];
+const ZONE_CITIES = ZONE_PLACES.map(({ zone, places }) => ({ zone, cities: places }));
 
 const GROWING_METHODS = ['Pallkrage', 'Växthus', 'Friland', 'Balkong', 'Krukor', 'Kolonilott'];
 const POPULAR_CROPS = ['Tomat', 'Gurka', 'Chili', 'Morot', 'Sallat', 'Potatis', 'Lök', 'Basilika', 'Jordgubbar', 'Ärtor'];

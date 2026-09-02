@@ -97,7 +97,7 @@ export default function GrowthHome() {
                 <Link to="/login?mode=register">Testa gratis – tar 30 sekunder <ArrowRight className="h-4 w-4" /></Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="h-12 px-6 text-base min-h-[44px]" onClick={() => trackCta('hero_secondary')}>
-                <a href="#hur-det-fungerar">Se hur det fungerar</a>
+                <Link to="/hur-det-fungerar">Se hur det fungerar</Link>
               </Button>
             </div>
             <ul className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">

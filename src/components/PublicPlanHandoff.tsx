@@ -6,14 +6,17 @@ import { ArrowRight, CalendarDays, Sprout } from 'lucide-react';
 
 interface PublicPlanHandoffProps {
   plan: any;
-  onNavigate: (path: string) => void;
+  onNavigate: (path: string, state?: Record<string, unknown>) => void;
   onDismiss: () => void;
 }
 
 export default function PublicPlanHandoff({ plan, onNavigate, onDismiss }: PublicPlanHandoffProps) {
-  const crops = plan?.crops || plan?.recommendedCrops || [];
+  const crops = plan?.crops || plan?.recommendedCrops || (plan?.crop ? [plan.crop] : []);
   const methods = plan?.methods || (plan?.method ? [plan.method] : []);
-  const label = plan?.type === 'sakalender' ? 'såkalender' : 'odlingsplan';
+  const isAkuten = plan?.type === 'odlingsakuten';
+  const label = isAkuten ? 'felsökning' : plan?.type === 'sakalender' ? 'såkalender' : 'odlingsplan';
+  const crop = plan?.crop || crops[0];
+  const symptom = plan?.symptom;
 
   return (
     <Card className="border-primary/30 bg-primary text-primary-foreground shadow-sm overflow-hidden">
@@ -21,16 +24,45 @@ export default function PublicPlanHandoff({ plan, onNavigate, onDismiss }: Publi
         <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
           <div>
             <Badge variant="secondary" className="mb-3 gap-1"><CalendarDays className="h-3.5 w-3.5" /> Sparad från verktyget</Badge>
-            <h2 className="font-serif text-2xl sm:text-3xl mb-2">Din {label} väntar på dig</h2>
+            <h2 className="font-serif text-2xl sm:text-3xl mb-2">
+              {isAkuten ? 'Spara problemet på en växt' : `Din ${label} väntar på dig`}
+            </h2>
             <p className="text-sm text-primary-foreground/85 leading-relaxed max-w-2xl">
-              {crops.length > 0 ? `Du valde ${crops.slice(0, 6).join(', ')}${crops.length > 6 ? ' med flera' : ''}. ` : ''}
-              {methods.length > 0 ? `Odlingssätt: ${methods.join(', ')}. ` : ''}
-              Skapa en odlingsplats och logga första sådden så blir planen användbar i din odlingsdagbok.
+              {isAkuten
+                ? `Du felsökte ${crop ? crop.toLowerCase() : 'en planta'}${symptom ? ` med “${String(symptom).toLowerCase()}”` : ''}. Spara det i problemloggen så kan du följa upp vad som faktiskt hjälpte.`
+                : `${crops.length > 0 ? `Du valde ${crops.slice(0, 6).join(', ')}${crops.length > 6 ? ' med flera' : ''}. ` : ''}${methods.length > 0 ? `Odlingssätt: ${methods.join(', ')}. ` : ''}Skapa en odlingsplats och logga första sådden så blir planen användbar i din odlingsdagbok.`}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row lg:flex-col gap-2 lg:w-56">
-            <Button variant="secondary" className="justify-between" onClick={() => onNavigate('/app/beds')}>Skapa odlingsplats <ArrowRight className="h-4 w-4" /></Button>
-            <Button variant="outline" className="bg-transparent border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 justify-between" onClick={() => onNavigate('/app/sowings')}>Logga sådd <Sprout className="h-4 w-4" /></Button>
+            {isAkuten ? (
+              <>
+                <Button
+                  variant="secondary"
+                  className="justify-between"
+                  onClick={() => onNavigate('/app/pests', {
+                    prefill: {
+                      pest_name: symptom || 'Odlingssymtom',
+                      notes: [crop && `Växt: ${crop}`, plan?.place && `Plats: ${plan.place}`].filter(Boolean).join('. '),
+                      crop,
+                    },
+                  })}
+                >
+                  Spara på en växt <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="bg-transparent border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 justify-between"
+                  onClick={() => onNavigate('/app/sowings', { prefill: { variety: crop }, prefillCrop: crop })}
+                >
+                  Lägg till växten <Sprout className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="secondary" className="justify-between" onClick={() => onNavigate('/app/beds')}>Skapa odlingsplats <ArrowRight className="h-4 w-4" /></Button>
+                <Button variant="outline" className="bg-transparent border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 justify-between" onClick={() => onNavigate('/app/sowings', crop ? { prefill: { variety: crop }, prefillCrop: crop } : undefined)}>Logga sådd <Sprout className="h-4 w-4" /></Button>
+              </>
+            )}
             <button type="button" onClick={onDismiss} className="text-xs text-primary-foreground/75 hover:text-primary-foreground">Dölj förslaget</button>
           </div>
         </div>

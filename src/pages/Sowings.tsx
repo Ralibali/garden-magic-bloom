@@ -74,8 +74,13 @@ const Sowings = () => {
   const queryClient = useQueryClient();
   const location = useLocation();
   const navigate = useNavigate();
-  const prefill = (location.state as any)?.prefill;
-  const presetFilter = (location.state as any)?.statusFilter as StatusFilter | undefined;
+  const locationState = (location.state as any) || {};
+  const prefill = useMemo(() => {
+    if (locationState.prefill) return locationState.prefill;
+    if (locationState.prefillCrop) return { variety: locationState.prefillCrop };
+    return undefined;
+  }, [locationState.prefill, locationState.prefillCrop]);
+  const presetFilter = locationState.statusFilter as StatusFilter | undefined;
   const [open, setOpen] = useState(!!prefill);
   const [variety, setVariety] = useState(prefill?.variety || '');
   const [bedId, setBedId] = useState('');
