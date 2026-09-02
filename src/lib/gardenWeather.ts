@@ -1,4 +1,4 @@
-export type GardenLocationSource = 'saved' | 'zone';
+export type GardenLocationSource = 'saved' | 'zone' | 'regional';
 
 export interface GardenLocationInput {
   lat?: number | null;
@@ -44,7 +44,16 @@ export function resolveGardenLocation(
       location_source: 'saved',
     };
   }
-  return { ...zone, location_source: 'zone' };
+  const knownZone = typeof climateZone === 'number' && climateZone >= 1 && climateZone <= 8;
+  return { ...zone, location_source: knownZone ? 'zone' : 'regional' };
+}
+
+/** Safe analytics payload — never includes coordinates. */
+export function weatherAnalyticsSafe(location: ResolvedGardenLocation, climateZone?: number | null) {
+  return {
+    weather_source: location.location_source,
+    climate_zone: climateZone ?? null,
+  };
 }
 
 export async function getGardenForecast(

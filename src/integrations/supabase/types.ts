@@ -1013,6 +1013,7 @@ export type Database = {
         Row: {
           brand: string | null
           created_at: string
+          crop_key: string | null
           expiry_date: string | null
           id: string
           notes: string | null
@@ -1024,6 +1025,7 @@ export type Database = {
         Insert: {
           brand?: string | null
           created_at?: string
+          crop_key?: string | null
           expiry_date?: string | null
           id?: string
           notes?: string | null
@@ -1035,6 +1037,7 @@ export type Database = {
         Update: {
           brand?: string | null
           created_at?: string
+          crop_key?: string | null
           expiry_date?: string | null
           id?: string
           notes?: string | null
