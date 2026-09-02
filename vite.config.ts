@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -15,9 +16,18 @@ function prerenderOnBuild(): Plugin {
     name: "prerender-on-build",
     apply: "build",
     enforce: "post",
-    async closeBundle() {
-      const { prerenderDist } = await import("./scripts/prerender.mjs");
-      await prerenderDist();
+    closeBundle() {
+      return new Promise<void>((resolve, reject) => {
+        const child = spawn(process.execPath, ["scripts/prerender.mjs"], {
+          cwd: path.resolve(__dirname),
+          stdio: "inherit",
+        });
+        child.on("exit", (code) => {
+          if (code === 0) resolve();
+          else reject(new Error(`prerender exited ${code}`));
+        });
+        child.on("error", reject);
+      });
     },
   };
 }
