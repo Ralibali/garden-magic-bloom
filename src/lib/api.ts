@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { resolveGardenLocation } from '@/lib/gardenWeather';
 
 // Helper to get current user id
 async function getUserId(): Promise<string> {
@@ -51,7 +52,9 @@ export async function createSowing(record: {
   notes?: string;
   seed_brand?: string;
   plant_kind?: string;
-
+  crop_key?: string;
+  variety_name?: string | null;
+  seed_inventory_id?: string;
 }) {
   const userId = await getUserId();
   const { data, error } = await supabase.from('sowings').insert({ ...record, user_id: userId } as any).select().single();
@@ -241,8 +244,11 @@ export async function getWeather(climateZone?: number | null) {
   return res.json();
 }
 
-export async function getRainHistory(climateZone?: number | null): Promise<{ dryDays: number; totalPrecipitation: number }> {
-  const { lat, lon } = getCoordinatesForZone(climateZone ?? null);
+export async function getRainHistory(
+  climateZone?: number | null,
+  location?: { lat?: number | null; lon?: number | null } | null,
+): Promise<{ dryDays: number; totalPrecipitation: number }> {
+  const { lat, lon } = resolveGardenLocation(climateZone, location);
   const end = new Date();
   const start = new Date();
   start.setDate(start.getDate() - 6);

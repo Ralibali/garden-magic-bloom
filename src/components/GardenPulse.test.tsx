@@ -95,4 +95,20 @@ describe('GardenPulse UI', () => {
     expect(screen.getAllByText('Klar').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Imorgon').length).toBeGreaterThan(0);
   });
+
+  it('shows why-am-I-seeing-this and cheap terminals', () => {
+    const today = localDateKey();
+    renderPulse({
+      beds: [{ id: 'bed-1' }],
+      sowings: [{ id: 's-1', variety: 'Sallat', sow_date: today, type: 'direct', status: 'sown' }],
+      remindersData: {
+        settings: {
+          reminders: [{ id: 'late', title: 'Gallra Sungold', type: 'other', date: addDaysToDateKey(today, -2), done: false }],
+        },
+      },
+    });
+    expect(screen.getByText('Varför: din logg')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /logga/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /inte relevant/i })).toBeInTheDocument();
+  });
 });

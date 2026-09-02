@@ -18,6 +18,7 @@ import { recordProductActivity } from '@/lib/analytics';
 import SeasonHarvestTicker from '@/components/SeasonHarvestTicker';
 import { normalizeSowingStatus } from '@/lib/sowingLifecycle';
 import { normalizePlantKind } from '@/lib/plantKind';
+import { harvestFromSowing } from '@/lib/sowingAttach';
 
 import AskGroButton from '@/components/AskGroButton';
 import { FadeIn } from '@/components/animations';
@@ -131,8 +132,9 @@ const Harvests = () => {
       setSowingId(id);
       const sowing = harvestableSowings.find((s: any) => s.id === id);
       if (sowing) {
-        if (!variety.trim()) setVariety(sowing.variety || '');
-        if (!bedId && sowing.bed_id) setBedId(sowing.bed_id);
+        const attached = harvestFromSowing(sowing, { harvest_date: harvestDate, weight_grams: 0 });
+        if (!variety.trim()) setVariety(attached.variety);
+        if (!bedId && attached.bed_id) setBedId(attached.bed_id);
       }
     } else {
       setEditing((prev: any) => ({ ...prev, sowing_id: id }));

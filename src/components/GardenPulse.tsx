@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Bot, CalendarDays, Check, ChevronRight, Clock3, Leaf, SunMedium } from 'lucide-react';
+import { AlertTriangle, Bot, CalendarDays, Check, ChevronRight, Clock3, Leaf, PencilLine, SunMedium, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
@@ -14,6 +14,14 @@ import {
   localDateKey,
 } from '@/lib/gardenToday';
 import { buildGardenPulse, type PulseBucket, type PulseItem } from '@/lib/gardenPulse';
+import type { PulseWhy } from '@/lib/gardenToday';
+
+const WHY_LABEL: Record<PulseWhy, string> = {
+  user_data: 'Varför: din logg',
+  weather: 'Varför: väderprognos',
+  trusted: 'Varför: känd gröda',
+  inference: 'Varför: tidsbaserad slutsats',
+};
 
 interface GardenPulseProps {
   weather?: any;
@@ -45,6 +53,9 @@ function toAction(item: PulseItem): GardenAction {
     groPrompt: item.groPrompt,
     reminderType: item.reminderType,
     sourceReminderId: item.sourceReminderId,
+    sourceSowingId: item.sourceSowingId,
+    sourceBedId: item.sourceBedId,
+    why: item.why,
   };
 }
 
@@ -53,12 +64,16 @@ function PulseRow({
   onComplete,
   onSnooze,
   onAskGro,
+  onLog,
+  onDismiss,
   pending,
 }: {
   item: PulseItem;
   onComplete: (item: PulseItem) => void;
   onSnooze: (item: PulseItem) => void;
   onAskGro: (item: PulseItem) => void;
+  onLog: (item: PulseItem) => void;
+  onDismiss: (item: PulseItem) => void;
   pending: boolean;
 }) {
   const navigate = useNavigate();
@@ -68,12 +83,15 @@ function PulseRow({
         <div className="min-w-0">
           <h3 className="font-semibold leading-tight">{item.title}</h3>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">{item.description}</p>
+          <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground/80">{WHY_LABEL[item.why]}</p>
         </div>
         {item.bucket === 'late' && <AlertTriangle className="h-4 w-4 shrink-0 text-destructive" aria-hidden="true" />}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
         <Button size="sm" onClick={() => onComplete(item)} disabled={pending}><Check className="h-3.5 w-3.5" /> Klar</Button>
+        <Button size="sm" variant="ghost" onClick={() => onLog(item)}><PencilLine className="h-3.5 w-3.5" /> Logga</Button>
         <Button size="sm" variant="ghost" onClick={() => onSnooze(item)} disabled={pending}><Clock3 className="h-3.5 w-3.5" /> Imorgon</Button>
+        <Button size="sm" variant="ghost" onClick={() => onDismiss(item)} disabled={pending}><X className="h-3.5 w-3.5" /> Inte relevant</Button>
         <Button size="sm" variant="ghost" onClick={() => onAskGro(item)}><Bot className="h-3.5 w-3.5" /> Fråga Gro</Button>
         <Button size="sm" variant="ghost" className="ml-auto" onClick={() => navigate(item.actionPath)}>
           {item.actionLabel} <ChevronRight className="h-3.5 w-3.5" />
@@ -146,6 +164,26 @@ export default function GardenPulse({
   const askGro = (item: PulseItem) => {
     void recordProductActivity('smart_action_opened_in_gro', { action_id: item.id, kind: item.kind });
     navigate('/app/gro', { state: { prompt: item.groPrompt, source: 'garden_pulse' } });
+  };
+
+  const logItem = (item: PulseItem) => {
+    void recordProductActivity('smart_action_log', { action_id: item.id, kind: item.kind });
+    if (item.kind === 'harvest' || item.sourceSowingId) {
+      navigate('/app/harvests', {
+        state: item.sourceSowingId
+          ? { prefill: { sowing_id: item.sourceSowingId, bed_id: item.sourceBedId, variety: item.title } }
+          : undefined,
+      });
+      return;
+    }
+    navigate(item.actionPath);
+  };
+
+  const dismissItem = (item: PulseItem) => {
+    const nextState = { ...actionState, [item.id]: { ...actionState[item.id], dismissedAt: new Date().toISOString() } };
+    saveMutation.mutate({ smart_action_state: nextState });
+    void recordProductActivity('smart_action_dismissed', { action_id: item.id, kind: item.kind });
+    toast({ title: 'Dold', description: item.title });
   };
 
   if (isLoading) {
@@ -226,6 +264,8 @@ export default function GardenPulse({
                     onComplete={completeItem}
                     onSnooze={snoozeItem}
                     onAskGro={askGro}
+                    onLog={logItem}
+                    onDismiss={dismissItem}
                     pending={saveMutation.isPending}
                   />
                 ))}

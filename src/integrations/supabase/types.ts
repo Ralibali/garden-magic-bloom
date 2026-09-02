@@ -565,6 +565,7 @@ export type Database = {
           pest_name: string
           resolved: boolean | null
           severity: string | null
+          sowing_id: string | null
           treatment: string | null
           user_id: string
         }
@@ -577,6 +578,7 @@ export type Database = {
           pest_name: string
           resolved?: boolean | null
           severity?: string | null
+          sowing_id?: string | null
           treatment?: string | null
           user_id: string
         }
@@ -589,6 +591,7 @@ export type Database = {
           pest_name?: string
           resolved?: boolean | null
           severity?: string | null
+          sowing_id?: string | null
           treatment?: string | null
           user_id?: string
         }
@@ -598,6 +601,13 @@ export type Database = {
             columns: ["bed_id"]
             isOneToOne: false
             referencedRelation: "beds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pest_logs_sowing_id_fkey"
+            columns: ["sowing_id"]
+            isOneToOne: false
+            referencedRelation: "sowings"
             referencedColumns: ["id"]
           },
         ]
@@ -1432,10 +1442,12 @@ export type Database = {
         Row: {
           bed_id: string | null
           created_at: string
+          crop_key: string | null
           id: string
           notes: string | null
           plant_kind: string
           seed_brand: string | null
+          seed_inventory_id: string | null
           sow_date: string
           status: string
           transplant_date: string | null
@@ -1443,14 +1455,17 @@ export type Database = {
           updated_at: string
           user_id: string
           variety: string
+          variety_name: string | null
         }
         Insert: {
           bed_id?: string | null
           created_at?: string
+          crop_key?: string | null
           id?: string
           notes?: string | null
           plant_kind?: string
           seed_brand?: string | null
+          seed_inventory_id?: string | null
           sow_date: string
           status?: string
           transplant_date?: string | null
@@ -1458,14 +1473,17 @@ export type Database = {
           updated_at?: string
           user_id: string
           variety: string
+          variety_name?: string | null
         }
         Update: {
           bed_id?: string | null
           created_at?: string
+          crop_key?: string | null
           id?: string
           notes?: string | null
           plant_kind?: string
           seed_brand?: string | null
+          seed_inventory_id?: string | null
           sow_date?: string
           status?: string
           transplant_date?: string | null
@@ -1473,6 +1491,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           variety?: string
+          variety_name?: string | null
         }
         Relationships: [
           {
@@ -1480,6 +1499,13 @@ export type Database = {
             columns: ["bed_id"]
             isOneToOne: false
             referencedRelation: "beds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sowings_seed_inventory_id_fkey"
+            columns: ["seed_inventory_id"]
+            isOneToOne: false
+            referencedRelation: "seed_inventory"
             referencedColumns: ["id"]
           },
         ]

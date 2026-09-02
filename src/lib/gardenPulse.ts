@@ -6,6 +6,7 @@
  * Week-ahead reminders are included even when gardenToday ignores future dates.
  */
 
+import { getGardenContext, type GardenContext } from '@/lib/gardenContext';
 import {
   addDaysToDateKey,
   buildGardenActions,
@@ -15,6 +16,7 @@ import {
   localDateKey,
   visibleGardenActions,
   type GardenActionKind,
+  type PulseWhy,
 } from '@/lib/gardenToday';
 
 export type PulseBucket = 'late' | 'today' | 'week';
@@ -30,6 +32,9 @@ export interface PulseItem {
   groPrompt: string;
   reminderType: GardenAction['reminderType'];
   sourceReminderId?: string;
+  sourceSowingId?: string;
+  sourceBedId?: string;
+  why: PulseWhy;
 }
 
 export interface GardenPulseInput {
@@ -49,6 +54,7 @@ export interface GardenPulseResult {
   today: PulseItem[];
   week: PulseItem[];
   empty: boolean;
+  context: GardenContext;
 }
 
 function daysUntil(dateString: string, today: string) {
@@ -69,6 +75,9 @@ function actionToItem(action: GardenAction, bucket: PulseBucket): PulseItem {
     groPrompt: action.groPrompt,
     reminderType: action.reminderType,
     sourceReminderId: action.sourceReminderId,
+    sourceSowingId: action.sourceSowingId,
+    sourceBedId: action.sourceBedId,
+    why: action.why || 'inference',
   };
 }
 
@@ -89,6 +98,9 @@ function upcomingWeekActions(reminders: GardenReminder[], today: string): Garden
         groPrompt: `Hjälp mig förbereda uppgiften "${reminder.title}" som är planerad ${reminder.date}.`,
         reminderType: reminder.type,
         sourceReminderId: reminder.id,
+        sourceSowingId: reminder.sowing_id,
+        sourceBedId: reminder.bed_id,
+        why: 'user_data' as const,
       };
     });
 }
@@ -152,5 +164,13 @@ export function buildGardenPulse(input: GardenPulseInput): GardenPulseResult {
   });
   const buckets = groupPulseBuckets([...visible, ...upcoming]);
   const empty = buckets.late.length + buckets.today.length + buckets.week.length === 0;
-  return { ...buckets, empty };
+  const context = getGardenContext({
+    scope: 'TODAY',
+    today,
+    climateZone: input.climateZone,
+    beds: input.beds,
+    sowings: input.sowings,
+    reminders,
+  });
+  return { ...buckets, empty, context };
 }
