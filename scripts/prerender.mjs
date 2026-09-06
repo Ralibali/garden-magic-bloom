@@ -2,6 +2,7 @@
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { renderSitemap } from './sitemap.mjs';
 import {
   REQUIRED_FIRST_BYTE_PAGES,
   assertUniqueFirstByte,
@@ -195,8 +196,7 @@ async function loadDynamicPages() {
 
     return pages;
   } catch (error) {
-    console.warn('[prerender] Dynamisk SEO-data kunde inte hämtas:', error instanceof Error ? error.message : error);
-    return [];
+    throw new Error('[prerender] Dynamisk SEO-data kunde inte hämtas; avbryter för att inte publicera ofullständiga artikelsidor och webbplatskarta.', { cause: error });
   }
 }
 
@@ -233,6 +233,7 @@ export async function prerenderDist(dist = join(root, 'dist')) {
   const dynamicPages = await loadDynamicPages();
   const allPages = mergeRequiredPages([...staticPages, ...dynamicPages]);
   for (const page of allPages) await writePage(page);
+  await writeFile(join(dist, 'sitemap.xml'), renderSitemap(allPages), 'utf8');
 
   for (const required of REQUIRED_FIRST_BYTE_PAGES) {
     const file = routeOutput(dist, required.route);
