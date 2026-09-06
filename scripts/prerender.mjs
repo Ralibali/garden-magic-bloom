@@ -124,6 +124,7 @@ async function loadDynamicPages() {
         heading: post.title,
         description,
         body: post.excerpt || post.content,
+        articleContent: post.content,
         type: 'article',
         image: post.cover_image_url || DEFAULT_OG_IMAGE,
         imageAlt: post.title,
