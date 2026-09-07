@@ -1,9 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Seo } from '@/hooks/useSeo';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Link, Navigate, useLocation } from 'react-router-dom';
-import { legacyBlogTarget } from '@/lib/legacyBlog';
+import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,9 +33,21 @@ const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('sv-SE', { year: 'numeric', month: 'long', day: 'numeric' });
 
 export default function Guides() {
-  const legacyTarget = legacyBlogTarget(useLocation().search);
+  const soroRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!soroRef.current || soroRef.current.querySelector('script')) return;
+    const params = new URLSearchParams(window.location.search);
+    let url = 'https://app.trysoro.com/api/embed/7cadf781-f963-4b64-83b3-705e8bdbbbc7';
+    const post = params.get('post');
+    if (post) url += '?post=' + encodeURIComponent(post);
+    const script = document.createElement('script');
+    script.src = url;
+    script.async = true;
+    soroRef.current.appendChild(script);
+  }, []);
 
   const { data: posts = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['public-blog-posts'],
@@ -76,8 +87,6 @@ export default function Guides() {
   const trackCta = (label: string) => {
     try { trackEvent('cta_click', { label, page: 'blog_index' }); } catch { /* noop */ }
   };
-
-  if (legacyTarget) return <Navigate replace to={legacyTarget} />;
 
   return (
     <PublicLayout>
@@ -135,7 +144,7 @@ export default function Guides() {
               Odlingskunskap för svenska trädgårdar
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Guider, såtider och praktiska tips för din odling — anpassat för pallkrage, växthus, balkong och friland i svenska klimatzoner.
+              Guider, såtider och praktiska tips från erfarna odlare — anpassat för pallkrage, växthus, balkong och friland i svenska klimatzoner.
             </p>
           </div>
 
@@ -321,6 +330,11 @@ export default function Guides() {
             </div>
           </section>
         )}
+
+        {/* Soro embed – auto-published articles */}
+        <section className="mt-20">
+          <div id="soro-blog" ref={soroRef} />
+        </section>
 
         {/* Final CTA */}
         <div className="mt-20">

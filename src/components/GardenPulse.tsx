@@ -136,7 +136,7 @@ export default function GardenPulse({
   );
 
   const saveMutation = useMutation({
-    mutationFn: (nextSettings: any) => api.updateReminderSettings({ settings: { ...settings, ...nextSettings } }, settings),
+    mutationFn: (nextSettings: any) => api.updateReminderSettings({ settings: { ...settings, ...nextSettings } }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminder-settings'] }),
     onError: (error: any) => toast({ title: 'Kunde inte spara ändringen', description: error?.message || 'Försök igen.', variant: 'destructive' }),
   });

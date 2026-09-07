@@ -55,4 +55,4 @@ jobs:
           deno-version: v2.x
 
       - name: Typecheck gardening coach
-        run: deno check supabase/functions/gardening-coach/index.ts supabase/functions/analyze-seed-photo/index.ts
+        run: deno check supabase/functions/gardening-coach/index.ts

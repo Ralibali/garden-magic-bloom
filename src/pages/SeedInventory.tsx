@@ -15,9 +15,6 @@ import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import { StaggerContainer, StaggerItem, FadeIn } from '@/components/animations';
 import { getExpiryStatus, EXPIRY_LABELS, type ExpiryStatus } from '@/lib/seedExpiry';
 import { sowingPayloadFromVariety } from '@/lib/cropIdentity';
-import SeedPhotoImport from '@/components/seeds/SeedPhotoImport';
-import { SeedPlanForm, SeedPlans } from '@/components/seeds/SeedPlanning';
-import type { Seed } from '@/lib/seedPlans';
 import { cn } from '@/lib/utils';
 
 async function getUserId() {
@@ -36,10 +33,9 @@ const SeedInventory = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('alla');
   const [form, setForm] = useState({ ...EMPTY_FORM });
-  const [planning, setPlanning] = useState<Seed | null>(null);
   const [editing, setEditing] = useState<any>(null);
 
-  const { data: seeds, isLoading, error: seedsError, refetch } = useQuery({
+  const { data: seeds, isLoading } = useQuery({
     queryKey: ['seed-inventory'],
     queryFn: async () => {
       const { data, error } = await supabase.from('seed_inventory').select('*').order('created_at', { ascending: false });
@@ -171,7 +167,6 @@ const SeedInventory = () => {
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input placeholder="Sök sort eller märke…" value={search} onChange={e => setSearch(e.target.value)} className="pl-10 w-full sm:w-56" />
               </div>
-              <SeedPhotoImport />
               <Button onClick={() => setDialogOpen(true)} className="gap-2"><Plus className="h-4 w-4" /> Lägg till frö</Button>
             </div>
           </div>
@@ -200,7 +195,7 @@ const SeedInventory = () => {
         </FadeIn>
       )}
 
-      {seedsError ? <div role="alert">Fröförrådet kunde inte hämtas. <Button onClick={() => void refetch()}>Försök igen</Button></div> : isLoading ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{[1, 2, 3].map(i => <Skeleton key={i} className="h-36 rounded-[1.35rem]" />)}</div>
       ) : !filtered?.length ? (
         <AppEmptyState
@@ -242,8 +237,7 @@ const SeedInventory = () => {
 
                     {seed.notes && <p className="mt-2 line-clamp-2 text-xs italic text-muted-foreground">{seed.notes}</p>}
 
-                    <div className="mt-auto space-y-2 pt-3">
-                      <Button className="w-full" size="sm" onClick={() => setPlanning(seed)}>Planera sådd</Button>
+                    <div className="mt-auto pt-3">
                       <Button
                         variant="outline"
                         size="sm"
@@ -261,8 +255,6 @@ const SeedInventory = () => {
         </StaggerContainer>
       )}
 
-      <SeedPlans />
-      {planning && <SeedPlanForm seed={planning} onClose={() => setPlanning(null)} />}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle>Lägg till frö</DialogTitle></DialogHeader>

@@ -84,9 +84,9 @@ const Sowings = () => {
   const [open, setOpen] = useState(!!prefill);
   const [variety, setVariety] = useState(prefill?.variety || '');
   const [bedId, setBedId] = useState('');
-  const [sowDate, setSowDate] = useState(prefill?.sow_date || format(new Date(), 'yyyy-MM-dd'));
-  const [type, setType] = useState(prefill?.type === 'indoor' ? 'indoor' : 'direct');
-  const [notes, setNotes] = useState(prefill?.notes || '');
+  const [sowDate, setSowDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [type, setType] = useState('direct');
+  const [notes, setNotes] = useState('');
   const [seedBrand, setSeedBrand] = useState(prefill?.brand || prefill?.seed_brand || '');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(presetFilter || 'aktiva');
@@ -94,7 +94,7 @@ const Sowings = () => {
   const [editing, setEditing] = useState<any>(null);
   const [plantKind, setPlantKind] = useState<string>(guessPlantKind(prefill?.variety || ''));
   const [plantKindTouched, setPlantKindTouched] = useState(false);
-  const [seedInventoryId, setSeedInventoryId] = useState(prefill?.seed_inventory_id || '');
+  const [seedInventoryId, setSeedInventoryId] = useState('');
 
   const brandRef = useRef<HTMLDivElement>(null);
 
