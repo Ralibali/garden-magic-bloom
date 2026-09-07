@@ -94,7 +94,7 @@ export default function TodayInGarden({
   const completedToday = Object.values(actionState).filter((state) => state.completedAt && localDateKey(new Date(state.completedAt)) === today).length;
 
   const saveMutation = useMutation({
-    mutationFn: (nextSettings: any) => api.updateReminderSettings({ settings: { ...settings, ...nextSettings } }),
+    mutationFn: (nextSettings: any) => api.updateReminderSettings({ settings: { ...settings, ...nextSettings } }, settings),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminder-settings'] }),
     onError: (error: any) => toast({ title: 'Kunde inte spara ändringen', description: error?.message || 'Försök igen.', variant: 'destructive' }),
   });

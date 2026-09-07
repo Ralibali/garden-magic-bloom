@@ -143,7 +143,7 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
               ...settings,
               reminders: [...reminders.filter((item: any) => item.source_action_id !== sourceActionId || item.done), reminder],
             },
-          });
+          }, settings);
         } catch (reminderError) {
           console.warn('[plant-care-reminder]', reminderError);
           nextCheckDays = null;

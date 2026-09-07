@@ -140,9 +140,12 @@ export async function getReminderSettings() {
   return data;
 }
 
-export async function updateReminderSettings(settings: any) {
+export async function updateReminderSettings(settings: any, expectedSettings?: unknown) {
   const userId = await getUserId();
-  const { data, error } = await supabase.from('reminder_settings').update(settings).eq('user_id', userId).select().single();
+  let query = supabase.from('reminder_settings').update(settings).eq('user_id', userId);
+  if (expectedSettings !== undefined) query = query.eq('settings', JSON.stringify(expectedSettings));
+  const { data, error } = await query.select().maybeSingle();
+  if (!error && !data) throw new Error('Påminnelserna har ändrats. Ladda om och försök igen.');
   if (error) throw new Error(error.message);
   return data;
 }
