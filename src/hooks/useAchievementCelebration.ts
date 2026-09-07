@@ -22,7 +22,7 @@ export function useAchievementCelebration() {
   const persistSeen = useMutation({
     mutationFn: (seen: string[]) => {
       const settings = (settingsData?.settings as any) || {};
-      return api.updateReminderSettings({ settings: { ...settings, achievements_seen: seen } });
+      return api.updateReminderSettings({ settings: { ...settings, achievements_seen: seen } }, settings);
     },
     onSettled: () => {
       pendingRef.current = false;

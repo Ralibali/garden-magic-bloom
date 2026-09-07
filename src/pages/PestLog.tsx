@@ -96,7 +96,7 @@ export default function PestLog() {
           display_text: `Följ upp ${pestName}`,
           source: 'pest',
         };
-        await api.updateReminderSettings({ settings: { ...settings, reminders: [...reminders, reminder] } });
+        await api.updateReminderSettings({ settings: { ...settings, reminders: [...reminders, reminder] } }, settings);
         followUpCreated = true;
       } catch (followUpError) {
         console.error('Kunde inte skapa automatisk uppföljning', followUpError);
