@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
@@ -565,6 +565,7 @@ export type Database = {
           pest_name: string
           resolved: boolean | null
           severity: string | null
+          sowing_id: string | null
           treatment: string | null
           user_id: string
         }
@@ -577,6 +578,7 @@ export type Database = {
           pest_name: string
           resolved?: boolean | null
           severity?: string | null
+          sowing_id?: string | null
           treatment?: string | null
           user_id: string
         }
@@ -589,6 +591,7 @@ export type Database = {
           pest_name?: string
           resolved?: boolean | null
           severity?: string | null
+          sowing_id?: string | null
           treatment?: string | null
           user_id?: string
         }
@@ -598,6 +601,13 @@ export type Database = {
             columns: ["bed_id"]
             isOneToOne: false
             referencedRelation: "beds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pest_logs_sowing_id_fkey"
+            columns: ["sowing_id"]
+            isOneToOne: false
+            referencedRelation: "sowings"
             referencedColumns: ["id"]
           },
         ]
@@ -1037,127 +1047,6 @@ export type Database = {
           variety?: string
         }
         Relationships: []
-      }
-      seed_photo_imports: {
-        Row: {
-          attempts: number
-          created_at: string
-          fields: Json | null
-          id: string
-          image_hash: string
-          lease_id: string
-          lease_until: string
-          model: string | null
-          reviewed_at: string | null
-          reviewed_fields: Json | null
-          reviewed_seed_id: string | null
-          status: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          attempts?: number
-          created_at?: string
-          fields?: Json | null
-          id: string
-          image_hash: string
-          lease_id?: string
-          lease_until?: string
-          model?: string | null
-          reviewed_at?: string | null
-          reviewed_fields?: Json | null
-          reviewed_seed_id?: string | null
-          status?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          attempts?: number
-          created_at?: string
-          fields?: Json | null
-          id?: string
-          image_hash?: string
-          lease_id?: string
-          lease_until?: string
-          model?: string | null
-          reviewed_at?: string | null
-          reviewed_fields?: Json | null
-          reviewed_seed_id?: string | null
-          status?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "seed_photo_imports_reviewed_seed_id_fkey"
-            columns: ["reviewed_seed_id"]
-            isOneToOne: false
-            referencedRelation: "seed_inventory"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      seed_sowing_plans: {
-        Row: {
-          brand: string | null
-          created_at: string
-          growing_method: string
-          id: string
-          light: string
-          notes: string
-          place: string
-          request: Json
-          seed_id: string | null
-          sow_date: string
-          sow_type: string
-          transplant_date: string | null
-          user_id: string
-          variety: string
-          zone: number | null
-        }
-        Insert: {
-          brand?: string | null
-          created_at?: string
-          growing_method: string
-          id: string
-          light: string
-          notes?: string
-          place: string
-          request: Json
-          seed_id?: string | null
-          sow_date: string
-          sow_type: string
-          transplant_date?: string | null
-          user_id: string
-          variety: string
-          zone?: number | null
-        }
-        Update: {
-          brand?: string | null
-          created_at?: string
-          growing_method?: string
-          id?: string
-          light?: string
-          notes?: string
-          place?: string
-          request?: Json
-          seed_id?: string | null
-          sow_date?: string
-          sow_type?: string
-          transplant_date?: string | null
-          user_id?: string
-          variety?: string
-          zone?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "seed_sowing_plans_seed_id_fkey"
-            columns: ["seed_id"]
-            isOneToOne: false
-            referencedRelation: "seed_inventory"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       seo_generation_log: {
         Row: {
@@ -1731,18 +1620,6 @@ export type Database = {
       }
     }
     Functions: {
-      change_garden_reminder: {
-        Args: { p_action: string; p_expected?: Json; p_item: Json }
-        Returns: Json
-      }
-      claim_seed_photo: {
-        Args: { p_hash: string; p_id: string; p_user: string }
-        Returns: Json
-      }
-      create_seed_sowing_plan: {
-        Args: { p_id: string; p_plan: Json; p_seed: string }
-        Returns: string
-      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -1811,10 +1688,6 @@ export type Database = {
           read_ct: number
         }[]
       }
-      save_reviewed_seed: {
-        Args: { p_fields: Json; p_import: string; p_reviewed: boolean }
-        Returns: string
-      }
     }
     Enums: {
       app_role: "admin" | "user"
@@ -1833,12 +1706,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1862,11 +1735,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1887,11 +1760,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1912,11 +1785,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1929,11 +1802,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never) = never,
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
