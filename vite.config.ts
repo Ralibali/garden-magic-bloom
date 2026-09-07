@@ -75,6 +75,7 @@ export default defineConfig(({ mode }) => ({
       includeAssets: ["favicon.ico", "favicon.svg"],
       workbox: {
         globPatterns: ["**/*.{js,css,ico,png,svg,jpg,webp,woff2}"],
+        globIgnores: ["blog-images/owned-archive/**"],
         navigateFallback: undefined,
         navigateFallbackDenylist: [/^\/~oauth/],
         importScripts: ["push-sw.js"],

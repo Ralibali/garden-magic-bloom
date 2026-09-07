@@ -16,9 +16,10 @@
     "test:publish": "node scripts/assert-publish-unit.mjs",
     "test:hydrate": "node scripts/assert-hydrate.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "editorial:check": "node scripts/editorial-publisher.mjs check && node --test scripts/editorial-publisher.test.mjs",
+    "prebuild": "npm run editorial:check"
   },
-
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@lovable.dev/cloud-auth-js": "^1.1.2",
