@@ -32,7 +32,7 @@ jobs:
         uses: android-actions/setup-android@v4
         with:
           packages: ''
-          accept-android-sdk-licenses: 'no'
+          accept-android-sdk-licenses: 'false'
       - name: Reuse the existing accepted SDK license
         run: |
           mkdir -p "$ANDROID_HOME/licenses"
@@ -46,6 +46,7 @@ jobs:
         run: |
           ! grep -R 'android.permission.SCHEDULE_EXACT_ALARM' android/app/build/intermediates/merged_manifests/debug/
           "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 -v 4 android/app/build/outputs/apk/debug/app-debug.apk
+          python3 scripts/verify-android-native-libs.py android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/bundle/release/app-release.aab
       - uses: actions/upload-artifact@v4
         with:
           name: android-test-builds
