@@ -6,7 +6,7 @@ Fältdagbokens egna telefonpåminnelser schemaläggs lokalt med Capacitor LocalN
 
 Serverpush är implementerad för **APNs på iOS** och **FCM HTTP v1 på Android**. `frost-alert`, `daily-briefing` och `run-my-briefing` kan köa till mobilinstallationer och fortsätter använda Web Push/VAPID för webbläsare. Transporterna har separata resultat och deduplicering. Ett native-fel stoppar inte ett fungerande webbutskick.
 
-**Serverstödet är ännu inte driftsatt. Ingen faktisk APNs-/FCM-leverans eller butikspublicering är verifierad.** Kodtester och osignerade byggen ersätter inte dessa steg.
+**Pushdatabasens migration är applicerad och RLS/rättigheter verifierade i rätt Lovable Cloud-projekt den 8 september 2026. Edge-funktioner, nycklar och cron återstår. Ingen faktisk APNs-/FCM-leverans eller butikspublicering är verifierad.** Kodtester och osignerade byggen ersätter inte dessa steg.
 
 ## Samtycke och konto
 
@@ -31,10 +31,10 @@ Försenad återregistrering stoppas av återkallelsemarkörer. En gammal utloggn
 
 ## Konfiguration och driftsättning
 
-Använd endast Supabase-projekt **ysonnvbkrwajacvdkqut**. Det saknas i den anslutna projektlistan vid förberedelsen. Driftsätt inte till något annat projekt.
+Använd endast Supabase-projekt **ysonnvbkrwajacvdkqut**. Det saknas i den separata Supabase-anslutningens projektlista, men databasåtkomst har verifierats via Lovable-projekt `57180308-833a-4411-a64b-9d965797edb1` (garden-magic-bloom). Supabase-anslutningen saknar behörighet till projektets edge-funktioner. Driftsätt inte till något annat projekt.
 
 1. Bekräfta befintlig butiksidentitet; `com.odlingsdagboken.app` är tills vidare föreslagen identitet.
-2. Applicera `supabase/migrations/20260908130000_native_push.sql`.
+2. `supabase/migrations/20260908130000_native_push.sql` är redan applicerad och registrerad som version `20260908130000` i `supabase_migrations.schema_migrations`. Alla tre tabeller har RLS, inga anon-/authenticated-grants och service-only RPC. Applicera inte samma migration igen.
 3. Lägg serverhemligheter i rätt projekt: `NATIVE_PUSH_APP_ID`, `APNS_PRIVATE_KEY` (PKCS#8 .p8), `APNS_KEY_ID`, `APNS_TEAM_ID`, `FCM_SERVICE_ACCOUNT` (servicekonto-JSON med rätt project_id) och befintlig `CRON_SECRET`. Aktivera FCM API och begränsa servicekontots rättigheter till nödvändig sändning.
 4. Driftsätt `native-push`, `send-native-notifications`, `daily-briefing`, `frost-alert`, `run-my-briefing` och delade moduler. Custom auth/cron-kontroll används enligt `supabase/config.toml`.
 5. Aktivera worker med `docs/native-push-cron.sql`; behåll frostcron och uppdatera morgoncron med `docs/daily-briefing-cron.sql` för svensk sommar-/vintertid. Kontrollera cron-resultat och providerkoder utan att logga token, hemligheter eller privata odlingsuppgifter.

@@ -64,7 +64,7 @@ jobs:
         run: npm ci
 
       - name: Typecheck edge functions
-        run: deno check supabase/functions/gardening-coach/index.ts supabase/functions/analyze-seed-photo/index.ts supabase/functions/delete-account/index.ts supabase/functions/create-checkout/index.ts supabase/functions/native-push/index.ts supabase/functions/send-native-notifications/index.ts supabase/functions/frost-alert/index.ts supabase/functions/daily-briefing/index.ts supabase/functions/run-my-briefing/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/gardening-coach/index.ts supabase/functions/analyze-seed-photo/index.ts supabase/functions/delete-account/index.ts supabase/functions/create-checkout/index.ts supabase/functions/native-push/index.ts supabase/functions/send-native-notifications/index.ts supabase/functions/frost-alert/index.ts supabase/functions/daily-briefing/index.ts supabase/functions/run-my-briefing/index.ts
 
   native-push-database:
     name: Native push ownership and delivery leases

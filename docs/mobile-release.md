@@ -21,7 +21,7 @@ Utkast bevaras före kamera och bakåtnavigation. Androids återställda kamerar
 
 Fältdagboken är separat från molnkontot och synkroniseras inte automatiskt. Den finns kvar efter utloggning/kontoradering. Exportera innan avinstallation eller telefonbyte. Säkerhetskopior innehåller anteckningar och foton; gränsen är 100 MiB per fil. Import bevarar befintliga poster och remappar kolliderande notis-ID:n. Appens egen lokala radering tar bort journal, bilder, notiser och exporterade journalfiler i appcachen. Kopior som användaren redan delat till en annan app måste hanteras där.
 
-Serverstyrda frost- och morgonnotiser har nu APNs-/FCM-kod för mobil och separat webbtransport. Serverdriftsättning, rätt nycklar och faktisk enhetsleverans återstår; se [notisernas implementationsstatus](mobile-notifications.md).
+Serverstyrda frost- och morgonnotiser har nu APNs-/FCM-kod för mobil och separat webbtransport. Pushdatabasen är förberedd; edge-funktioner, rätt nycklar och faktisk enhetsleverans återstår; se [notisernas implementationsstatus](mobile-notifications.md).
 
 CI i `.github/workflows/native.yml` bygger båda plattformarna utan distributionssignering. Android-jobbet återanvänder samma SDK-licensmarkör som redan finns i projektägarens installerade SDK och accepterar inga nya licenser automatiskt.
 
@@ -35,9 +35,9 @@ Native-ingången innehåller inga Google Ads/Plausible-taggar. Webbanalys, servi
 
 `delete-account` har ändrats så att produktens aktiva Stripe-prenumerationer avslutas, foton i användarens Storage-katalog tas bort, databasfel inte ignoreras och auth-kontot raderas sist. Processen är återförsökbar men externa Stripe-/Storage-steg kan inte vara en gemensam databastransaktion. Återförsök vid delvis misslyckad radering. Raderingen begränsas till inloggad användare och Odlingsdagbokens pris-ID; fakturaunderlag bevaras hos Stripe.
 
-**Backend måste driftsättas och verifieras före butikssubmission.** Rätt Supabase-projekt är `ysonnvbkrwajacvdkqut`. Det finns inte i den anslutna Supabase-projektlistan vid förberedelsen. Använd inte något annat anslutet projekt. Ändrade funktioner: `delete-account`, `create-checkout`, delad `accountDeletion.ts`. Kontoraderingssidan `/radera-konto` och uppdaterade `/terms` måste också finnas på den publika webbplatsen före submission.
+**Backend måste driftsättas och verifieras före butikssubmission.** Rätt Supabase-projekt är `ysonnvbkrwajacvdkqut`. Den separata Supabase-anslutningen saknar åtkomst, men databasåtkomst finns via Lovable-projekt `57180308-833a-4411-a64b-9d965797edb1`. Native-push-migrationen är applicerad och rättigheterna verifierade där. Använd inte något annat anslutet projekt. Ändrade funktioner: `delete-account`, `create-checkout`, delad `accountDeletion.ts`. Kontoraderingssidan `/radera-konto` och uppdaterade `/terms` måste också finnas på den publika webbplatsen före submission.
 
-Push kräver dessutom sin migration, fem edge-funktioner, cron och APNs-/FCM-konfiguration enligt [notisguiden](mobile-notifications.md). iOS privacy manifest redovisar enhets-ID kopplat till konto för appfunktioner. Bekräfta även butikernas integritetsformulär.
+Push kräver dessutom fem edge-funktioner, cron och APNs-/FCM-konfiguration enligt [notisguiden](mobile-notifications.md). iOS privacy manifest redovisar enhets-ID kopplat till konto för appfunktioner. Bekräfta även butikernas integritetsformulär.
 
 ## Bygga
 
