@@ -1,3 +1,4 @@
+import { GARDEN_YEARLY_PRICE } from "../_shared/accountDeletion.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -32,8 +33,9 @@ serve(async (req) => {
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated");
 
-    const { priceId } = await req.json();
-    if (!priceId) throw new Error("priceId is required");
+    const body = await req.json();
+    const priceId = body.priceId === "default" ? GARDEN_YEARLY_PRICE : body.priceId;
+    if (priceId !== GARDEN_YEARLY_PRICE) throw new Error("Unknown plan");
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -50,8 +52,10 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/app/premium?success=true`,
-      cancel_url: `${req.headers.get("origin")}/app/premium?canceled=true`,
+      client_reference_id: user.id,
+      subscription_data: { metadata: { user_id: user.id, app: "odlingsdagboken" } },
+      success_url: `${ALLOWED_ORIGINS.includes(req.headers.get("origin") || "") ? req.headers.get("origin") : ALLOWED_ORIGINS[0]}/app/premium?success=true`,
+      cancel_url: `${ALLOWED_ORIGINS.includes(req.headers.get("origin") || "") ? req.headers.get("origin") : ALLOWED_ORIGINS[0]}/app/premium?canceled=true`,
     });
 
     return new Response(JSON.stringify({ url: session.url }), {

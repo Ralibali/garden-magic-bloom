@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -54,6 +55,7 @@ export function PremiumGate({ children, feature, blur = true, soft = false }: Pr
 
 function PremiumUpsellCard({ feature }: { feature?: string }) {
   const navigate = useNavigate();
+  if (isNativeApp()) return <div className="rounded-2xl border bg-card p-6 text-center"><Lock className="mx-auto mb-2 h-5 w-5" /><h3 className="font-medium">{feature || 'Funktionen'} ingår inte i ditt konto</h3><p className="text-sm text-muted-foreground mt-2">Dina övriga odlingsverktyg finns kvar.</p></div>;
 
   return (
     <div className="max-w-sm w-full mx-auto animate-fade-in-scale">
@@ -86,6 +88,7 @@ function PremiumUpsellCard({ feature }: { feature?: string }) {
 /** Small inline banner for soft gates */
 function PremiumBannerInline({ feature }: { feature?: string }) {
   const navigate = useNavigate();
+  if (isNativeApp()) return null;
 
   return (
     <button
@@ -112,7 +115,7 @@ export function PremiumNudge() {
   const navigate = useNavigate();
   const isPremium = user?.subscription_status === 'premium';
 
-  if (isPremium) return null;
+  if (isPremium || isNativeApp()) return null;
 
   return (
     <button
@@ -156,6 +159,7 @@ export function FreeLimitBadge({ current, limit, label }: { current: number; lim
   const navigate = useNavigate();
 
   if (isPremium) return null;
+  if (isNativeApp()) return <span className="text-xs text-muted-foreground">{current}/{limit} {label}</span>;
 
   const atLimit = current >= limit;
 

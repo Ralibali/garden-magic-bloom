@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import { supabase } from '@/integrations/supabase/client';
 
 type AnalyticsMetadata = Record<string, unknown>;
@@ -18,6 +19,7 @@ export function getAnonymousId() {
 }
 
 function analyticsAllowed() {
+  if (isNativeApp()) return false;
   try {
     return localStorage.getItem('cookie-consent') === 'accepted';
   } catch {
@@ -47,6 +49,7 @@ export async function trackEvent(eventName: string, metadata: AnalyticsMetadata 
 }
 
 export async function recordProductActivity(eventName: string, metadata: AnalyticsMetadata = {}) {
+  if (isNativeApp()) return;
   const occurredAt = new Date().toISOString();
   try {
     localStorage.setItem(ACTIVITY_KEY, occurredAt);
@@ -75,6 +78,7 @@ export async function recordProductActivity(eventName: string, metadata: Analyti
 }
 
 export async function markLeadConverted(email: string, userId: string) {
+  if (isNativeApp()) return;
   if (!email || !userId) return;
   try {
     await supabase.rpc('mark_public_leads_converted' as any, { _email: email.toLowerCase(), _user_id: userId } as any);

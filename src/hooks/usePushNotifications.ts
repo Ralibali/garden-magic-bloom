@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -19,7 +20,7 @@ export function usePushNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const supported = typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window;
+  const supported = !isNativeApp() && typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window;
 
   const refresh = useCallback(async () => {
     if (!supported) return;

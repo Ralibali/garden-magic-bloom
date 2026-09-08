@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import React from 'react';
 import { Seo } from '@/hooks/useSeo';
 import { Card, CardContent } from '@/components/ui/card';
@@ -5,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const LAST_UPDATED = '2026-07-12';
+const LAST_UPDATED = '2026-09-08';
 
 export default function Terms() {
   const navigate = useNavigate();
@@ -174,7 +175,7 @@ export default function Terms() {
             <li><strong>Stripe Payments Europe</strong> – betalning, kortdata, fakturor. Irland/USA (SCC).</li>
             <li><strong>Brevo (Sendinblue)</strong> – nyhetsbrev och marknadsutskick, endast efter samtycke. EU.</li>
             <li><strong>Resend</strong> – transaktionsmejl (kontobekräftelser, återställning). EU/USA (SCC).</li>
-            <li><strong>Lovable AI Gateway (Google Gemini)</strong> – AI-coachen ”Gro” samt eventuell foto-observationshjälp. EU-region, ingen träning på dina data.</li>
+            <li><strong>Lovable AI Gateway (Google Gemini)</strong> – AI-coachen ”Gro” samt eventuell foto-observationshjälp. Behandlar uppgifter som du väljer att dela genom AI-funktionerna.</li>
             <li><strong>Open-Meteo</strong> – väderprognos utifrån vald ort/klimatzon. EU.</li>
             <li><strong>Firecrawl</strong> – uppslag av produktinformation för affiliatelänkar (endast produktsidor, inga användardata skickas). EU/USA (SCC).</li>
           </ul>
@@ -195,15 +196,17 @@ export default function Terms() {
           <p className="text-sm text-foreground leading-relaxed">
             Du kan när som helst ändra ditt val nedan. Ditt val sparas i 12 månader eller tills du återkallar det.
           </p>
-          <button
+          {!isNativeApp() && <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent('open-cookie-preferences'))}
             className="mt-2 inline-flex items-center gap-2 text-sm text-primary hover:underline underline-offset-2"
           >
             Ändra cookie-inställningar
-          </button>
+          </button>}
 
           {/* ---------------------------------------------------------------- */}
+          <h2 className="font-serif text-lg text-foreground mt-6 mb-2">Mobilappen och lokal lagring</h2>
+          <p className="text-sm text-foreground leading-relaxed">Fältdagboken sparar anteckningar, utkast, bilder och påminnelser på din enhet utan att automatiskt föra över dem till ditt konto. Kameran och bildväljaren används när du väljer att lägga till ett foto. Lokal export delar en säkerhetskopia bara till den destination du själv väljer. Notiser kan visa anteckningens rubrik på låsskärmen. Konto, molnlagring och AI kräver internet. Lokal data kan försvinna vid avinstallation; exportera det du vill behålla. Telefonens egna säkerhetskopior hanteras av telefonens operativsystem. Appen innehåller inte webbplatsens analys- eller annonsmätning.</p>
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">8. AI-funktioner – transparens enligt EU:s AI-förordning</h2>
           <p className="text-sm text-foreground leading-relaxed">
             Tjänsten innehåller AI-genererat innehåll. Enligt art. 50 i AI-förordningen (EU 2024/1689) informerar vi tydligt om detta.
@@ -217,10 +220,10 @@ export default function Terms() {
             <li>
               <strong>Foto-observationshjälp</strong> (om aktiverad) analyserar en uppladdad växtbild för att föreslå möjliga observationer.
               Detta är <em>ingen diagnos</em>, kan vara felaktigt och ersätter inte fackmässig växtskyddsbedömning. Bilden skickas krypterat
-              till AI-leverantören, används inte för modellträning och lagras inte utanför sessionen.
+              till AI-leverantören efter ditt samtycke. Delning av bild och odlingsuppgifter beskrivs innan du aktiverar AI.
             </li>
             <li>Inget beslut som har rättslig verkan för dig fattas automatiskt av AI.</li>
-            <li>AI-modellernas leverantörer får inte använda dina uppmaningar eller data för att träna sina modeller.</li>
+            <li>Du kan återkalla ditt AI-samtycke i Inställningar. Detta stoppar nya AI-anrop från enheten men tar inte tillbaka redan skickade uppgifter. Kontakta oss för frågor om leverantörernas behandling och lagring.</li>
           </ul>
 
           {/* ---------------------------------------------------------------- */}

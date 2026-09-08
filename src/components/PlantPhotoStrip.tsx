@@ -1,3 +1,5 @@
+import { requireAiConsent } from '@/lib/aiConsent';
+import AiReportButton from '@/components/AiReportButton';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Camera, GitCompare, ImagePlus, Loader2, Sparkles, X, ZoomIn, AlertTriangle } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -122,9 +124,10 @@ export default function PlantPhotoStrip({ plantId, plantName }: PlantPhotoStripP
 
   const analyze = useMutation({
     mutationFn: async (photoId: string) => {
+      requireAiConsent(await currentUserId());
       const { data, error } = await supabase.functions.invoke('analyze-plant-photo', { body: { photo_id: photoId } });
       if (error) throw error;
-      return data as { analysis: any };
+      return { ...data, photoId } as { analysis: any; photoId: string };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['plant-photos', plantId] });
@@ -242,8 +245,8 @@ export default function PlantPhotoStrip({ plantId, plantName }: PlantPhotoStripP
                   </Button>
                 </div>
 
-                {(lightbox.analysis || analyze.data?.analysis) && (
-                  <AnalysisView analysis={analyze.data?.analysis || lightbox.analysis} />
+                {(lightbox.analysis || (analyze.data?.photoId === lightbox.id ? analyze.data?.analysis : null)) && (
+                  <><AnalysisView analysis={(analyze.data?.photoId === lightbox.id ? analyze.data?.analysis : null) || lightbox.analysis} /><AiReportButton key={lightbox.id} content={JSON.stringify((analyze.data?.photoId === lightbox.id ? analyze.data?.analysis : null) || lightbox.analysis)} /></>
                 )}
 
                 <p className="flex items-start gap-2 rounded-xl border border-amber-300/40 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-900 dark:border-amber-800/50 dark:bg-amber-950/40 dark:text-amber-200">

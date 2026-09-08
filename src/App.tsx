@@ -1,3 +1,6 @@
+import { isNativeApp } from './lib/native';
+import NativeShell from './components/NativeShell';
+import AiConsentGate from './components/AiConsentGate';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +24,8 @@ import HurDetFungerar from "./pages/HurDetFungerar";
 
 // Lazy: everything behind auth
 const AppLayout = React.lazy(() => import("./components/AppLayout"));
+const FieldJournal = React.lazy(() => import('./pages/FieldJournal'));
+const DeleteAccountInfo = React.lazy(() => import('./pages/DeleteAccountInfo'));
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 const Beds = React.lazy(() => import("./pages/Beds"));
 const Sowings = React.lazy(() => import("./pages/Sowings"));
@@ -178,11 +183,14 @@ function CacheClearer() {
 
 const AppRoutes = () => (
   <BrowserRouter>
-    <TrackingProvider />
+    {!isNativeApp() && <TrackingProvider />}
+    <NativeShell>
     <ErrorBoundary>
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<GrowthHome />} />
+          <Route path="/" element={isNativeApp() ? <FieldJournal /> : <GrowthHome />} />
+          <Route path="/faltdagbok" element={<FieldJournal />} />
+          <Route path="/radera-konto" element={<DeleteAccountInfo />} />
           <Route path="/login" element={<Login />} />
           <Route path="/terms" element={<Terms />} />
           {/* SEO: /guider konsoliderad till /blogg (301 i vercel.json, client-side fallback här) */}
@@ -230,7 +238,7 @@ const AppRoutes = () => (
             <Route path="plants" element={<PlantLibrary />} />
             <Route path="plants/:id" element={<PlantProfilePage />} />
             <Route path="my-plants" element={<MyPlants />} />
-            <Route path="gro" element={<GardeningCoach />} />
+            <Route path="gro" element={<AiConsentGate><GardeningCoach /></AiConsentGate>} />
           </Route>
           <Route path="/install" element={<Install />} />
           <Route path="/reset-password" element={<ResetPassword />} />
@@ -238,6 +246,7 @@ const AppRoutes = () => (
         </Routes>
       </Suspense>
     </ErrorBoundary>
+    </NativeShell>
   </BrowserRouter>
 );
 
@@ -250,7 +259,7 @@ const App = () => (
         <AuthProvider>
           <CacheClearer />
           <AppRoutes />
-          <CookieConsent />
+          {!isNativeApp() && <CookieConsent />}
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>

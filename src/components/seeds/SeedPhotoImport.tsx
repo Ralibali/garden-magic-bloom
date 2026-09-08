@@ -1,3 +1,5 @@
+import { requireAiConsent } from '@/lib/aiConsent';
+import AiReportButton from '@/components/AiReportButton';
 import { useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -62,6 +64,8 @@ export default function SeedPhotoImport() {
     setBusy(true);
     setError("");
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      requireAiConsent(user?.id);
       const { data, error: invokeError } = await supabase.functions.invoke(
         "analyze-seed-photo",
         { body: { id, image } },
@@ -179,6 +183,7 @@ export default function SeedPhotoImport() {
           )}
           {fields && (
             <div className="space-y-3">
+              <AiReportButton key={id} content={`Fröpåse: ${JSON.stringify(fields)}`} />
               <p className="text-sm">
                 Granska mot fotot. Tomma fält betyder att uppgiften inte kunde
                 läsas säkert.

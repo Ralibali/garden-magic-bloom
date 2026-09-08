@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import React, { useState } from 'react';
 import { BookOpen, Brain, Camera, Carrot, Crown, ArrowRight, ChevronDown, Hand, HeartPulse, LayoutGrid, Leaf, MapPin, Plus, Sparkles, Sprout, CalendarDays, CloudSun } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -276,7 +277,7 @@ const Dashboard = () => {
 
           {/* Mer från din odling – kollapsbar */}
           <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Utforska din odling" subtitle="Veckosammanfattning, statistik och genvägar">
-            {trialDaysLeft !== null && (
+            {!isNativeApp() && trialDaysLeft !== null && (
               <Card className="border-accent/25 bg-gradient-to-r from-accent/8 via-card to-primary/8">
                 <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-3">
@@ -435,7 +436,7 @@ function PlantOnlyDashboard({
       <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Utforska dina växter" subtitle="Veckosammanfattning, statistik och genvägar">
         <PlantWeeklyCareSummary variant="compact" />
         <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={[]} overduePlants={attentionPlants} beds={[]} displayName={displayName} maxItems={4} />
-        {trialDaysLeft !== null && (
+        {!isNativeApp() && trialDaysLeft !== null && (
           <Card className="border-accent/25 bg-gradient-to-r from-accent/8 via-card to-primary/8">
             <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">

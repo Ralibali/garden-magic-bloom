@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,6 +50,7 @@ export default function Premium() {
   }, [searchParams]);
 
   const checkout = async () => {
+    if (isNativeApp()) return;
     if (!withdrawalConsent) {
       toast({ title: 'Bekräfta ditt val', description: 'Godkänn att tjänsten startar direkt innan du fortsätter till betalning.', variant: 'destructive' });
       return;
@@ -73,6 +75,7 @@ export default function Premium() {
   };
 
   const openPortal = async () => {
+    if (isNativeApp()) return;
     setPortalLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('customer-portal');

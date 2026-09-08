@@ -1,3 +1,4 @@
+import { assertWebPurchase } from '@/lib/native';
 import { supabase } from '@/integrations/supabase/client';
 import { resolveGardenLocation } from '@/lib/gardenWeather';
 
@@ -290,6 +291,7 @@ export async function getPremiumStatus() {
 }
 
 export async function createCheckoutSession(priceId?: string) {
+  assertWebPurchase();
   const { data, error } = await supabase.functions.invoke('create-checkout', {
     body: { priceId: priceId || 'default' },
   });
@@ -298,6 +300,7 @@ export async function createCheckoutSession(priceId?: string) {
 }
 
 export async function openCustomerPortal() {
+  assertWebPurchase();
   const { data, error } = await supabase.functions.invoke('customer-portal');
   if (error) throw new Error(error.message);
   return data;

@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import { localDateKey } from '@/lib/gardenToday';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -193,7 +194,7 @@ const Sowings = () => {
     },
     onError: (error: any) => {
       const limitReached = error?.message === 'SOWING_LIMIT' || String(error?.message || '').includes('FREE_SOWING_LIMIT');
-      toast({ title: limitReached ? 'Du har nått gratisgränsen' : 'Kunde inte spara sådden', description: limitReached ? 'Gratisversionen innehåller tio sådder. Plus ger obegränsad sålogg.' : error?.message || 'Försök igen.', variant: 'destructive', action: limitReached ? <Button size="sm" variant="outline" onClick={() => navigate('/app/premium')}><Crown className="h-3 w-3 mr-1" /> Visa Plus</Button> : undefined });
+      toast({ title: limitReached ? 'Du har nått gratisgränsen' : 'Kunde inte spara sådden', description: limitReached ? (isNativeApp() ? 'Kontots gratisgräns är nådd.' : 'Gratisversionen innehåller tio sådder. Plus ger obegränsad sålogg.') : error?.message || 'Försök igen.', variant: 'destructive', action: limitReached && !isNativeApp() ? <Button size="sm" variant="outline" onClick={() => navigate('/app/premium')}><Crown className="h-3 w-3 mr-1" /> Visa Plus</Button> : undefined });
       if (limitReached) setOpen(false);
     },
   });
@@ -266,7 +267,7 @@ const Sowings = () => {
 
   const openCreate = () => {
     if (!isPremium && (sowingsRaw?.length || 0) >= FREE_SOWING_LIMIT) {
-      toast({ title: 'Gratisgränsen är nådd', description: 'Plus ger obegränsad sålogg.', variant: 'destructive' });
+      toast({ title: 'Gratisgränsen är nådd', description: (isNativeApp() ? 'Kontots gratisgräns är nådd.' : 'Plus ger obegränsad sålogg.'), variant: 'destructive' });
       return;
     }
     setOpen(true);

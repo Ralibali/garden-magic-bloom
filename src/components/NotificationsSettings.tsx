@@ -1,3 +1,5 @@
+import { isNativeApp } from '@/lib/native';
+import { Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -128,7 +130,7 @@ export default function NotificationsSettings() {
         </CardHeader>
         <CardContent className="space-y-5">
           {!supported && (
-            <p className="text-sm text-muted-foreground">Webbnotiser stöds inte i denna webbläsare.</p>
+            <p className="text-sm text-muted-foreground">{isNativeApp() ? <>Skapa telefonpåminnelser i <Link to="/faltdagbok" className="underline text-primary">fältdagboken</Link>. Webbplatsens automatiska frost- och dagsnotiser kräver en separat webbprenumeration.</> : 'Webbnotiser stöds inte i denna webbläsare.'}</p>
           )}
           {supported && (
             <div className="flex items-center justify-between gap-4">

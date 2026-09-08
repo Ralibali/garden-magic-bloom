@@ -1,3 +1,4 @@
+import { authWebOrigin, isNativeApp } from '@/lib/native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Seo } from '@/hooks/useSeo';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -32,7 +33,7 @@ type AuthMode = 'login' | 'register' | 'forgot' | 'verify';
 const registerBenefits = [
   'Spara din personliga såkalender och odlingsplan',
   'Logga sådder, skördar och lärdomar',
-  'Få 14 dagars Plus gratis utan betalkort',
+  isNativeApp() ? 'Ta med fältdagboken ut i odlingen' : 'Få 14 dagars Plus gratis utan betalkort',
 ];
 
 function GoogleIcon() {
@@ -120,12 +121,13 @@ export default function Login() {
   }, [authMode, source]);
 
   const handleGoogleAuth = async () => {
+    if (isNativeApp()) return;
     setGoogleLoading(true);
     plausibleEvent('Signup Started', { method: 'google' });
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: `${window.location.origin}/app` },
+        options: { redirectTo: `${authWebOrigin()}/app` },
       });
       if (error) throw error;
       // Webbläsaren omdirigerar till Google — laddningsläget lämnas kvar.
@@ -148,6 +150,7 @@ export default function Login() {
   );
 
   const handleAppleAuth = async () => {
+    if (isNativeApp()) return;
     setAppleLoading(true);
     plausibleEvent('Signup Started', { method: 'apple' });
     try {
@@ -227,7 +230,8 @@ export default function Login() {
     if (!email.trim()) return;
     setLoading(true);
     try {
-      await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/reset-password` });
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${authWebOrigin()}/reset-password` });
+      if (error) throw error;
       toast({ title: 'Återställningslänken är skickad', description: 'Kontrollera även skräpposten om du inte ser mejlet.' });
     } catch (error: any) {
       toast({ title: 'Kunde inte skicka länken', description: authError(error.message), variant: 'destructive' });
@@ -243,7 +247,7 @@ export default function Login() {
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email: verificationEmail,
-        options: { emailRedirectTo: `${window.location.origin}/app` },
+        options: { emailRedirectTo: `${authWebOrigin()}/app` },
       });
       if (error) throw error;
       plausibleEvent('Signup Confirmation Resent', { source });
@@ -313,9 +317,7 @@ export default function Login() {
             {authMode === 'login' && (
               <form onSubmit={handleLogin} className="space-y-5">
                 <div><h2 className="font-serif text-3xl mb-2">Välkommen tillbaka</h2><p className="text-sm text-muted-foreground">Fortsätt bygga din odlingshistorik.</p></div>
-                {renderGoogleButton()}
-                {renderAppleButton()}
-                <AuthDivider label="eller med e-post" />
+                {!isNativeApp() && <>{renderGoogleButton()}{renderAppleButton()}<AuthDivider label="eller med e-post" /></>}
                 <div className="space-y-4">
                   <div><Label htmlFor="email">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="pl-10 h-11" required /></div></div>
                   <div><Label htmlFor="password">Lösenord</Label>{renderPasswordField('password', 'current-password')}</div>
@@ -329,9 +331,7 @@ export default function Login() {
               <form onSubmit={handleRegister} className="space-y-5">
                 <div><div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 px-3 py-1 text-xs font-medium mb-4"><Check className="h-3.5 w-3.5" /> Gratis att börja</div><h2 className="font-serif text-3xl mb-2">Spara din odling</h2><p className="text-sm text-muted-foreground">Skapa kontot på under en minut. Din plan på den här enheten följer med automatiskt.</p></div>
                 <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4 space-y-2">{registerBenefits.map(item => <div key={item} className="flex items-center gap-2 text-sm text-muted-foreground"><Check className="h-4 w-4 text-primary shrink-0" />{item}</div>)}</div>
-                {renderGoogleButton()}
-                {renderAppleButton()}
-                <AuthDivider label="eller med e-post" />
+                {!isNativeApp() && <>{renderGoogleButton()}{renderAppleButton()}<AuthDivider label="eller med e-post" /></>}
                 <div className="space-y-4">
                   <div><Label htmlFor="name">Förnamn</Label><div className="relative mt-1.5"><User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="name" autoComplete="given-name" value={name} onChange={(event) => setName(event.target.value)} className="pl-10 h-11" required /></div></div>
                   <div><Label htmlFor="reg-email">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="reg-email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="pl-10 h-11" required /></div></div>
@@ -356,7 +356,7 @@ export default function Login() {
             {authMode === 'verify' && (
               <div className="text-center py-4 space-y-5">
                 <div className="w-16 h-16 rounded-3xl bg-primary/10 text-primary flex items-center justify-center mx-auto"><Mail className="h-7 w-7" /></div>
-                <div><h2 className="font-serif text-3xl mb-2">Bekräfta din e-post</h2><p className="text-sm text-muted-foreground leading-relaxed">Vi har skickat en bekräftelselänk till <strong className="text-foreground">{verificationEmail}</strong>. Klicka på länken så öppnas din sparade odlingsplan.</p></div>
+                <div><h2 className="font-serif text-3xl mb-2">Bekräfta din e-post</h2><p className="text-sm text-muted-foreground leading-relaxed">Vi har skickat en bekräftelselänk till <strong className="text-foreground">{verificationEmail}</strong>. {isNativeApp() ? 'Öppna länken i webbläsaren. Gå sedan tillbaka hit och logga in med din e-post.' : 'Klicka på länken så öppnas din sparade odlingsplan.'}</p></div>
                 <div className="rounded-2xl border border-border bg-muted/30 p-4 text-left text-sm text-muted-foreground">Mejlet brukar komma inom någon minut. Kontrollera skräpposten och fliken Kampanjer om det inte syns.</div>
                 <div className="grid grid-cols-2 gap-2">
                   <Button variant="outline" asChild><a href="https://mail.google.com" target="_blank" rel="noreferrer">Öppna Gmail</a></Button>

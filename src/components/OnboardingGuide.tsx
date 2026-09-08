@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -47,7 +48,7 @@ const steps = [
     emoji: '✨',
     title: 'Allt redo!',
     subtitle: 'Börja logga din första säsong',
-    description: 'Du har 14 dagars Plus gratis – obegränsade bäddar, smarta påminnelser och full växtföljd. Tips: Lägg appen på hemskärmen!',
+    description: isNativeApp() ? 'Ditt konto samlar odlingen. I fältdagboken kan du också spara anteckningar och foton utan internet.' : 'Du har 14 dagars Plus gratis – obegränsade bäddar, smarta påminnelser och full växtföljd. Tips: Lägg appen på hemskärmen!',
     highlights: [
       { icon: Sprout, text: 'Logga sådder', desc: 'Bygg din dagbok!' },
       { icon: Carrot, text: 'Väg skördar', desc: 'Se vad som funkar' },

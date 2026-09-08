@@ -1,3 +1,4 @@
+import { isNativeApp } from './lib/native';
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
@@ -13,8 +14,8 @@ if (savedTheme === 'dark') {
 }
 
 // Self-healing recovery for stale PWA / chunk load failures after deploy.
-installRecoveryHandlers();
-setupServiceWorker();
+if (!isNativeApp()) { installRecoveryHandlers(); setupServiceWorker(); }
+else { document.documentElement.classList.add('native-app'); void import('./native-fonts.css'); }
 
 const htmlPublishId = document.querySelector('meta[name="od-publish-id"]')?.getAttribute('content');
 const jsPublishId = import.meta.env.VITE_PUBLISH_ID as string | undefined;

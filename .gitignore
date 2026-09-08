@@ -25,3 +25,13 @@ dist-ssr
 .env
 
 bundle-stats.html
+
+# Native builds and private signing material
+dist-native/
+.mobile-build/
+*.keystore
+*.jks
+*.p12
+*.mobileprovision
+android/local.properties
+android/key.properties
