@@ -1006,3 +1006,15 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.3);
 }
+
+/* The diary keeps the reading rhythm of a notebook, with generous touch targets. */
+@layer components {
+  .diary-filter {
+    @apply rounded-full border border-border bg-background px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+  .diary-filter.is-active {
+    @apply border-primary bg-primary text-primary-foreground;
+  }
+  .diary-entry { box-shadow: 0 3px 14px -8px hsl(var(--foreground) / 0.12); }
+  .diary-page input, .diary-page textarea { font-size: 1rem; }
+}

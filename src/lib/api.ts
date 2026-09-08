@@ -171,7 +171,7 @@ export async function upsertSeasonSummary(record: {
 }) {
   const userId = await getUserId();
   // Try update first, then insert
-  const { data: existing } = await supabase
+  const { data: existing, error: lookupError } = await supabase
     .from('season_summaries')
     .select('id')
     .eq('user_id', userId)
@@ -179,6 +179,7 @@ export async function upsertSeasonSummary(record: {
     .eq('year', record.year)
     .maybeSingle();
 
+  if (lookupError) throw new Error(lookupError.message);
   if (existing) {
     const { data, error } = await supabase
       .from('season_summaries')

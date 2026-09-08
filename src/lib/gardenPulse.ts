@@ -174,3 +174,13 @@ export function buildGardenPulse(input: GardenPulseInput): GardenPulseResult {
   });
   return { ...buckets, empty, context };
 }
+
+/** A sowing reference does not make a task a harvest. */
+export function getPulseLogTarget(item: Pick<PulseItem, 'kind' | 'sourceSowingId' | 'sourceBedId' | 'actionPath'>, sowings: { id: string; variety: string; bed_id?: string | null }[]) {
+  if (item.kind !== 'harvest') return { path: item.actionPath, state: undefined };
+  const sowing = sowings.find(candidate => candidate.id === item.sourceSowingId);
+  return {
+    path: '/app/harvests',
+    state: sowing ? { prefill: { sowing_id: sowing.id, bed_id: sowing.bed_id || item.sourceBedId, variety: sowing.variety } } : undefined,
+  };
+}

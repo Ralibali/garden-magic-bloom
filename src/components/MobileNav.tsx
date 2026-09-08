@@ -8,7 +8,7 @@ import { useGardenProfile } from '@/hooks/useGardenProfile';
 const kitchenPrimary = [
   { title: 'Hem', url: '/app', icon: Home },
   { title: 'Sådd', url: '/app/sowings', icon: Sprout },
-  { title: 'Gro', url: '/app/gro', icon: Sparkles, featured: true },
+  { title: 'Dagbok', url: '/app/timeline', icon: BookOpen, featured: true },
   { title: 'Skörd', url: '/app/harvests', icon: Carrot },
   { title: 'Mer', url: '#more', icon: MoreHorizontal },
 ];
@@ -16,12 +16,13 @@ const kitchenPrimary = [
 const plantPrimary = [
   { title: 'Hem', url: '/app', icon: Home },
   { title: 'Växter', url: '/app/my-plants', icon: Flower2 },
-  { title: 'Gro', url: '/app/gro', icon: Sparkles, featured: true },
+  { title: 'Dagbok', url: '/app/timeline', icon: BookOpen, featured: true },
   { title: 'Bilder', url: '/app/photos', icon: Camera },
   { title: 'Mer', url: '#more', icon: MoreHorizontal },
 ];
 
 const moreItems = [
+  { title: 'Fråga Gro', url: '/app/gro', icon: Sparkles },
   { title: 'Platser', url: '/app/beds', icon: LayoutGrid },
   { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
   { title: 'Skörd', url: '/app/harvests', icon: Carrot },
@@ -33,7 +34,6 @@ const moreItems = [
   { title: 'Samplantering', url: '/app/companion', icon: Heart },
   { title: 'Fröförråd', url: '/app/seeds', icon: Package },
   { title: 'Fotodagbok', url: '/app/photos', icon: Camera },
-  { title: 'Tidslinje', url: '/app/timeline', icon: Clock },
   { title: 'Skadedjur', url: '/app/pests', icon: Bug },
   { title: 'Statistik', url: '/app/statistics', icon: BarChart3 },
   { title: 'Plus', url: '/app/premium', icon: Crown },

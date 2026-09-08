@@ -16,6 +16,7 @@ const coreGroups = [
     label: 'Idag',
     items: [
       { title: 'Översikt', url: '/app', icon: Home },
+      { title: 'Min dagbok', url: '/app/timeline', icon: BookOpen },
       { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
       { title: 'Påminnelser', url: '/app/reminders', icon: Bell },
       { title: 'Fråga Gro', url: '/app/gro', icon: Sparkles },
@@ -34,7 +35,6 @@ const coreGroups = [
 ];
 
 const advancedItems = [
-  { title: 'Tidslinje', url: '/app/timeline', icon: Clock },
   { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
   { title: 'Samplantering', url: '/app/companion', icon: Heart },
   { title: 'Fröförråd', url: '/app/seeds', icon: Package },

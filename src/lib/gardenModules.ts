@@ -20,7 +20,7 @@ const ROUTE_CATEGORIES: Record<string, GardenCategory[]> = {
   '/app/my-plants': ['krukvaxter'],
   '/app/plants': ['kokstradgard', 'krukvaxter', 'bar_frukt', 'blommor'],
   '/app/photos': ['kokstradgard', 'krukvaxter', 'bar_frukt', 'blommor'],
-  '/app/timeline': ['kokstradgard', 'bar_frukt', 'blommor'],
+  '/app/timeline': ['kokstradgard', 'krukvaxter', 'bar_frukt', 'blommor'],
 };
 
 const ALWAYS_VISIBLE = [
