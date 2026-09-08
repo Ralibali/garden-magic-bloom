@@ -37,6 +37,7 @@ const GuideArticle = React.lazy(() => import("./pages/GuideArticle"));
 const SowingCalendar = React.lazy(() => import("./pages/SowingCalendar"));
 const CropRotation = React.lazy(() => import("./pages/CropRotation"));
 const SeedInventory = React.lazy(() => import("./pages/SeedInventory"));
+const Cultivations = React.lazy(() => import("./pages/Cultivations"));
 const Timeline = React.lazy(() => import("./pages/Timeline"));
 const CompanionPlanting = React.lazy(() => import("./pages/CompanionPlanting"));
 const PestLog = React.lazy(() => import("./pages/PestLog"));
@@ -221,6 +222,7 @@ const AppRoutes = () => (
             <Route path="calendar" element={<SowingCalendar />} />
             <Route path="rotation" element={<CropRotation />} />
             <Route path="seeds" element={<SeedInventory />} />
+            <Route path="odlingar" element={<Cultivations />} />
             <Route path="timeline" element={<Timeline />} />
             <Route path="companion" element={<CompanionPlanting />} />
             <Route path="pests" element={<PestLog />} />

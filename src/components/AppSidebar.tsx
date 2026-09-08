@@ -25,6 +25,7 @@ const coreGroups = [
   {
     label: 'Min odling',
     items: [
+      { title: 'Mina odlingar', url: '/app/odlingar', icon: Sprout },
       { title: 'Mina platser', url: '/app/beds', icon: LayoutGrid },
       { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
       { title: 'Skördelogg', url: '/app/harvests', icon: Carrot },

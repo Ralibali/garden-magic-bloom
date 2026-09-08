@@ -46,6 +46,7 @@ function useSavedPublicPlan() {
 }
 
 const routeMeta = [
+  { path: '/app/odlingar', title: 'Mina odlingar', subtitle: 'En plats för allt som växer.' },
   { path: '/app/timeline', title: 'Min dagbok', subtitle: 'Små ögonblick. Växande erfarenhet.' },
   { path: '/app/beds', title: 'Mina platser', subtitle: 'Bäddar, växthus, balkong och krukor' },
   { path: '/app/sowings', title: 'Sålogg', subtitle: 'Följ varje frö från start' },

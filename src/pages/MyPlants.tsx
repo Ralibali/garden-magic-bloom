@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Activity, Brain, ChevronRight, Droplets, Filter, Flame, Flower2, HeartPulse, MapPin, Minus, Plus, Search, Sparkles, TrendingDown, TrendingUp, X } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,6 +54,7 @@ function filterStatus(profile: PlantCareProfile): FilterMode {
 const MyPlants = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [customName, setCustomName] = useState('');
   const [plantId, setPlantId] = useState('');
@@ -61,7 +62,7 @@ const MyPlants = () => {
   const [interval, setInterval] = useState('7');
   const [fertInterval, setFertInterval] = useState('');
   const [notes, setNotes] = useState('');
-  const [detailPlant, setDetailPlant] = useState<any>(null);
+  const [detailPlantId, setDetailPlantId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterMode, setFilterMode] = useState<FilterMode>('alla');
   const [filterLocation, setFilterLocation] = useState('');
@@ -75,6 +76,22 @@ const MyPlants = () => {
       return data || [];
     },
   });
+
+  const detailPlant = myPlants.find(p => p.id === detailPlantId);
+  useEffect(() => {
+    const state = location.state;
+    if (!state) return;
+    if (state.plantId && isLoading) return;
+    if (state.plantId) {
+      if (myPlants.some(p => p.id === state.plantId)) setDetailPlantId(state.plantId);
+      else toast({ title: 'Växten finns inte längre', variant: 'destructive' });
+    }
+    if (state.prefill || state.openCreate) {
+      setPlantId(state.prefill?.plant_id || ''); setCustomName(state.prefill?.custom_name || '');
+      setInterval(String(state.prefill?.watering_interval_days || 7)); setOpen(true);
+    }
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.state, location.pathname, isLoading, myPlants, navigate]);
 
   const { data: careEvents = [] } = useQuery({
     queryKey: ['plant-care-events'],
@@ -150,7 +167,8 @@ const MyPlants = () => {
   const personalCount = myPlants.filter((plant: any) => profiles.get(plant.id)?.confidence === 'personal').length;
   const bestStreak = Math.max(0, ...myPlants.map((plant: any) => profiles.get(plant.id)?.careStreak || 0));
   const activeFilterCount = [filterMode !== 'alla', Boolean(filterLocation)].filter(Boolean).length;
-  const averageHealth = myPlants.length ? Math.round(myPlants.reduce((sum: number, plant: any) => sum + (profiles.get(plant.id)?.healthScore || 0), 0) / myPlants.length) : 0;
+  const observedProfiles = [...profiles.values()].filter(p => p.observationsCount > 0);
+  const averageHealth = observedProfiles.length ? Math.round(observedProfiles.reduce((sum, p) => sum + p.healthScore, 0) / observedProfiles.length) : 0;
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -170,11 +188,13 @@ const MyPlants = () => {
     },
     onSuccess: plant => {
       queryClient.invalidateQueries({ queryKey: ['my-plants'] });
+      queryClient.invalidateQueries({ queryKey: ['cultivations'] });
+      queryClient.invalidateQueries({ queryKey: ['garden-diary'] });
       setOpen(false);
       setCustomName(''); setPlantId(''); setLoc(''); setInterval('7'); setFertInterval(''); setNotes('');
       toast({ title: 'Växten är tillagd 🌿', description: 'Gör en första snabbkontroll så börjar appen lära sig växtens rytm.' });
       void recordProductActivity('plant_added_for_adaptive_care', { plant_id: plant.id, species_selected: Boolean(plantId) });
-      setDetailPlant(plant);
+      setDetailPlantId(plant.id);
     },
     onError: (error: any) => toast({ title: 'Kunde inte lägga till växten', description: error?.message || 'Försök igen.', variant: 'destructive' }),
   });
@@ -186,6 +206,8 @@ const MyPlants = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-plants'] });
+      queryClient.invalidateQueries({ queryKey: ['cultivations'] });
+      queryClient.invalidateQueries({ queryKey: ['garden-diary'] });
       toast({ title: 'Växt borttagen' });
     },
   });
@@ -231,7 +253,7 @@ const MyPlants = () => {
           </div>
 
           <div className="grid grid-cols-[auto_1fr] items-center gap-5 rounded-[1.75rem] border border-white/10 bg-black/10 p-4 backdrop-blur-sm sm:p-5">
-            <PlantHealthRing score={averageHealth} size="lg" label="samlad hälsa" />
+            {observedProfiles.length ? <PlantHealthRing score={averageHealth} size="lg" label="uppskattning" /> : <p className="text-sm text-white/80">Börja med en första jordkontroll.</p>}
             <div className="grid grid-cols-2 gap-2">
               <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3"><Activity className="h-4 w-4 text-lime-200" /><p className="mt-2 text-2xl font-bold text-white">{thrivingCount}</p><p className="text-[10px] text-white/50">mår riktigt bra</p></div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3"><Brain className="h-4 w-4 text-lime-200" /><p className="mt-2 text-2xl font-bold text-white">{personalCount}</p><p className="text-[10px] text-white/50">personliga rytmer</p></div>
@@ -270,14 +292,14 @@ const MyPlants = () => {
                 <div className={`h-1.5 w-full ${profile.status === 'urgent' ? 'bg-gradient-to-r from-rose-400 via-orange-400 to-amber-300' : profile.status === 'due' ? 'bg-gradient-to-r from-amber-400 to-lime-400' : 'bg-gradient-to-r from-emerald-500 via-lime-400 to-emerald-300'}`} />
                 <CardContent className="space-y-4 p-4 sm:p-5">
                   <div className="flex items-start gap-3">
-                    <button onClick={() => setDetailPlant(plant)}><PlantMoodAvatar score={profile.healthScore} status={profile.status} /></button>
-                    <button className="min-w-0 flex-1 pt-1 text-left" onClick={() => setDetailPlant(plant)}><div className="flex items-center gap-1"><h2 className="truncate font-serif text-xl">{plantName(plant)}</h2><ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" /></div>{plant.location && <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> {plant.location}</p>}<div className="mt-2 flex flex-wrap gap-1.5"><Badge variant="outline" className={STATUS_CLASSES[profile.status]}>{profile.statusLabel}</Badge>{(() => { const { className, Icon } = TREND_META[profile.trend]; return profile.trend === 'unknown' ? null : (<Badge variant="outline" className={`gap-1 border-border/60 bg-muted/40 ${className}`} aria-label={`Trend: ${profile.trendLabel}`}><Icon className="h-3 w-3" aria-hidden="true" /> {profile.trendLabel}</Badge>); })()}</div></button>
+                    <button onClick={() => setDetailPlantId(plant.id)}><PlantMoodAvatar score={profile.healthScore} status={profile.status} /></button>
+                    <button className="min-w-0 flex-1 pt-1 text-left" onClick={() => setDetailPlantId(plant.id)}><div className="flex items-center gap-1"><h2 className="truncate font-serif text-xl">{plantName(plant)}</h2><ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" /></div>{plant.location && <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> {plant.location}</p>}<div className="mt-2 flex flex-wrap gap-1.5"><Badge variant="outline" className={STATUS_CLASSES[profile.status]}>{profile.statusLabel}</Badge>{(() => { const { className, Icon } = TREND_META[profile.trend]; return profile.trend === 'unknown' ? null : (<Badge variant="outline" className={`gap-1 border-border/60 bg-muted/40 ${className}`} aria-label={`Trend: ${profile.trendLabel}`}><Icon className="h-3 w-3" aria-hidden="true" /> {profile.trendLabel}</Badge>); })()}</div></button>
                     <ConfirmDeleteButton itemName={plantName(plant)} description="Växtprofilen och dess omsorgshistorik tas bort." disabled={deleteMutation.isPending} onConfirm={() => deleteMutation.mutate(plant.id)} />
                   </div>
 
                   <div className="grid grid-cols-[1fr_auto] items-center gap-4 rounded-[1.35rem] border border-border/55 bg-gradient-to-br from-muted/38 to-background/55 p-3.5">
                     <div><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">Just nu</p><p className="mt-1 font-medium">{profile.healthLabel}</p><p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-muted-foreground">{profile.reason}</p></div>
-                    <PlantHealthRing score={profile.healthScore} size="md" />
+                    {profile.observationsCount > 0 ? <PlantHealthRing score={profile.healthScore} size="md" label="uppskattning" /> : <span className="text-xs text-muted-foreground">Första kontrollen</span>}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
@@ -289,7 +311,7 @@ const MyPlants = () => {
 
                   <div className="flex gap-2">
                     <PlantCareCheckIn plant={plant} plantName={plantName(plant)} profile={profile} trigger={<Button className="flex-1 gap-2 rounded-xl shadow-sm"><HeartPulse className="h-4 w-4" /> Kolla & vattna</Button>} />
-                    <Button variant="outline" size="icon" className="rounded-xl" onClick={() => setDetailPlant(plant)} aria-label={`Öppna ${plantName(plant)}`}><Sparkles className="h-4 w-4" /></Button>
+                    <Button variant="outline" size="icon" className="rounded-xl" onClick={() => setDetailPlantId(plant.id)} aria-label={`Öppna ${plantName(plant)}`}><Sparkles className="h-4 w-4" /></Button>
                   </div>
                 </CardContent>
               </Card>
@@ -298,7 +320,7 @@ const MyPlants = () => {
         </div>
       )}
 
-      {detailPlant && <PlantDetail plant={detailPlant} plantName={plantName(detailPlant)} open={Boolean(detailPlant)} onClose={() => setDetailPlant(null)} />}
+      {detailPlant && <PlantDetail plant={detailPlant} plantName={plantName(detailPlant)} open={Boolean(detailPlant)} onClose={() => setDetailPlantId(null)} />}
     </div>
   );
 };

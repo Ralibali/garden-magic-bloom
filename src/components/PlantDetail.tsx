@@ -1,3 +1,4 @@
+import { localDateKey } from '@/lib/gardenToday';
 import React, { useMemo, useState } from 'react';
 import { Activity, ArrowRightLeft, Brain, CheckCircle2, Droplets, Flame, Leaf, Minus, Scissors, Sparkles, Sprout, StickyNote, Sun, TrendingDown, TrendingUp } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import PlantEditor from '@/components/PlantEditor';
 import PlantCareCheckIn from '@/components/PlantCareCheckIn';
 import PlantHealthRing from '@/components/PlantHealthRing';
 import PlantMoodAvatar from '@/components/PlantMoodAvatar';
@@ -125,13 +127,16 @@ export default function PlantDetail({ plant, plantName, open, onClose }: PlantDe
   const addLogMutation = useMutation({
     mutationFn: async () => {
       const userId = await getUserId();
-      const { error } = await supabase.from('plant_logs').insert({ user_id: userId, plant_id: plant.id, log_type: logType, note: logNote.trim() || null } as any);
+      const { error } = await supabase.from('plant_care_events').insert({ user_id: userId, plant_id: plant.id, event_type: logType === 'pruned' ? 'note' : logType, note: logType === 'pruned' ? `Beskärning${logNote.trim() ? `: ${logNote.trim()}` : ''}` : logNote.trim() || null, metadata: { action: logType } });
       if (error) throw error;
-      if (logType === 'fertilized') await supabase.from('my_plants').update({ last_fertilized: new Date().toISOString().slice(0, 10) }).eq('id', plant.id);
+      if (logType === 'fertilized') {
+        const { error: updateError } = await supabase.from('my_plants').update({ last_fertilized: localDateKey() }).eq('id', plant.id).eq('user_id', userId);
+        if (updateError) toast({ title: 'Händelsen sparades, men gödslingsdatumet kunde inte uppdateras', variant: 'destructive' });
+      }
       void recordProductActivity('plant_care_note_added', { plant_id: plant.id, log_type: logType });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plant-logs', plant.id] });
+      for (const key of ['plant-logs', 'plant-care-events', 'garden-diary', 'cultivations']) void queryClient.invalidateQueries({ queryKey: [key] });
       queryClient.invalidateQueries({ queryKey: ['my-plants'] });
       setLogNote('');
       toast({ title: 'Händelsen är sparad' });
@@ -146,7 +151,7 @@ export default function PlantDetail({ plant, plantName, open, onClose }: PlantDe
       : `Nästa kontroll om cirka ${profile.daysUntilWater} ${profile.daysUntilWater === 1 ? 'dag' : 'dagar'}`;
 
   return (
-    <Dialog open={open} onOpenChange={next => { if (!next) onClose(); }}>
+    <Dialog open={open} onOpenChange={next => { if (!next && !addLogMutation.isPending) onClose(); }}>
       <DialogContent className="max-h-[94vh] max-w-3xl overflow-y-auto rounded-[2rem] p-0">
         <div className="relative overflow-hidden bg-[radial-gradient(circle_at_20%_15%,rgba(190,242,100,.2),transparent_30%),radial-gradient(circle_at_85%_20%,rgba(52,211,153,.22),transparent_36%),linear-gradient(135deg,#0e3a2a_0%,#174b38_54%,#24664d_100%)] p-5 sm:p-7">
           <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full border border-white/10" />
@@ -161,9 +166,10 @@ export default function PlantDetail({ plant, plantName, open, onClose }: PlantDe
                   <div className="mt-3 flex flex-wrap gap-2"><Badge variant="outline" className="border-white/15 bg-white/[0.08] text-white">{profile.confidenceLabel}</Badge>{profile.careStreak >= 2 && <Badge variant="outline" className="border-amber-300/20 bg-amber-300/10 text-amber-100"><Flame className="mr-1 h-3 w-3" /> {profile.careStreak} i rytm</Badge>}</div>
                 </div>
               </div>
-              <PlantHealthRing score={profile.healthScore} size="lg" label="hälsa" />
+              {profile.observationsCount > 0 && <PlantHealthRing score={profile.healthScore} size="lg" label="uppskattning" />}
             </div>
           </DialogHeader>
+          <div className="mt-4"><PlantEditor plant={plant} /></div>
 
           <div className="relative mt-6 grid grid-cols-3 gap-2">
             <div className="rounded-2xl border border-white/10 bg-white/[0.065] p-3 backdrop-blur-sm"><p className="text-xl font-bold text-white sm:text-2xl">{profile.recommendedIntervalDays}</p><p className="text-[9px] uppercase tracking-[0.12em] text-white/45">dagars rytm</p></div>
@@ -186,7 +192,7 @@ export default function PlantDetail({ plant, plantName, open, onClose }: PlantDe
                   );
                 })()}
               </div>
-              <h2 className="mt-3 font-serif text-2xl">{healthMessage(profile.healthScore)}</h2>
+              <h2 className="mt-3 font-serif text-2xl">{profile.observationsCount ? healthMessage(profile.healthScore) : 'Hur mår din växt?'}</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{profile.reason}</p>
               {profile.milestone && (
                 <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-primary"><Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> {profile.milestone}</p>
@@ -194,7 +200,7 @@ export default function PlantDetail({ plant, plantName, open, onClose }: PlantDe
               <div className="mt-4 rounded-2xl border border-primary/12 bg-primary/6 p-3.5"><p className="flex items-center gap-1.5 text-xs font-semibold text-primary"><Droplets className="h-3.5 w-3.5" /> {dueLabel}</p><p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{profile.recommendation}</p></div>
               <PlantCareCheckIn plant={plant} plantName={plantName} profile={profile} trigger={<Button className="mt-4 w-full gap-2 rounded-xl shadow-sm sm:w-auto"><Activity className="h-4 w-4" /> Kolla jord och hälsa</Button>} />
             </div>
-            <div className="hidden items-center sm:flex"><PlantHealthRing score={profile.healthScore} size="md" /></div>
+            <div className="hidden items-center sm:flex">{profile.observationsCount > 0 && <PlantHealthRing score={profile.healthScore} size="md" label="uppskattning" />}</div>
           </section>
 
           <PlantPhotoStrip plantId={plant.id} plantName={plantName} />
@@ -208,7 +214,7 @@ export default function PlantDetail({ plant, plantName, open, onClose }: PlantDe
 
           <section className="rounded-[1.6rem] border border-border/60 bg-card/72 p-4 sm:p-5">
             <p className="text-sm font-semibold">Lägg till en annan händelse</p>
-            <div className="mt-3 grid gap-2 sm:grid-cols-[180px_1fr_auto]"><Select value={logType} onValueChange={setLogType}><SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger><SelectContent>{LOG_TYPES.map(type => <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>)}</SelectContent></Select><Input className="rounded-xl" placeholder="Kort anteckning (valfritt)" value={logNote} onChange={event => setLogNote(event.target.value)} /><Button className="rounded-xl" onClick={() => addLogMutation.mutate()} disabled={addLogMutation.isPending}><CheckCircle2 className="h-4 w-4" /> Spara</Button></div>
+            <div className="mt-3 grid gap-2 sm:grid-cols-[180px_1fr_auto]"><Select disabled={addLogMutation.isPending} value={logType} onValueChange={setLogType}><SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger><SelectContent>{LOG_TYPES.map(type => <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>)}</SelectContent></Select><Input disabled={addLogMutation.isPending} maxLength={5000} aria-label="Anteckning om växtvård" className="rounded-xl" placeholder="Kort anteckning (valfritt)" value={logNote} onChange={event => setLogNote(event.target.value)} /><Button className="rounded-xl" onClick={() => addLogMutation.mutate()} disabled={addLogMutation.isPending}><CheckCircle2 className="h-4 w-4" /> Spara</Button></div>
           </section>
 
           <section>

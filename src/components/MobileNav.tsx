@@ -7,7 +7,7 @@ import { useGardenProfile } from '@/hooks/useGardenProfile';
 
 const kitchenPrimary = [
   { title: 'Hem', url: '/app', icon: Home },
-  { title: 'Sådd', url: '/app/sowings', icon: Sprout },
+  { title: 'Odlingar', url: '/app/odlingar', icon: Sprout },
   { title: 'Dagbok', url: '/app/timeline', icon: BookOpen, featured: true },
   { title: 'Skörd', url: '/app/harvests', icon: Carrot },
   { title: 'Mer', url: '#more', icon: MoreHorizontal },
@@ -15,7 +15,7 @@ const kitchenPrimary = [
 
 const plantPrimary = [
   { title: 'Hem', url: '/app', icon: Home },
-  { title: 'Växter', url: '/app/my-plants', icon: Flower2 },
+  { title: 'Odlingar', url: '/app/odlingar', icon: Sprout },
   { title: 'Dagbok', url: '/app/timeline', icon: BookOpen, featured: true },
   { title: 'Bilder', url: '/app/photos', icon: Camera },
   { title: 'Mer', url: '#more', icon: MoreHorizontal },

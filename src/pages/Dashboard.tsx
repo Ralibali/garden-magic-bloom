@@ -135,7 +135,7 @@ const Dashboard = () => {
     ? !plantsLoading && adaptivePlants.length === 0
     : !isLoading && ((stats?.active_beds ?? 0) === 0 || (stats?.sowings_this_year ?? 0) === 0);
   const dashboardLoading = isLoading || (plantOnly && plantsLoading);
-  const attentionPlants = adaptivePlants.filter((plant: any) => plant.care_profile.status !== 'good');
+  const attentionPlants = adaptivePlants.filter((plant: any) => ['urgent', 'due'].includes(plant.care_profile.status));
   const rawName = profile?.display_name?.trim();
   const displayName = rawName ? rawName.split(' ')[0] : '';
   const lastActivityValue = preferences.last_active_at || profile?.updated_at;
@@ -180,7 +180,7 @@ const Dashboard = () => {
 
       <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
         <div className="flex items-center gap-3"><BookOpen className="h-5 w-5 text-primary" /><div><h2 className="text-lg">Din odling har en historia</h2><p className="text-sm text-muted-foreground">Sådder, foton och lärdomar – samlade i din dagbok.</p></div></div>
-        <Button variant="outline" onClick={() => navigate('/app/timeline')}>Öppna min dagbok <ArrowRight className="ml-2 h-4 w-4" /></Button>
+        <div className="flex flex-wrap gap-2"><Button onClick={() => navigate('/app/odlingar')}>Mina odlingar <ArrowRight className="ml-2 h-4 w-4" /></Button><Button variant="outline" onClick={() => navigate('/app/timeline')}>Öppna min dagbok</Button></div>
       </section>
 
 
@@ -422,7 +422,7 @@ function PlantOnlyDashboard({
   const averageHealth = plants.length ? Math.round(plants.reduce((sum, plant) => sum + plant.care_profile.healthScore, 0) / plants.length) : 0;
   const personalRhythms = plants.filter(plant => plant.care_profile.confidence === 'personal').length;
   const attention = plants.filter(plant => ['urgent', 'due'].includes(plant.care_profile.status)).length;
-  const attentionPlants = plants.filter(plant => plant.care_profile.status !== 'good');
+  const attentionPlants = plants.filter(plant => ['urgent', 'due'].includes(plant.care_profile.status));
 
   const priority = computeDashboardPriority({ plants, reminders: ((remindersData?.settings as any)?.reminders || []), weather, rainData, climateZone });
 

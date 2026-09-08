@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Bot, CalendarDays, Check, ChevronRight, Clock3, Leaf, PencilLine, SunMedium, X } from 'lucide-react';
@@ -114,6 +114,7 @@ export default function GardenPulse({
 }: GardenPulseProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [expanded, setExpanded] = useState(false);
   const settings = (remindersData?.settings as any) || {};
   const reminders = useMemo(() => (settings.reminders || []) as GardenReminder[], [settings.reminders]);
   const actionState = useMemo(
@@ -253,7 +254,7 @@ export default function GardenPulse({
             <div key={bucket.key}>
               <h3 className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{bucket.title}</h3>
               <div className="space-y-2">
-                {items.map((item) => (
+                {(expanded ? items : items.slice(0, 4)).map((item) => (
                   <PulseRow
                     key={item.id}
                     item={item}
@@ -270,6 +271,7 @@ export default function GardenPulse({
           );
         })}
       </div>
+      {!expanded && [pulse.late, pulse.today, pulse.week].some(items => items.length > 4) && <Button variant="ghost" className="mb-4 ml-5" onClick={() => setExpanded(true)}>Visa alla uppgifter</Button>}
     </section>
   );
 }

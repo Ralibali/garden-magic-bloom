@@ -34,7 +34,7 @@ describe('harvestForecast', () => {
     const hint = getHarvestHint('Tomat – Sungold', 3, date);
     expect(hint).not.toBeNull();
     expect(hint!.kind).toBe('now');
-    expect(hint!.shortLabel).toBe('Skördeläge nu');
+    expect(hint!.shortLabel).toBe('Vanlig skördetid');
   });
 
   it('ger "upcoming" före skördefönstret', () => {

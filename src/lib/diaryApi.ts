@@ -4,7 +4,7 @@ import { buildDiary, validateDiaryNote } from '@/lib/diary';
 interface Page<T> { data: T[] | null; error: { message: string } | null }
 // Supabase caps individual reads. Page through history rather than silently
 // dropping the oldest seasons when a gardener passes that limit.
-async function readAll<T>(fetchPage: (from: number, to: number) => PromiseLike<Page<T>>): Promise<T[]> {
+export async function readAll<T>(fetchPage: (from: number, to: number) => PromiseLike<Page<T>>): Promise<T[]> {
   const result: T[] = [];
   for (let start = 0; ; start += 500) {
     const { data, error } = await fetchPage(start, start + 499);

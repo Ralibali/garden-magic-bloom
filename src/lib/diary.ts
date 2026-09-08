@@ -12,6 +12,8 @@ export interface DiaryEvent {
   place: string;
   placeId: string;
   subject: string;
+  subjectId?: string;
+  subjectIds?: string[];
   href: string;
   imagePath?: string;
   weightGrams?: number;
@@ -32,7 +34,7 @@ export const DIARY_LABELS: Record<DiaryKind, string> = {
   note: 'Anteckning', care: 'Växtvård', pest: 'Observation', season: 'Säsongslärdom',
 };
 const CARE_LABELS: Record<string, string> = {
-  watered: 'Vattnade', health_check: 'Hälsokoll', observation: 'Tittade till',
+  note: 'Antecknade', watered: 'Vattnade', health_check: 'Hälsokoll', observation: 'Tittade till',
   fertilized: 'Gödslade', repotted: 'Planterade om', pruned: 'Beskärde', moved: 'Flyttade',
 };
 
@@ -67,19 +69,19 @@ export function buildDiary(sources: DiarySources): DiaryEvent[] {
   const bed = (item: { bed_id: string | null; beds: { name: string } | null }) => ({ placeId: item.bed_id ? `bed:${item.bed_id}` : '', place: item.beds?.name || '' });
 
   for (const sowing of sources.sowings) {
-    const extra = { ...bed(sowing), subject: sowing.variety, href: '/app/sowings' };
+    const extra = { ...bed(sowing), subject: sowing.variety, subjectId: `sowing:${sowing.id}`, href: '/app/sowings' };
     add('sowing', sowing.id, sowing.sow_date, `Sådde ${sowing.variety}`, sowing.notes, extra);
     if (sowing.transplant_date) add('transplant', sowing.id, sowing.transplant_date, `Planterade ut ${sowing.variety}`, null, extra);
   }
   for (const harvest of sources.harvests) {
     add('harvest', harvest.id, harvest.harvest_date, `Skördade ${harvest.variety}`, harvest.notes, {
-      ...bed(harvest), subject: harvest.variety, href: '/app/harvests', weightGrams: harvest.weight_grams,
+      ...bed(harvest), subject: harvest.variety, subjectId: harvest.sowing_id ? `sowing:${harvest.sowing_id}` : undefined, href: '/app/harvests', weightGrams: harvest.weight_grams,
     });
   }
   for (const photo of sources.photos) {
     add('photo', photo.id, photo.taken_at, photo.caption || 'Ett ögonblick i odlingen', '', {
       ...bed(photo), subject: photo.sowings?.variety || photo.my_plants?.custom_name || photo.my_plants?.plants?.name_sv || '',
-      imagePath: photo.photo_url, href: '/app/photos',
+      subjectIds: [photo.sowing_id ? `sowing:${photo.sowing_id}` : '', photo.my_plant_id ? `plant:${photo.my_plant_id}` : ''].filter(Boolean), subjectId: photo.sowing_id ? `sowing:${photo.sowing_id}` : photo.my_plant_id ? `plant:${photo.my_plant_id}` : undefined, imagePath: photo.photo_url, href: '/app/photos',
       ...(photo.my_plant_id && !photo.bed_id ? { placeId: `plant:${photo.my_plant_id}`, place: photo.my_plants?.custom_name || photo.my_plants?.plants?.name_sv || 'Krukväxt' } : {}),
     });
   }
@@ -92,13 +94,13 @@ export function buildDiary(sources: DiarySources): DiaryEvent[] {
   for (const care of sources.care) {
     const name = care.my_plants?.custom_name || care.my_plants?.plants?.name_sv || 'Min växt';
     add('care', care.id, care.occurred_at, `${CARE_LABELS[care.event_type] || 'Växtvård'} · ${name}`, care.note, {
-      placeId: `plant:${care.plant_id}`, place: name, subject: name, href: '/app/my-plants',
+      placeId: `plant:${care.plant_id}`, place: name, subject: name, subjectId: `plant:${care.plant_id}`, href: '/app/my-plants',
     });
   }
   for (const pest of sources.pests) {
     add('pest', pest.id, pest.observed_date, pest.pest_name,
       [pest.notes, pest.treatment ? `Åtgärd: ${pest.treatment}` : '', pest.resolved ? 'Markerad som löst.' : ''].filter(Boolean).join('\n'),
-      { ...bed(pest), href: '/app/pests' });
+      { ...bed(pest), subjectId: pest.sowing_id ? `sowing:${pest.sowing_id}` : undefined, href: '/app/pests' });
   }
   for (const season of sources.seasons) {
     // These records describe a season, even when written the following year.
@@ -111,10 +113,11 @@ export function buildDiary(sources: DiarySources): DiaryEvent[] {
   return result.sort((a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id));
 }
 
-export interface DiaryFilters { query: string; year: string; month: string; kind: DiaryKind | 'all'; place: string }
+export interface DiaryFilters { query: string; year: string; month: string; kind: DiaryKind | 'all'; place: string; subjectId?: string }
 export function filterDiary(events: DiaryEvent[], filters: DiaryFilters): DiaryEvent[] {
   const words = filters.query.toLocaleLowerCase('sv-SE').trim().split(/\s+/).filter(Boolean);
   return events.filter(event => {
+    if (filters.subjectId && filters.subjectId !== event.subjectId && !event.subjectIds?.includes(filters.subjectId)) return false;
     if (filters.year !== 'all' && !event.date.startsWith(filters.year)) return false;
     if (filters.month !== 'all' && event.date.slice(5, 7) !== filters.month) return false;
     if (filters.kind !== 'all' && event.kind !== filters.kind) return false;

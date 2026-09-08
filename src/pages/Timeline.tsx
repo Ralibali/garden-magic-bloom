@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, BookOpen, Camera, Carrot, Check, ChevronDown, Flower2, Leaf, Loader2, MapPin, NotebookPen, Pencil, Plus, Search, Shovel, Sprout, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -68,10 +68,17 @@ function DiaryCard({ event, onEdit, onPhoto }: { event: DiaryEvent; onEdit: (eve
 
 export default function Timeline() {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const diary = useQuery({ queryKey: ['garden-diary', user?.id], queryFn: getDiary, enabled: !!user?.id, staleTime: 0 });
   const events = diary.data || EMPTY;
   const [filters, setFilters] = useState<DiaryFilters>(INITIAL_FILTERS);
+  useEffect(() => {
+    if (!location.state?.subjectId) return;
+    setFilters({ ...INITIAL_FILTERS, subjectId: location.state.subjectId });
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.state, location.pathname, navigate]);
   const [limit, setLimit] = useState(30);
   const [editor, setEditor] = useState<{ id?: string; note: string; date: string } | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<DiaryEvent | null>(null);
@@ -113,7 +120,7 @@ export default function Timeline() {
   }, [filtered, limit]);
   const photos = periodEvents.filter(event => event.kind === 'photo').length;
   const harvest = periodEvents.reduce((sum, event) => sum + (event.weightGrams || 0), 0) / 1000;
-  const activeFilters = filters.query || filters.year !== 'all' || filters.month !== 'all' || filters.kind !== 'all' || filters.place !== 'all';
+  const activeFilters = filters.subjectId || filters.query || filters.year !== 'all' || filters.month !== 'all' || filters.kind !== 'all' || filters.place !== 'all';
 
   return (
     <div className="diary-page mx-auto max-w-6xl space-y-6">
@@ -127,6 +134,7 @@ export default function Timeline() {
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_260px]">
         <div className="min-w-0 space-y-5">
           <section className="space-y-3 rounded-2xl border border-border/70 bg-card p-4" aria-label="Sök och filtrera dagboken">
+            {filters.subjectId && <p className="text-sm text-primary">Visar historiken för {events.find(event => (event.subjectId === filters.subjectId || event.subjectIds?.includes(filters.subjectId!)))?.subject || 'vald odling'}. <button className="font-semibold underline" onClick={clearFilters}>Visa hela dagboken</button></p>}
             <div className="relative"><Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><Input aria-label="Sök i dagboken" placeholder="Sök tomater, lärdomar, en särskild plats…" value={filters.query} onChange={event => updateFilter({ query: event.target.value })} className="pl-9 text-base" /></div>
             <div className="grid grid-cols-2 gap-2">
               <Select value={filters.year} onValueChange={year => updateFilter({ year, month: 'all' })}><SelectTrigger aria-label="Välj år"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">Alla år</SelectItem>{years.map(year => <SelectItem key={year} value={year}>{year}</SelectItem>)}</SelectContent></Select>

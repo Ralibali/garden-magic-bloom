@@ -25,6 +25,7 @@ const ROUTE_CATEGORIES: Record<string, GardenCategory[]> = {
 
 const ALWAYS_VISIBLE = [
   '/app',
+  '/app/odlingar',
   '/app/gro',
   '/app/reminders',
   '/app/statistics',
