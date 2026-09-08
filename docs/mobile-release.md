@@ -21,6 +21,10 @@ Utkast bevaras före kamera och bakåtnavigation. Androids återställda kamerar
 
 Fältdagboken är separat från molnkontot och synkroniseras inte automatiskt. Den finns kvar efter utloggning/kontoradering. Exportera innan avinstallation eller telefonbyte. Säkerhetskopior innehåller anteckningar och foton; gränsen är 100 MiB per fil. Import bevarar befintliga poster och remappar kolliderande notis-ID:n. Appens egen lokala radering tar bort journal, bilder, notiser och exporterade journalfiler i appcachen. Kopior som användaren redan delat till en annan app måste hanteras där.
 
+Serverstyrda frost- och morgonnotiser är ännu webbpush. APNs/FCM återstår; se [notisernas implementationsstatus](mobile-notifications.md).
+
+CI i `.github/workflows/native.yml` bygger båda plattformarna utan distributionssignering. Android-jobbet återanvänder samma SDK-licensmarkör som redan finns i projektägarens installerade SDK och accepterar inga nya licenser automatiskt.
+
 ## Konto, AI och integritet
 
 Mobilappen använder e-post/lösenord. Bekräftelse och lösenordsåterställning öppnas på `https://odlingsdagboken.com`; därefter återgår användaren till appen. Webbens Google/Apple-inloggning bevaras. Native OAuth/deep links har inte lagts till.

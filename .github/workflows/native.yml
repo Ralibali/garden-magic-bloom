@@ -28,6 +28,15 @@ jobs:
       - run: npm ci
       - run: npm run build:native
       - run: npx cap sync android
+      - name: Set up Android tools without accepting new licenses
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+          accept-android-sdk-licenses: 'no'
+      - name: Reuse the existing accepted SDK license
+        run: |
+          mkdir -p "$ANDROID_HOME/licenses"
+          cp scripts/android-sdk-license "$ANDROID_HOME/licenses/android-sdk-license"
       - name: Use Android SDK 36
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
       - name: Build APK and unsigned release bundle
