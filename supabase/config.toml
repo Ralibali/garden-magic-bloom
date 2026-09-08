@@ -37,3 +37,9 @@ project_id = "ysonnvbkrwajacvdkqut"
 # The function validates the user's JWT with auth.getUser before reading any image.
 [functions.analyze-seed-photo]
 verify_jwt = false
+
+# These functions verify user JWT/device capability or the cron secret themselves.
+[functions.native-push]
+verify_jwt = false
+[functions.send-native-notifications]
+verify_jwt = false

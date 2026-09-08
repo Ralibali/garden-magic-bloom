@@ -10,6 +10,7 @@ const config: CapacitorConfig = {
   ios: { contentInset: 'never', backgroundColor: '#FAF9F6' },
   android: { backgroundColor: '#FAF9F6', allowMixedContent: false },
   plugins: {
+    PushNotifications: { presentationOptions: ['sound', 'banner', 'list'] },
     LocalNotifications: { smallIcon: 'ic_notification', iconColor: '#4A7C59' },
   },
 };

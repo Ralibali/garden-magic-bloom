@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { authWebOrigin, isNativeApp } from '@/lib/native';
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -81,6 +82,7 @@ async function buildProfile(supaUser: SupabaseUser): Promise<UserProfile> {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const activeUserId = useRef<string | null>(null);
@@ -90,6 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const applySession = (session: Session | null, hydrateProfile: boolean) => {
       const supaUser = session?.user ?? null;
+      if (activeUserId.current !== (supaUser?.id ?? null)) queryClient.clear();
       activeUserId.current = supaUser?.id ?? null;
       if (!supaUser) {
         if (isMounted) setUser(null);
@@ -125,6 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!isMounted) return;
 
       if (event === 'SIGNED_OUT') {
+        queryClient.clear();
         activeUserId.current = null;
         setUser(null);
         setLoading(false);
@@ -144,7 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [queryClient]);
 
   const login = async (email: string, password: string) => {
     plausibleEvent('Login Started', { method: 'email' });
@@ -211,7 +215,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    if (isNativeApp()) await (await import('@/lib/nativeExport')).clearNativeExports();
+    if (isNativeApp()) {
+      await (await import('@/lib/nativePush')).disableNativePush();
+      await (await import('@/lib/nativeExport')).clearNativeExports();
+    }
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     activeUserId.current = null;

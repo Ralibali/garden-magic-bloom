@@ -21,7 +21,7 @@ Utkast bevaras före kamera och bakåtnavigation. Androids återställda kamerar
 
 Fältdagboken är separat från molnkontot och synkroniseras inte automatiskt. Den finns kvar efter utloggning/kontoradering. Exportera innan avinstallation eller telefonbyte. Säkerhetskopior innehåller anteckningar och foton; gränsen är 100 MiB per fil. Import bevarar befintliga poster och remappar kolliderande notis-ID:n. Appens egen lokala radering tar bort journal, bilder, notiser och exporterade journalfiler i appcachen. Kopior som användaren redan delat till en annan app måste hanteras där.
 
-Serverstyrda frost- och morgonnotiser är ännu webbpush. APNs/FCM återstår; se [notisernas implementationsstatus](mobile-notifications.md).
+Serverstyrda frost- och morgonnotiser har nu APNs-/FCM-kod för mobil och separat webbtransport. Serverdriftsättning, rätt nycklar och faktisk enhetsleverans återstår; se [notisernas implementationsstatus](mobile-notifications.md).
 
 CI i `.github/workflows/native.yml` bygger båda plattformarna utan distributionssignering. Android-jobbet återanvänder samma SDK-licensmarkör som redan finns i projektägarens installerade SDK och accepterar inga nya licenser automatiskt.
 
@@ -36,6 +36,8 @@ Native-ingången innehåller inga Google Ads/Plausible-taggar. Webbanalys, servi
 `delete-account` har ändrats så att produktens aktiva Stripe-prenumerationer avslutas, foton i användarens Storage-katalog tas bort, databasfel inte ignoreras och auth-kontot raderas sist. Processen är återförsökbar men externa Stripe-/Storage-steg kan inte vara en gemensam databastransaktion. Återförsök vid delvis misslyckad radering. Raderingen begränsas till inloggad användare och Odlingsdagbokens pris-ID; fakturaunderlag bevaras hos Stripe.
 
 **Backend måste driftsättas och verifieras före butikssubmission.** Rätt Supabase-projekt är `ysonnvbkrwajacvdkqut`. Det finns inte i den anslutna Supabase-projektlistan vid förberedelsen. Använd inte något annat anslutet projekt. Ändrade funktioner: `delete-account`, `create-checkout`, delad `accountDeletion.ts`. Kontoraderingssidan `/radera-konto` och uppdaterade `/terms` måste också finnas på den publika webbplatsen före submission.
+
+Push kräver dessutom sin migration, fem edge-funktioner, cron och APNs-/FCM-konfiguration enligt [notisguiden](mobile-notifications.md). iOS privacy manifest redovisar enhets-ID kopplat till konto för appfunktioner. Bekräfta även butikernas integritetsformulär.
 
 ## Bygga
 
@@ -52,6 +54,8 @@ Bygget använder `native.html` och skriver `dist-native/index.html`. Byggkontrol
 iOS, simulator utan distributionssignering:
 
 ```sh
+npm run build:native:dev
+npx cap sync ios
 xcodebuild -project ios/App/App.xcodeproj -scheme App \
   -configuration Debug -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' \
@@ -67,6 +71,8 @@ cd android
 ```
 
 `app-debug.apk` är en testapp. En `.aab` utan konfigurerad upload key är **osignerad** och kan inte publiceras. Lägg aldrig keystore, lösenord, Apple-certifikat eller profiler i Git. Använd Android Studios signeringsdialog eller skyddade bygghemligheter. iOS signeras genom rätt Apple-team i Xcode/Organizer.
+
+Inför iOS Release/TestFlight/App Store: kör `npm run build:native` och `npx cap sync ios` på nytt. Det sätter APNs till production; Xcode stoppar ett Releasebygge med sandbox-paket. För Androids riktiga push krävs korrekt `android/app/google-services.json` och FCM-serverkonfiguration. CI använder inga riktiga pushnycklar och kan inte verifiera leverans.
 
 ## Verifiering före submission
 

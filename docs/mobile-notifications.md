@@ -1,31 +1,55 @@
 # Notiser i mobilappen
 
-## Verifierad implementationsstatus
+## Implementation och verifieringsgräns
 
-Fältdagbokens egna telefonpåminnelser är implementerade med Capacitor LocalNotifications. De schemaläggs på enheten och behöver inte en inloggning. Dessa är inte samma sak som serverpush.
+Fältdagbokens egna telefonpåminnelser schemaläggs lokalt med Capacitor LocalNotifications utan konto. De skickas aldrig också genom serverkön.
 
-De befintliga funktionerna `frost-alert`, `daily-briefing` och `run-my-briefing` använder Web Push/VAPID och tabellen `push_subscriptions`. De levererar inte APNs- eller FCM-notiser till den paketerade mobilappen. Funktionen får inte presenteras som fungerande apppush innan hela kedjan är byggd och testad.
+Serverpush är implementerad för **APNs på iOS** och **FCM HTTP v1 på Android**. `frost-alert`, `daily-briefing` och `run-my-briefing` kan köa till mobilinstallationer och fortsätter använda Web Push/VAPID för webbläsare. Transporterna har separata resultat och deduplicering. Ett native-fel stoppar inte ett fungerande webbutskick.
 
-## Återstående implementation
+**Serverstödet är ännu inte driftsatt. Ingen faktisk APNs-/FCM-leverans eller butikspublicering är verifierad.** Kodtester och osignerade byggen ersätter inte dessa steg.
 
-1. Bekräfta samma appidentitet som i butikerna. Aktivera push för rätt Apple-team/app och rätt Firebase Android-app.
-2. Lägg till `@capacitor/push-notifications`. Pluginet ger APNs-token på iOS och FCM-token på Android; skicka inte APNs-token till FCM.
-3. Registrera installationer genom autentiserade endpoints med user_id, slumpmässigt installation_id, provider, miljö, app-id, token, enabled och updated_at. Isolera ägare och radera med kontot. Hantera rotation och avregistrering innan utloggning.
-4. Utöka befintlig avsändare till webb och native. En saknad VAPID-konfiguration får bara stoppa webbtransporten. Använd APNs respektive FCM HTTP v1, paginera mottagarna och bokför leverans per installation med atomisk deduplicering och begränsade återförsök.
-5. Använd generell låsskärmstext. Öppna endast appens tillåtna interna routes vid tryck. Schemalägg inte samma Fältdagboksnotis både lokalt och på servern.
-6. Ge användaren en tydlig notisinställning och ett test som bara skickar till den aktuella installationen. En accepterad sändning ska kallas skickad, inte levererad.
-7. Verifiera verklig push i bakgrund och efter omstart på både iPhone och Android, inklusive nekad behörighet, tokenbyte, två enheter, utloggning och kontoradering.
+## Samtycke och konto
 
-## Konfiguration som måste finnas
+Inställningarna visar push för den aktuella telefonen. Användaren aktiverar uttryckligen och godkänner OS-behörighet innan token skickas. Automatisk FCM-registrering är avstängd. iOS-token skickas till APNs, Android-token till FCM.
 
-- Supabase-projekt `ysonnvbkrwajacvdkqut`, med rätt migrationer, funktioner, cron och serverhemligheter.
-- Apple-team, fastställt Bundle ID, pushcapability, signerad profil samt APNs-nyckel, key ID och team ID.
-- Firebaseprojekt med rätt Android applicationId, `google-services.json` och serverbehörighet för FCM HTTP v1.
+Varje installation har slumpmässigt ID, privat 256-bitars avregistreringshemlighet och en ny generation för varje samtycke/inloggning. Servern härleder användaren från verifierad JWT; databasen har RLS och inga direkta klienträttigheter. En transaktion förbjuder ägarbyte utan ny generation. Servern lagrar endast hemlighetens hash.
 
-Nycklar eller servicekonton får inte läggas i webbpaketet eller Git. En skickad testnotis i webbappen verifierar inte mobilappen.
+Utloggning, kontobyte och kontoradering sparar först lokal återkallelse och avregistrerar på telefonen. Serverrensning återförsöks efter nätfel, även efter omstart. Ett nytt samtycke väntar tills gammal serverrensning är klar. Ett fel i lokal lagring av återkallelsen visas och får inte ignoreras. Supabase-kontots egen utloggning kräver att dess autentiseringstjänst kan hantera begäran. Redan accepterade notiser kan fortfarande komma fram.
+
+Försenad återregistrering stoppas av återkallelsemarkörer. En gammal utloggning kan inte stänga av nästa kontos generation. Tokenrotation uppdaterar samma aktuella bindning; ogiltiga gamla token får inte inaktivera nyare token. Kontoradering tar bort installationer och jobb genom foreign-key cascade.
+
+## Kö och leverans
+
+- Unik nyckel per installation, generation och händelse. Upprepade cron-anrop köar inte samma händelse igen.
+- Atomisk claim med `FOR UPDATE SKIP LOCKED` och två minuters lease. Resultat får endast sparas för den lease och generation som skickade.
+- Högst tre försök, med fem/tio minuters mellanrum vid tillfälliga fel. Fyra konsumenter arbetar i högst cirka 40 sekunder per körning, med tak på 100 jobb. Nästa minut fortsätter cron där kön slutade. Detta är ett arbetstak, ingen uppmätt kapacitetsgaranti.
+- Aktuella frost-/briefinginställningar kontrolleras före varje försök. Manuellt begärd briefing och test är uttryckliga engångsutskick.
+- Frostvarning upphör klockan 09 den varnade morgonen, dagsbriefing klockan 18 samma dag (Europe/Stockholm). Manuella utskick/test upphör efter 15 minuter. Provider-TTL begränsas av samma sluttid.
+- Generell låsskärmstext, utan växtnamn, anteckningar, ort eller konto-ID. Tryck öppnar endast tillåtna interna sidor. iOS köar notistryck vid kallstart tills bryggan finns, och deduplicerar scen-/delegatehändelser.
+- Testknappen skickar bara till aktuell installation. ”Accepterad” innebär att Apple/Google accepterade begäran; det bevisar inte visning på telefonen.
+- Worker rensar jobb, återkallelsemarkörer och avstängda installationer efter 30 dagar. Återkallelsemarkörer innehåller inga konto-ID:n eller push-token.
+
+## Konfiguration och driftsättning
+
+Använd endast Supabase-projekt **ysonnvbkrwajacvdkqut**. Det saknas i den anslutna projektlistan vid förberedelsen. Driftsätt inte till något annat projekt.
+
+1. Bekräfta befintlig butiksidentitet; `com.odlingsdagboken.app` är tills vidare föreslagen identitet.
+2. Applicera `supabase/migrations/20260908130000_native_push.sql`.
+3. Lägg serverhemligheter i rätt projekt: `NATIVE_PUSH_APP_ID`, `APNS_PRIVATE_KEY` (PKCS#8 .p8), `APNS_KEY_ID`, `APNS_TEAM_ID`, `FCM_SERVICE_ACCOUNT` (servicekonto-JSON med rätt project_id) och befintlig `CRON_SECRET`. Aktivera FCM API och begränsa servicekontots rättigheter till nödvändig sändning.
+4. Driftsätt `native-push`, `send-native-notifications`, `daily-briefing`, `frost-alert`, `run-my-briefing` och delade moduler. Custom auth/cron-kontroll används enligt `supabase/config.toml`.
+5. Aktivera worker med `docs/native-push-cron.sql`; behåll frostcron och uppdatera morgoncron med `docs/daily-briefing-cron.sql` för svensk sommar-/vintertid. Kontrollera cron-resultat och providerkoder utan att logga token, hemligheter eller privata odlingsuppgifter.
+6. Aktivera Apples pushcapability och rätt signeringsprofil. `npm run build:native` väljer **production** för TestFlight/App Store. `npm run build:native:dev` väljer **sandbox** för utvecklingssignerad iOS-app/simulator. Kör `npx cap sync ios` efteråt. Xcode stoppar ett Debug-/Releasebygge med fel paketerad miljö. Kontrollera också att den exporterade distributionsappens signerade `aps-environment` är `production`.
+7. Placera verklig `google-services.json` för exakt rätt Android applicationId i `android/app/` före Androids push-/releasebygge. Filen är gitignorerad. Utan den kan osignerad testapp byggas, men FCM fungerar inte.
+
+Nycklar, servicekonton och signeringsmaterial får inte ligga i Git eller webbpaketet. iOS APNs-nyckeln är endast en serverhemlighet; någon Firebase iOS-konfiguration behövs inte för denna direkta APNs-transport.
+
+## Obligatorisk verifiering på enheter
+
+Testa senaste signerade build på iPhone och Android: tillåt/neka, förgrund/bakgrund/kallstart, testnotis, riktiga frost-/briefingjobb, två enheter, tokenbyte, kategori av/på mellan enqueue och retry, konto A → utloggning → konto B, offlineåterkallelse efter omstart samt kontoradering. Testa lokal påminnelse separat. Dokumentera leverans och öppnad route på båda plattformarna innan publicering.
 
 ## Primärkällor
 
 - [Capacitor pushplugin](https://capacitorjs.com/docs/apis/push-notifications)
 - [FCM HTTP v1](https://firebase.google.com/docs/cloud-messaging/send/v1-api)
-- [APNs](https://developer.apple.com/documentation/usernotifications/setting-up-a-remote-notification-server)
+- [APNs tokenbaserad anslutning](https://developer.apple.com/documentation/usernotifications/establishing-a-token-based-connection-to-apns)
+- [Apples APNs-miljö](https://developer.apple.com/documentation/bundleresources/entitlements/aps-environment)

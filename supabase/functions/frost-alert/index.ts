@@ -1,3 +1,4 @@
+import { enqueueNativePush, nativeRecipientIds, allPushRows } from '../_shared/nativePushServer.ts';
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 
@@ -33,21 +34,17 @@ Deno.serve(async (req) => {
 
   const vapidPublic = Deno.env.get("VAPID_PUBLIC_KEY");
   const vapidPrivate = Deno.env.get("VAPID_PRIVATE_KEY");
-  if (!vapidPublic || !vapidPrivate) {
-    return new Response(JSON.stringify({ error: "missing_vapid_keys" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-  webpush.setVapidDetails("mailto:info@auroramedia.se", vapidPublic, vapidPrivate);
+  const webEnabled = !!vapidPublic && !!vapidPrivate;
+  if (webEnabled) webpush.setVapidDetails("mailto:info@auroramedia.se", vapidPublic!, vapidPrivate!);
 
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
-  const { data: profiles } = await admin
-    .from("profiles")
-    .select("user_id, climate_zone, location_lat, location_lon, location_name, frost_alerts_enabled")
-    .eq("frost_alerts_enabled", true);
-
-  const { data: subs } = await admin.from("push_subscriptions").select("user_id, endpoint, p256dh, auth");
+  let nativeErrors = 0;
+  const [profiles, subs, nativeUsers] = await Promise.all([
+    allPushRows(admin, 'profiles', 'user_id, climate_zone, location_lat, location_lon, location_name, frost_alerts_enabled', 'frost_alerts_enabled'),
+    webEnabled ? allPushRows(admin, 'push_subscriptions', 'user_id, endpoint, p256dh, auth') : Promise.resolve([]),
+    nativeRecipientIds(admin).catch(() => { nativeErrors++; console.error('Native recipient lookup failed'); return new Set<string>(); }),
+  ]);
   const subsByUser = new Map<string, any[]>();
   for (const s of subs || []) {
     if (!subsByUser.has(s.user_id)) subsByUser.set(s.user_id, []);
@@ -57,7 +54,7 @@ Deno.serve(async (req) => {
   // Group users by rounded coords
   const groups = new Map<string, { lat: number; lon: number; name: string; users: any[] }>();
   for (const p of profiles || []) {
-    if (!subsByUser.has(p.user_id)) continue;
+    if (!subsByUser.has(p.user_id) && !nativeUsers.has(p.user_id)) continue;
     let lat: number, lon: number, name: string;
     if (p.location_lat != null && p.location_lon != null) {
       lat = p.location_lat; lon = p.location_lon; name = p.location_name || "din ort";
@@ -77,6 +74,7 @@ Deno.serve(async (req) => {
 
   let checked = 0;
   let sent = 0;
+  let nativeQueued = 0;
 
   for (const grp of groups.values()) {
     try {
@@ -103,7 +101,7 @@ Deno.serve(async (req) => {
           .eq("user_id", u.user_id)
           .eq("alert_date", tomorrowDate)
           .maybeSingle();
-        if (existing) continue;
+        if (existing && !nativeUsers.has(u.user_id)) continue;
 
         const payload = JSON.stringify({
           title: "❄️ Frostrisk inatt",
@@ -111,7 +109,9 @@ Deno.serve(async (req) => {
           url: "/app",
         });
 
-        const userSubs = subsByUser.get(u.user_id) || [];
+        const queued = nativeUsers.has(u.user_id) ? await enqueueNativePush(admin, u.user_id, `frost:${tomorrowDate}`, 'frost').catch(() => { nativeErrors++; console.error('Native frost enqueue failed'); return 0; }) : 0;
+        nativeQueued += queued;
+        const userSubs = existing ? [] : subsByUser.get(u.user_id) || [];
         let anyDelivered = false;
         for (const s of userSubs) {
           try {
@@ -136,7 +136,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  return new Response(JSON.stringify({ checked, sent, groups: groups.size }), {
+  return new Response(JSON.stringify({ checked, sent, nativeQueued, nativeErrors, groups: groups.size }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });

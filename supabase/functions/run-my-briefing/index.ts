@@ -1,3 +1,4 @@
+import { enqueueNativePush } from '../_shared/nativePushServer.ts';
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 
@@ -68,12 +69,8 @@ Deno.serve(async (req) => {
 
   const vapidPublic = Deno.env.get("VAPID_PUBLIC_KEY");
   const vapidPrivate = Deno.env.get("VAPID_PRIVATE_KEY");
-  if (!vapidPublic || !vapidPrivate) {
-    return new Response(JSON.stringify({ error: "missing_vapid_keys" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-  webpush.setVapidDetails("mailto:info@auroramedia.se", vapidPublic, vapidPrivate);
+  const webEnabled = !!vapidPublic && !!vapidPrivate;
+  if (webEnabled) webpush.setVapidDetails("mailto:info@auroramedia.se", vapidPublic!, vapidPrivate!);
 
   const admin = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
@@ -85,7 +82,11 @@ Deno.serve(async (req) => {
 
   const { data: subs } = await admin.from("push_subscriptions")
     .select("endpoint, p256dh, auth").eq("user_id", userId);
-  const hasSub = (subs || []).length > 0;
+  const { data: nativeDevices } = Deno.env.get('NATIVE_PUSH_APP_ID')
+    ? await admin.from('native_push_installations').select('id').eq('user_id', userId).eq('enabled', true).limit(10)
+    : { data: [] };
+  const hasNative = !!nativeDevices?.length;
+  const hasSub = (webEnabled && (subs || []).length > 0) || hasNative;
 
   let lat: number, lon: number;
   if (profile?.location_lat != null && profile?.location_lon != null) {
@@ -217,7 +218,7 @@ Deno.serve(async (req) => {
   const body = top.length === 1 ? top[0].text : `${top[0].text} …och ${top.length - 1} till.`;
   const payload = JSON.stringify({ title, body, url: "/app" });
 
-  for (const s of subs || []) {
+  for (const s of webEnabled ? subs || [] : []) {
     try {
       await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload);
       result.pushDelivered++;
@@ -230,6 +231,8 @@ Deno.serve(async (req) => {
       console.error("push error", code, e?.body);
     }
   }
+  result.nativeQueued = hasNative ? await enqueueNativePush(admin, userId, `manual:${Math.floor(Date.now()/60000)}`, 'daily').catch(() => { result.nativeError = true; return 0; }) : 0;
+  result.nativeAlreadyRequested = hasNative && result.nativeQueued === 0 && !result.nativeError;
   result.pushSent = result.pushDelivered > 0;
 
   return new Response(JSON.stringify(result), {

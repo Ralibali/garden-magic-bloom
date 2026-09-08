@@ -35,3 +35,8 @@ dist-native/
 *.mobileprovision
 android/local.properties
 android/key.properties
+
+# Per-project Firebase configuration is supplied by the release environment.
+android/app/google-services.json
+GoogleService-Info.plist
+*.p8

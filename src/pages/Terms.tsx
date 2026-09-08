@@ -116,6 +116,7 @@ export default function Terms() {
             <li><strong>Odlingsdata:</strong> bäddar, sådder, skördar, vattningar, foton, krukväxter, klimatzon, plats (vald ort för väder).</li>
             <li><strong>Betalningsdata:</strong> prenumerationsstatus och kund-ID hos Stripe. Fullständiga kortuppgifter hanteras enbart av Stripe.</li>
             <li><strong>Tekniska data:</strong> IP-adress, enhets- och webbläsartyp, händelseloggar för säkerhet och felsökning.</li>
+            <li><strong>Valfria mobilnotiser:</strong> om du aktiverar push kopplas telefonens notistoken och ett slumpmässigt installations-ID till ditt konto. Apple (iOS) eller Google Firebase (Android) förmedlar notiserna. Notistexten innehåller inga växtnamn, anteckningar eller platsuppgifter.</li>
             <li><strong>Statistik:</strong> anonymiserad användningsstatistik – endast efter cookie-samtycke.</li>
             <li><strong>Kommunikation:</strong> mejl du skickar till oss och supportärenden.</li>
           </ul>
@@ -125,7 +126,7 @@ export default function Terms() {
             <li><strong>Avtal (art. 6.1.b):</strong> tillhandahålla, drifta och fakturera tjänsten.</li>
             <li><strong>Rättslig förpliktelse (art. 6.1.c):</strong> bokförings-, skatte- och konsumentlagstiftning.</li>
             <li><strong>Berättigat intresse (art. 6.1.f):</strong> säkerhet, missbruksskydd, produktförbättring, direkta produktutskick till befintliga kunder.</li>
-            <li><strong>Samtycke (art. 6.1.a):</strong> icke-nödvändiga cookies, statistik, nyhetsbrev och AI-genererade råd. Kan återkallas när som helst.</li>
+            <li><strong>Samtycke (art. 6.1.a):</strong> icke-nödvändiga cookies, statistik, nyhetsbrev, mobilpush och AI-genererade råd. Kan återkallas när som helst.</li>
           </ul>
 
           <h3 className="font-serif text-base text-foreground mt-4 mb-1">5.3 Lagringstider</h3>
@@ -135,6 +136,7 @@ export default function Terms() {
             <li>Säkerhets- och åtkomstloggar: högst 12 månader.</li>
             <li>Cookie-samtycken: 12 månader eller tills du återkallar dem.</li>
             <li>Supportmejl: högst 24 månader efter avslutat ärende.</li>
+            <li>Mobilpush: avstängda installationer och utskicksloggar rensas efter 30 dagar. Vid kontoradering tas kontots installationer och utskick bort. Tekniska återkallelsemarkörer utan konto-ID eller notistoken sparas i högst 30 dagar för att stoppa försenad återregistrering. Serveravregistrering väntar på anslutning om telefonen är offline.</li>
           </ul>
 
           <h3 className="font-serif text-base text-foreground mt-4 mb-1">5.4 Dina rättigheter</h3>

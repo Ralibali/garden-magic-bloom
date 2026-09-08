@@ -65,7 +65,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build:native
+      - run: npm run build:native:dev
       - run: npx cap sync ios
       - name: Build for iPhone simulator without signing
         run: |

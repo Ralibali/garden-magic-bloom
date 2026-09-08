@@ -1,3 +1,4 @@
+import NativePushBridge from './NativePushBridge';
 import { flushFieldDraft } from '@/lib/fieldDraftLifecycle';
 import { useEffect } from 'react';
 import { App as DeviceApp } from '@capacitor/app';
@@ -53,5 +54,5 @@ export default function NativeShell({ children }: { children: React.ReactNode })
     return () => { disposed = true; handles.forEach(handle => void handle.remove()); };
   }, [navigate]);
   if (isNativeApp() && !nativePathAllowed(pathname)) return <Navigate to="/faltdagbok" replace />;
-  return <>{children}</>;
+  return <><NativePushBridge />{children}</>;
 }

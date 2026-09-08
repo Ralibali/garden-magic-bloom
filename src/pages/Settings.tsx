@@ -113,7 +113,10 @@ const SettingsPage = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Inte inloggad');
-      if (isNativeApp()) await (await import('@/lib/nativeExport')).clearNativeExports();
+      if (isNativeApp()) {
+        await (await import('@/lib/nativePush')).disableNativePush();
+        await (await import('@/lib/nativeExport')).clearNativeExports();
+      }
 
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`, {
         method: 'POST',

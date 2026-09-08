@@ -1,3 +1,4 @@
+import { enqueueNativePush, nativeRecipientIds, allPushRows } from '../_shared/nativePushServer.ts';
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 
@@ -59,21 +60,17 @@ Deno.serve(async (req) => {
 
   const vapidPublic = Deno.env.get("VAPID_PUBLIC_KEY");
   const vapidPrivate = Deno.env.get("VAPID_PRIVATE_KEY");
-  if (!vapidPublic || !vapidPrivate) {
-    return new Response(JSON.stringify({ error: "missing_vapid_keys" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-  webpush.setVapidDetails("mailto:info@auroramedia.se", vapidPublic, vapidPrivate);
+  const webEnabled = !!vapidPublic && !!vapidPrivate;
+  if (webEnabled) webpush.setVapidDetails("mailto:info@auroramedia.se", vapidPublic!, vapidPrivate!);
 
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
-  const { data: profiles } = await admin
-    .from("profiles")
-    .select("user_id, climate_zone, location_lat, location_lon, daily_briefing_enabled")
-    .eq("daily_briefing_enabled", true);
-
-  const { data: subs } = await admin.from("push_subscriptions").select("user_id, endpoint, p256dh, auth");
+  let nativeErrors = 0;
+  const [profiles, subs, nativeUsers] = await Promise.all([
+    allPushRows(admin, 'profiles', 'user_id, climate_zone, location_lat, location_lon, daily_briefing_enabled', 'daily_briefing_enabled'),
+    webEnabled ? allPushRows(admin, 'push_subscriptions', 'user_id, endpoint, p256dh, auth') : Promise.resolve([]),
+    nativeRecipientIds(admin).catch(() => { nativeErrors++; console.error('Native recipient lookup failed'); return new Set<string>(); }),
+  ]);
   const subsByUser = new Map<string, any[]>();
   for (const s of subs || []) {
     if (!subsByUser.has(s.user_id)) subsByUser.set(s.user_id, []);
@@ -83,7 +80,7 @@ Deno.serve(async (req) => {
   // Gruppera användare per avrundade koordinater så vädret hämtas en gång per ort.
   const groups = new Map<string, { lat: number; lon: number; users: any[] }>();
   for (const p of profiles || []) {
-    if (!subsByUser.has(p.user_id)) continue;
+    if (!subsByUser.has(p.user_id) && !nativeUsers.has(p.user_id)) continue;
     let lat: number, lon: number;
     if (p.location_lat != null && p.location_lon != null) {
       lat = p.location_lat; lon = p.location_lon;
@@ -100,6 +97,7 @@ Deno.serve(async (req) => {
   const today = stockholmDateKey(now);
   let checked = 0;
   let sent = 0;
+  let nativeQueued = 0;
   let skippedNoTasks = 0;
 
   for (const grp of groups.values()) {
@@ -137,7 +135,7 @@ Deno.serve(async (req) => {
           .eq("user_id", u.user_id)
           .eq("briefing_date", today)
           .maybeSingle();
-        if (existing) continue;
+        if (existing && !nativeUsers.has(u.user_id)) continue;
 
         const [plantsRes, remindersRes] = await Promise.all([
           admin.from("my_plants")
@@ -225,7 +223,9 @@ Deno.serve(async (req) => {
         const body = top.length === 1 ? top[0].text : `${top[0].text} …och ${top.length - 1} till.`;
         const payload = JSON.stringify({ title, body, url: "/app" });
 
-        const userSubs = subsByUser.get(u.user_id) || [];
+        const queued = nativeUsers.has(u.user_id) ? await enqueueNativePush(admin, u.user_id, `daily:${today}`, 'daily').catch(() => { nativeErrors++; console.error('Native daily enqueue failed'); return 0; }) : 0;
+        nativeQueued += queued;
+        const userSubs = existing ? [] : subsByUser.get(u.user_id) || [];
         let anyDelivered = false;
         for (const s of userSubs) {
           try {
@@ -256,7 +256,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  return new Response(JSON.stringify({ checked, sent, skippedNoTasks, groups: groups.size }), {
+  return new Response(JSON.stringify({ checked, sent, nativeQueued, nativeErrors, skippedNoTasks, groups: groups.size }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });
