@@ -39,6 +39,25 @@ Native har ingen annonsmätning och begär ingen GPS-position. Den lokala fältd
 
 Valfri serverpush samlar också installations-ID och APNs-/FCM-token kopplat till kontot för appfunktioner. Apple/Google förmedlar generell notistext. Avstängda installationer och utskicksloggar rensas efter 30 dagar; kontoradering tar bort kontots installationer och jobb. Återkallelsemarkörer utan konto-ID/token finns kvar högst 30 dagar. Redovisa enhetsidentifierare och faktisk leverantörsbehandling i butikernas formulär. Marknadsför inte serverpush som tillgänglig innan hela kedjan driftsatts och verifierats på båda plattformarna.
 
+### Uppgifter att föra över till butikernas formulär
+
+Detta är ett underlag från kod och policy, inte en bekräftelse av leverantörernas avtal eller driftsatta gallring. Lokala uppgifter ska skiljas från uppgifter som skickas till servern. En generell notis utan odlingstext innebär inte att push saknar kontokopplade identifierare.
+
+| Uppgift | Mottagare | Ändamål och valfrihet | Radering |
+| --- | --- | --- | --- |
+| Lokala anteckningar, utkast och foton | Enheten; användarens valda destination vid export | Valfri fältdagbok utan konto | Radera lokal dagbok; exporterade kopior hanteras separat |
+| Lokal påminnelses rubrik och tid | Enhetens operativsystem | Valfri uppföljning; rubriken kan synas på låsskärmen | Ta bort påminnelsen eller den lokala dagboken |
+| E-post, namn, användar-ID och autentiseringsuppgifter | Lovable/Supabase-backend och konfigurerad mejltjänst | Konto är valfritt; e-post krävs för konto, namn är valfritt | Kontoradering; verifiera efterföljande gallring och säkerhetskopior |
+| Molnlagrad odlingstext, platser, sådder, skördar och problem | Backend | Valfritt kontoinnehåll | Objekt- eller kontoradering |
+| Uppladdade molnfoton | Backendens privata bildlagring | Valfri fotodagbok och växthistorik | Foto- eller kontoradering |
+| Manuellt vald ort, koordinater och klimatzon | Backend och Open-Meteo | Valfri ort för väder och råd; ingen GPS-begäran | Kontoradering i backend; leverantörens loggar måste bekräftas |
+| AI-frågor, valda bilder och kontots odlingskontext inklusive namn | Lovable AI Gateway och Google Gemini | Odlingsråd/bildanalys efter separat AI-samtycke | Återkallelse stoppar nya anrop; tidigare överföringar kan inte tas tillbaka av appen |
+| AI-rapport: användar-ID, kategori, kommentar och rapporterat svar; supportmejl | Backend och den faktiska supportmejltjänsten | Valfri support och rapportering | Feedbackposter omfattas av kontoradering; separat mejlgallring måste bekräftas |
+| Installations-ID, APNs-/FCM-token, kontokoppling och utskicksstatus | Backend, Apple APNs och Google Firebase | Valfri serverpush efter aktivering | Avregistrering kan köas offline; kontoradering tar bort installationer och jobb; gallringsjobbet måste vara driftsatt |
+| Befintlig prenumerationsstatus/Stripe-kund-ID och tekniska åtkomstloggar | Backend, Stripe och driftleverantörer | Kontobehörighet, säkerhet och felsökning; inga betalningar i nativeappen | Faktisk retention för bokföring, loggar och säkerhetskopior kräver ägarbekräftelse |
+
+Bekräfta AI-leverantörernas retention, träningsanvändning, regioner och raderingsmöjligheter. Bekräfta aktiva underbiträden, överföringsavtal, supportinkorgens leverantör och att angivna gallringsjobb faktiskt körs. Koden bevisar inte påståenden som ”delas inte”, ”ingen retention” eller ”endast inom EU”.
+
 ## Granskningsanteckning
 
 Appen paketerar odlingsverktygen lokalt med Capacitor. Vid start finns en fungerande lokal fältdagbok utan konto eller nätverk. Kameran, privata fotofiler och lokala uppföljningsnotiser är inbyggda funktioner. Kontoåtkomst erbjuds via e-post/lösenord. Inga digitala köp eller länkar till köp erbjuds i appen. Tillhandahåll ett separat fungerande granskningskonto för kontofunktionerna genom butikens säkra granskningsfält; lägg inga inloggningsuppgifter i det här dokumentet.
@@ -52,3 +71,7 @@ Appen paketerar odlingsverktygen lokalt med Capacitor. Vid start finns en funger
 5. Dagbokens historik eller växtöversikt.
 
 Använd verkliga appskärmbilder i butikernas aktuella storlekar. Använd inte riktiga kunders privata odlingar eller illustrerade skärmar som om de vore skärmbilder.
+
+iOS-projektet stöder både iPhone och iPad. Verifiera därför även iPad-layout och ta en faktisk skärmbild för 13-tums iPad, exempelvis 2064 × 2752, innan submission. Se [Apples skärmbildskrav](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications).
+
+Google Play behöver även en separat butikikon på 512 × 512 och en feature graphic på 1024 × 500. Dessa är inte samma filer som Androids installerade launcher-ikon. Det färdiga grafikpaketet återstår. Se [Google Plays grafikkrav](https://support.google.com/googleplay/android-developer/answer/9866151?hl=en).

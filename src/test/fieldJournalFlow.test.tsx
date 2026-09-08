@@ -4,6 +4,8 @@ import { flushFieldDraft } from '@/lib/fieldDraftLifecycle';
 import { MemoryRouter } from 'react-router-dom';
 import FieldJournalPage from '@/pages/FieldJournal';
 import { emptyJournal, newFieldEntry } from '@/lib/fieldJournal';
+import { captureFieldPhoto } from '@/lib/fieldJournalDevice';
+import { toast } from 'sonner';
 const device = vi.hoisted(() => ({ value: null as string | null, failRead: false, notify: vi.fn() }));
 vi.mock('@/lib/fieldJournalDevice', async () => {
   const { createJournalRepository } = await import('@/lib/fieldJournal');
@@ -14,7 +16,8 @@ vi.mock('@/lib/fieldJournalDevice', async () => {
   };
 });
 vi.mock('@/lib/native', () => ({ isNativeApp: () => true }));
-beforeEach(() => { device.value = null; device.failRead = false; device.notify.mockReset().mockResolvedValue(true); });
+vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn(), info: vi.fn() } }));
+beforeEach(() => { device.value = null; device.failRead = false; device.notify.mockReset().mockResolvedValue(true); vi.mocked(captureFieldPhoto).mockReset(); vi.mocked(toast.error).mockClear(); });
 afterEach(cleanup);
 const renderJournal = () => render(<MemoryRouter><FieldJournalPage /></MemoryRouter>);
 
@@ -83,5 +86,44 @@ describe('field journal user flow', () => {
     await act(async () => { const flushing = flushFieldDraft(); finish(); await flushing; });
     expect(JSON.parse(device.value!).draft).toBeNull();
     expect(JSON.parse(device.value!).entries).toHaveLength(1);
+  });
+  it('saves the latest draft when background flush overlaps a denied photo request', async () => {
+    let deny!: (error: Error) => void;
+    vi.mocked(captureFieldPhoto).mockImplementation(() => new Promise((_, reject) => { deny = reject; }));
+    renderJournal();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Ny anteckning' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Ny anteckning' }));
+    fireEvent.change(screen.getByLabelText('Dina anteckningar'), { target: { value: 'Text före nekad bildåtkomst' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Välj bild' }));
+    await waitFor(() => expect(captureFieldPhoto).toHaveBeenCalledWith('gallery'));
+    await act(async () => {
+      const flushing = flushFieldDraft(true);
+      deny(new Error('Bildåtkomst nekades'));
+      expect(await flushing).toBe(true);
+    });
+    expect(JSON.parse(device.value!).draft.note).toBe('Text före nekad bildåtkomst');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(toast.error).toHaveBeenCalledExactlyOnceWith('Bildåtkomst nekades');
+  });
+  it('still blocks navigation if saving fails after a denied photo request', async () => {
+    let deny!: (error: Error) => void;
+    vi.mocked(captureFieldPhoto).mockImplementation(() => new Promise((_, reject) => { deny = reject; }));
+    renderJournal();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Ny anteckning' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Ny anteckning' }));
+    fireEvent.change(screen.getByLabelText('Dina anteckningar'), { target: { value: 'Behåll editorn vid lagringsfel' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Välj bild' }));
+    await waitFor(() => expect(captureFieldPhoto).toHaveBeenCalled());
+    const storedBeforeFailure = device.value;
+    await act(async () => {
+      const flushing = flushFieldDraft(true);
+      const rejected = expect(flushing).rejects.toThrow();
+      device.failRead = true;
+      deny(new Error('Bildåtkomst nekades'));
+      await rejected;
+    });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByLabelText('Dina anteckningar')).toHaveValue('Behåll editorn vid lagringsfel');
+    expect(device.value).toBe(storedBeforeFailure);
   });
 });

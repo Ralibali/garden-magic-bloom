@@ -74,7 +74,8 @@ export default function FieldJournalPage() {
   useEffect(() => {
     const flush = async (close = false) => {
       clearTimeout(draftTimer.current);
-      await operationRef.current;
+      // run() reports operation errors; still save the current draft after a denied photo request.
+      await operationRef.current?.catch(() => undefined);
       if (!editorRef.current) return false;
       const saved = await fieldJournal.update(j => {
         const draft = editorRef.current;
