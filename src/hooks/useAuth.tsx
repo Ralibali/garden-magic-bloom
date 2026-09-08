@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { authWebOrigin, isNativeApp } from '@/lib/native';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { markLeadConverted, trackEvent } from '@/lib/analytics';
@@ -80,14 +82,18 @@ async function buildProfile(supaUser: SupabaseUser): Promise<UserProfile> {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const activeUserId = useRef<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
     const applySession = (session: Session | null, hydrateProfile: boolean) => {
       const supaUser = session?.user ?? null;
+      if (activeUserId.current !== (supaUser?.id ?? null)) queryClient.clear();
+      activeUserId.current = supaUser?.id ?? null;
       if (!supaUser) {
         if (isMounted) setUser(null);
         return;
@@ -99,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (hydrateProfile) {
         void buildProfile(supaUser)
           .then((profile) => {
-            if (isMounted) setUser(profile);
+            if (isMounted && activeUserId.current === supaUser.id) setUser(profile);
           })
           .catch(() => {});
       }
@@ -122,6 +128,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!isMounted) return;
 
       if (event === 'SIGNED_OUT') {
+        queryClient.clear();
+        activeUserId.current = null;
         setUser(null);
         setLoading(false);
         return;
@@ -140,7 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [queryClient]);
 
   const login = async (email: string, password: string) => {
     plausibleEvent('Login Started', { method: 'email' });
@@ -153,9 +161,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (data.user) {
+      activeUserId.current = data.user.id;
       setUser(toBasicProfile(data.user));
       if (data.user.email) void markLeadConverted(data.user.email, data.user.id);
-      void buildProfile(data.user).then(setUser).catch(() => undefined);
+      void buildProfile(data.user).then(profile => { if (activeUserId.current === profile.id) setUser(profile); }).catch(() => undefined);
       trackBrowserEvent('login', { method: 'email' });
     }
   };
@@ -169,7 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
       options: {
         data: { name },
-        emailRedirectTo: `${window.location.origin}/app`,
+        emailRedirectTo: `${authWebOrigin()}/app`,
       },
     });
 
@@ -206,7 +215,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    if (isNativeApp()) {
+      await (await import('@/lib/nativePush')).disableNativePush();
+      await (await import('@/lib/nativeExport')).clearNativeExports();
+    }
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    activeUserId.current = null;
     setUser(null);
     sessionStorage.removeItem('_sid');
   };

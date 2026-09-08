@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import { useEffect, useRef, useState } from 'react';
 import { Home, Sprout, LayoutGrid, Carrot, BarChart3, Settings, LogOut, Crown, Shield, CalendarDays, RefreshCw, Package, Clock, Heart, Bug, Camera, Flower2, BookOpen, Sparkles, Bell, ArrowUpRight, ChevronDown, MoreHorizontal } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
@@ -10,6 +11,7 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const coreGroups = [
   {
@@ -63,8 +65,8 @@ export function AppSidebar() {
   }, [user?.id]);
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/login?mode=login');
+    try { await logout(); navigate('/login?mode=login'); }
+    catch { toast.error('Utloggningen kunde inte slutföras. Kontrollera anslutningen och försök igen.'); }
   };
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -171,7 +173,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3 border-t border-white/8 space-y-3">
-        {!collapsed && !isPremium && (
+        {!isNativeApp() && !collapsed && !isPremium && (
           <button onClick={() => navigate('/app/premium')} className="w-full text-left rounded-2xl border border-sidebar-primary/20 bg-gradient-to-br from-sidebar-primary/16 to-white/[0.04] p-3.5 hover:border-sidebar-primary/40 transition-colors group">
             <div className="flex items-center justify-between gap-2 mb-2"><span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white"><Crown className="h-3.5 w-3.5 text-sidebar-primary" /> Plus</span><ArrowUpRight className="h-3.5 w-3.5 text-sidebar-foreground/55 group-hover:text-sidebar-primary" /></div>
             <p className="text-[11px] leading-relaxed text-sidebar-foreground/70">Obegränsade platser, mer Gro och full statistik.</p>

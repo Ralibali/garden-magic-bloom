@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import { useState } from 'react';
 import { Download, Loader2, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ export default function CalendarPdfDownload({ zone, className = '' }: Props) {
       const response = await fetch(`${FUNCTIONS_BASE}/calendar-pdf?zon=${zone}`);
       if (!response.ok) throw new Error('pdf_failed');
       const blob = await response.blob();
+      if (isNativeApp()) { const { shareNativeFile } = await import('@/lib/nativeExport'); await shareNativeFile(blob, `odlingskalender-${year}-zon-${zone}.pdf`); return; }
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;

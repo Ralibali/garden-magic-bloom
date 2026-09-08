@@ -54,5 +54,44 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: Typecheck gardening coach
-        run: deno check supabase/functions/gardening-coach/index.ts supabase/functions/analyze-seed-photo/index.ts
+      - name: Set up Node.js for imported library types
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install declared types
+        run: npm ci
+
+      - name: Typecheck edge functions
+        run: deno check --node-modules-dir=auto supabase/functions/gardening-coach/index.ts supabase/functions/analyze-seed-photo/index.ts supabase/functions/delete-account/index.ts supabase/functions/create-checkout/index.ts supabase/functions/native-push/index.ts supabase/functions/send-native-notifications/index.ts supabase/functions/frost-alert/index.ts supabase/functions/daily-briefing/index.ts supabase/functions/run-my-briefing/index.ts
+
+  native-push-database:
+    name: Native push ownership and delivery leases
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: test-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: test-only
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare isolated auth schema
+        run: |
+          psql -v ON_ERROR_STOP=1 -c 'create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key);'
+      - name: Apply native push migration
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20260908130000_native_push.sql
+      - name: Verify ownership, replay protection and delivery leases
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/native_push.sql

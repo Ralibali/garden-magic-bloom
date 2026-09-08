@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 /**
  * Plausible Analytics helper.
  *
@@ -64,6 +65,7 @@ function sanitizeProperties(properties: PlausibleProperties) {
 }
 
 function send(eventName: string, properties: PlausibleProperties) {
+  if (isNativeApp()) return;
   if (typeof window === 'undefined' || typeof window.plausible !== 'function') return;
   if (isAdminContext()) return;
   try {

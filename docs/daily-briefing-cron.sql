@@ -1,16 +1,18 @@
 -- Dagens 3: morgonbriefing-cron
--- 06:45 Europe/Stockholm sommartid = 04:45 UTC.
--- (Vintertid = 05:45 UTC — justera vid tidsomställning, samma sak gäller weekly-digest.)
+-- Kör varje timme men skicka endast 06:45 lokal Stockholmstid.
+-- Postgres hanterar svensk sommar- och vintertid.
 --
 -- Kör i Supabase SQL Editor. Kräver att cron_secret finns i Vault
 -- (samma secret som weekly-digest och frost-alert använder).
 
-select cron.schedule('daily-briefing', '45 4 * * *', $$
+select cron.schedule('daily-briefing', '45 * * * *', $$
   select net.http_post(
     url := 'https://ysonnvbkrwajacvdkqut.supabase.co/functions/v1/daily-briefing',
     headers := jsonb_build_object('Content-Type','application/json',
       'x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name='cron_secret')),
-    body := '{}'::jsonb);
+    body := '{}'::jsonb)
+  where (now() at time zone 'Europe/Stockholm')::time >= time '06:45'
+    and (now() at time zone 'Europe/Stockholm')::time < time '06:50';
 $$);
 
 -- Ta bort: select cron.unschedule('daily-briefing');

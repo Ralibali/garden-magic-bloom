@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import NativePushSettings from './NativePushSettings';
+import { isNativeApp } from '@/lib/native';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +30,8 @@ export default function NotificationsSettings() {
   const [results, setResults] = useState<Geo[]>([]);
   const [searching, setSearching] = useState(false);
   const [runningBriefing, setRunningBriefing] = useState(false);
+  const preferenceLock = useRef(false);
+  const [savingPreference, setSavingPreference] = useState(false);
   const [briefingResult, setBriefingResult] = useState<null | {
     hasSubscription: boolean;
     briefingEnabled: boolean;
@@ -36,6 +40,7 @@ export default function NotificationsSettings() {
     pushSent: boolean;
     pushDelivered: number;
     pushFailed: number;
+    nativeQueued?: number;
   }>(null);
 
   useEffect(() => {
@@ -57,18 +62,24 @@ export default function NotificationsSettings() {
     }
   };
 
-  const toggleFrost = async (next: boolean) => {
-    setFrostEnabled(next);
-    if (!user) return;
-    await supabase.from('profiles').update({ frost_alerts_enabled: next } as any).eq('user_id', user.id);
-    qc.invalidateQueries({ queryKey: ['profile'] });
-  };
-
-  const toggleDailyBriefing = async (next: boolean) => {
-    setDailyBriefingEnabled(next);
-    if (!user) return;
-    await supabase.from('profiles').update({ daily_briefing_enabled: next } as any).eq('user_id', user.id);
-    qc.invalidateQueries({ queryKey: ['profile'] });
+  const savePreference = async (field: 'frost_alerts_enabled' | 'daily_briefing_enabled', next: boolean) => {
+    if (!user || preferenceLock.current) return;
+    preferenceLock.current = true;
+    setSavingPreference(true);
+    const setValue = field === 'frost_alerts_enabled' ? setFrostEnabled : setDailyBriefingEnabled;
+    const previous = field === 'frost_alerts_enabled' ? frostEnabled : dailyBriefingEnabled;
+    setValue(next);
+    try {
+      const { error } = await supabase.from('profiles').update({ [field]: next }).eq('user_id', user.id);
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ['profile'] });
+    } catch {
+      setValue(previous);
+      toast({ title: 'Inställningen kunde inte sparas', description: 'Kontrollera anslutningen och försök igen.', variant: 'destructive' });
+    } finally {
+      preferenceLock.current = false;
+      setSavingPreference(false);
+    }
   };
 
 
@@ -80,7 +91,11 @@ export default function NotificationsSettings() {
       const { data, error } = await supabase.functions.invoke('run-my-briefing', { body: {} });
       if (error) throw error;
       setBriefingResult(data);
-      if (data?.pushSent) {
+      if (data?.nativeQueued > 0) {
+        toast({ title: 'Briefing köad till mobilappen', description: 'Utskicket behandlas inom några minuter.' });
+      } else if (data?.nativeAlreadyRequested) {
+        toast({ title: 'Briefing redan begärd', description: 'Du har redan begärt en mobilbriefing den här minuten. Kontrollera notiserna eller försök igen om en minut.' });
+      } else if (data?.pushSent) {
         toast({ title: 'Briefing skickad', description: 'Kolla dina notiser.' });
       } else if (!data?.hasSubscription) {
         toast({ title: 'Ingen push-prenumeration', description: 'Aktivera push-notiser först.', variant: 'destructive' });
@@ -127,7 +142,8 @@ export default function NotificationsSettings() {
           <CardTitle className="flex items-center gap-2"><Bell className="h-5 w-5" /> Notiser</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
-          {!supported && (
+          {isNativeApp() && <NativePushSettings />}
+          {!supported && !isNativeApp() && (
             <p className="text-sm text-muted-foreground">Webbnotiser stöds inte i denna webbläsare.</p>
           )}
           {supported && (
@@ -144,14 +160,14 @@ export default function NotificationsSettings() {
               <p className="text-sm font-medium">❄️ Frostvarningar</p>
               <p className="text-xs text-muted-foreground">Få en pling kvällen innan natten blir kall.</p>
             </div>
-            <Switch checked={frostEnabled} onCheckedChange={toggleFrost} />
+            <Switch aria-label="Frostvarningar" checked={frostEnabled} disabled={savingPreference} onCheckedChange={next => void savePreference('frost_alerts_enabled', next)} />
           </div>
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-medium">🌱 Dagens 3 – morgonbriefing</p>
               <p className="text-xs text-muted-foreground">Dagens viktigaste uppgifter kl 06:45. Skickas bara när något behöver göras.</p>
             </div>
-            <Switch checked={dailyBriefingEnabled} onCheckedChange={toggleDailyBriefing} />
+            <Switch aria-label="Dagens morgonbriefing" checked={dailyBriefingEnabled} disabled={savingPreference} onCheckedChange={next => void savePreference('daily_briefing_enabled', next)} />
           </div>
           <div className="rounded-lg border border-border/60 p-3 space-y-2">
             <div className="flex items-center justify-between gap-3">
@@ -173,7 +189,8 @@ export default function NotificationsSettings() {
                     {briefingResult.tasks.map((t, i) => <li key={i}>{t}</li>)}
                   </ul>
                 )}
-                <p><span className="text-muted-foreground">Push levererad:</span> {briefingResult.pushDelivered} / {briefingResult.pushDelivered + briefingResult.pushFailed}</p>
+                <p><span className="text-muted-foreground">Webbpush accepterad:</span> {briefingResult.pushDelivered} / {briefingResult.pushDelivered + briefingResult.pushFailed}</p>
+                {(briefingResult.nativeQueued ?? 0) > 0 && <p><span className="text-muted-foreground">Köad till mobil:</span> {briefingResult.nativeQueued}</p>}
               </div>
             )}
           </div>

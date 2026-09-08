@@ -1,3 +1,5 @@
+import { hasAiConsent, setAiConsent } from '@/lib/aiConsent';
+import { isNativeApp } from '@/lib/native';
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +36,14 @@ const SettingsPage = () => {
   const [climateZone, setClimateZone] = useState('3');
   const [selectedCategories, setSelectedCategories] = useState<GardenCategory[]>([]);
   const [deleting, setDeleting] = useState(false);
+  const [aiAllowed, setAiAllowed] = useState(() => hasAiConsent(user?.id));
+  useEffect(() => {
+    const refresh = () => setAiAllowed(hasAiConsent(user?.id));
+    refresh();
+    window.addEventListener('storage', refresh);
+    window.addEventListener('ai-consent-change', refresh);
+    return () => { window.removeEventListener('storage', refresh); window.removeEventListener('ai-consent-change', refresh); };
+  }, [user?.id]);
 
   const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
 
@@ -72,9 +82,9 @@ const SettingsPage = () => {
     setExporting(true);
     try {
       const { beds, sowings, harvests } = await api.exportUserData();
-      if (beds.length) downloadCSV(beds.map((b: any) => ({ Namn: b.name, Beskrivning: b.description || '', Säsongsanteckningar: b.season_notes || '', Skapad: b.created_at?.split('T')[0] })), 'baddar');
-      if (sowings.length) downloadCSV(sowings.map((s: any) => ({ Sort: s.variety, Frömärke: s.seed_brand || '', Typ: s.type, Sådatum: s.sow_date, Status: s.status, Bädd: s.beds?.name || '', Anteckningar: s.notes || '' })), 'sadder');
-      if (harvests.length) downloadCSV(harvests.map((h: any) => ({ Sort: h.variety, Datum: h.harvest_date, 'Vikt (g)': h.weight_grams, Bädd: h.beds?.name || '', Anteckningar: h.notes || '' })), 'skordar');
+      if (beds.length) await downloadCSV(beds.map((b: any) => ({ Namn: b.name, Beskrivning: b.description || '', Säsongsanteckningar: b.season_notes || '', Skapad: b.created_at?.split('T')[0] })), 'baddar');
+      if (sowings.length) await downloadCSV(sowings.map((s: any) => ({ Sort: s.variety, Frömärke: s.seed_brand || '', Typ: s.type, Sådatum: s.sow_date, Status: s.status, Bädd: s.beds?.name || '', Anteckningar: s.notes || '' })), 'sadder');
+      if (harvests.length) await downloadCSV(harvests.map((h: any) => ({ Sort: h.variety, Datum: h.harvest_date, 'Vikt (g)': h.weight_grams, Bädd: h.beds?.name || '', Anteckningar: h.notes || '' })), 'skordar');
       toast({ title: 'Data exporterad som CSV! 📊' });
     } catch (e: any) {
       toast({ title: 'Exportfel', description: e.message, variant: 'destructive' });
@@ -90,8 +100,8 @@ const SettingsPage = () => {
         ...sowings.map((s: any) => ['Sådd', s.variety, s.sow_date, s.beds?.name || '–', s.seed_brand || '–', s.status]),
         ...harvests.map((h: any) => ['Skörd', h.variety, h.harvest_date, h.beds?.name || '–', `${h.weight_grams}g`, '–']),
       ];
-      downloadPDF('Odlingsdagboken – Export', ['Typ', 'Sort', 'Datum', 'Bädd', 'Detalj', 'Status'], allRows, 'odlingsdata');
-      toast({ title: 'PDF öppnad för utskrift! 🖨️' });
+      await downloadPDF('Odlingsdagboken – Export', ['Typ', 'Sort', 'Datum', 'Bädd', 'Detalj', 'Status'], allRows, 'odlingsdata');
+      toast({ title: isNativeApp() ? 'PDF klar att spara eller dela' : 'PDF öppnad för utskrift! 🖨️' });
     } catch (e: any) {
       toast({ title: 'Exportfel', description: e.message, variant: 'destructive' });
     }
@@ -103,6 +113,10 @@ const SettingsPage = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Inte inloggad');
+      if (isNativeApp()) {
+        await (await import('@/lib/nativePush')).disableNativePush();
+        await (await import('@/lib/nativeExport')).clearNativeExports();
+      }
 
       const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`, {
         method: 'POST',
@@ -118,8 +132,10 @@ const SettingsPage = () => {
         throw new Error(err.error || 'Kunde inte radera kontot');
       }
 
-      await supabase.auth.signOut();
-      toast({ title: 'Konto raderat', description: 'All din data har tagits bort.' });
+      try { if (user?.id) setAiConsent(user.id, false); } catch { /* Server deletion succeeded; always finish signing out. */ }
+      queryClient.clear();
+      await supabase.auth.signOut({ scope: 'local' });
+      toast({ title: 'Konto raderat', description: 'Kontots uppgifter har raderats. Fältdagboken på enheten är separat.' });
       navigate('/', { replace: true });
     } catch (e: any) {
       toast({ title: 'Fel', description: e.message, variant: 'destructive' });
@@ -130,6 +146,7 @@ const SettingsPage = () => {
 
   return (
     <div className="space-y-6">
+      <Card><CardHeader><CardTitle>AI och dina uppgifter</CardTitle></CardHeader><CardContent className="space-y-3"><p className="text-sm text-muted-foreground">{aiAllowed ? 'Du har valt att dela odlingsuppgifter och valda bilder med Gemini via Lovable när du använder AI.' : 'Du har inte godkänt AI-delning på den här enheten.'}</p>{aiAllowed && <Button variant="outline" onClick={() => { if (user?.id) { setAiConsent(user.id, false); setAiAllowed(false); } }}>Återkalla AI-samtycke</Button>}</CardContent></Card>
       <h1 className="text-2xl font-bold flex items-center gap-2"><SettingsIcon className="h-6 w-6" /> Inställningar</h1>
       
       <Card>

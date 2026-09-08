@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import { Home, Sprout, LayoutGrid, Flower2, MoreHorizontal, BarChart3, Settings, Crown, Shield, CalendarDays, RefreshCw, Package, Clock, Heart, Bug, Camera, Carrot, BookOpen, Sparkles, Bell } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useEffect, useMemo, useState } from 'react';
@@ -22,6 +23,7 @@ const plantPrimary = [
 ];
 
 const moreItems = [
+  { title: 'Fältdagbok', url: '/faltdagbok', icon: BookOpen },
   { title: 'Fråga Gro', url: '/app/gro', icon: Sparkles },
   { title: 'Platser', url: '/app/beds', icon: LayoutGrid },
   { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
@@ -54,7 +56,7 @@ export function MobileNav() {
   const usesGardenLogs = categories.length === 0 || categories.some(category => category !== 'krukvaxter');
   const primaryItems = usesGardenLogs ? kitchenPrimary : plantPrimary;
   const primaryUrls = useMemo(() => new Set(primaryItems.map(item => item.url)), [primaryItems]);
-  const visibleMore = moreItems.filter(item => !primaryUrls.has(item.url) && isVisible(item.url));
+  const visibleMore = moreItems.filter(item => !primaryUrls.has(item.url) && isVisible(item.url) && (!isNativeApp() || item.url !== '/app/premium'));
   const allMore = isAdmin ? [...visibleMore, { title: 'Admin', url: '/app/admin', icon: Shield }] : visibleMore;
 
   return (

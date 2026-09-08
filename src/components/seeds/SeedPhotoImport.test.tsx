@@ -1,12 +1,15 @@
+import { setAiConsent } from '@/lib/aiConsent';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({ rpc: vi.fn(), invoke: vi.fn(), photo: vi.fn() }));
-vi.mock('@/integrations/supabase/client', () => ({ supabase: { functions: { invoke: mocks.invoke } } }));
+vi.mock('@/integrations/supabase/client', () => ({ supabase: { functions: { invoke: mocks.invoke }, auth: { getUser: async () => ({ data: { user: { id: 'seed-review-user' } } }) } } }));
 vi.mock('@/lib/seedPlans', () => ({ seedRpc: mocks.rpc, prepareSeedPhoto: mocks.photo }));
+vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ user: { id: 'seed-review-user' } }) }));
 import SeedPhotoImport from './SeedPhotoImport';
 describe('photo review', () => {
   it('uploads only on request, requires review, resets review on edits and retains an unsaved draft after an error', async () => {
+    setAiConsent('seed-review-user', false);
     mocks.photo.mockResolvedValue('data:image/jpeg;base64,/9j/AA==');
     mocks.invoke.mockImplementation(async (_name, args) => ({ data: { id: args.body.id, fields: { variety: 'Tomat', brand: null, quantity: null, expiry_text: '2028', instructions: 'Så på våren', warning: null } }, error: null }));
     mocks.rpc.mockRejectedValueOnce(new Error('Nätverket svarade inte'));
@@ -14,6 +17,10 @@ describe('photo review', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Läs av fröpåse' }));
     fireEvent.change(screen.getByLabelText('Välj foto'), { target: { files: [new File(['photo'], 'packet.jpg', { type: 'image/jpeg' })] } });
     await screen.findByRole('img'); expect(mocks.invoke).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Läs av' }));
+    await screen.findByText(/Öppna Gro och välj/);
+    expect(mocks.invoke).not.toHaveBeenCalled();
+    setAiConsent('seed-review-user', true);
     fireEvent.click(screen.getByRole('button', { name: 'Läs av' }));
     const save = await screen.findByRole('button', { name: 'Spara granskat frö' });
     expect(save).toBeDisabled();

@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-    VitePWA({
+    mode !== "native" && VitePWA({
       registerType: "autoUpdate",
       injectRegister: null,
       devOptions: { enabled: false },
@@ -131,13 +131,16 @@ export default defineConfig(({ mode }) => ({
         ],
       },
     }),
-    visualizer({ filename: "bundle-stats.html", gzipSize: true, brotliSize: true, open: false }),
+    mode !== "native" && visualizer({ filename: "bundle-stats.html", gzipSize: true, brotliSize: true, open: false }),
     stampPublishId(),
-    prerenderOnBuild(),
+    mode !== "native" && prerenderOnBuild(),
   ].filter(Boolean),
   build: {
+    outDir: mode === "native" ? "dist-native" : "dist",
+    reportCompressedSize: mode !== "native",
     cssCodeSplit: true,
     rollupOptions: {
+      input: mode === "native" ? "native.html" : "index.html",
       output: {
         manualChunks(id) {
           if (id.includes('node_modules/react') || id.includes('node_modules/scheduler') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router')) return 'vendor';

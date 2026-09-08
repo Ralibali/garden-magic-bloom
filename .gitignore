@@ -25,3 +25,18 @@ dist-ssr
 .env
 
 bundle-stats.html
+
+# Native builds and private signing material
+dist-native/
+.mobile-build/
+*.keystore
+*.jks
+*.p12
+*.mobileprovision
+android/local.properties
+android/key.properties
+
+# Per-project Firebase configuration is supplied by the release environment.
+android/app/google-services.json
+GoogleService-Info.plist
+*.p8

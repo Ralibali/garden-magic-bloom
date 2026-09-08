@@ -1,28 +1,33 @@
+import { isNativeApp } from '@/lib/native';
 /**
  * Export utilities for CSV and PDF generation
  */
 
-export function downloadCSV(rows: Record<string, any>[], filename: string) {
+export async function downloadCSV(rows: Record<string, any>[], filename: string) {
   if (rows.length === 0) return;
   const headers = Object.keys(rows[0]);
   const csvContent = [
     headers.join(';'),
     ...rows.map(row => headers.map(h => {
       const val = row[h] ?? '';
-      const str = String(val).replace(/"/g, '""');
+      const safe = typeof val === 'string' && /^[=+\-@\t\r]/.test(val) ? `'${val}` : String(val);
+      const str = safe.replace(/"/g, '""');
       return str.includes(';') || str.includes('"') || str.includes('\n') ? `"${str}"` : str;
     }).join(';'))
   ].join('\n');
 
   const BOM = '\uFEFF';
   const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-  triggerDownload(blob, `${filename}.csv`);
+  if (isNativeApp()) { const { shareNativeFile } = await import('./nativeExport'); await shareNativeFile(blob, `${filename}.csv`); }
+  else triggerDownload(blob, `${filename}.csv`);
 }
 
-export function downloadPDF(title: string, headers: string[], rows: string[][], filename: string) {
+export async function downloadPDF(title: string, headers: string[], rows: string[][], filename: string) {
+  if (isNativeApp()) { const { createNativePdf, shareNativeFile } = await import('./nativeExport'); await shareNativeFile(await createNativePdf(title, headers, rows), `${filename}.pdf`); return; }
+  const escape = (value: string) => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
   // Generate a simple HTML-based printable PDF
   const tableRows = rows.map(row =>
-    `<tr>${row.map(cell => `<td style="border:1px solid #ddd;padding:6px 10px;font-size:11px;">${cell}</td>`).join('')}</tr>`
+    `<tr>${row.map(cell => `<td style="border:1px solid #ddd;padding:6px 10px;font-size:11px;">${escape(cell)}</td>`).join('')}</tr>`
   ).join('');
 
   const html = `
@@ -30,7 +35,7 @@ export function downloadPDF(title: string, headers: string[], rows: string[][], 
     <html>
     <head>
       <meta charset="utf-8">
-      <title>${title}</title>
+      <title>${escape(title)}</title>
       <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 30px; color: #1a1a1a; }
         h1 { font-size: 20px; margin-bottom: 4px; }
@@ -42,10 +47,10 @@ export function downloadPDF(title: string, headers: string[], rows: string[][], 
       </style>
     </head>
     <body>
-      <h1>${title}</h1>
+      <h1>${escape(title)}</h1>
       <p class="subtitle">Exporterad ${new Date().toLocaleDateString('sv-SE')} · Odlingsdagboken</p>
       <table>
-        <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <thead><tr>${headers.map(h => `<th>${escape(h)}</th>`).join('')}</tr></thead>
         <tbody>${tableRows}</tbody>
       </table>
     </body>

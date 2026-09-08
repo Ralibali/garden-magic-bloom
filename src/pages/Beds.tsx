@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,9 +53,9 @@ const Beds = () => {
       const limitReached = error?.message === 'BED_LIMIT' || String(error?.message || '').includes('FREE_BED_LIMIT');
       toast({
         title: limitReached ? 'Du har nått gratisgränsen' : 'Kunde inte skapa odlingsplatsen',
-        description: limitReached ? 'Gratisversionen innehåller tre odlingsplatser. Plus ger obegränsat antal.' : error?.message || 'Försök igen.',
+        description: limitReached ? (isNativeApp() ? 'Kontots gratisgräns är nådd.' : 'Gratisversionen innehåller tre odlingsplatser. Plus ger obegränsat antal.') : error?.message || 'Försök igen.',
         variant: 'destructive',
-        action: limitReached ? <Button size="sm" variant="outline" onClick={() => navigate('/app/premium')}><Crown className="h-3 w-3 mr-1" /> Visa Plus</Button> : undefined,
+        action: limitReached && !isNativeApp() ? <Button size="sm" variant="outline" onClick={() => navigate('/app/premium')}><Crown className="h-3 w-3 mr-1" /> Visa Plus</Button> : undefined,
       });
       if (limitReached) setOpen(false);
     },

@@ -1,3 +1,6 @@
+import { requireAiConsent } from '@/lib/aiConsent';
+import AiReportButton from '@/components/AiReportButton';
+import { isNativeApp } from '@/lib/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -17,28 +20,28 @@ const COACH_USAGE_KEY = 'gro-daily-usage';
 const COACH_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gardening-coach`;
 const MAX_IMAGE_BYTES = 1_500_000;
 
-type Msg = { role: 'user' | 'assistant'; content: string; images?: string[] };
+type Msg = { id?: string; role: 'user' | 'assistant'; content: string; images?: string[] };
 
-function getDailyUsage(): { count: number; date: string } {
+function getDailyUsage(userId?: string): { count: number; date: string } {
   try {
-    const raw = localStorage.getItem(COACH_USAGE_KEY);
+    const raw = localStorage.getItem(`${COACH_USAGE_KEY}:${userId || 'guest'}`);
     return raw ? JSON.parse(raw) : { count: 0, date: '' };
   } catch {
     return { count: 0, date: '' };
   }
 }
 
-function incrementUsage() {
+function incrementUsage(userId?: string) {
   const today = localDateKey();
-  const usage = getDailyUsage();
+  const usage = getDailyUsage(userId);
   const count = usage.date === today ? usage.count + 1 : 1;
-  localStorage.setItem(COACH_USAGE_KEY, JSON.stringify({ count, date: today }));
+  localStorage.setItem(`${COACH_USAGE_KEY}:${userId || 'guest'}`, JSON.stringify({ count, date: today }));
   return count;
 }
 
-function getRemainingToday() {
+function getRemainingToday(userId?: string) {
   const today = localDateKey();
-  const usage = getDailyUsage();
+  const usage = getDailyUsage(userId);
   return usage.date === today ? Math.max(0, FREE_DAILY_LIMIT - usage.count) : FREE_DAILY_LIMIT;
 }
 
@@ -90,6 +93,7 @@ async function streamChat({ messages, accessToken, onDelta, onDone, signal }: { 
 
 function GroUpsell() {
   const navigate = useNavigate();
+  if (isNativeApp()) return <div className="p-4 bg-muted text-sm" role="status">Dagens gratisfrågor är slut. Välkommen tillbaka imorgon.</div>;
   return (
     <div className="absolute inset-0 z-20 flex items-center justify-center rounded-[1.5rem] bg-background/88 p-4 backdrop-blur-md">
       <div className="premium-panel max-w-sm p-6 text-center">
@@ -116,7 +120,7 @@ export default function GardeningCoach() {
   const [pendingImages, setPendingImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
-  const [remaining, setRemaining] = useState(getRemainingToday());
+  const [remaining, setRemaining] = useState(() => getRemainingToday(user?.id));
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -135,25 +139,27 @@ export default function GardeningCoach() {
     setLoading(true);
     abortRef.current = new AbortController();
     let accumulated = '';
+    const assistantId = crypto.randomUUID();
     const upsertAssistant = (chunk: string) => {
       accumulated += chunk;
       setMessages((previous) => {
         const last = previous[previous.length - 1];
         return last?.role === 'assistant'
           ? previous.map((message, index) => index === previous.length - 1 ? { ...message, content: accumulated } : message)
-          : [...previous, { role: 'assistant', content: accumulated }];
+          : [...previous, { id: assistantId, role: 'assistant', content: accumulated }];
       });
       scrollToBottom();
     };
 
     try {
       const session = await getSession();
+      requireAiConsent(session.user.id);
       await streamChat({ messages: nextMessages, accessToken: session.access_token, onDelta: upsertAssistant, onDone: () => setLoading(false), signal: abortRef.current.signal });
       return true;
     } catch (error: any) {
       if (error.name !== 'AbortError') {
         if (error.code === 'free_limit_reached' || error.status === 429) {
-          localStorage.setItem(COACH_USAGE_KEY, JSON.stringify({ count: FREE_DAILY_LIMIT, date: localDateKey() }));
+          localStorage.setItem(`${COACH_USAGE_KEY}:${user?.id || 'guest'}`, JSON.stringify({ count: FREE_DAILY_LIMIT, date: localDateKey() }));
           setRemaining(0);
           setMessages((previous) => previous[previous.length - 1]?.role === 'user' ? previous.slice(0, -1) : previous);
         } else {
@@ -163,7 +169,7 @@ export default function GardeningCoach() {
       setLoading(false);
       return false;
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     if (initialized) return;
@@ -223,8 +229,8 @@ export default function GardeningCoach() {
     scrollToBottom();
     const succeeded = await sendMessages(nextMessages);
     if (succeeded && !isPremium) {
-      incrementUsage();
-      setRemaining(getRemainingToday());
+      incrementUsage(user?.id);
+      setRemaining(getRemainingToday(user?.id));
     }
   };
 
@@ -248,11 +254,11 @@ export default function GardeningCoach() {
 
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-4 scroll-smooth sm:p-5">
         {messages.map((message, index) => (
-          <div key={index} className={`flex items-end gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+          <div key={message.id || index} className={`flex items-end gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             {message.role === 'assistant' && <div className="mb-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10"><span className="text-sm">🌿</span></div>}
             <div className={`max-w-[86%] rounded-2xl px-4 py-3 ${message.role === 'user' ? 'rounded-br-md bg-primary text-primary-foreground' : 'rounded-bl-md border border-border/45 bg-primary/5 text-foreground'}`}>
               {!!message.images?.length && <div className="mb-2 flex flex-wrap gap-2">{message.images.map((source, imageIndex) => <img key={imageIndex} src={source} alt="" className="max-h-40 rounded-xl border border-border/40" />)}</div>}
-              {message.role === 'assistant' ? <><div className="prose prose-sm max-w-none prose-headings:my-2 prose-headings:text-foreground prose-li:text-foreground/90 prose-p:my-1 prose-p:text-foreground/90 prose-strong:text-foreground dark:prose-invert"><ReactMarkdown>{message.content}</ReactMarkdown></div>{!loading && index === messages.length - 1 && <GroProductSuggestion text={message.content} />}</> : <p className="whitespace-pre-wrap text-sm">{message.content}</p>}
+              {message.role === 'assistant' ? <><div className="prose prose-sm max-w-none prose-headings:my-2 prose-headings:text-foreground prose-li:text-foreground/90 prose-p:my-1 prose-p:text-foreground/90 prose-strong:text-foreground dark:prose-invert"><ReactMarkdown>{message.content}</ReactMarkdown>{message.role === 'assistant' && !loading && <AiReportButton content={message.content} />}</div>{!loading && index === messages.length - 1 && <GroProductSuggestion text={message.content} />}</> : <p className="whitespace-pre-wrap text-sm">{message.content}</p>}
             </div>
           </div>
         ))}
@@ -262,7 +268,7 @@ export default function GardeningCoach() {
       <footer className="border-t border-border/60 bg-background/65 p-3 backdrop-blur-xl sm:p-4">
         {contextPrompt && <div className="mb-2 flex items-start justify-between gap-3 rounded-xl border border-primary/15 bg-primary/6 px-3 py-2"><div className="flex gap-2 text-xs text-muted-foreground"><Bot className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" /><span>Underlaget kommer från en annan del av din odlingsdagbok. Justera frågan eller skicka den som den är.</span></div><button onClick={clearLinkedContext} className="text-muted-foreground hover:text-foreground" aria-label="Ta bort förifyllt underlag"><X className="h-3.5 w-3.5" /></button></div>}
         {!!pendingImages.length && <div className="mb-2 flex flex-wrap gap-2">{pendingImages.map((source, index) => <div key={index} className="relative"><img src={source} alt="" className="h-16 w-16 rounded-xl border border-border object-cover" /><button onClick={() => setPendingImages((previous) => previous.filter((_, itemIndex) => itemIndex !== index))} className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground" aria-label="Ta bort bild"><X className="h-3 w-3" /></button></div>)}</div>}
-        <div className="flex gap-2"><input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(event) => handleFiles(event.target.files)} /><Button type="button" variant="outline" size="icon" onClick={() => fileRef.current?.click()} disabled={loading || pendingImages.length >= 2 || (!isPremium && remaining <= 0)} aria-label="Lägg till bild"><ImagePlus className="h-4 w-4" /></Button><Input ref={inputRef} value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void handleSend(); } }} placeholder={!isPremium && remaining <= 0 ? 'Plus krävs för fler frågor idag' : 'Fråga om din odling eller fotografera en planta…'} disabled={loading || (!isPremium && remaining <= 0)} className="flex-1" /><Button onClick={() => void handleSend()} disabled={loading || (!input.trim() && !pendingImages.length) || (!isPremium && remaining <= 0)} size="icon"><Send className="h-4 w-4" /></Button></div>
+        <div className="flex gap-2"><input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(event) => handleFiles(event.target.files)} /><Button type="button" variant="outline" size="icon" onClick={() => fileRef.current?.click()} disabled={loading || pendingImages.length >= 2 || (!isPremium && remaining <= 0)} aria-label="Lägg till bild"><ImagePlus className="h-4 w-4" /></Button><Input ref={inputRef} value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void handleSend(); } }} placeholder={!isPremium && remaining <= 0 ? (isNativeApp() ? 'Välkommen tillbaka imorgon' : 'Plus krävs för fler frågor idag') : 'Fråga om din odling eller fotografera en planta…'} disabled={loading || (!isPremium && remaining <= 0)} className="flex-1" /><Button onClick={() => void handleSend()} disabled={loading || (!input.trim() && !pendingImages.length) || (!isPremium && remaining <= 0)} size="icon"><Send className="h-4 w-4" /></Button></div>
         <p className="mt-2 text-center text-[10px] text-muted-foreground">Gro ger AI-genererade råd och visar osäkerhet när underlaget inte räcker.</p>
       </footer>
     </div>

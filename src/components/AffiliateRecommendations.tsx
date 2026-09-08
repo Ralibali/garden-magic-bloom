@@ -1,3 +1,4 @@
+import { isNativeApp } from '@/lib/native';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -68,6 +69,7 @@ export function AffiliateWidget({ maxItems = 2 }: { maxItems?: number }) {
 
 export function PremiumUpsellBanner({ variant = 'compact' }: { variant?: 'compact' | 'full' }) {
   const navigate = useNavigate();
+  if (isNativeApp()) return null;
   if (variant === 'compact') {
     return (
       <button onClick={() => navigate('/app/premium')} className="w-full flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-primary/10 via-accent/10 to-warning/10 border border-primary/20 hover:border-primary/40 transition-all group">
