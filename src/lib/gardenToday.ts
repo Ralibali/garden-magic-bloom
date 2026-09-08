@@ -1,4 +1,3 @@
-import { identityFromSowing } from '@/lib/cropIdentity';
 import { normalizePlantKind } from '@/lib/plantKind';
 
 export type GardenActionPriority = 'urgent' | 'today' | 'soon';
@@ -41,6 +40,7 @@ export interface GardenReminder {
   source_action_id?: string;
   sowing_id?: string;
   bed_id?: string;
+  plant_id?: string;
   display_text?: string;
   source?: string;
 }
@@ -53,6 +53,7 @@ interface GardenTodayInput {
   weather?: any;
   rainData?: { dryDays: number; totalPrecipitation: number } | null;
   climateZone: number;
+  today?: string;
 }
 
 export function localDateKey(date = new Date()) {
@@ -72,8 +73,7 @@ export function addDaysToDateKey(dateString: string, days: number) {
   return date.toISOString().slice(0, 10);
 }
 
-function daysBetween(dateString: string, now = new Date()) {
-  const today = localDateKey(now);
+function daysBetween(dateString: string, today = localDateKey()) {
   const [targetYear, targetMonth, targetDay] = dateString.split('-').map(Number);
   const [todayYear, todayMonth, todayDay] = today.split('-').map(Number);
   const targetUtc = Date.UTC(targetYear, targetMonth - 1, targetDay);
@@ -94,15 +94,13 @@ function uniqueActions(actions: GardenAction[]) {
   });
 }
 
-export function buildGardenActions({ reminders = [], sowings = [], overduePlants = [], beds = [], weather, rainData, climateZone }: GardenTodayInput): GardenAction[] {
-  const today = localDateKey();
+export function buildGardenActions({ reminders = [], sowings = [], overduePlants = [], beds = [], weather, rainData, climateZone, today = localDateKey() }: GardenTodayInput): GardenAction[] {
   const actions: GardenAction[] = [];
 
   reminders
     .filter((reminder) => !reminder.done && reminder.date <= today)
-    .slice(0, 3)
     .forEach((reminder) => {
-      const lateBy = Math.max(0, daysBetween(reminder.date));
+      const lateBy = Math.max(0, daysBetween(reminder.date, today));
       actions.push({
         id: `reminder-${reminder.id}`,
         title: reminder.title,
@@ -120,15 +118,16 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
       });
     });
 
-  overduePlants.slice(0, 2).forEach((plant: any) => {
+  overduePlants.forEach((plant: any) => {
+    if (plant.care_profile && !['urgent', 'due'].includes(plant.care_profile.status)) return;
     const name = plant.custom_name || plant.plants?.name_sv || 'En växt';
     const interval = plant.watering_interval_days || 7;
-    const daysAgo = plant.last_watered ? daysBetween(String(plant.last_watered).slice(0, 10)) : null;
+    const daysAgo = plant.last_watered ? daysBetween(String(plant.last_watered).slice(0, 10), today) : null;
     actions.push({
       id: `water-${plant.id}-${today}`,
       title: `Kontrollera ${name}`,
-      description: daysAgo === null ? 'Ingen vattning är registrerad ännu. Kontrollera jorden innan du vattnar.' : `Senast vattnad för ${daysAgo} dagar sedan. Normalt intervall är cirka ${interval} dagar.`,
-      priority: daysAgo !== null && daysAgo >= interval + 3 ? 'urgent' : 'today',
+      description: plant.care_profile?.reason || (daysAgo === null ? 'Ingen vattning är registrerad ännu. Kontrollera jorden innan du vattnar.' : `Senast vattnad för ${daysAgo} dagar sedan. Normalt intervall är cirka ${interval} dagar.`),
+      priority: plant.care_profile ? (plant.care_profile.status === 'urgent' ? 'urgent' : 'today') : daysAgo !== null && daysAgo >= interval + 3 ? 'urgent' : 'today',
       kind: 'watering',
       actionPath: '/app/my-plants',
       actionLabel: 'Öppna växten',
@@ -202,26 +201,26 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
     }
   }
 
-  sowings.slice(0, 20).forEach((sowing: any) => {
+  sowings.forEach((sowing: any) => {
     if (!sowing.sow_date || sowing.status === 'done') return;
-    const age = daysBetween(String(sowing.sow_date).slice(0, 10));
+    const age = daysBetween(String(sowing.sow_date).slice(0, 10), today);
     if (age < 0) return;
     const name = sowing.variety || 'sådden';
     const status = sowing.status || 'sown';
-    const isIndoor = sowing.type === 'indoor' || status === 'indoor';
+    const isIndoor = status === 'indoor' || (status === 'sown' && sowing.type === 'indoor');
     const plantKind = normalizePlantKind(sowing.plant_kind);
     const isOrnamental = plantKind === 'ornamental';
 
     if (isOrnamental && typeof minTemp === 'number' && minTemp <= 0 && (status === 'flowering' || status === 'transplanted')) {
       actions.push({
-        id: `lift-tubers-${sowing.id}`,
-        title: `Ta upp knölarna på ${name}`,
-        description: 'Första frosten är här. Gräv upp knölarna, låt torka några dagar och förvara frostfritt vid 5–10 °C.',
+        id: `winter-protection-${sowing.id}-${today}`,
+        title: `Kontrollera vinterskyddet för ${name}`,
+        description: 'Frost väntas. Kontrollera artens härdighet och behov av skydd; olika blommor och perenner övervintrar på olika sätt.',
         priority: 'today',
         kind: 'sowing',
         actionPath: '/app/sowings',
         actionLabel: 'Öppna såloggen',
-        groPrompt: `Min ${name} har fått frost. Hur tar jag upp och förvarar knölarna över vintern i klimatzon ${climateZone}?`,
+        groPrompt: `Frost väntas för ${name}. Vilket vinterskydd behöver just denna art i klimatzon ${climateZone}? Be om exakt art om namnet är otydligt.`,
         reminderType: 'other',
         sourceSowingId: sowing.id,
         sourceBedId: sowing.bed_id,
@@ -273,7 +272,7 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
         reminderType: 'other',
         sourceSowingId: sowing.id,
         sourceBedId: sowing.bed_id,
-        why: identityFromSowing(sowing).source === 'unknown' ? 'inference' : 'trusted',
+        why: 'inference',
       });
     }
   });
@@ -306,14 +305,12 @@ export function buildGardenActions({ reminders = [], sowings = [], overduePlants
   }
 
   return uniqueActions(actions)
-    .sort((a, b) => priorityWeight(a.priority) - priorityWeight(b.priority))
-    .slice(0, 8);
+    .sort((a, b) => priorityWeight(a.priority) - priorityWeight(b.priority));
 }
 
-export function visibleGardenActions(actions: GardenAction[], state: Record<string, GardenActionState> = {}) {
-  const today = localDateKey();
+export function visibleGardenActions(actions: GardenAction[], state: Record<string, GardenActionState> = {}, today = localDateKey()) {
   return actions.filter((action) => {
-    const actionState = state[action.id];
+    const actionState = state[action.id] || (action.id.startsWith('reminder-') ? state[action.id.replace('reminder-', 'upcoming-')] : undefined);
     if (actionState?.dismissedAt) return false;
     // Completed is durable for that action id. Daily ids (frost-YYYY-MM-DD) reset next day.
     if (actionState?.completedAt) return false;

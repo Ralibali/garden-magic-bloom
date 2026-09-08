@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Bot, CalendarDays, Check, ChevronRight, Clock3, Leaf, PencilLine, SunMedium, X } from 'lucide-react';
@@ -13,7 +13,7 @@ import {
   GardenReminder,
   localDateKey,
 } from '@/lib/gardenToday';
-import { buildGardenPulse, type PulseBucket, type PulseItem } from '@/lib/gardenPulse';
+import { buildGardenPulse, getPulseLogTarget, type PulseBucket, type PulseItem } from '@/lib/gardenPulse';
 import type { PulseWhy } from '@/lib/gardenToday';
 
 const WHY_LABEL: Record<PulseWhy, string> = {
@@ -114,6 +114,7 @@ export default function GardenPulse({
 }: GardenPulseProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [expanded, setExpanded] = useState(false);
   const settings = (remindersData?.settings as any) || {};
   const reminders = useMemo(() => (settings.reminders || []) as GardenReminder[], [settings.reminders]);
   const actionState = useMemo(
@@ -148,17 +149,19 @@ export default function GardenPulse({
     const nextReminders = action.sourceReminderId
       ? reminders.map((reminder) => reminder.id === action.sourceReminderId ? { ...reminder, done: true, completed_at: now } : reminder)
       : reminders;
-    saveMutation.mutate({ smart_action_state: nextState, reminders: nextReminders });
-    void recordProductActivity('smart_action_completed', { action_id: action.id, kind: action.kind });
-    toast({ title: 'Klart', description: action.title });
+    saveMutation.mutate({ smart_action_state: nextState, reminders: nextReminders }, { onSuccess: () => {
+      void recordProductActivity('smart_action_completed', { action_id: action.id, kind: action.kind });
+      toast({ title: 'Klart', description: action.title });
+    } });
   };
 
   const snoozeItem = (item: PulseItem) => {
     const action = toAction(item);
     const nextState = { ...actionState, [action.id]: { ...actionState[action.id], snoozedUntil: addDaysToDateKey(localDateKey(), 1) } };
-    saveMutation.mutate({ smart_action_state: nextState });
-    void recordProductActivity('smart_action_snoozed', { action_id: action.id, kind: action.kind });
-    toast({ title: 'Flyttad till imorgon', description: action.title });
+    saveMutation.mutate({ smart_action_state: nextState }, { onSuccess: () => {
+      void recordProductActivity('smart_action_snoozed', { action_id: action.id, kind: action.kind });
+      toast({ title: 'Flyttad till imorgon', description: action.title });
+    } });
   };
 
   const askGro = (item: PulseItem) => {
@@ -168,22 +171,16 @@ export default function GardenPulse({
 
   const logItem = (item: PulseItem) => {
     void recordProductActivity('smart_action_log', { action_id: item.id, kind: item.kind });
-    if (item.kind === 'harvest' || item.sourceSowingId) {
-      navigate('/app/harvests', {
-        state: item.sourceSowingId
-          ? { prefill: { sowing_id: item.sourceSowingId, bed_id: item.sourceBedId, variety: item.title } }
-          : undefined,
-      });
-      return;
-    }
-    navigate(item.actionPath);
+    const target = getPulseLogTarget(item, sowings);
+    navigate(target.path, { state: target.state });
   };
 
   const dismissItem = (item: PulseItem) => {
     const nextState = { ...actionState, [item.id]: { ...actionState[item.id], dismissedAt: new Date().toISOString() } };
-    saveMutation.mutate({ smart_action_state: nextState });
-    void recordProductActivity('smart_action_dismissed', { action_id: item.id, kind: item.kind });
-    toast({ title: 'Dold', description: item.title });
+    saveMutation.mutate({ smart_action_state: nextState }, { onSuccess: () => {
+      void recordProductActivity('smart_action_dismissed', { action_id: item.id, kind: item.kind });
+      toast({ title: 'Dold', description: item.title });
+    } });
   };
 
   if (isLoading) {
@@ -257,7 +254,7 @@ export default function GardenPulse({
             <div key={bucket.key}>
               <h3 className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{bucket.title}</h3>
               <div className="space-y-2">
-                {items.map((item) => (
+                {(expanded ? items : items.slice(0, 4)).map((item) => (
                   <PulseRow
                     key={item.id}
                     item={item}
@@ -274,6 +271,7 @@ export default function GardenPulse({
           );
         })}
       </div>
+      {!expanded && [pulse.late, pulse.today, pulse.week].some(items => items.length > 4) && <Button variant="ghost" className="mb-4 ml-5" onClick={() => setExpanded(true)}>Visa alla uppgifter</Button>}
     </section>
   );
 }

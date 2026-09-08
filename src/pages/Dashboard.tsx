@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Brain, Camera, Carrot, Crown, ArrowRight, ChevronDown, Hand, HeartPulse, LayoutGrid, Leaf, MapPin, Plus, Sparkles, Sprout, CalendarDays, CloudSun } from 'lucide-react';
+import { BookOpen, Brain, Camera, Carrot, Crown, ArrowRight, ChevronDown, Hand, HeartPulse, LayoutGrid, Leaf, MapPin, Plus, Sparkles, Sprout, CalendarDays, CloudSun } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,6 +31,7 @@ import { getFrostWarning } from '@/lib/frostWarning';
 import { getHarvestHint } from '@/lib/harvestForecast';
 import { Snowflake } from 'lucide-react';
 import PrimaryActionCard from '@/components/PrimaryActionCard';
+import SeasonWrapDialog from '@/components/SeasonWrapDialog';
 
 const MONTH_TIPS: Record<number, string> = {
   1: 'Planera årets sorter och kontrollera fröförrådet.',
@@ -134,7 +135,7 @@ const Dashboard = () => {
     ? !plantsLoading && adaptivePlants.length === 0
     : !isLoading && ((stats?.active_beds ?? 0) === 0 || (stats?.sowings_this_year ?? 0) === 0);
   const dashboardLoading = isLoading || (plantOnly && plantsLoading);
-  const attentionPlants = adaptivePlants.filter((plant: any) => plant.care_profile.status !== 'good');
+  const attentionPlants = adaptivePlants.filter((plant: any) => ['urgent', 'due'].includes(plant.care_profile.status));
   const rawName = profile?.display_name?.trim();
   const displayName = rawName ? rawName.split(' ')[0] : '';
   const lastActivityValue = preferences.last_active_at || profile?.updated_at;
@@ -176,6 +177,12 @@ const Dashboard = () => {
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">{primaryMessage}</p>
         </section>
       </FadeIn>
+
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+        <div className="flex items-center gap-3"><BookOpen className="h-5 w-5 text-primary" /><div><h2 className="text-lg">Din odling har en historia</h2><p className="text-sm text-muted-foreground">Sådder, foton och lärdomar – samlade i din dagbok.</p></div></div>
+        <div className="flex flex-wrap gap-2"><Button onClick={() => navigate('/app/odlingar')}>Mina odlingar <ArrowRight className="ml-2 h-4 w-4" /></Button><Button variant="outline" onClick={() => navigate('/app/timeline')}>Öppna min dagbok</Button></div>
+      </section>
+
 
       {dashboardLoading ? (
         <Skeleton className="h-64 rounded-[1.8rem]" />
@@ -415,7 +422,7 @@ function PlantOnlyDashboard({
   const averageHealth = plants.length ? Math.round(plants.reduce((sum, plant) => sum + plant.care_profile.healthScore, 0) / plants.length) : 0;
   const personalRhythms = plants.filter(plant => plant.care_profile.confidence === 'personal').length;
   const attention = plants.filter(plant => ['urgent', 'due'].includes(plant.care_profile.status)).length;
-  const attentionPlants = plants.filter(plant => plant.care_profile.status !== 'good');
+  const attentionPlants = plants.filter(plant => ['urgent', 'due'].includes(plant.care_profile.status));
 
   const priority = computeDashboardPriority({ plants, reminders: ((remindersData?.settings as any)?.reminders || []), weather, rainData, climateZone });
 
@@ -484,18 +491,6 @@ function PlantOnlyDashboard({
       </CollapsibleSection>
     </>
   );
-}
-
-function SeasonWrapDialog({ open, onOpenChange, beds, year }: { open: boolean; onOpenChange: (open: boolean) => void; beds: any[]; year: number }) {
-  const queryClient = useQueryClient();
-  const [currentBedIndex, setCurrentBedIndex] = useState(0);
-  const [forms, setForms] = useState<Record<string, { went_well: string; didnt_work: string; grow_again: string; learnings: string }>>({});
-  const saveMutation = useMutation({ mutationFn: async () => { for (const bed of beds) { const form = forms[bed.id]; if (!form) continue; await api.upsertSeasonSummary({ bed_id: bed.id, year, went_well: form.went_well, didnt_work: form.didnt_work, grow_again: form.grow_again, learnings: form.learnings }); } }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['season-summaries'] }); toast({ title: 'Säsongssammanfattningen är sparad 🍂' }); onOpenChange(false); }, onError: () => toast({ title: 'Kunde inte spara', variant: 'destructive' }) });
-  if (!beds.length) return null;
-  const bed = beds[currentBedIndex];
-  const form = forms[bed?.id] || { went_well: '', didnt_work: '', grow_again: '', learnings: '' };
-  const updateForm = (field: string, value: string) => setForms(previous => ({ ...previous, [bed.id]: { ...form, [field]: value } }));
-  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="max-w-lg"><DialogHeader><DialogTitle className="flex items-center gap-2"><Leaf className="h-5 w-5 text-accent" /> Säsongsavslut {year} – {bed?.name}</DialogTitle><p className="text-xs text-muted-foreground">Plats {currentBedIndex + 1} av {beds.length}</p></DialogHeader><div className="space-y-4"><div><label className="text-sm font-medium mb-1.5 block">Vad gick bra?</label><Textarea placeholder="Till exempel: tomaterna gav jämn och tidig skörd" value={form.went_well} onChange={event => updateForm('went_well', event.target.value)} /></div><div><label className="text-sm font-medium mb-1.5 block">Vad fungerade inte?</label><Textarea placeholder="Till exempel: morötterna blev små och ojämna" value={form.didnt_work} onChange={event => updateForm('didnt_work', event.target.value)} /></div><div><label className="text-sm font-medium mb-1.5 block">Odla samma saker här nästa år?</label><Select value={form.grow_again} onValueChange={value => updateForm('grow_again', value)}><SelectTrigger><SelectValue placeholder="Välj" /></SelectTrigger><SelectContent><SelectItem value="yes">Ja</SelectItem><SelectItem value="no">Nej</SelectItem><SelectItem value="partly">Delvis</SelectItem></SelectContent></Select></div><div><label className="text-sm font-medium mb-1.5 block">Viktigaste lärdomen</label><Textarea placeholder="Vad vill du att nästa års version av dig ska komma ihåg?" value={form.learnings} onChange={event => updateForm('learnings', event.target.value)} /></div><div className="flex items-center justify-between pt-2"><Button variant="outline" size="sm" disabled={currentBedIndex === 0} onClick={() => setCurrentBedIndex(index => index - 1)}>Föregående</Button>{currentBedIndex < beds.length - 1 ? <Button size="sm" onClick={() => setCurrentBedIndex(index => index + 1)}>Nästa plats</Button> : <Button size="sm" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>{saveMutation.isPending ? 'Sparar…' : 'Spara allt'}</Button>}</div></div></DialogContent></Dialog>;
 }
 
 export default Dashboard;

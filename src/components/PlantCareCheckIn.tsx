@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Activity, BellRing, Check, Droplets, Leaf, Loader2, Sparkles } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -51,6 +51,7 @@ async function getUserId() {
 export default function PlantCareCheckIn({ plant, plantName, profile, trigger, onSaved }: PlantCareCheckInProps) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const attemptId = useRef<string | null>(null);
   const [soil, setSoil] = useState('');
   const [health, setHealth] = useState<number | null>(null);
   const [symptoms, setSymptoms] = useState<string[]>([]);
@@ -59,6 +60,7 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
   const [remindMe, setRemindMe] = useState(true);
 
   const reset = () => {
+    attemptId.current = null;
     setSoil('');
     setHealth(null);
     setSymptoms([]);
@@ -72,19 +74,13 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
       if (!soil || !health) throw new Error('Välj hur jorden känns och hur växten mår.');
       const userId = await getUserId();
       const now = new Date();
-      const today = now.toISOString().slice(0, 10);
+      const today = localDateKey(now);
+      const id = attemptId.current ||= crypto.randomUUID();
       const eventType = watered ? 'watered' : 'health_check';
       const summary = `${SOIL_OPTIONS.find(option => option.value === soil)?.label || soil}; ${HEALTH_OPTIONS.find(option => option.value === health)?.label || health}${symptoms.length ? `; ${symptoms.join(', ')}` : ''}`;
 
-      if (watered) {
-        const { error: updateError } = await supabase.from('my_plants').update({ last_watered: today }).eq('id', plant.id);
-        if (updateError) throw updateError;
-
-        const { error: wateringError } = await supabase.from('watering_log').insert({ user_id: userId, plant_id: plant.id, watered_at: now.toISOString() } as any);
-        if (wateringError) throw wateringError;
-      }
-
-      const { error: eventError } = await supabase.from('plant_care_events' as any).insert({
+      const { error: eventError } = await supabase.from('plant_care_events').upsert({
+        id,
         user_id: userId,
         plant_id: plant.id,
         event_type: eventType,
@@ -99,28 +95,37 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
           confidence: profile.confidence,
           health_score_before: profile.healthScore,
         },
-      } as any);
+      }, { onConflict: 'id' });
+      if (eventError) throw eventError;
+
+      // The structured event is the authoritative record. Compatibility writes
+      // must never turn a saved check-in into a failed, duplicated retry.
+      let syncWarning = false;
+      if (watered) {
+        const { error: updateError } = await supabase.from('my_plants').update({ last_watered: today }).eq('id', plant.id).eq('user_id', userId);
+        const { error: wateringError } = await supabase.from('watering_log').upsert({ id, user_id: userId, plant_id: plant.id, watered_at: now.toISOString() }, { onConflict: 'id' });
+        syncWarning = !!updateError || !!wateringError;
+      }
 
       const fallbackNote = note.trim() || summary;
-      const { error: logError } = await supabase.from('plant_logs').insert({
+      const { error: logError } = await supabase.from('plant_logs').upsert({
+        id,
         user_id: userId,
         plant_id: plant.id,
         log_type: eventType,
         note: fallbackNote,
-      } as any);
-      if (logError) throw logError;
-      if (eventError) console.warn('[plant_care_events]', eventError);
+      }, { onConflict: 'id' });
+      syncWarning = syncWarning || !!logError;
 
       let nextCheckDays: number | null = null;
+      let reminderFailed = false;
       if (remindMe) {
         const stressed = health <= 2 || symptoms.length > 0;
         nextCheckDays = stressed
           ? 2
-          : watered
-            ? profile.recommendedIntervalDays
-            : soil === 'wet' || soil === 'moist'
-              ? 2
-              : 1;
+          : soil === 'wet' || soil === 'moist'
+            ? 2
+            : watered ? profile.recommendedIntervalDays : 1;
 
         try {
           const settingsData = await api.getReminderSettings();
@@ -141,12 +146,13 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
           await api.updateReminderSettings({
             settings: {
               ...settings,
-              reminders: [...reminders.filter((item: any) => item.source_action_id !== sourceActionId || item.done), reminder],
+              reminders: [...reminders.map((item: any) => item.source_action_id === sourceActionId && !item.done ? { ...item, done: true, completed_at: now.toISOString() } : item), reminder],
             },
           }, settings);
         } catch (reminderError) {
           console.warn('[plant-care-reminder]', reminderError);
           nextCheckDays = null;
+          reminderFailed = true;
         }
       }
 
@@ -158,9 +164,10 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
         reminder_days: nextCheckDays,
       });
 
-      return { nextCheckDays };
+      return { nextCheckDays, syncWarning, reminderFailed };
     },
     onSuccess: (result, watered) => {
+      for (const key of ['cultivations', 'garden-diary', 'adaptive-care-plants', 'plant-weekly-summary']) void queryClient.invalidateQueries({ queryKey: [key] });
       queryClient.invalidateQueries({ queryKey: ['my-plants'] });
       queryClient.invalidateQueries({ queryKey: ['plant-care-events'] });
       queryClient.invalidateQueries({ queryKey: ['watering-log'] });
@@ -168,7 +175,7 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
       queryClient.invalidateQueries({ queryKey: ['reminder-settings'] });
       toast({
         title: watered ? `${plantName} är vattnad 💧` : `Hälsokollen är sparad 🌿`,
-        description: result.nextCheckDays
+        description: result.reminderFailed ? 'Kontrollen är sparad, men påminnelsen kunde inte skapas. Planera nästa kontroll under Påminnelser.' : result.syncWarning ? 'Kontrollen finns i dagboken. Några äldre vyer kunde inte uppdateras ännu.' : result.nextCheckDays
           ? `Nästa jordkontroll är planerad om ${result.nextCheckDays} ${result.nextCheckDays === 1 ? 'dag' : 'dagar'}.`
           : watered
             ? 'Nästa vattningsråd anpassas efter hur jorden och växten mådde idag.'
@@ -188,7 +195,7 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
   const shouldWait = soil === 'moist' || soil === 'wet';
 
   return (
-    <Dialog open={open} onOpenChange={next => { setOpen(next); if (!next) reset(); }}>
+    <Dialog open={open} onOpenChange={next => { if (saveMutation.isPending) return; setOpen(next); if (!next) reset(); }}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-w-xl max-h-[92vh] overflow-y-auto">
         <DialogHeader>
@@ -196,11 +203,11 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
           <p className="text-sm text-muted-foreground">En kontroll tar under 20 sekunder och lär appen vad just den här växten behöver.</p>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <fieldset disabled={saveMutation.isPending} className="space-y-6">
           <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4">
             <div className="flex items-center justify-between gap-3">
               <div><p className="text-xs font-semibold uppercase tracking-wide text-primary">Just nu</p><p className="font-medium mt-1">{profile.statusLabel}</p></div>
-              <div className="text-right"><p className="text-2xl font-bold">{profile.healthScore}</p><p className="text-[10px] text-muted-foreground">hälsopoäng</p></div>
+              <div className="text-right"><p className="text-sm font-semibold">{profile.observationsCount ? profile.confidenceLabel : 'Första kontrollen'}</p><p className="text-[10px] text-muted-foreground">{profile.observationsCount} observationer</p></div>
             </div>
             <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{profile.recommendation}</p>
           </div>
@@ -250,12 +257,12 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
             </section>
           )}
 
-          <Textarea value={note} onChange={event => setNote(event.target.value)} placeholder="Egen anteckning, till exempel nya blad eller ändrad placering (valfritt)" />
+          <Textarea aria-label="Anteckning om växtkontrollen" maxLength={5000} value={note} onChange={event => setNote(event.target.value)} placeholder="Egen anteckning, till exempel nya blad eller ändrad placering (valfritt)" />
 
           {shouldWait && (
             <div className="rounded-2xl border border-amber-500/20 bg-amber-500/8 p-3 text-sm">
               <p className="font-medium">Jorden är fortfarande fuktig</p>
-              <p className="mt-1 text-xs text-muted-foreground">Spara hellre kontrollen utan att vattna. Appen flyttar då fram nästa rekommendation.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Spara hellre kontrollen utan att vattna. Registrera en ny jordkontroll inom två dagar; vänta inte om växten visar tecken på stress.</p>
             </div>
           )}
 
@@ -273,7 +280,7 @@ export default function PlantCareCheckIn({ plant, plantName, profile, trigger, o
               {shouldWait ? 'Vattna ändå' : 'Vattnad nu'}
             </Button>
           </div>
-        </div>
+        </fieldset>
       </DialogContent>
     </Dialog>
   );

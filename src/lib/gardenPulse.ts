@@ -88,7 +88,7 @@ function upcomingWeekActions(reminders: GardenReminder[], today: string): Garden
     .map((reminder) => {
       const inDays = daysUntil(reminder.date, today);
       return {
-        id: `upcoming-${reminder.id}`,
+        id: `reminder-${reminder.id}`,
         title: reminder.title,
         description: inDays === 1 ? 'Planerad till imorgon.' : `Planerad om ${inDays} dagar.`,
         priority: 'soon' as const,
@@ -116,9 +116,9 @@ export function groupPulseBuckets(
   for (const action of actions) {
     if (seen.has(action.id)) continue;
     seen.add(action.id);
-    if (action.priority === 'urgent') {
+    if (action.priority === 'urgent' && (action.kind === 'reminder' || (action.kind === 'watering' && action.why !== 'weather'))) {
       late.push(actionToItem(action, 'late'));
-    } else if (action.priority === 'today') {
+    } else if (action.priority === 'today' || action.priority === 'urgent') {
       todayItems.push(actionToItem(action, 'today'));
     } else {
       week.push(actionToItem(action, 'week'));
@@ -147,13 +147,14 @@ export function buildGardenPulse(input: GardenPulseInput): GardenPulseResult {
     weather: input.weather,
     rainData: input.rainData,
     climateZone: input.climateZone,
+    today,
   });
   const honest = generated.filter((action) => {
     if (action.kind === 'start') return false;
     if (isWeatherKind(action.kind) && !openMeteoDrivesGardenToday(input)) return false;
     return true;
   });
-  const visible = visibleGardenActions(honest, input.actionState);
+  const visible = visibleGardenActions(honest, input.actionState, today);
   const alreadyCovered = new Set(
     visible.map((action) => action.sourceReminderId).filter(Boolean) as string[],
   );
@@ -162,7 +163,7 @@ export function buildGardenPulse(input: GardenPulseInput): GardenPulseResult {
     if (alreadyCovered.has(action.sourceReminderId)) return false;
     return true;
   });
-  const buckets = groupPulseBuckets([...visible, ...upcoming]);
+  const buckets = groupPulseBuckets(visibleGardenActions([...visible, ...upcoming], input.actionState, today));
   const empty = buckets.late.length + buckets.today.length + buckets.week.length === 0;
   const context = getGardenContext({
     scope: 'TODAY',
@@ -173,4 +174,14 @@ export function buildGardenPulse(input: GardenPulseInput): GardenPulseResult {
     reminders,
   });
   return { ...buckets, empty, context };
+}
+
+/** A sowing reference does not make a task a harvest. */
+export function getPulseLogTarget(item: Pick<PulseItem, 'kind' | 'sourceSowingId' | 'sourceBedId' | 'actionPath'>, sowings: { id: string; variety: string; bed_id?: string | null }[]) {
+  if (item.kind !== 'harvest') return { path: item.actionPath, state: undefined };
+  const sowing = sowings.find(candidate => candidate.id === item.sourceSowingId);
+  return {
+    path: '/app/harvests',
+    state: sowing ? { prefill: { sowing_id: sowing.id, bed_id: sowing.bed_id || item.sourceBedId, variety: sowing.variety } } : undefined,
+  };
 }

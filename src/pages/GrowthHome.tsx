@@ -1,3 +1,5 @@
+import { useAuth } from '@/hooks/useAuth';
+import harvestImage from '@/assets/hero-harvest-hands.jpg';
 import { Link } from 'react-router-dom';
 import { Seo } from '@/hooks/useSeo';
 import { Button } from '@/components/ui/button';
@@ -17,7 +19,7 @@ const trackCta = (label: string) => {
 const steps = [
   { icon: Sprout, title: 'Berätta om din odling', text: 'Klimatzon, odlingssätt och det du odlar. Det tar under en minut.' },
   { icon: CalendarDays, title: 'Få din såkalender och plan', text: 'En tydlig plan för sådd, förodling, utplantering och skörd — anpassad för Sverige.' },
-  { icon: BarChart3, title: 'Logga och lär av säsongen', text: 'Anteckna, jämför och se vad som fungerar hos just dig — år efter år.' },
+  { icon: BarChart3, title: 'Skriv din egen odlingshistoria', text: 'Anteckna, jämför och se vad som fungerar hos just dig — år efter år.' },
 ];
 
 const segments = [
@@ -28,12 +30,12 @@ const segments = [
 ];
 
 const features = [
-  { icon: BookOpen, title: 'Personlig odlingsdagbok', text: 'Allt du sår, planterar och skördar samlat på ett ställe — sökbart år för år.' },
+  { icon: BookOpen, title: 'Personlig odlingsdagbok', text: 'Sådd, foton, växtvård och egna anteckningar i en gemensam dagbok. Sök på växt, plats eller lärdom och återbesök tidigare år.' },
   { icon: CalendarDays, title: 'Såplanering & påminnelser', text: 'Såkalender, förodling och utplantering med diskreta påminnelser vid rätt tidpunkt.' },
-  { icon: Sparkles, title: 'Växtpuls', text: 'Följ hur dina plantor mår över tid — vattning, gödsling och observationer i en känsla.' },
+  { icon: Sparkles, title: 'Växtpuls', text: 'Följ hur dina plantor mår över tid med vattning, gödsling och egna observationer.' },
   { icon: Bot, title: 'Gro — din AI-coach', text: 'Fråga om gula blad, växtföljd eller såtider. Gro svarar utifrån din odling och zon.' },
   { icon: BarChart3, title: 'Skörd & statistik', text: 'Se vilka bäddar och grödor som presterar bäst. Jämför säsonger utan att gissa.' },
-  { icon: Camera, title: 'Fotodagbok & historik', text: 'Foton, anteckningar och beslut sparas per bädd — bygg din egen kunskapsbank.' },
+  { icon: Camera, title: 'Fotodagbok & historik', text: 'Spara foton med rätt datum, koppla till en sådd eller krukväxt och se hur odlingen förändras.' },
 ];
 
 const faqs = [
@@ -46,6 +48,7 @@ const faqs = [
 ];
 
 export default function GrowthHome() {
+  const { isAuthenticated } = useAuth();
   return (
     <PublicLayout>
       <Seo
@@ -78,78 +81,28 @@ export default function GrowthHome() {
         ]}
       />
 
-      {/* HERO */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-background to-accent/5" aria-hidden />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-28 grid lg:grid-cols-[1.05fr_.95fr] gap-10 lg:gap-16 items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-3 py-1.5 text-xs font-medium text-primary mb-6">
-              <Leaf className="h-3.5 w-3.5" /> Byggd för svenska odlare · Klimatzon 1–8
+      <section className="bloom-hero relative overflow-hidden bg-[#173e2b] text-white">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:py-20">
+          <div className="relative z-10">
+            <p className="mb-6 flex items-center gap-2 text-sm font-medium uppercase tracking-[0.16em] text-emerald-200"><Sprout className="h-4 w-4" /> För livet som växer</p>
+            <h1 className="max-w-2xl font-serif text-5xl !text-white leading-[1.06] tracking-tight sm:text-6xl lg:text-[4.25rem]">Din odling.<br />Dina ögonblick.<br /><span className="text-[#e5cd83]">Din dagbok.</span></h1>
+            <p className="mt-6 max-w-lg text-lg leading-relaxed text-white/80">Från det allra första fröet till den där skörden du aldrig glömmer. Samla bilder, följ det som växer och ta med dig lärdomarna till nästa säsong.</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild size="lg" className="min-h-12 bg-[#e5cd83] px-6 text-base text-[#173e2b] hover:bg-[#f2dfa7]" onClick={() => trackCta('hero_primary')}><Link to={isAuthenticated ? '/app/timeline' : '/login?mode=register'}>{isAuthenticated ? 'Öppna min dagbok' : 'Börja min odlingsdagbok'}<ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+              <Button asChild variant="outline" size="lg" className="min-h-12 border-white/30 bg-transparent text-base text-white hover:bg-white/10 hover:text-white" onClick={() => trackCta('hero_secondary')}><Link to="/sakalender">Utforska såkalendern</Link></Button>
             </div>
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-[3.75rem] leading-[1.05] tracking-tight text-foreground mb-5">
-              Bättre skörd. <span className="text-primary">Mindre gissande.</span><br className="hidden sm:block" /> En odlingsdagbok som minns åt dig.
-            </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed max-w-xl mb-8">
-              Planera sådd, logga skörd och lär av varje säsong. Odlingsdagboken bygger din personliga kunskapsbank för pallkrage, växthus, friland, balkong och krukväxter.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 mb-5">
-              <Button asChild size="lg" className="h-12 px-6 gap-2 text-base min-h-[44px]" onClick={() => trackCta('hero_primary')}>
-                <Link to="/login?mode=register">Testa gratis – tar 30 sekunder <ArrowRight className="h-4 w-4" /></Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="h-12 px-6 text-base min-h-[44px]" onClick={() => trackCta('hero_secondary')}>
-                <Link to="/hur-det-fungerar">Se hur det fungerar</Link>
-              </Button>
-            </div>
-            <ul className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
-              <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Inget betalkort krävs</li>
-              <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> 14 dagars Plus gratis</li>
-              <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Data inom EU · GDPR</li>
-            </ul>
+            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/70"><span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-200" />Gratis att börja</span><span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-200" />För svenska klimatzoner</span></div>
           </div>
-
-          {/* Product preview */}
-          <div className="relative">
-            <div className="absolute -inset-4 bg-gradient-to-br from-primary/10 to-accent/10 rounded-[2rem] blur-2xl opacity-60" aria-hidden />
-            <div className="relative bg-card border border-border rounded-3xl shadow-2xl p-5 sm:p-6">
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-semibold">Din säsong {CURRENT_YEAR}</p>
-                  <h2 className="font-serif text-xl sm:text-2xl text-foreground">Såkalender & odlingsplan</h2>
-                </div>
-                <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-                  <Sprout className="h-5 w-5" />
-                </div>
-              </div>
-              <div className="space-y-2.5">
-                {[
-                  ['Tomat', 'Förodla mars · plantera ut efter frost', 'v.10'],
-                  ['Gurka', 'Förodla april · varma nätter', 'v.15'],
-                  ['Morot', 'Direktså april–juni · jämn fukt', 'v.16'],
-                  ['Sallat', 'Så i omgångar · skörda länge', 'v.14'],
-                ].map(([crop, text, week]) => (
-                  <div key={crop} className="rounded-2xl border border-border bg-background/60 p-3.5 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-primary/8 text-primary flex items-center justify-center shrink-0">
-                      <Leaf className="h-4 w-4" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <h3 className="font-medium text-sm text-foreground truncate">{crop}</h3>
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">{week}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground truncate">{text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 rounded-2xl bg-primary/8 border border-primary/15 p-3.5 flex gap-3">
-                <Bot className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <strong className="text-foreground">Gro tipsar:</strong> I zon 3, vänta hellre lite med gurkan än att få rangliga plantor inomhus.
-                </p>
-              </div>
+          <div className="relative pb-8 sm:pb-12">
+            <img src={harvestImage} alt="Händer fyllda med nyskördade tomater, zucchini och morötter vid en grönskande pallkrage" width="1024" height="1024" fetchPriority="high" className="aspect-[5/6] max-h-[590px] w-full rounded-t-[8rem] rounded-b-3xl object-cover sm:rounded-t-[10rem]" />
+            <div className="absolute bottom-0 left-0 right-4 rounded-2xl border border-white/50 bg-[#fffdf5] p-5 text-[#24372b] shadow-xl sm:-left-5 sm:right-12 sm:p-6">
+              <div className="mb-3 flex items-center justify-between gap-3"><span className="flex items-center gap-2 text-sm font-medium"><BookOpen className="h-4 w-4 text-[#38664b]" />Ett exempel ur dagboken</span><span className="text-xs text-[#637266]">Augusti</span></div>
+              <p className="font-serif text-2xl !text-[#24372b]">Den första tomaten smakar alltid bäst.</p>
+              <div className="mt-4 flex flex-wrap gap-2 text-sm"><span className="rounded-full bg-[#e7eddd] px-3 py-1">Skörd · 1,2 kg</span><span className="rounded-full bg-[#eee8d8] px-3 py-1">Växthuset</span><span className="rounded-full bg-[#eee8d8] px-3 py-1">En lärdom till nästa år</span></div>
             </div>
           </div>
         </div>
+        <div className="border-t border-white/15"><div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-4 px-5 py-5 text-sm text-white/75 sm:px-8"><span className="inline-flex items-center gap-2"><BookOpen className="h-4 w-4 text-emerald-200" />Din historia, år efter år</span><span className="inline-flex items-center gap-2"><Camera className="h-4 w-4 text-emerald-200" />Foton & små upptäckter</span><span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-emerald-200" />Sådd till skörd</span><span className="inline-flex items-center gap-2"><Sprout className="h-4 w-4 text-emerald-200" />Balkong, trädgård & krukväxter</span></div></div>
       </section>
 
       {/* HOW IT WORKS */}

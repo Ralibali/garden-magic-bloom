@@ -13,6 +13,7 @@ export interface NewReminder {
   source_action_id?: string;
   sowing_id?: string | null;
   bed_id?: string | null;
+  plant_id?: string;
   display_text?: string;
   source?: string;
 }

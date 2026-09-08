@@ -1,3 +1,5 @@
+import { localDateKey, addDaysToDateKey } from '@/lib/gardenToday';
+
 export type PlantCareStatus = 'urgent' | 'due' | 'soon' | 'good';
 export type PlantCareConfidence = 'starter' | 'learning' | 'personal';
 export type PlantCareTrend = 'improving' | 'stable' | 'declining' | 'unknown';
@@ -58,15 +60,15 @@ function median(values: number[]): number | null {
 }
 
 function localDayDifference(later: Date, earlier: Date) {
-  const laterDay = Date.UTC(later.getFullYear(), later.getMonth(), later.getDate());
-  const earlierDay = Date.UTC(earlier.getFullYear(), earlier.getMonth(), earlier.getDate());
+  const laterDay = new Date(`${localDateKey(later)}T12:00:00Z`).getTime();
+  const earlierDay = new Date(`${localDateKey(earlier)}T12:00:00Z`).getTime();
   return Math.round((laterDay - earlierDay) / DAY_MS);
 }
 
 function uniqueDates(values: Date[]) {
   const seen = new Set<string>();
   return values.filter(date => {
-    const key = date.toISOString().slice(0, 10);
+    const key = localDateKey(date);
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -111,13 +113,13 @@ function statusMeta(status: PlantCareStatus) {
 export function buildPlantCareProfile(plant: any, events: any[] = [], now = new Date()): PlantCareProfile {
   const baseInterval = clamp(Number(plant?.watering_interval_days || plant?.plants?.watering_interval_days || 7), 2, 30);
   const sortedEvents = [...events]
-    .filter(event => eventDate(event))
+    .filter(event => { const date = eventDate(event); return date && date.getTime() <= now.getTime(); })
     .sort((a, b) => (eventDate(a)?.getTime() || 0) - (eventDate(b)?.getTime() || 0));
 
   const wateringDates = uniqueDates([
     ...sortedEvents.filter(event => eventType(event) === 'watered').map(event => eventDate(event)!).filter(Boolean),
     ...(plant?.last_watered ? [toDate(plant.last_watered)!].filter(Boolean) : []),
-  ]).sort((a, b) => a.getTime() - b.getTime());
+  ].filter(date => localDateKey(date) <= localDateKey(now))).sort((a, b) => a.getTime() - b.getTime());
 
   const wateringIntervals = wateringDates
     .slice(1)
@@ -167,20 +169,22 @@ export function buildPlantCareProfile(plant: any, events: any[] = [], now = new 
 
   const health = healthFromObservation(latestObservation);
   const latestSoil = latestObservation?.soil_moisture;
+  const observedAt = latestObservation ? eventDate(latestObservation) : null;
+  const observationAge = observedAt ? localDayDifference(now, observedAt) : null;
+  const recentMoistSoil = (latestSoil === 'wet' || latestSoil === 'moist') && observationAge !== null && observationAge >= 0 && observationAge < 2;
+  let nextWaterDate = lastWatered ? new Date(lastWatered.getTime() + recommendedInterval * DAY_MS) : null;
   let status: PlantCareStatus;
   if (health.score < 48) status = 'urgent';
-  else if (!lastWatered) status = 'due';
-  else if (latestSoil === 'wet' && daysUntilWater !== null && daysUntilWater <= 0) {
+  else if (recentMoistSoil) {
     status = 'soon';
-    daysUntilWater = 2;
-  } else if ((daysUntilWater ?? 99) <= -2) status = 'urgent';
+    nextWaterDate = new Date(`${addDaysToDateKey(localDateKey(observedAt!), 2)}T12:00:00Z`);
+    daysUntilWater = localDayDifference(nextWaterDate, now);
+  } else if (!lastWatered) status = 'due';
+  else if ((daysUntilWater ?? 99) <= -2) status = 'urgent';
   else if ((daysUntilWater ?? 99) <= 0) status = 'due';
   else if ((daysUntilWater ?? 99) <= 2) status = 'soon';
   else status = 'good';
 
-  const nextWaterDate = lastWatered
-    ? new Date(lastWatered.getTime() + recommendedInterval * DAY_MS)
-    : null;
 
   const dataPoints = observations.length + wateringDates.length;
   const confidence: PlantCareConfidence = dataPoints >= 8 ? 'personal' : dataPoints >= 3 ? 'learning' : 'starter';
@@ -208,17 +212,17 @@ export function buildPlantCareProfile(plant: any, events: any[] = [], now = new 
 
   let reason: string;
   let recommendation: string;
-  if (!lastWatered) {
-    reason = 'Gör en första jordkontroll så börjar appen lära sig den här växtens rytm.';
-    recommendation = 'Känn två till tre centimeter ner i jorden innan du bestämmer om den ska vattnas.';
-  } else if (latestSoil === 'wet') {
-    reason = 'Jorden registrerades som fuktig eller blöt senast, därför skjuts nästa vattning fram.';
-    recommendation = 'Vänta tills den översta jorden har torkat och kontrollera igen om ett par dagar.';
-  } else if (status === 'urgent') {
+  if (status === 'urgent') {
     reason = health.score < 48
       ? 'Den senaste hälsokollen visar tecken på stress.'
       : `Det har gått ${daysSinceWatered} dagar. Din växt brukar behöva en kontroll efter cirka ${recommendedInterval} dagar.`;
     recommendation = 'Kontrollera jord, blad och stjälkar idag. Vattna bara om jorden faktiskt känns torr.';
+  } else if (recentMoistSoil) {
+    reason = 'Din senaste jordkontroll visar fuktig eller blöt jord. En ny kontroll behövs inom två dagar från observationen.';
+    recommendation = 'Vänta med vattning tills jorden behöver det. Kontrollera igen senast två dagar efter den senaste jordkontrollen.';
+  } else if (!lastWatered) {
+    reason = 'Gör en första jordkontroll så börjar appen lära sig den här växtens rytm.';
+    recommendation = 'Känn två till tre centimeter ner i jorden innan du bestämmer om den ska vattnas.';
   } else if (status === 'due') {
     reason = `Historiken pekar mot ungefär ${recommendedInterval} dagar mellan kontrollerna.`;
     recommendation = 'Känn på jorden idag och registrera hur den känns. Det gör nästa rekommendation säkrare.';

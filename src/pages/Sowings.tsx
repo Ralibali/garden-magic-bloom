@@ -1,3 +1,4 @@
+import { localDateKey } from '@/lib/gardenToday';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -83,7 +84,7 @@ const Sowings = () => {
   const presetFilter = locationState.statusFilter as StatusFilter | undefined;
   const [open, setOpen] = useState(!!prefill);
   const [variety, setVariety] = useState(prefill?.variety || '');
-  const [bedId, setBedId] = useState('');
+  const [bedId, setBedId] = useState(prefill?.bed_id || '');
   const [sowDate, setSowDate] = useState(prefill?.sow_date || format(new Date(), 'yyyy-MM-dd'));
   const [type, setType] = useState(prefill?.type === 'indoor' ? 'indoor' : 'direct');
   const [notes, setNotes] = useState(prefill?.notes || '');
@@ -98,10 +99,17 @@ const Sowings = () => {
 
   const brandRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { if (prefill || presetFilter) window.history.replaceState({}, document.title); }, [prefill, presetFilter]);
+  useEffect(() => { if (prefill || presetFilter) navigate(location.pathname, { replace: true, state: null }); }, [prefill, presetFilter, navigate, location.pathname]);
   useEffect(() => { const handler = (event: MouseEvent) => { if (brandRef.current && !brandRef.current.contains(event.target as Node)) setShowBrandSuggestions(false); }; document.addEventListener('mousedown', handler); return () => document.removeEventListener('mousedown', handler); }, []);
 
   const { data: sowingsRaw, isLoading } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  useEffect(() => {
+    if (!locationState.sowingId || !sowingsRaw) return;
+    const target = sowingsRaw.find(s => s.id === locationState.sowingId);
+    if (target) { setEditing({ ...target }); setSearch(target.variety); setStatusFilter('alla'); }
+    else toast({ title: 'Sådden finns inte längre', variant: 'destructive' });
+    navigate(location.pathname, { replace: true, state: null });
+  }, [locationState.sowingId, sowingsRaw, navigate, location.pathname]);
   const { data: beds } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
   const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
   const climateZone = profile?.climate_zone ?? 3;
@@ -133,7 +141,7 @@ const Sowings = () => {
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = { alla: sowingsRaw?.length ?? 0, aktiva: 0 };
     for (const s of sowingsRaw || []) {
-      const st = normalizeSowingStatus(s.status);
+      const st = normalizeSowingStatus(s.status, s.plant_kind);
       counts[st] = (counts[st] || 0) + 1;
       if (st !== 'done') counts.aktiva += 1;
     }
@@ -172,6 +180,8 @@ const Sowings = () => {
     onSuccess: (sowing) => {
       const wasFirst = (sowingsRaw?.length ?? 0) === 0;
       queryClient.invalidateQueries({ queryKey: ['sowings'] });
+      queryClient.invalidateQueries({ queryKey: ['cultivations'] });
+      queryClient.invalidateQueries({ queryKey: ['garden-diary'] });
       queryClient.invalidateQueries({ queryKey: ['summary-stats'] });
       setOpen(false); setVariety(''); setBedId(''); setNotes(''); setSeedBrand(''); setSeedInventoryId('');
       void recordProductActivity(wasFirst ? 'first_sowing_created' : 'sowing_created', { sowing_id: sowing.id, type });
@@ -192,6 +202,8 @@ const Sowings = () => {
     mutationFn: ({ id, patch }: { id: string; patch: Record<string, any> }) => api.updateSowing(id, patch),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['sowings'] });
+      queryClient.invalidateQueries({ queryKey: ['cultivations'] });
+      queryClient.invalidateQueries({ queryKey: ['garden-diary'] });
       queryClient.invalidateQueries({ queryKey: ['summary-stats'] });
       void recordProductActivity('sowing_status_changed', { sowing_id: vars.id, status: vars.patch.status });
       const meta = SOWING_STATUS_META[vars.patch.status as SowingStatus];
@@ -202,6 +214,7 @@ const Sowings = () => {
 
   const editMutation = useMutation({
     mutationFn: () => api.updateSowing(editing.id, {
+      ...buildStatusPatch(editing, normalizeSowingStatus(editing.status, editing.plant_kind), localDateKey()),
       ...sowingPayloadFromVariety(editing.variety.trim(), {
         bed_id: editing.bed_id || null,
         sow_date: editing.sow_date,
@@ -213,6 +226,8 @@ const Sowings = () => {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sowings'] });
+      queryClient.invalidateQueries({ queryKey: ['cultivations'] });
+      queryClient.invalidateQueries({ queryKey: ['garden-diary'] });
       setEditing(null);
       toast({ title: 'Sådden uppdaterad ✏️' });
     },
@@ -221,7 +236,9 @@ const Sowings = () => {
 
   const deleteMutation = useMutation({
     mutationFn: api.deleteSowing,
-    onSuccess: (_, id) => { queryClient.invalidateQueries({ queryKey: ['sowings'] }); queryClient.invalidateQueries({ queryKey: ['summary-stats'] }); void recordProductActivity('sowing_deleted', { sowing_id: id }); toast({ title: 'Sådd borttagen' }); },
+    onSuccess: (_, id) => { queryClient.invalidateQueries({ queryKey: ['sowings'] });
+      queryClient.invalidateQueries({ queryKey: ['cultivations'] });
+      queryClient.invalidateQueries({ queryKey: ['garden-diary'] }); queryClient.invalidateQueries({ queryKey: ['summary-stats'] }); void recordProductActivity('sowing_deleted', { sowing_id: id }); toast({ title: 'Sådd borttagen' }); },
     onError: (error: any) => toast({ title: 'Kunde inte ta bort sådden', description: error?.message, variant: 'destructive' }),
   });
 
@@ -230,7 +247,7 @@ const Sowings = () => {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const payload = reminderFromSowing(sowing, {
-        title: `Skörda ${sowing.variety}`,
+        title: `Kontrollera skördeläget för ${sowing.variety}`,
         type: 'other',
         date: tomorrow.toISOString().slice(0, 10),
       });
@@ -329,6 +346,7 @@ const Sowings = () => {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="direct">Direktsådd</SelectItem><SelectItem value="indoor">Förodling</SelectItem></SelectContent>
               </Select>
+              <Select disabled={editMutation.isPending} value={normalizeSowingStatus(editing.status, editing.plant_kind)} onValueChange={status => setEditing({ ...editing, status })}><SelectTrigger aria-label="Utvecklingsstadium"><SelectValue /></SelectTrigger><SelectContent>{getSowingStatusOrder(editing.plant_kind).map(status => <SelectItem key={status} value={status}>{SOWING_STATUS_META[status].label}</SelectItem>)}</SelectContent></Select>
               <Textarea placeholder="Anteckningar (valfritt)" value={editing.notes || ''} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} />
               <Button onClick={() => editMutation.mutate()} disabled={!editing.variety?.trim() || editMutation.isPending} className="w-full">{editMutation.isPending ? 'Sparar…' : 'Spara ändringar'}</Button>
             </div>
@@ -354,8 +372,8 @@ const Sowings = () => {
             const kind = normalizePlantKind(sowing.plant_kind);
             const isOrnamental = kind === 'ornamental';
             const status = normalizeSowingStatus(sowing.status, kind);
-            const next = nextSowingStatus(status, kind);
-            const prev = previousSowingStatus(status, kind);
+            const next = sowing.type === 'direct' && status === 'sown' ? (isOrnamental ? 'flowering' : 'harvesting') : nextSowingStatus(status, kind);
+            const prev = sowing.type === 'direct' && (status === 'harvesting' || status === 'flowering') ? 'sown' : previousSowingStatus(status, kind);
             const age = sowingAgeLabel(sowing.sow_date);
             const hint = status === 'done' || isOrnamental ? null : getHarvestHint(sowing.variety, climateZone);
 
@@ -397,8 +415,8 @@ const Sowings = () => {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-accent hover:text-accent"
-                            title="Påminn mig att skörda imorgon"
-                            aria-label="Påminn mig att skörda imorgon"
+                            title="Påminn mig att kontrollera skördeläget imorgon"
+                            aria-label="Påminn mig att kontrollera skördeläget imorgon"
                             disabled={reminderMutation.isPending}
                             onClick={() => reminderMutation.mutate(sowing)}
                           >
@@ -439,7 +457,7 @@ const Sowings = () => {
                             size="sm"
                             className="h-8 gap-1 px-2.5 text-xs text-muted-foreground"
                             disabled={statusMutation.isPending}
-                            onClick={() => statusMutation.mutate({ id: sowing.id, patch: buildStatusPatch(sowing, prev) })}
+                            onClick={() => statusMutation.mutate({ id: sowing.id, patch: buildStatusPatch(sowing, prev, localDateKey()) })}
                           >
                             <ArrowLeft className="h-3.5 w-3.5" /> {SOWING_STATUS_META[prev].short}
                           </Button>
@@ -450,7 +468,7 @@ const Sowings = () => {
                             size="sm"
                             className="h-8 gap-1 px-3 text-xs border-primary/25 text-primary hover:bg-primary/8"
                             disabled={statusMutation.isPending}
-                            onClick={() => statusMutation.mutate({ id: sowing.id, patch: buildStatusPatch(sowing, next) })}
+                            onClick={() => statusMutation.mutate({ id: sowing.id, patch: buildStatusPatch(sowing, next, localDateKey()) })}
                           >
                             {next === 'done' ? 'Avsluta' : `Markera som ${SOWING_STATUS_META[next].short.toLowerCase()}`} <ArrowRight className="h-3.5 w-3.5" />
                           </Button>

@@ -65,8 +65,8 @@ export function getHarvestHint(
       cropName,
       startWeek: harvestStart,
       endWeek: harvestEnd,
-      shortLabel: 'Skördeläge nu',
-      label: `Skördeläge nu – fram till v. ${harvestEnd}`,
+      shortLabel: 'Vanlig skördetid',
+      label: `Vanlig skördesäsong till v. ${harvestEnd}. Kontrollera sortens mognadstecken.`,
     };
   }
   if (currentWeek < harvestStart) {
@@ -76,7 +76,7 @@ export function getHarvestHint(
       cropName,
       startWeek: harvestStart,
       endWeek: harvestEnd,
-      shortLabel: `Skörd från v. ${harvestStart}`,
+      shortLabel: `Vanligen från v. ${harvestStart}`,
       label: weeksLeft <= 2
         ? `Skörd närmar sig – beräknat från v. ${harvestStart}`
         : `Beräknad skörd från v. ${harvestStart}`,
@@ -87,7 +87,7 @@ export function getHarvestHint(
     cropName,
     startWeek: harvestStart,
     endWeek: harvestEnd,
-    shortLabel: 'Skördesäsongen är slut',
-    label: `Skördesäsongen passerade v. ${harvestEnd} – dags att avsluta sådden`,
+    shortLabel: 'Efter vanlig skördetid',
+    label: `Det vanliga skördefönstret slutade v. ${harvestEnd}. Din såtid, växtplats och sort kan ge en annan skördetid.`,
   };
 }
