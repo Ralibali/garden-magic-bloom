@@ -288,6 +288,9 @@ export default function GuideArticle() {
             <h1 className="font-serif text-3xl sm:text-4xl lg:text-[2.75rem] text-foreground leading-[1.1] tracking-tight mb-5">
               {post.title}
             </h1>
+            {post.slug === 'vattningsvakt-checklista-tradgard' && (
+              <p className="text-sm text-muted-foreground mb-4">AI-assisterad originalguide, skriven med ChatGPT. Arbetsmallen är ett redaktionellt förslag.</p>
+            )}
             {post.excerpt && (
               <p className="text-lg text-muted-foreground leading-relaxed">
                 {post.excerpt}
