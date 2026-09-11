@@ -1,8 +1,15 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { renderBlogContent } from './blog-content.mjs';
 
 /**
  * Shared prerender helpers. Used by scripts/prerender.mjs and unit tests.
  */
+
+const manadFallbackMonths = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'manad-fallback-months.json'), 'utf8'),
+);
 
 export const ORIGIN = 'https://odlingsdagboken.com';
 export const DEFAULT_OG_IMAGE = `${ORIGIN}/og-image.png`;
@@ -32,6 +39,32 @@ export const REQUIRED_FIRST_BYTE_PAGES = [
     body: 'Det är inte en kurs och inte en nyhetsfeed. Du sätter en zon, får en rimlig tidsplan och antecknar det som händer i bädden. Tre steg: berätta var du odlar, få en plan du kan ändra, logga det som faktiskt hände.',
   },
 ];
+
+/** Existing /manad/:slug router paths — same CMS months as /odlingskalender/:slug. */
+export const MONTH_SLUGS = manadFallbackMonths.map((month) => month.slug);
+
+export function calendarMonthFirstByte(month, pathPrefix = '/odlingskalender') {
+  const slug = String(month.slug || '').toLowerCase();
+  const name = String(month.month_name || slug).toLowerCase();
+  return {
+    route: `${pathPrefix}/${slug}`,
+    title: `Odlingskalender ${name} – så, plantera och skörda i din zon`,
+    heading: `Odlingskalender för ${name}`,
+    description: truncate(month.intro || `Vad du kan så, plantera och skörda i ${name}.`),
+    body: month.intro,
+    type: 'article',
+    publishedTime: month.created_at,
+    modifiedTime: month.updated_at || month.created_at,
+  };
+}
+
+export const REQUIRED_MANAD_FIRST_BYTE_PAGES = manadFallbackMonths.map((month) =>
+  calendarMonthFirstByte(month, '/manad'),
+);
+
+export function allGuardedFirstBytePages() {
+  return [...REQUIRED_FIRST_BYTE_PAGES, ...REQUIRED_MANAD_FIRST_BYTE_PAGES];
+}
 
 export function supabaseConfig() {
   return {
@@ -98,7 +131,7 @@ export function assertUniqueFirstByte(html, page) {
 
 export function mergeRequiredPages(pages = []) {
   const byRoute = new Map(pages.map((page) => [page.route, page]));
-  for (const required of REQUIRED_FIRST_BYTE_PAGES) {
+  for (const required of allGuardedFirstBytePages()) {
     if (!byRoute.has(required.route)) byRoute.set(required.route, required);
   }
   return [...byRoute.values()];

@@ -3,8 +3,11 @@ import {
   HOMEPAGE_CANONICAL,
   HOMEPAGE_H1,
   HOMEPAGE_TITLE,
+  MONTH_SLUGS,
   REQUIRED_FIRST_BYTE_PAGES,
+  REQUIRED_MANAD_FIRST_BYTE_PAGES,
   assertUniqueFirstByte,
+  calendarMonthFirstByte,
   firstByteSignals,
   mergeRequiredPages,
   renderPage,
@@ -68,6 +71,58 @@ describe('prerender first-byte for rebuilt homepage shells', () => {
     const merged = mergeRequiredPages([{ route: '/', title: HOMEPAGE_TITLE, heading: HOMEPAGE_H1, description: 'x' }]);
     expect(merged.map((page) => page.route)).toEqual(expect.arrayContaining(['/funktioner', '/hur-det-fungerar']));
   });
+
+  it('prerenders all 12 existing /manad/:slug URLs, not new paths', () => {
+    expect(MONTH_SLUGS).toEqual([
+      'januari', 'februari', 'mars', 'april', 'maj', 'juni',
+      'juli', 'augusti', 'september', 'oktober', 'november', 'december',
+    ]);
+    expect(REQUIRED_MANAD_FIRST_BYTE_PAGES.map((page) => page.route)).toEqual(
+      MONTH_SLUGS.map((slug) => `/manad/${slug}`),
+    );
+  });
+
+  it('fills /manad/maj from published month content when CMS fetch is empty', () => {
+    const merged = mergeRequiredPages([{ route: '/', title: HOMEPAGE_TITLE, heading: HOMEPAGE_H1, description: 'x' }]);
+    const maj = merged.find((page) => page.route === '/manad/maj');
+    expect(maj?.title).toMatch(/maj/i);
+    expect(maj?.title).not.toBe(HOMEPAGE_TITLE);
+    expect(maj?.heading).toBe('Odlingskalender för maj');
+    expect(maj?.body).toMatch(/Maj är månaden/);
+  });
+
+  it('does not overwrite a live CMS row for /manad/maj', () => {
+    const live = calendarMonthFirstByte({
+      slug: 'maj',
+      month_name: 'maj',
+      intro: 'Live CMS intro for maj from seo_months.',
+      created_at: '2026-04-20T21:10:46.016087+00:00',
+      updated_at: '2026-04-21T10:14:41.906846+00:00',
+    }, '/manad');
+    const merged = mergeRequiredPages([live]);
+    const maj = merged.find((page) => page.route === '/manad/maj');
+    expect(maj?.body).toBe('Live CMS intro for maj from seo_months.');
+  });
+
+  it.each(REQUIRED_MANAD_FIRST_BYTE_PAGES)(
+    'writes unique title, H1 and self-canonical for $route',
+    (page) => {
+      const html = renderPage(TEMPLATE, page);
+      const signals = firstByteSignals(html);
+      const month = page.route.replace('/manad/', '');
+      expect(signals.title).toBe(page.title);
+      expect(signals.title.toLowerCase()).toContain(month);
+      expect(signals.title).not.toBe(HOMEPAGE_TITLE);
+      expect(signals.h1).toBe(page.heading);
+      expect(signals.h1.toLowerCase()).toContain(month);
+      expect(signals.h1).not.toBe(HOMEPAGE_H1);
+      expect(signals.canonical).toBe(`https://odlingsdagboken.com${page.route}`);
+      expect(signals.canonical).not.toBe(HOMEPAGE_CANONICAL);
+      expect(html).toContain(String(page.body).slice(0, 40));
+      expect(html).not.toMatch(/affiliate|adtraction|adrecord/i);
+      expect(() => assertUniqueFirstByte(html, page)).not.toThrow();
+    },
+  );
 
   it.each(REQUIRED_FIRST_BYTE_PAGES)(
     'writes unique title, H1 and canonical for $route',

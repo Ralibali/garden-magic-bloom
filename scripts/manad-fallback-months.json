@@ -1,0 +1,86 @@
+[
+  {
+    "slug": "januari",
+    "month_name": "januari",
+    "intro": "Januari är trädgårdsmästarens vilomånad, men också en tid för drömmar och planering. Medan tjälen håller ett fast grepp om jorden och snön ligger som ett skyddande täcke, flyttar odlingsglädjen inomhus. Det är nu vi sår de första fröerna till de växter som kräver en lång utvecklingstid, som chili och paprika.",
+    "created_at": "2026-04-20T20:06:25.926632+00:00",
+    "updated_at": "2026-04-20T21:09:00.02363+00:00"
+  },
+  {
+    "slug": "februari",
+    "month_name": "februari",
+    "intro": "Februari är hoppets månad för alla odlare. Vintern har fortfarande ett fast grepp om landet och snön ligger ofta djup, men dagarna blir märkbart längre och ljusare. Det är nu den första, ivriga sådden drar igång inomhus under växtlampans sken.",
+    "created_at": "2026-04-20T20:07:17.986186+00:00",
+    "updated_at": "2026-04-20T21:09:00.619604+00:00"
+  },
+  {
+    "slug": "mars",
+    "month_name": "mars",
+    "intro": "Mars är uppvaknandets månad i den svenska trädgården. Dagarna blir märkbart längre och ljusare, och även om snön och tjälen ofta ligger kvar i stora delar av landet, börjar de första tecknen på vår spira. För hobbyodlaren är detta den verkliga startpunkten för den nya säsongen.",
+    "created_at": "2026-04-20T21:09:36.401623+00:00",
+    "updated_at": "2026-04-21T10:14:41.577305+00:00"
+  },
+  {
+    "slug": "april",
+    "month_name": "april",
+    "intro": "April är månaden då hela odlingssverige exploderar av liv. Ljuset återvänder med kraft och dagarna blir märkbart längre, vilket väcker både växter och odlare ur vinterdvalan. Nu börjar den intensiva perioden av sådder, utplantering och förberedelser inför sommaren.",
+    "created_at": "2026-04-20T21:10:06.078745+00:00",
+    "updated_at": "2026-04-21T10:14:46.216219+00:00"
+  },
+  {
+    "slug": "maj",
+    "month_name": "maj",
+    "intro": "Maj är månaden då trädgården exploderar av liv, men det är också en tid för is i magen. Medan södra Sverige kan uppleva nästintill sommarvärme, lurar frosten fortfarande i norr och även i inlandet i söder. Nyckeln till framgång i maj är avhärdning – den gradvisa tillvänjningen av inomhusdrivna plantor till utomhusklimatet.",
+    "created_at": "2026-04-20T21:10:46.016087+00:00",
+    "updated_at": "2026-04-21T10:14:41.906846+00:00"
+  },
+  {
+    "slug": "juni",
+    "month_name": "juni",
+    "intro": "Juni är här och med den startar den svenska odlingssommaren på allvar. Dagarna är som längst, ljuset är maximalt och tillväxten i trädgårdsland och pallkragar exploderar. För de flesta i landet är faran för nattfrost nu över, vilket innebär att det är dags att plantera ut de sista förkultiverade plantorna.",
+    "created_at": "2026-04-20T21:11:21.093263+00:00",
+    "updated_at": "2026-04-21T10:14:45.792316+00:00"
+  },
+  {
+    "slug": "juli",
+    "month_name": "juli",
+    "intro": "Juli är högsommarmånaden framför alla andra. Nu står trädgården i full blom och tillväxten är explosionsartad. Dagarna är långa och ofta varma, vilket ställer höga krav på bevattning. Det är en månad för njutning och skötsel, där belöningen kommer i form av de första stora skördarna.",
+    "created_at": "2026-04-20T21:12:05.868308+00:00",
+    "updated_at": "2026-04-21T10:14:42.718893+00:00"
+  },
+  {
+    "slug": "augusti",
+    "month_name": "augusti",
+    "intro": "Augusti är högsommarens höjdpunkt och trädgårdens mest generösa månad. Nu kulminerar månader av förberedelser i en överflödande skörd av frukter, bär och grönsaker. Dagarna blir märkbart kortare och luften får en klarare, krispigare känsla, särskilt under nätterna.",
+    "created_at": "2026-04-20T21:12:59.434704+00:00",
+    "updated_at": "2026-04-21T10:14:45.443834+00:00"
+  },
+  {
+    "slug": "september",
+    "month_name": "september",
+    "intro": "September markerar den definitiva övergången från sommar till höst. Luften blir krispigare, dagarna kortare och ljuset får en gyllene ton. Detta är primärt skördetid, den period då vi får lön för sommarens möda. Tomater, pumpor, rotfrukter och äpplen – nu ska allt bärgas.",
+    "created_at": "2026-04-20T21:13:42.688606+00:00",
+    "updated_at": "2026-04-21T10:14:43.123019+00:00"
+  },
+  {
+    "slug": "oktober",
+    "month_name": "oktober",
+    "intro": "Oktober är en månad av förberedelse och avslut. Trädgårdens färgprakt når sin kulmen med gyllene och röda löv, samtidigt som den första riktiga nattfrosten ofta gör sitt intåg i stora delar av landet. Luften är hög och klar, och trädgårdsarbetet fokuserar nu på att bädda in och förbereda för vinterns vila.",
+    "created_at": "2026-04-20T21:14:19.182708+00:00",
+    "updated_at": "2026-04-21T10:14:44.269221+00:00"
+  },
+  {
+    "slug": "november",
+    "month_name": "november",
+    "intro": "November månad signalerar att vintern är här på allvar. Dagarna är korta och kalla, och i större delen av landet ligger frosten som ett permanent täcke över trädgården. Nu är det dags att avsluta de sista höstsysslorna och skydda växterna från den kommande kylan.",
+    "created_at": "2026-04-20T21:14:49.237924+00:00",
+    "updated_at": "2026-04-21T10:14:43.542856+00:00"
+  },
+  {
+    "slug": "december",
+    "month_name": "december",
+    "intro": "December är trädgårdsvilans och drömmarnas månad. Jorden sover under ett täcke av frost eller snö i större delen av landet, och trädgårdsarbetet flyttar inomhus. Nu finns det tid för reflektion, att summera den gångna säsongens framgångar och lärdomar.",
+    "created_at": "2026-04-20T21:15:29.810965+00:00",
+    "updated_at": "2026-04-21T10:14:44.687033+00:00"
+  }
+]

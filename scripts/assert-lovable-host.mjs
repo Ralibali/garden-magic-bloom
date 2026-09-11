@@ -6,6 +6,8 @@
 import { readdir, readFile } from 'node:fs/promises';
 import {
   REQUIRED_FIRST_BYTE_PAGES,
+  REQUIRED_MANAD_FIRST_BYTE_PAGES,
+  allGuardedFirstBytePages,
   HOMEPAGE_CANONICAL,
   HOMEPAGE_H1,
   HOMEPAGE_TITLE,
@@ -25,8 +27,9 @@ const homeHtml = await readFile(home.file, 'utf8');
 const homeSignals = firstByteSignals(homeHtml);
 
 const checks = [
-  ...REQUIRED_FIRST_BYTE_PAGES.map((page) => ({ route: page.route, expect: page, plant: false })),
+  ...allGuardedFirstBytePages().map((page) => ({ route: page.route, expect: page, plant: false })),
   { route: `${REQUIRED_FIRST_BYTE_PAGES[0].route}/`, expect: REQUIRED_FIRST_BYTE_PAGES[0], plant: false },
+  { route: '/manad/maj/', expect: REQUIRED_MANAD_FIRST_BYTE_PAGES.find((page) => page.route === '/manad/maj'), plant: false },
   { route: '/vaxter', expect: { title: 'Växtbibliotek – såtid, skötsel och skörd', heading: 'Växtbibliotek för svenska odlare', route: '/vaxter' }, plant: false },
 ];
 
@@ -82,4 +85,4 @@ if (plantPages === 0) {
   console.warn('[lovable-host] no prerendered /vaxter/:slug pages — plant CTA first-byte not proven in this dist');
 }
 
-console.log(`[lovable-host] OK — unique first-byte for ${REQUIRED_FIRST_BYTE_PAGES.map((p) => p.route).join(', ')} (+ trailing slash). Plant slug pages with CTA: ${plantPages}`);
+console.log(`[lovable-host] OK — unique first-byte for ${allGuardedFirstBytePages().map((p) => p.route).join(', ')} (+ trailing slash). Plant slug pages with CTA: ${plantPages}`);
