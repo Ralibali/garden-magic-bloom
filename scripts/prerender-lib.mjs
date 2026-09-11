@@ -43,29 +43,6 @@ export const REQUIRED_FIRST_BYTE_PAGES = [
 /** Existing /manad/:slug router paths — same CMS months as /odlingskalender/:slug. */
 export const MONTH_SLUGS = manadFallbackMonths.map((month) => month.slug);
 
-export function calendarMonthFirstByte(month, pathPrefix = '/odlingskalender') {
-  const slug = String(month.slug || '').toLowerCase();
-  const name = String(month.month_name || slug).toLowerCase();
-  return {
-    route: `${pathPrefix}/${slug}`,
-    title: `Odlingskalender ${name} – så, plantera och skörda i din zon`,
-    heading: `Odlingskalender för ${name}`,
-    description: truncate(month.intro || `Vad du kan så, plantera och skörda i ${name}.`),
-    body: month.intro,
-    type: 'article',
-    publishedTime: month.created_at,
-    modifiedTime: month.updated_at || month.created_at,
-  };
-}
-
-export const REQUIRED_MANAD_FIRST_BYTE_PAGES = manadFallbackMonths.map((month) =>
-  calendarMonthFirstByte(month, '/manad'),
-);
-
-export function allGuardedFirstBytePages() {
-  return [...REQUIRED_FIRST_BYTE_PAGES, ...REQUIRED_MANAD_FIRST_BYTE_PAGES];
-}
-
 export function supabaseConfig() {
   return {
     url: process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || DEFAULT_SUPABASE_URL,
@@ -94,6 +71,29 @@ export const truncate = (value, max = 160) => {
   if (clean.length <= max) return clean;
   return `${clean.slice(0, max - 1).replace(/\s+\S*$/, '')}…`;
 };
+
+export function calendarMonthFirstByte(month, pathPrefix = '/odlingskalender') {
+  const slug = String(month.slug || '').toLowerCase();
+  const name = String(month.month_name || slug).toLowerCase();
+  return {
+    route: `${pathPrefix}/${slug}`,
+    title: `Odlingskalender ${name} – så, plantera och skörda i din zon`,
+    heading: `Odlingskalender för ${name}`,
+    description: truncate(month.intro || `Vad du kan så, plantera och skörda i ${name}.`),
+    body: month.intro,
+    type: 'article',
+    publishedTime: month.created_at,
+    modifiedTime: month.updated_at || month.created_at,
+  };
+}
+
+export const REQUIRED_MANAD_FIRST_BYTE_PAGES = manadFallbackMonths.map((month) =>
+  calendarMonthFirstByte(month, '/manad'),
+);
+
+export function allGuardedFirstBytePages() {
+  return [...REQUIRED_FIRST_BYTE_PAGES, ...REQUIRED_MANAD_FIRST_BYTE_PAGES];
+}
 
 export const decodeEntities = (value = '') => String(value)
   .replaceAll('&amp;', '&')
