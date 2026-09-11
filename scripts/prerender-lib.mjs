@@ -179,19 +179,21 @@ export function plantAddCtaMarkup(crop) {
   return `<aside aria-label="Lägg till ${escapeHtml(name)} i din odling" data-cta="add-plant"><h2>Lägg till ${escapeHtml(name)} i min odling</h2><p>Prefyll såloggen med ${escapeHtml(name.toLowerCase())} så du kan välja bädd, sådatum och sort.</p><p><a href="${escapeHtml(href)}">Lägg till ${escapeHtml(name)} i min odling</a></p></aside>`;
 }
 
-/** Addrevenue Din trädgård — /manad/maj only. Do not reuse on other months or /odlingskalender. */
+/** Addrevenue Din trädgård — /manad/maj only. Copy is verbatim READY 2026-09-02. */
 export const DIN_TRADGARD_MAJ_ANNONS = {
   route: '/manad/maj',
   href: 'https://addrevenue.io/t?a=985743&c=3467735',
   disclosure: 'Annons',
-  linkText: 'Se trädgårdsprodukter hos Din trädgård',
+  disclosureLine: 'Affiliatelänkar till Din trädgård.',
+  linkText: 'Nät, stöd och redskap i maj',
+  floor: 'Annons. Länkarna går till Din trädgård och är affiliatelänkar. Odlingsdagboken kan få ersättning om du gör ett köp — utan extra kostnad för dig.',
   rel: 'sponsored noopener noreferrer',
 };
 
 export function annonsCtaMarkup(route) {
   if (route !== DIN_TRADGARD_MAJ_ANNONS.route) return '';
-  const { href, disclosure, linkText, rel } = DIN_TRADGARD_MAJ_ANNONS;
-  return `<aside aria-label="${escapeHtml(disclosure)}" data-cta="annons"><p>${escapeHtml(disclosure)}</p><p><a href="${escapeHtml(href)}" target="_blank" rel="${escapeHtml(rel)}">${escapeHtml(linkText)}</a></p></aside>`;
+  const { href, disclosure, disclosureLine, linkText, floor, rel } = DIN_TRADGARD_MAJ_ANNONS;
+  return `<aside aria-label="${escapeHtml(disclosure)}" data-cta="annons"><p>${escapeHtml(disclosure)}</p><p>${escapeHtml(disclosureLine)}</p><p><a href="${escapeHtml(href)}" target="_blank" rel="${escapeHtml(rel)}">${escapeHtml(linkText)}</a></p><p>${escapeHtml(floor)}</p></aside>`;
 }
 
 export function fallbackMarkup(page) {

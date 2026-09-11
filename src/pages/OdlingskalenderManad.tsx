@@ -274,7 +274,9 @@ export default function OdlingskalenderManad() {
           <AnnonsCta
             href={DIN_TRADGARD_MAJ_ANNONS.href}
             disclosure={DIN_TRADGARD_MAJ_ANNONS.disclosure}
+            disclosureLine={DIN_TRADGARD_MAJ_ANNONS.disclosureLine}
             linkText={DIN_TRADGARD_MAJ_ANNONS.linkText}
+            floor={DIN_TRADGARD_MAJ_ANNONS.floor}
             rel={DIN_TRADGARD_MAJ_ANNONS.rel}
           />
         )}

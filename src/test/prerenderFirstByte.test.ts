@@ -120,19 +120,23 @@ describe('prerender first-byte for rebuilt homepage shells', () => {
       expect(signals.canonical).toBe(`https://odlingsdagboken.com${page.route}`);
       expect(signals.canonical).not.toBe(HOMEPAGE_CANONICAL);
       expect(html).toContain(String(page.body).slice(0, 40));
-      expect(html).not.toMatch(/affiliate|adtraction|adrecord/i);
+      expect(html).not.toMatch(/adtraction|adrecord/i);
       if (page.route === '/manad/maj') {
         const bodyAt = html.indexOf(String(page.body).slice(0, 40));
         const ctaAt = html.indexOf(DIN_TRADGARD_MAJ_ANNONS.linkText);
         expect(html).toContain(`>${DIN_TRADGARD_MAJ_ANNONS.disclosure}<`);
+        expect(html).toContain(DIN_TRADGARD_MAJ_ANNONS.disclosureLine);
         expect(html).toContain(DIN_TRADGARD_MAJ_ANNONS.linkText);
+        expect(html).toContain(DIN_TRADGARD_MAJ_ANNONS.floor);
         expect(html).toContain('a=985743');
         expect(html).toContain('c=3467735');
         expect(html).toContain(`rel="${DIN_TRADGARD_MAJ_ANNONS.rel}"`);
         expect(ctaAt).toBeGreaterThan(bodyAt);
       } else {
+        expect(html).not.toMatch(/affiliate/i);
         expect(html).not.toContain('addrevenue.io');
         expect(html).not.toContain('a=985743');
+        expect(html).not.toContain(DIN_TRADGARD_MAJ_ANNONS.linkText);
       }
       expect(() => assertUniqueFirstByte(html, page)).not.toThrow();
     },
