@@ -39,6 +39,13 @@ describe('standalone marketing routes (hydrate must not 404)', () => {
     expect(vercel).not.toMatch(/"source":\s*"\/manad\/:slug"/);
   });
 
+  it('gates the Din trädgård Annons to /manad/maj in the month page', () => {
+    const page = readFileSync(join(process.cwd(), 'src/pages/OdlingskalenderManad.tsx'), 'utf8');
+    expect(page).toContain('isDinTradgardMajRoute(location.pathname)');
+    expect(page).toContain('AnnonsCta');
+    expect(page).toContain('DIN_TRADGARD_MAJ_ANNONS');
+  });
+
   it('registers /funktioner and /hur-det-fungerar as router paths', () => {
     const app = readFileSync(join(process.cwd(), 'src/App.tsx'), 'utf8');
     const funktioner = readFileSync(join(process.cwd(), 'src/pages/Funktioner.tsx'), 'utf8');

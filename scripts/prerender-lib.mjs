@@ -179,6 +179,23 @@ export function plantAddCtaMarkup(crop) {
   return `<aside aria-label="Lägg till ${escapeHtml(name)} i din odling" data-cta="add-plant"><h2>Lägg till ${escapeHtml(name)} i min odling</h2><p>Prefyll såloggen med ${escapeHtml(name.toLowerCase())} så du kan välja bädd, sådatum och sort.</p><p><a href="${escapeHtml(href)}">Lägg till ${escapeHtml(name)} i min odling</a></p></aside>`;
 }
 
+/** Addrevenue Din trädgård — /manad/maj only. Copy is verbatim READY 2026-09-02. */
+export const DIN_TRADGARD_MAJ_ANNONS = {
+  route: '/manad/maj',
+  href: 'https://addrevenue.io/t?a=985743&c=3467735',
+  disclosure: 'Annons',
+  disclosureLine: 'Affiliatelänkar till Din trädgård.',
+  linkText: 'Nät, stöd och redskap i maj',
+  floor: 'Annons. Länkarna går till Din trädgård och är affiliatelänkar. Odlingsdagboken kan få ersättning om du gör ett köp — utan extra kostnad för dig.',
+  rel: 'sponsored noopener noreferrer',
+};
+
+export function annonsCtaMarkup(route) {
+  if (route !== DIN_TRADGARD_MAJ_ANNONS.route) return '';
+  const { href, disclosure, disclosureLine, linkText, floor, rel } = DIN_TRADGARD_MAJ_ANNONS;
+  return `<aside aria-label="${escapeHtml(disclosure)}" data-cta="annons"><p>${escapeHtml(disclosure)}</p><p>${escapeHtml(disclosureLine)}</p><p><a href="${escapeHtml(href)}" target="_blank" rel="${escapeHtml(rel)}">${escapeHtml(linkText)}</a></p><p>${escapeHtml(floor)}</p></aside>`;
+}
+
 export function fallbackMarkup(page) {
   const body = truncate(page.body || page.description, 900);
   const articleBody = typeof page.articleContent === 'string' && page.articleContent.trim()
@@ -187,7 +204,8 @@ export function fallbackMarkup(page) {
   const image = page.image ? `<img src="${escapeHtml(page.image)}" alt="${escapeHtml(page.imageAlt || page.heading || page.title)}" style="display:block;width:100%;max-width:760px;aspect-ratio:16/9;object-fit:cover;border-radius:18px;margin:24px 0" />` : '';
   const published = page.publishedTime ? `<p><small>Publicerad ${escapeHtml(page.publishedTime.slice(0, 10))}</small></p>` : '';
   const plantCta = page.plantName ? plantAddCtaMarkup(page.plantName) : '';
-  return `<div id="root"><main id="main-content" style="max-width:900px;margin:56px auto;padding:24px;font-family:system-ui,-apple-system,sans-serif;line-height:1.65;color:#173226"><nav aria-label="Huvudnavigation" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:36px"><a href="/">Odlingsdagboken</a><a href="/funktioner">Funktioner</a><a href="/hur-det-fungerar">Hur det fungerar</a><a href="/sakalender">Såkalender</a><a href="/vaxter">Växter</a><a href="/blogg">Blogg</a></nav><article><h1>${escapeHtml(page.heading || page.title)}</h1>${published}${image}${articleBody}${page.route === '/blogg/vattningsvakt-checklista-tradgard' ? '<p>AI-assisterad originalguide, skriven med ChatGPT. Arbetsmallen är ett redaktionellt förslag.</p>' : ''}${plantCta}</article><p style="margin-top:32px"><a href="/login?mode=register">Skapa gratis konto</a></p></main></div>`;
+  const annonsCta = annonsCtaMarkup(page.route);
+  return `<div id="root"><main id="main-content" style="max-width:900px;margin:56px auto;padding:24px;font-family:system-ui,-apple-system,sans-serif;line-height:1.65;color:#173226"><nav aria-label="Huvudnavigation" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:36px"><a href="/">Odlingsdagboken</a><a href="/funktioner">Funktioner</a><a href="/hur-det-fungerar">Hur det fungerar</a><a href="/sakalender">Såkalender</a><a href="/vaxter">Växter</a><a href="/blogg">Blogg</a></nav><article><h1>${escapeHtml(page.heading || page.title)}</h1>${published}${image}${articleBody}${annonsCta}${page.route === '/blogg/vattningsvakt-checklista-tradgard' ? '<p>AI-assisterad originalguide, skriven med ChatGPT. Arbetsmallen är ett redaktionellt förslag.</p>' : ''}${plantCta}</article><p style="margin-top:32px"><a href="/login?mode=register">Skapa gratis konto</a></p></main></div>`;
 }
 
 export function pageSchema(page) {
