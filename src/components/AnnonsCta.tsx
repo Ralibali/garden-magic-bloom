@@ -26,7 +26,7 @@ export default function AnnonsCta({
       data-cta="annons"
       className={`my-10 rounded-2xl border border-border/60 bg-card/60 p-5 sm:p-6 ${className}`}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="text-[11px] font-semibold text-muted-foreground">
         {disclosure}
       </p>
       {disclosureLine ? (

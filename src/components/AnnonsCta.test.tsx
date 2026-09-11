@@ -15,7 +15,7 @@ describe('AnnonsCta', () => {
         rel={DIN_TRADGARD_MAJ_ANNONS.rel}
       />,
     );
-    expect(screen.getAllByText('Annons').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Annons', { selector: 'p' }).textContent).toBe('Annons');
     expect(screen.getByText('Affiliatelänkar till Din trädgård.')).toBeTruthy();
     expect(screen.getByText(DIN_TRADGARD_MAJ_ANNONS.floor)).toBeTruthy();
     const link = screen.getByRole('link', { name: /Nät, stöd och redskap i maj/i });
