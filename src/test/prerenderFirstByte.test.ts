@@ -8,6 +8,7 @@ import {
   REQUIRED_MANAD_FIRST_BYTE_PAGES,
   assertUniqueFirstByte,
   calendarMonthFirstByte,
+  DIN_TRADGARD_MAJ_ANNONS,
   firstByteSignals,
   mergeRequiredPages,
   renderPage,
@@ -120,9 +121,36 @@ describe('prerender first-byte for rebuilt homepage shells', () => {
       expect(signals.canonical).not.toBe(HOMEPAGE_CANONICAL);
       expect(html).toContain(String(page.body).slice(0, 40));
       expect(html).not.toMatch(/affiliate|adtraction|adrecord/i);
+      if (page.route === '/manad/maj') {
+        const bodyAt = html.indexOf(String(page.body).slice(0, 40));
+        const ctaAt = html.indexOf(DIN_TRADGARD_MAJ_ANNONS.linkText);
+        expect(html).toContain(`>${DIN_TRADGARD_MAJ_ANNONS.disclosure}<`);
+        expect(html).toContain(DIN_TRADGARD_MAJ_ANNONS.linkText);
+        expect(html).toContain('a=985743');
+        expect(html).toContain('c=3467735');
+        expect(html).toContain(`rel="${DIN_TRADGARD_MAJ_ANNONS.rel}"`);
+        expect(ctaAt).toBeGreaterThan(bodyAt);
+      } else {
+        expect(html).not.toContain('addrevenue.io');
+        expect(html).not.toContain('a=985743');
+      }
       expect(() => assertUniqueFirstByte(html, page)).not.toThrow();
     },
   );
+
+  it('does not put the Din trädgård Annons on /odlingskalender/maj', () => {
+    const html = renderPage(TEMPLATE, calendarMonthFirstByte({
+      slug: 'maj',
+      month_name: 'maj',
+      intro: 'Maj är månaden då trädgården exploderar av liv.',
+      created_at: '2026-04-20T21:10:46.016087+00:00',
+      updated_at: '2026-04-21T10:14:41.906846+00:00',
+    }, '/odlingskalender'));
+    expect(firstByteSignals(html).canonical).toBe('https://odlingsdagboken.com/odlingskalender/maj');
+    expect(html).not.toContain('addrevenue.io');
+    expect(html).not.toContain('a=985743');
+    expect(html).not.toContain(DIN_TRADGARD_MAJ_ANNONS.linkText);
+  });
 
   it.each(REQUIRED_FIRST_BYTE_PAGES)(
     'writes unique title, H1 and canonical for $route',

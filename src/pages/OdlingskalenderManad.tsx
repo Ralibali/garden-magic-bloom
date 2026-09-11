@@ -18,7 +18,9 @@ import {
 } from '@/lib/seoData';
 import { ArticleAttribution } from '@/components/ArticleAttribution';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
+import AnnonsCta from '@/components/AnnonsCta';
 import PublicNotFound from '@/components/PublicNotFound';
+import { DIN_TRADGARD_MAJ_ANNONS, isDinTradgardMajRoute } from '@/lib/annonsOffers';
 import CalendarZonePicker from '@/components/CalendarZonePicker';
 import { useOdlingszon } from '@/hooks/useOdlingszon';
 import { CALENDAR_SECTIONS, getMonthActivities, type CalendarCrop } from '@/lib/calendarMonth';
@@ -265,6 +267,15 @@ export default function OdlingskalenderManad() {
           <div
             className="prose prose-lg max-w-none mb-10 [&>h2]:font-serif [&>h2]:text-2xl [&>h2]:text-foreground [&>h2]:mt-10 [&>h2]:mb-3 [&>h3]:font-serif [&>h3]:text-lg [&>h3]:text-foreground [&>h3]:mt-6 [&>h3]:mb-2 [&>p]:text-foreground/85 [&>p]:leading-relaxed [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-4 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-4 [&_a]:text-primary [&_a]:underline"
             dangerouslySetInnerHTML={{ __html: sanitized }}
+          />
+        )}
+
+        {isDinTradgardMajRoute(location.pathname) && (
+          <AnnonsCta
+            href={DIN_TRADGARD_MAJ_ANNONS.href}
+            disclosure={DIN_TRADGARD_MAJ_ANNONS.disclosure}
+            linkText={DIN_TRADGARD_MAJ_ANNONS.linkText}
+            rel={DIN_TRADGARD_MAJ_ANNONS.rel}
           />
         )}
 
