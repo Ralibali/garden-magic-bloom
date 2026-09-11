@@ -1,8 +1,15 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { renderBlogContent } from './blog-content.mjs';
 
 /**
  * Shared prerender helpers. Used by scripts/prerender.mjs and unit tests.
  */
+
+const manadFallbackMonths = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'manad-fallback-months.json'), 'utf8'),
+);
 
 export const ORIGIN = 'https://odlingsdagboken.com';
 export const DEFAULT_OG_IMAGE = `${ORIGIN}/og-image.png`;
@@ -33,6 +40,9 @@ export const REQUIRED_FIRST_BYTE_PAGES = [
   },
 ];
 
+/** Existing /manad/:slug router paths — same CMS months as /odlingskalender/:slug. */
+export const MONTH_SLUGS = manadFallbackMonths.map((month) => month.slug);
+
 export function supabaseConfig() {
   return {
     url: process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || DEFAULT_SUPABASE_URL,
@@ -61,6 +71,29 @@ export const truncate = (value, max = 160) => {
   if (clean.length <= max) return clean;
   return `${clean.slice(0, max - 1).replace(/\s+\S*$/, '')}…`;
 };
+
+export function calendarMonthFirstByte(month, pathPrefix = '/odlingskalender') {
+  const slug = String(month.slug || '').toLowerCase();
+  const name = String(month.month_name || slug).toLowerCase();
+  return {
+    route: `${pathPrefix}/${slug}`,
+    title: `Odlingskalender ${name} – så, plantera och skörda i din zon`,
+    heading: `Odlingskalender för ${name}`,
+    description: truncate(month.intro || `Vad du kan så, plantera och skörda i ${name}.`),
+    body: month.intro,
+    type: 'article',
+    publishedTime: month.created_at,
+    modifiedTime: month.updated_at || month.created_at,
+  };
+}
+
+export const REQUIRED_MANAD_FIRST_BYTE_PAGES = manadFallbackMonths.map((month) =>
+  calendarMonthFirstByte(month, '/manad'),
+);
+
+export function allGuardedFirstBytePages() {
+  return [...REQUIRED_FIRST_BYTE_PAGES, ...REQUIRED_MANAD_FIRST_BYTE_PAGES];
+}
 
 export const decodeEntities = (value = '') => String(value)
   .replaceAll('&amp;', '&')
@@ -98,7 +131,7 @@ export function assertUniqueFirstByte(html, page) {
 
 export function mergeRequiredPages(pages = []) {
   const byRoute = new Map(pages.map((page) => [page.route, page]));
-  for (const required of REQUIRED_FIRST_BYTE_PAGES) {
+  for (const required of allGuardedFirstBytePages()) {
     if (!byRoute.has(required.route)) byRoute.set(required.route, required);
   }
   return [...byRoute.values()];

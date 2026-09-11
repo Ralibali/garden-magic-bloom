@@ -30,6 +30,15 @@ describe('standalone marketing routes (hydrate must not 404)', () => {
     expect(features?.to).not.toContain('#');
   });
 
+  it('registers existing /manad/:slug as the month page, not a homepage shell', () => {
+    const app = readFileSync(join(process.cwd(), 'src/App.tsx'), 'utf8');
+    const vercel = readFileSync(join(process.cwd(), 'vercel.json'), 'utf8');
+    expect(app).toContain('path="/manad/:slug"');
+    expect(app).toContain('element={<OdlingskalenderManad />}');
+    expect(app).not.toContain('LegacyMonthRedirect');
+    expect(vercel).not.toMatch(/"source":\s*"\/manad\/:slug"/);
+  });
+
   it('registers /funktioner and /hur-det-fungerar as router paths', () => {
     const app = readFileSync(join(process.cwd(), 'src/App.tsx'), 'utf8');
     const funktioner = readFileSync(join(process.cwd(), 'src/pages/Funktioner.tsx'), 'utf8');

@@ -108,6 +108,10 @@ Deno.serve(async (req) => {
       loc: `/odlingskalender/${month.slug}`,
       lastmod: dateOnly(month.updated_at || month.created_at),
     });
+    entries.push({
+      loc: `/manad/${month.slug}`,
+      lastmod: dateOnly(month.updated_at || month.created_at),
+    });
   }
 
   for (const zone of zones) {

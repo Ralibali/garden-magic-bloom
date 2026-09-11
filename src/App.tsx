@@ -160,13 +160,6 @@ function GuiderRedirect() {
   return <Navigate to={`/blogg/${slug}`} replace />;
 }
 
-// Redirect /manad/:slug → /odlingskalender/:slug (sökordsmatchning)
-function LegacyMonthRedirect() {
-  const { slug } = useParams();
-  return <Navigate to={`/odlingskalender/${slug}`} replace />;
-}
-
-
 function CacheClearer() {
   const { user } = useAuth();
   const prevUserId = React.useRef<string | null>(user?.id ?? null);
@@ -214,7 +207,8 @@ const AppRoutes = () => (
           <Route path="/odlingskalender" element={<OdlingskalenderIndex />} />
           <Route path="/odlingskalender/:slug" element={<OdlingskalenderManad />} />
           <Route path="/manad" element={<Navigate to="/odlingskalender" replace />} />
-          <Route path="/manad/:slug" element={<LegacyMonthRedirect />} />
+          {/* Existing /manad/:slug URLs — same CMS month page, self-canonical. */}
+          <Route path="/manad/:slug" element={<OdlingskalenderManad />} />
           <Route path="/zoner" element={<ZonerIndex />} />
           <Route path="/zoner/:slug" element={<ZonDetail />} />
           <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>

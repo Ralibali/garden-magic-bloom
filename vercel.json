@@ -3,8 +3,7 @@
   "redirects": [
     { "source": "/guider", "destination": "/blogg", "permanent": true },
     { "source": "/guider/:slug", "destination": "/blogg/:slug", "permanent": true },
-    { "source": "/manad", "destination": "/odlingskalender", "permanent": true },
-    { "source": "/manad/:slug", "destination": "/odlingskalender/:slug", "permanent": true }
+    { "source": "/manad", "destination": "/odlingskalender", "permanent": true }
   ],
   "headers": [
     {

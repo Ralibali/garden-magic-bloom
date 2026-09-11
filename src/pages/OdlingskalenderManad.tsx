@@ -1,6 +1,6 @@
 import { Seo } from '@/hooks/useSeo';
 import PublicLayout from '@/components/PublicLayout';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -30,9 +30,11 @@ const ORIGIN = 'https://odlingsdagboken.com';
 
 export default function OdlingskalenderManad() {
   const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { zone, setZone } = useOdlingszon();
+  const monthPathPrefix = location.pathname.startsWith('/manad') ? '/manad' : '/odlingskalender';
 
   const monthIndex = MONTH_NAMES_SV.indexOf((slug || '') as (typeof MONTH_NAMES_SV)[number]);
   const monthNumber = monthIndex + 1;
@@ -67,7 +69,7 @@ export default function OdlingskalenderManad() {
   if (monthIndex < 0) {
     return (
       <PublicNotFound
-        path={`/odlingskalender/${slug || ''}`}
+        path={`${monthPathPrefix}/${slug || ''}`}
         title="Månaden hittades inte"
         description="Den där månaden finns inte i odlingskalendern."
         backTo="/odlingskalender"
@@ -160,7 +162,7 @@ export default function OdlingskalenderManad() {
           month?.intro?.slice(0, 160) ||
           `Odlingskalender för ${monthName} ${CURRENT_YEAR}: förodling, direktsådd, utplantering, skörd och skötsel med vecknummer för din klimatzon.`
         }
-        path={`/odlingskalender/${monthName}`}
+        path={`${monthPathPrefix}/${monthName}`}
         ogType="article"
         articleMeta={{ publishedTime: month?.created_at, modifiedTime: month?.updated_at }}
         jsonLd={jsonLd}

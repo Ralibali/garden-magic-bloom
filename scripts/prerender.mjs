@@ -5,7 +5,9 @@ import { fileURLToPath } from 'node:url';
 import { renderSitemap } from './sitemap.mjs';
 import {
   REQUIRED_FIRST_BYTE_PAGES,
+  allGuardedFirstBytePages,
   assertUniqueFirstByte,
+  calendarMonthFirstByte,
   extractIndexAsset,
   mergeRequiredPages,
   renderPage,
@@ -169,16 +171,8 @@ async function loadDynamicPages() {
     }
 
     for (const month of months || []) {
-      pages.push({
-        route: `/odlingskalender/${month.slug}`,
-        title: `Odlingskalender ${month.month_name.toLowerCase()} – så, plantera och skörda i din zon`,
-        heading: `Odlingskalender för ${month.month_name.toLowerCase()}`,
-        description: truncate(month.intro || `Vad du kan så, plantera och skörda i ${month.month_name}.`),
-        body: month.intro,
-        type: 'article',
-        publishedTime: month.created_at,
-        modifiedTime: month.updated_at || month.created_at,
-      });
+      pages.push(calendarMonthFirstByte(month, '/odlingskalender'));
+      pages.push(calendarMonthFirstByte(month, '/manad'));
     }
 
     for (const zone of zones || []) {
@@ -235,7 +229,7 @@ export async function prerenderDist(dist = join(root, 'dist')) {
   for (const page of allPages) await writePage(page);
   await writeFile(join(dist, 'sitemap.xml'), renderSitemap(allPages), 'utf8');
 
-  for (const required of REQUIRED_FIRST_BYTE_PAGES) {
+  for (const required of allGuardedFirstBytePages()) {
     const file = routeOutput(dist, required.route);
     await access(file);
   }
@@ -261,12 +255,12 @@ export async function prerenderDist(dist = join(root, 'dist')) {
       publishId,
       indexAsset: shellAsset,
       routes: allPages.map((page) => page.route),
-      required: REQUIRED_FIRST_BYTE_PAGES.map((page) => page.route),
+      required: allGuardedFirstBytePages().map((page) => page.route),
     }, null, 2)}\n`,
     'utf8',
   );
 
-  const rebuilt = REQUIRED_FIRST_BYTE_PAGES.map((page) => page.route).join(', ');
+  const rebuilt = allGuardedFirstBytePages().map((page) => page.route).join(', ');
   console.log(`[prerender] skapade ${allPages.length} HTML-sidor (${staticPages.length} fasta, ${dynamicPages.length} dynamiska). Unika first-byte-sidor: ${rebuilt}`);
   return { pages: allPages.length, staticPages: staticPages.length, dynamicPages: dynamicPages.length };
 }

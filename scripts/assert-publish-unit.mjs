@@ -8,7 +8,7 @@
  */
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { REQUIRED_FIRST_BYTE_PAGES, extractIndexAsset } from './prerender-lib.mjs';
+import { allGuardedFirstBytePages, extractIndexAsset } from './prerender-lib.mjs';
 import { defaultDist, resolveLovableHostFile } from './lovable-host.mjs';
 
 function fail(message) {
@@ -57,7 +57,7 @@ if (!indexJs.includes(publishId)) {
 }
 
 const routes = [
-  ...REQUIRED_FIRST_BYTE_PAGES.map((page) => page.route),
+  ...allGuardedFirstBytePages().map((page) => page.route),
   '/vaxter',
   '/priser',
 ];
