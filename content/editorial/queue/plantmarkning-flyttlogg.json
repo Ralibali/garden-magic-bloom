@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "content_id": "editorial-20260916-plantmarkning-flyttlogg",
+  "author": "ChatGPT",
+  "status": "draft",
+  "written_at": "2026-09-16T17:04:19.395Z",
+  "not_before": "2026-09-18",
+  "sources_checked_at": "2026-09-16T17:04:19.395Z",
+  "quality_checked_at": "2026-09-16T17:04:19.395Z",
+  "site": "odlingsdagboken",
+  "slug": "plantmarkning-flyttlogg",
+  "title": "Behåll sortnamnet när plantorna flyttas: en enkel flyttlogg",
+  "description": "Koppla sådd, plantetikett och ny plats med en enkel flyttlogg. En praktisk mall för att behålla sortnamnet när flera plantor och krukor byter plats.",
+  "category": "guide",
+  "tags": [
+    "markning",
+    "plantor",
+    "odlingsdagbok"
+  ],
+  "cover_image": "/blog-images/spring-garden.jpg",
+  "cta_path": "/login",
+  "search_intent": "Behålla kopplingen mellan en dokumenterad sådd, plantornas etiketter och nya placeringar när grupper delas; en konkret identitets- och flyttlogg, inte råd om omplanteringstid eller allmän bäddplanering.",
+  "source_urls": [
+    "https://odlingsdagboken.com/hur-det-fungerar"
+  ],
+  "content_html": "<p>Två brickor ser likadana ut, några krukor har flyttats och den lösa etiketten ligger kvar på bordet. Då blir det svårt att veta vilken planta som hör till vilken sådd. En liten flyttlogg kan hjälpa dig att behålla sambandet mellan sortnamn, etikett och plats.</p>\n<p>Här handlar arbetet om märkning och anteckningar. När och hur en viss växt ska planteras om behöver avgöras utifrån den växtens behov. Mallen nedan hjälper dig att dokumentera en flytt som du redan har planerat, utan att gissa vad en omärkt planta är.</p>\n<h2>Välj en kort beteckning för varje sådd</h2>\n<p>Börja med uppgifterna som faktiskt finns. Skriv gröda, sort och sådatum från dina anteckningar eller den kända fröpåsen. Ge sådden en kort beteckning, exempelvis T-01. Förvara nyckeln mellan beteckning och fullständigt namn i samma anteckning.</p>\n<p>Beteckningen ska vara unik i din egen dokumentation. T-01 betyder i det här exemplet bara den sådd du har valt, inte en viss sort eller egenskap. Om ursprunget är osäkert skriver du det uttryckligen. Låt inte en prydlig etikett få en osäker uppgift att se bekräftad ut.</p>\n<h2>Beskriv var märkningen gäller</h2>\n<p>En etikett i kanten av en bricka kan bli svår att tolka när bara några krukor flyttas. Ange därför vad etiketten omfattar: hela gruppen, en namngiven rad eller en enda kruka. Använd samma benämningar i din lista.</p>\n<p>Du kan fotografera gruppen och dess etikett tillsammans före flytten. Bilden blir då ett stöd för att läsa anteckningen. Den ska visa den märkning som faktiskt hör till gruppen; en lös lapp bredvid flera olika sorter skapar fortfarande osäkerhet.</p>\n<h2>Skriv en flyttrad innan sambandet försvinner</h2>\n<p>Använd följande fält när du flyttar eller delar en grupp:</p>\n<ul><li><strong>Datum:</strong> när du gjorde ändringen.</li><li><strong>Såddens beteckning:</strong> kopplingen till den ursprungliga anteckningen.</li><li><strong>Från:</strong> tidigare bricka, rad eller plats.</li><li><strong>Till:</strong> den nya tydligt namngivna platsen.</li><li><strong>Fördelning:</strong> vilka krukor eller grupper som flyttades och vilka som är kvar.</li><li><strong>Märkning:</strong> vilken etikett som nu följer respektive grupp.</li><li><strong>Osäkert:</strong> det som behöver kontrolleras.</li></ul>\n<p>Ett påhittat exempel är: ”T-01, bricka A till hylla B, fyra märkta krukor flyttade, två kvar i A.” Exemplet beskriver dokumentationen. Det säger inget om lämplig placering, antal plantor eller skötsel för en viss växt.</p>\n<h2>Ge delade grupper en tydlig fortsättning</h2>\n<p>Om en grupp delas kan du behålla huvudbeteckningen och lägga till en enkel fortsättning, exempelvis T-01a och T-01b. Anteckna vilken del som är vilken. De båda grupperna ska fortfarande gå att koppla till samma ursprungliga sådd.</p>\n<p>Räkna det du faktiskt kan räkna och märk uppskattningar som uppskattningar. Skriv också vad som hände med den gamla etiketten. Om du ersätter den behöver sambandet finnas kvar i loggen, så att äldre bilder och anteckningar fortfarande går att förstå.</p>\n<h2>Gör en kort kontroll efter flytten</h2>\n<p>Läs varje aktuell etikett och hitta motsvarande rad i loggen. Kontrollera sedan åt andra hållet: går det att hitta gruppen från anteckningen? Den enkla kontrollen visar om ett platsnamn är otydligt eller en etikett råkat följa fel grupp.</p>\n<p>Om något inte stämmer, notera avvikelsen direkt. Skriv inte tillbaka ett sortnamn enbart för att plantan ser ut som den bredvid. Dokumentera vad du säkert vet och vad som fortfarande är oklart. Då kan senare observationer hållas åtskilda från en gissning om ursprunget.</p>\n<h2>Koppla flyttloggen till resten av odlingen</h2>\n<p>När gruppen flyttas igen fortsätter du på samma beteckning och lägger till en ny rad. Den tidigare placeringen ska finnas kvar som historik. På så sätt går det att följa vägen från den dokumenterade sådden till den plats där gruppen står nu.</p>\n<p>Har du ännu inte ordnat fröpåsarna kan <a href=\"/blogg/froinventering-infor-nasta-sasong\">mallen för fröinventering</a> hjälpa dig med ursprungsuppgifterna. Läs också <a href=\"/hur-det-fungerar\">hur Odlingsdagboken fungerar</a>. Du kan <a href=\"/login\">samla dina odlingsanteckningar i Odlingsdagboken</a> och använda samma beteckningar i dina egna noteringar.</p>\n<p>AI-assisterad originalguide, skriven med ChatGPT. Flyttloggen är ett redaktionellt förslag. Produktinformationen kontrollerades den 16 september 2026; guiden lovar ingen automatisk spårning av etiketter.</p>",
+  "editorial_review": {
+    "reviewed_at": "2026-09-16T17:04:19.395Z",
+    "published_inventory_reviewed": 136,
+    "distinct_intent_confirmed": true,
+    "source_review": "Owned how-it-works page read in browser. Only documentation of the reader's own labels and moves is described, no species-specific growing advice or automatic label-tracking feature claimed.",
+    "live_verification": "draft_only",
+    "publication_gate": "Reuse this complete draft and slug after checking current main, all published inventory, the previous article and product/source links. No publication before 18 September or within two calendar days of another new original."
+  }
+}
