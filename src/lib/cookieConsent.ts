@@ -60,6 +60,8 @@ export function saveConsent(next: Partial<Omit<CookieConsentState, 'necessary' |
   };
   try {
     localStorage.setItem(CONSENT_KEY, JSON.stringify(state));
+    // Initialize analytics before a marketing tag can claim the shared loader.
+    setAnalyticsConsent(state.analytics);
     // Legacy mirror so existing analytics gates keep working
     const legacyValue = state.analytics ? 'accepted' : 'declined';
     localStorage.setItem(LEGACY_KEY, legacyValue);
