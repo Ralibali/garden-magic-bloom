@@ -12,14 +12,22 @@ vi.mock('@/lib/api', () => ({ api: { getSeasonSummaries: mocks.getSeasonSummarie
 import Timeline from '@/pages/Timeline';
 import SeasonWrapDialog from '@/components/SeasonWrapDialog';
 const event: DiaryEvent = { id: 'sowing-1', sourceId: '1', date: '2026-05-01', kind: 'sowing', title: 'Sådde Tomat', body: 'Växthuset', place: 'Pallkragen', placeId: 'bed:1', subject: 'Tomat', href: '/app/sowings' };
-function show(ui: React.ReactElement) {
+function show(ui: React.ReactElement, state?: Record<string, unknown>) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-  return render(<QueryClientProvider client={client}><MemoryRouter>{ui}</MemoryRouter></QueryClientProvider>);
+  return render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[{ pathname: "/app/timeline", state }]}>{ui}</MemoryRouter></QueryClientProvider>);
 }
 beforeEach(() => { vi.clearAllMocks(); mocks.getDiary.mockResolvedValue([event]); mocks.saveDiaryNote.mockResolvedValue({ id: 'saved' }); });
 afterEach(cleanup);
 
 describe('diary interactions', () => {
+  it('opens the note editor directly from the home shortcut', async () => {
+    show(<Timeline />, { openEditor: true });
+    expect(await screen.findByLabelText('Vad hände i odlingen?')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Vad hände i odlingen?'), { target: { value: 'Första röda tomaten.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Spara i dagboken' }));
+    await waitFor(() => expect(mocks.saveDiaryNote).toHaveBeenCalledWith(expect.objectContaining({ note: 'Första röda tomaten.' })));
+  });
+
   it('keeps filters available when a selected type is empty', async () => {
     show(<Timeline />);
     await screen.findByText('Sådde Tomat');

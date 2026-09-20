@@ -1,18 +1,14 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAchievementCelebration } from '@/hooks/useAchievementCelebration';
-import { useQuery } from '@tanstack/react-query';
 import { AppSidebar } from './AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { MobileNav } from './MobileNav';
 import PublicPlanHandoff from './PublicPlanHandoff';
 import { consumeIntentNavigation } from '@/lib/productIntent';
-import { Bell, CalendarDays, Carrot, HeartPulse, LayoutGrid, Menu, Plus, Sparkles, Sprout } from 'lucide-react';
+import { Bell, Menu, Sprout } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { api } from '@/lib/api';
-import { getPrimaryGardenAction } from '@/lib/primaryGardenAction';
-import { useGardenProfile } from '@/hooks/useGardenProfile';
 
 function useNoIndex() {
   useEffect(() => {
@@ -80,26 +76,8 @@ export default function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { plan, dismiss } = useSavedPublicPlan();
-  const { categories } = useGardenProfile();
-  const { data: beds = [] } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
-  const { data: sowings = [] } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   useAchievementCelebration();
   const meta = useMemo(() => getRouteMeta(location.pathname), [location.pathname]);
-  const dateLabel = useMemo(() => new Intl.DateTimeFormat('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()), []);
-  const plantOnly = categories.length > 0 && categories.every(category => category === 'krukvaxter');
-  const gardenAction = useMemo(() => getPrimaryGardenAction({ bedCount: beds.length, sowingCount: sowings.length, month: new Date().getMonth() + 1 }), [beds.length, sowings.length]);
-  const primaryAction = plantOnly
-    ? { kind: 'plant', label: 'Växtpulsen', path: '/app/my-plants', reason: 'Se växternas hälsa, jordstatus och personliga omsorgsrytm.' }
-    : gardenAction;
-  const PrimaryIcon = primaryAction.kind === 'plant'
-    ? HeartPulse
-    : primaryAction.kind === 'bed'
-      ? LayoutGrid
-      : primaryAction.kind === 'harvest'
-        ? Carrot
-        : primaryAction.kind === 'calendar'
-          ? CalendarDays
-          : Plus;
   useNoIndex();
 
   useEffect(() => {
@@ -111,27 +89,15 @@ export default function AppLayout() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full app-canvas">
+      <div className="min-h-screen flex w-full app-canvas garden-workspace">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
-          <header className="h-[72px] hidden md:flex items-center justify-between border-b border-border/55 px-6 lg:px-8 bg-background/72 backdrop-blur-2xl sticky top-0 z-30">
-            <div className="flex items-center gap-4 min-w-0">
-              <SidebarTrigger className="w-10 h-10 rounded-xl border border-border/70 bg-card/80 text-muted-foreground hover:text-primary hover:bg-card shadow-sm"><Menu className="h-4.5 w-4.5" /></SidebarTrigger>
-              <div className="min-w-0"><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary mb-0.5">{dateLabel}</p><div className="flex items-baseline gap-2 min-w-0"><h1 className="font-serif text-xl leading-none truncate">{meta.title}</h1><span className="hidden lg:inline text-xs text-muted-foreground truncate">{meta.subtitle}</span></div></div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" aria-label="Påminnelser" onClick={() => navigate('/app/reminders')}><Bell className="h-4 w-4" /></Button>
-              <Button variant="outline" size="sm" className="hidden lg:inline-flex gap-2" onClick={() => navigate('/app/gro')}><Sparkles className="h-4 w-4 text-primary" /> Fråga Gro</Button>
-              <Button size="sm" className="gap-2" title={primaryAction.reason} onClick={() => navigate(primaryAction.path)}><PrimaryIcon className="h-4 w-4" /> {primaryAction.label}</Button>
-            </div>
+          <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border/70 bg-background/95 px-4 backdrop-blur-lg sm:px-6 lg:px-8">
+            <div className="flex min-w-0 items-center gap-3"><SidebarTrigger className="hidden h-9 w-9 md:inline-flex" aria-label="Visa eller dölj sidomenyn"><Menu className="h-4 w-4" /></SidebarTrigger><Sprout className="h-5 w-5 shrink-0 text-primary md:hidden" /><p className="truncate text-sm font-medium">{location.pathname === '/app' ? 'Odlingsdagboken' : meta.title}</p></div>
+            <Button variant="ghost" size="icon" aria-label="Påminnelser" className="h-10 w-10 rounded-full" onClick={() => navigate('/app/reminders')}><Bell className="h-5 w-5" /></Button>
           </header>
 
-          <header className="h-16 flex md:hidden items-center justify-between border-b border-border/50 px-4 bg-background/80 backdrop-blur-2xl sticky top-0 z-30">
-            <div className="flex items-center gap-3 min-w-0"><div className="w-9 h-9 rounded-xl botanical-panel flex items-center justify-center shrink-0"><Sprout className="h-4.5 w-4.5 text-white" /></div><div className="min-w-0"><p className="font-serif text-[17px] leading-none truncate">{meta.title}</p><p className="text-[10px] text-muted-foreground mt-1 truncate">{meta.subtitle}</p></div></div>
-            <Button variant="ghost" size="icon" onClick={() => navigate(primaryAction.path)} aria-label={primaryAction.label}><PrimaryIcon className="h-4.5 w-4.5" /></Button>
-          </header>
-
-          <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 pb-28 md:pb-10 relative z-10">
+          <main className="flex-1 px-4 py-6 sm:p-6 lg:p-8 pb-28 md:pb-10 relative z-10">
             <div className="w-full max-w-[1520px] mx-auto">
               <Suspense fallback={<ContentLoader />}>
                 <AnimatePresence mode="wait">

@@ -1,497 +1,127 @@
-import { isNativeApp } from '@/lib/native';
-import React, { useState } from 'react';
-import { BookOpen, Brain, Camera, Carrot, Crown, ArrowRight, ChevronDown, Hand, HeartPulse, LayoutGrid, Leaf, MapPin, Plus, Sparkles, Sprout, CalendarDays, CloudSun } from 'lucide-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { lazy, Suspense, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowRight, BookOpen, Camera, Carrot, ChevronDown, CloudSun, Flower2, MapPin, NotebookPen, Plus, Snowflake, Sparkles, Sprout } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
-import OnboardingFlow from '@/components/OnboardingFlow';
-import GettingStartedGuide from '@/components/GettingStartedGuide';
-import PlantGettingStartedGuide from '@/components/PlantGettingStartedGuide';
-import DashboardActionCenter from '@/components/DashboardActionCenter';
-import HarvestValueLine from '@/components/HarvestValueLine';
-import TodayInGarden from '@/components/TodayInGarden';
-import GardenPulse from '@/components/GardenPulse';
-import WeeklyGardenSummary from '@/components/WeeklyGardenSummary';
-import AchievementsSection from '@/components/AchievementsSection';
-import PlantWeeklyCareSummary from '@/components/PlantWeeklyCareSummary';
-import PlantCareSpotlight from '@/components/PlantCareSpotlight';
-import { GardenCategory } from '@/lib/gardenModules';
-import { FadeIn } from '@/components/animations';
+import { getCultivationData } from '@/lib/cultivationApi';
+import { buildCultivations } from '@/lib/cultivations';
+import { getDiary } from '@/lib/diaryApi';
+import { DIARY_LABELS } from '@/lib/diary';
+import { localDateKey } from '@/lib/gardenToday';
 import { getGardenForecast, weatherDescription } from '@/lib/gardenWeather';
-import { buildPlantCareProfile } from '@/lib/plantCareIntelligence';
-import { computeDashboardPriority } from '@/lib/dashboardPriority';
-import { SOWING_STATUS_META, normalizeSowingStatus } from '@/lib/sowingLifecycle';
 import { getFrostWarning } from '@/lib/frostWarning';
-import { getHarvestHint } from '@/lib/harvestForecast';
-import { Snowflake } from 'lucide-react';
-import PrimaryActionCard from '@/components/PrimaryActionCard';
+import type { GardenCategory } from '@/lib/gardenModules';
+import OnboardingFlow from '@/components/OnboardingFlow';
+import GardenPulse from '@/components/GardenPulse';
+import CultivationImage from '@/components/CultivationImage';
 import SeasonWrapDialog from '@/components/SeasonWrapDialog';
+import gardenImage from '@/assets/hero-harvest-hands.jpg';
 
-const MONTH_TIPS: Record<number, string> = {
-  1: 'Planera årets sorter och kontrollera fröförrådet.',
-  2: 'Starta långsamma sådder och kontrollera extraljuset.',
-  3: 'Förodla tomat och kål och planera vårens bäddar.',
-  4: 'Direktså tåliga grödor och följ jordtemperaturen.',
-  5: 'Härda plantor och låt nattemperaturen styra utplanteringen.',
-  6: 'Vattna jämnt, gallra och ge plantorna stöd.',
-  7: 'Skörda ofta och fyll luckor med nya snabba sådder.',
-  8: 'Dokumentera skörden och så sensommarens grödor.',
-  9: 'Sammanfatta lärdomar och planera höstplantering.',
-  10: 'Täck jorden och avsluta bäddarna med anteckningar.',
-  11: 'Jämför säsongen och bygg nästa års växtföljd.',
-  12: 'Välj vad du vill upprepa, förbättra och sluta göra.',
-};
+const AchievementsSection = lazy(() => import('@/components/AchievementsSection'));
+const WeeklyGardenSummary = lazy(() => import('@/components/WeeklyGardenSummary'));
+const PlantWeeklyCareSummary = lazy(() => import('@/components/PlantWeeklyCareSummary'));
 
-const Dashboard = () => {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-  const showSeasonWrap = currentMonth === 9 || currentMonth === 10;
+const dateLabel = (date: string) => new Intl.DateTimeFormat('sv-SE', { day: 'numeric', month: 'short' }).format(new Date(`${date}T12:00:00`));
+
+export default function Dashboard() {
+  const { user } = useAuth();
+  const client = useQueryClient();
   const [wrapOpen, setWrapOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-
-  const { data: stats, isLoading } = useQuery({ queryKey: ['summary-stats'], queryFn: api.getSummaryStats });
-  const { data: profile, isLoading: profileLoading } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
-  const climateZone = profile?.climate_zone ?? 3;
-  const locationMode = profile?.location_lat != null && profile?.location_lon != null ? 'saved' : 'zone';
-  const { data: weather } = useQuery({
-    queryKey: ['garden-forecast', climateZone, locationMode],
-    queryFn: () => getGardenForecast(climateZone, { lat: profile?.location_lat, lon: profile?.location_lon }),
-    staleTime: 600_000,
-    retry: 1,
+  const [showProgress, setShowProgress] = useState(false);
+  const profile = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
+  const garden = useQuery({ queryKey: ['cultivations', user?.id], queryFn: getCultivationData, enabled: !!user?.id });
+  const diary = useQuery({ queryKey: ['garden-diary', user?.id], queryFn: getDiary, enabled: !!user?.id });
+  const reminders = useQuery({ queryKey: ['reminder-settings'], queryFn: api.getReminderSettings });
+  const climateZone = profile.data?.climate_zone ?? 3;
+  const lat = profile.data?.location_lat;
+  const lon = profile.data?.location_lon;
+  const weather = useQuery({
+    queryKey: ['garden-forecast', climateZone, lat, lon],
+    queryFn: () => getGardenForecast(climateZone, { lat, lon }),
+    enabled: profile.isSuccess, staleTime: 600_000, retry: 1,
   });
-  const { data: rainData } = useQuery({
-    queryKey: ['rain-history', climateZone, locationMode],
-    queryFn: () => api.getRainHistory(climateZone, { lat: profile?.location_lat, lon: profile?.location_lon }),
-    staleTime: 600_000,
-    retry: 1,
+  const rain = useQuery({
+    queryKey: ['rain-history', climateZone, lat, lon],
+    queryFn: () => api.getRainHistory(climateZone, { lat, lon }),
+    enabled: profile.isSuccess, staleTime: 600_000, retry: 1,
   });
-  const { data: beds = [], isLoading: bedsLoading, isError: bedsError } = useQuery({ queryKey: ['beds'], queryFn: api.getBeds });
-  const { data: sowings = [], isLoading: sowingsLoading, isError: sowingsError } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
-  const { data: harvests = [] } = useQuery({ queryKey: ['harvests'], queryFn: api.getHarvests });
-  const { data: remindersData, isLoading: remindersLoading, isError: remindersError } = useQuery({ queryKey: ['reminder-settings'], queryFn: api.getReminderSettings });
-  const { data: photos = [] } = useQuery({
-    queryKey: ['dashboard-photos'],
-    queryFn: async () => {
-      const { supabase } = await import('@/integrations/supabase/client');
-      const { data, error } = await supabase.from('plant_photos').select('id, taken_at, created_at').order('taken_at', { ascending: false }).limit(50);
-      if (error) return [];
-      return data || [];
-    },
-  });
-  const { data: adaptivePlants = [], isLoading: plantsLoading } = useQuery({
-    queryKey: ['adaptive-care-plants'],
-    queryFn: async () => {
-      const { supabase } = await import('@/integrations/supabase/client');
-      const [plantsResult, careResult, wateringResult] = await Promise.all([
-        supabase.from('my_plants').select('*, plants(name_sv, water, light, watering_interval_days)').order('created_at', { ascending: false }),
-        supabase.from('plant_care_events' as any).select('*').order('occurred_at', { ascending: false }).limit(1000),
-        supabase.from('watering_log').select('*').order('watered_at', { ascending: false }).limit(1000),
-      ]);
-      if (plantsResult.error) return [];
+  const items = useMemo(() => garden.data ? buildCultivations(garden.data) : [], [garden.data]);
+  const active = items.filter(item => item.status !== 'done');
+  const overduePlants = items.filter(item => item.plant && item.profile && ['urgent', 'due'].includes(item.profile.status)).map(item => ({ ...item.plant, care_profile: item.profile }));
+  const prefs = (profile.data?.preferences || {}) as { garden_categories?: GardenCategory[] };
+  const plantOnly = !!prefs.garden_categories?.length && prefs.garden_categories.every(category => category === 'krukvaxter');
+  const firstName = profile.data?.display_name?.trim().split(' ')[0];
+  const today = localDateKey();
+  const year = new Date().getFullYear();
+  const recent = (diary.data || []).filter(event => event.date <= today).slice(0, 3);
+  const harvested = garden.data?.harvests.filter(h => h.harvest_date.startsWith(String(year))).reduce((sum, h) => sum + h.weight_grams, 0) ?? 0;
+  const frost = plantOnly ? null : getFrostWarning(weather.data);
+  const temperature = weather.data?.current?.temperature_2m;
+  const hasLocation = lat != null && lon != null;
 
-      const eventsByPlant = new Map<string, any[]>();
-      const add = (plantId: string | null, event: any) => {
-        if (!plantId) return;
-        const current = eventsByPlant.get(plantId) || [];
-        current.push(event);
-        eventsByPlant.set(plantId, current);
-      };
-      ((careResult.data || []) as any[]).forEach(event => add(event.plant_id, event));
-      (wateringResult.data || []).forEach((event: any) => add(event.plant_id, { ...event, event_type: 'watered' }));
-
-      return (plantsResult.data || [])
-        .map((plant: any) => {
-          const careProfile = buildPlantCareProfile(plant, eventsByPlant.get(plant.id) || []);
-          return { ...plant, care_profile: careProfile, watering_interval_days: careProfile.recommendedIntervalDays };
-        })
-        .sort((a: any, b: any) => {
-          const order = { urgent: 0, due: 1, soon: 2, good: 3 } as Record<string, number>;
-          return order[a.care_profile.status] - order[b.care_profile.status] || a.care_profile.healthScore - b.care_profile.healthScore;
-        });
-    },
-  });
-
-  const showOnboarding = !profileLoading && profile && !(profile as any).onboarding_completed;
-  const handleOnboardingComplete = async (data: { categories: GardenCategory[]; climateZone: number }) => {
-    const currentPrefs = (profile?.preferences as any) || {};
-    await api.updateProfile({ climate_zone: data.climateZone, preferences: { ...currentPrefs, garden_categories: data.categories }, onboarding_completed: true });
-    queryClient.invalidateQueries({ queryKey: ['profile'] });
+  const completeOnboarding = async (data: { categories: GardenCategory[]; climateZone: number }) => {
+    await api.updateProfile({ climate_zone: data.climateZone, preferences: { ...prefs, garden_categories: data.categories }, onboarding_completed: true });
+    await client.invalidateQueries({ queryKey: ['profile'] });
   };
-
-  if (showOnboarding) return <OnboardingFlow onComplete={handleOnboardingComplete} />;
-
-  const preferences = ((profile?.preferences as any) || {}) as Record<string, any>;
-  const categories = (preferences.garden_categories || []) as GardenCategory[];
-  const plantOnly = categories.length > 0 && categories.every(category => category === 'krukvaxter');
-  const setupIncomplete = plantOnly
-    ? !plantsLoading && adaptivePlants.length === 0
-    : !isLoading && ((stats?.active_beds ?? 0) === 0 || (stats?.sowings_this_year ?? 0) === 0);
-  const dashboardLoading = isLoading || (plantOnly && plantsLoading);
-  const attentionPlants = adaptivePlants.filter((plant: any) => ['urgent', 'due'].includes(plant.care_profile.status));
-  const rawName = profile?.display_name?.trim();
-  const displayName = rawName ? rawName.split(' ')[0] : '';
-  const lastActivityValue = preferences.last_active_at || profile?.updated_at;
-  const daysSinceLastActivity = lastActivityValue ? Math.floor((Date.now() - new Date(lastActivityValue).getTime()) / 86400000) : null;
-  const showWelcomeBack = !setupIncomplete && daysSinceLastActivity !== null && daysSinceLastActivity >= 7;
-  const temp = weather?.current?.temperature_2m;
-  const rainChance = weather?.daily?.precipitation_probability_max?.[0];
-  const trialDaysLeft = (() => {
-    if (!profile?.premium_expires_at || (profile as any).subscription_status !== 'premium') return null;
-    const days = Math.ceil((new Date(profile.premium_expires_at).getTime() - Date.now()) / 86400000);
-    return days >= 0 && days <= 5 ? days : null;
-  })();
-  const recentSowings = sowings.slice(0, 5);
-  const primaryMessage = plantOnly
-    ? setupIncomplete
-      ? 'Lägg till en växt och gör en snabb jordkontroll — därefter börjar appen lära sig.'
-      : attentionPlants.length > 0
-        ? `${attentionPlants.length} ${attentionPlants.length === 1 ? 'växt behöver' : 'växter behöver'} en snabb koll idag.`
-        : 'Dina växter är i rytm — bra jobbat.'
-    : setupIncomplete
-      ? 'Börja med en plats och en sådd — därefter blir råden personliga.'
-      : MONTH_TIPS[currentMonth];
-
-  const heroGreeting = displayName ? `Hej ${displayName}` : 'Hej';
-  const weatherLine = temp !== undefined
-    ? `${Math.round(temp)}° · ${weatherDescription(weather?.current?.weather_code)}${rainChance !== undefined ? ` · ${Math.round(rainChance)}% regn` : ''}`
-    : null;
+  if (profile.data && !(profile.data as { onboarding_completed?: boolean }).onboarding_completed) return <OnboardingFlow onComplete={completeOnboarding} />;
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6 sm:space-y-8">
-      {/* HERO — kompakt, luftig, ett budskap */}
-      <FadeIn>
-        <section className="pt-2 sm:pt-4">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Klimatzon {climateZone}</span>
-            {weatherLine && <span className="inline-flex items-center gap-1.5"><CloudSun className="h-3.5 w-3.5" /> {weatherLine}</span>}
-          </div>
-          <h1 className="mt-3 font-serif text-3xl leading-tight sm:text-4xl">{heroGreeting}.</h1>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">{primaryMessage}</p>
-        </section>
-      </FadeIn>
+    <div className="garden-home mx-auto max-w-6xl space-y-7 sm:space-y-9">
+      <header className="flex flex-wrap items-end justify-between gap-5">
+        <div>
+          <p className="garden-eyebrow">{new Intl.DateTimeFormat('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())}</p>
+          <h1 className="mt-2 text-3xl sm:text-[2.75rem]">{firstName ? `Din odling, ${firstName}.` : 'Din odling.'}</h1>
+          <p className="mt-2 text-base text-muted-foreground">{plantOnly ? 'En liten stund med dina växter.' : 'En liten stund i det gröna.'}</p>
+        </div>
+        <Button asChild className="min-h-11 gap-2 rounded-full px-5"><Link to="/app/timeline" state={{ openEditor: true }}><NotebookPen className="h-4 w-4" />Skriv i dagboken</Link></Button>
+      </header>
 
-      <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
-        <div className="flex items-center gap-3"><BookOpen className="h-5 w-5 text-primary" /><div><h2 className="text-lg">Din odling har en historia</h2><p className="text-sm text-muted-foreground">Sådder, foton och lärdomar – samlade i din dagbok.</p></div></div>
-        <div className="flex flex-wrap gap-2"><Button onClick={() => navigate('/app/odlingar')}>Mina odlingar <ArrowRight className="ml-2 h-4 w-4" /></Button><Button variant="outline" onClick={() => navigate('/app/timeline')}>Öppna min dagbok</Button></div>
-      </section>
+      <nav aria-label="Lägg till i odlingen" className="garden-quick-actions">
+        <Link to={plantOnly ? '/app/my-plants' : '/app/sowings'} state={plantOnly ? { openCreate: true } : { prefill: {} }}><Plus />{plantOnly ? 'Ny växt' : 'Ny sådd'}</Link>
+        <Link to="/app/photos" state={{ openUpload: true }}><Camera />Lägg till foto</Link>
+        <Link to={plantOnly ? '/app/my-plants' : '/app/harvests'} state={plantOnly ? undefined : { prefill: {} }}>{plantOnly ? <Flower2 /> : <Carrot />}{plantOnly ? 'Titta till växter' : 'Logga skörd'}</Link>
+        <Link to="/app/gro"><Sparkles />Fråga Gro</Link>
+      </nav>
 
+      {frost && <section role="status" className="flex items-start gap-3 rounded-2xl border border-sky-300/60 bg-sky-50 p-4 text-sky-950 dark:border-sky-800 dark:bg-sky-950 dark:text-sky-100"><Snowflake className="mt-0.5 h-5 w-5 shrink-0" /><div><h2 className="font-sans text-base font-semibold text-inherit">{frost.headline}</h2><p className="mt-1 text-sm">{frost.advice}</p></div></section>}
 
-      {dashboardLoading ? (
-        <Skeleton className="h-64 rounded-[1.8rem]" />
-      ) : setupIncomplete ? (
-        plantOnly ? <PlantGettingStartedGuide /> : <GettingStartedGuide />
-      ) : plantOnly ? (
-        <PlantOnlyDashboard
-          plants={adaptivePlants as any[]}
-          weather={weather}
-          rainData={rainData}
-          climateZone={climateZone}
-          remindersData={remindersData}
-          displayName={displayName}
-          moreOpen={moreOpen}
-          setMoreOpen={setMoreOpen}
-          trialDaysLeft={trialDaysLeft}
-          showWelcomeBack={showWelcomeBack}
-          daysSinceLastActivity={daysSinceLastActivity}
-          onNavigate={navigate}
-        />
-      ) : (
-        <>
-          {/* Frostvarning i förväg — visas när prognosen spår kalla nätter */}
-          {(() => {
-            const warning = getFrostWarning(weather);
-            if (!warning) return null;
-            const isFrost = warning.firstNight.severity === 'frost';
-            return (
-              <FadeIn>
-                <Card className={`border-2 ${isFrost ? 'border-sky-400/50 bg-sky-50/80 dark:bg-sky-950/30' : 'border-sky-300/40 bg-sky-50/50 dark:bg-sky-950/20'}`}>
-                  <CardContent className="flex items-start gap-3.5 p-4 sm:p-5">
-                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${isFrost ? 'bg-sky-500/15 text-sky-600 dark:text-sky-300' : 'bg-sky-500/10 text-sky-500 dark:text-sky-400'}`}>
-                      <Snowflake className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-sm sm:text-base text-sky-900 dark:text-sky-100">{warning.headline}</p>
-                      <p className="mt-1 text-xs sm:text-sm leading-relaxed text-sky-800/80 dark:text-sky-200/70">{warning.advice}</p>
-                      {warning.totalColdNights > 1 && <p className="mt-1.5 text-xs font-medium text-sky-700 dark:text-sky-300">Totalt {warning.totalColdNights} kalla nätter i prognosen.</p>}
-                    </div>
-                  </CardContent>
-                </Card>
-              </FadeIn>
-            );
-          })()}
+      <div className="grid items-start gap-7 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="min-w-0 space-y-8">
+          <section aria-labelledby="growing-heading">
+            <div className="garden-section-heading"><h2 id="growing-heading">Här växer det</h2><Link to="/app/odlingar">Alla odlingar <ArrowRight /></Link></div>
+            {garden.isLoading ? <div className="grid grid-cols-2 gap-4 sm:grid-cols-3" aria-label="Hämtar odlingar" aria-busy="true">{[1, 2, 3].map(n => <Skeleton key={n} className="h-60 rounded-2xl last:hidden sm:last:block" />)}</div>
+              : garden.isError ? <div className="garden-paper p-6" role="alert"><h3 className="text-xl">Odlingarna kunde inte hämtas</h3><p className="mt-2 text-sm text-muted-foreground">Försök igen för att se dina sparade växter och sådder.</p><Button variant="outline" className="mt-4" onClick={() => void garden.refetch()}>Försök igen</Button></div>
+              : active.length ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">{active.slice(0, 3).map(item => <Link key={item.id} to="/app/odlingar" state={{ cultivationId: item.id }} className="garden-plant-card group">
+                <CultivationImage item={item} />
+                <div className="p-3 sm:p-4"><p className="truncate text-xs text-muted-foreground">{item.place}</p><h3 className="mt-1 break-words text-xl leading-snug group-hover:text-primary">{item.name}</h3><p className="mt-3 flex items-start gap-1.5 text-sm"><span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${item.status === 'attention' ? 'bg-amber-600' : 'bg-primary'}`} /><span>{item.status === 'attention' ? 'Dags för en titt' : item.stage}</span></p></div>
+              </Link>)}</div>
+              : <div className="garden-welcome grid overflow-hidden rounded-2xl sm:grid-cols-[1fr_180px]"><div className="p-6 sm:p-8"><Sprout className="h-7 w-7 text-primary" /><h3 className="mt-4 text-2xl">{items.length ? 'Vad vill du odla härnäst?' : 'Det börjar med något litet.'}</h3><p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground">{items.length ? 'Dina avslutade odlingar finns kvar i historiken. Börja en ny när du vill.' : 'En kruka i fönstret eller en hel köksträdgård. Lägg till det du odlar, så får det en egen historia.'}</p><Button asChild className="mt-5"><Link to={plantOnly ? '/app/my-plants' : '/app/sowings'} state={plantOnly ? { openCreate: true } : { prefill: {} }}><Plus className="mr-2 h-4 w-4" />{plantOnly ? 'Lägg till en växt' : 'Lägg till en sådd'}</Link></Button></div><img src={gardenImage} alt="Händer med nyskördade grönsaker" className="hidden h-full w-full object-cover sm:block" /></div>}
+          </section>
 
-          <GardenPulse
-            weather={weather}
-            rainData={rainData}
-            climateZone={climateZone}
-            remindersData={remindersData}
-            sowings={sowings}
-            overduePlants={attentionPlants}
-            beds={beds}
-            isLoading={bedsLoading || sowingsLoading || remindersLoading}
-            isError={bedsError || sowingsError || remindersError}
-          />
-
-          {/* Skördeläge – grödor i sitt skördefönster just nu */}
-          {(() => {
-            const ready = sowings.filter((s: any) => {
-              if (normalizeSowingStatus(s.status) === 'done') return false;
-              return getHarvestHint(s.variety, climateZone)?.kind === 'now';
-            });
-            if (!ready.length) return null;
-            const names = [...new Set(ready.map((s: any) => getHarvestHint(s.variety, climateZone)!.cropName))];
-            const shown = names.slice(0, 3).join(', ');
-            const extra = names.length > 3 ? ` +${names.length - 3} till` : '';
-            return (
-              <FadeIn>
-                <Card className="border-accent/30 bg-gradient-to-r from-accent/10 via-card to-primary/8">
-                  <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-                    <div className="flex items-center gap-3.5">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent/12 text-accent"><Carrot className="h-5 w-5" /></div>
-                      <div>
-                        <p className="font-semibold text-sm sm:text-base">Skördeläge just nu 🥕</p>
-                        <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">{shown}{extra} är i sitt skördefönster — skörda ofta för bästa smak.</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 shrink-0">
-                      <Button size="sm" variant="outline" onClick={() => navigate('/app/sowings', { state: { statusFilter: 'harvesting' } })}>Se såloggen</Button>
-                      <Button size="sm" onClick={() => navigate('/app/harvests')}><Plus className="h-4 w-4" /> Logga skörd</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </FadeIn>
-            );
-          })()}
-
-          {/* Veckosammanfattning – komprimerad */}
-          {adaptivePlants.length > 0 && <PlantWeeklyCareSummary variant="compact" />}
-
-          {/* Mer från din odling – kollapsbar */}
-          <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Utforska din odling" subtitle="Veckosammanfattning, statistik och genvägar">
-            {!isNativeApp() && trialDaysLeft !== null && (
-              <Card className="border-accent/25 bg-gradient-to-r from-accent/8 via-card to-primary/8">
-                <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-accent/12 flex items-center justify-center shrink-0"><Crown className="h-5 w-5 text-accent" /></div>
-                    <div>
-                      <p className="font-semibold text-sm">{trialDaysLeft === 0 ? 'Din provperiod går ut idag' : `Din provperiod går ut om ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dag' : 'dagar'}`}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">Behåll obegränsad historik, mer Gro och full statistik.</p>
-                    </div>
-                  </div>
-                  <Button size="sm" onClick={() => navigate('/app/premium')}><Crown className="h-4 w-4" /> Behåll Plus <ArrowRight className="h-3.5 w-3.5" /></Button>
-                </CardContent>
-              </Card>
-            )}
-
-            {showWelcomeBack && (
-              <Card className="border-primary/20 bg-primary/5">
-                <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary/12 flex items-center justify-center"><Hand className="h-5 w-5 text-primary" /></div>
-                    <div>
-                      <p className="font-semibold text-sm">Välkommen tillbaka{displayName ? `, ${displayName}` : ''}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">Det har gått {daysSinceLastActivity} dagar. Idag-listan hjälper dig hitta tillbaka.</p>
-                    </div>
-                  </div>
-                  <Button size="sm" variant="outline" onClick={() => navigate('/app/timeline')}><Leaf className="h-4 w-4" /> Se vad som hänt</Button>
-                </CardContent>
-              </Card>
-            )}
-
-            <div className="grid grid-cols-3 gap-3">
-              <button onClick={() => navigate('/app/beds')} className="rounded-2xl border border-border/60 bg-card/70 p-3 text-left transition hover:border-primary/30">
-                <LayoutGrid className="h-4 w-4 text-primary" />
-                <p className="mt-2 text-2xl font-bold tabular-nums leading-none">{stats?.active_beds ?? 0}</p>
-                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">Platser</p>
-              </button>
-              <button onClick={() => navigate('/app/sowings')} className="rounded-2xl border border-border/60 bg-card/70 p-3 text-left transition hover:border-primary/30">
-                <Sprout className="h-4 w-4 text-primary" />
-                <p className="mt-2 text-2xl font-bold tabular-nums leading-none">{stats?.sowings_this_year ?? 0}</p>
-                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">Sådder</p>
-              </button>
-              <button onClick={() => navigate('/app/harvests')} className="rounded-2xl border border-border/60 bg-card/70 p-3 text-left transition hover:border-primary/30">
-                <Carrot className="h-4 w-4 text-accent" />
-                <p className="mt-2 text-2xl font-bold tabular-nums leading-none">{(stats?.harvest_kg ?? 0).toFixed(1)}<span className="text-sm font-semibold text-muted-foreground"> kg</span></p>
-                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">Skörd</p>
-              </button>
+          <section aria-labelledby="diary-heading">
+            <div className="garden-section-heading"><h2 id="diary-heading">Senast i din dagbok</h2><Link to="/app/timeline">Öppna dagboken <ArrowRight /></Link></div>
+            <div className="garden-paper overflow-hidden">
+              {diary.isLoading ? <div className="space-y-4 p-5" aria-busy="true" aria-label="Hämtar dagboken"><Skeleton className="h-12" /><Skeleton className="h-12" /></div>
+                : diary.isError ? <div role="alert" className="p-5"><p>Dagboken kunde inte hämtas.</p><Button variant="link" className="mt-2 px-0" onClick={() => void diary.refetch()}>Försök igen</Button></div>
+                : recent.length ? <div className="divide-y divide-border/60">{recent.map(event => <Link key={event.id} to="/app/timeline" state={{ ...(event.subjectId ? { subjectId: event.subjectId } : {}), eventId: event.id }} className="group flex items-start gap-4 p-4 transition-colors hover:bg-muted/40 sm:p-5"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/5 text-primary">{event.kind === 'photo' ? <Camera className="h-5 w-5" /> : event.kind === 'harvest' ? <Carrot className="h-5 w-5" /> : event.kind === 'note' ? <NotebookPen className="h-5 w-5" /> : <Sprout className="h-5 w-5" />}</span><div className="min-w-0 flex-1"><p className="text-xs text-muted-foreground">{dateLabel(event.date)} · {DIARY_LABELS[event.kind]}</p><h3 className="mt-1 text-lg leading-snug group-hover:text-primary">{event.title}</h3>{event.body && <p className="mt-1 line-clamp-2 break-words text-sm leading-relaxed text-muted-foreground">{event.body}</p>}</div><ArrowRight className="mt-3 h-4 w-4 shrink-0 text-muted-foreground" /></Link>)}</div>
+                : <div className="p-6"><BookOpen className="h-6 w-6 text-primary" /><h3 className="mt-3 text-xl">Vad vill du minnas från idag?</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">Ett nytt blad, något som grott eller en idé till nästa år.</p><Button asChild variant="link" className="mt-3 h-auto p-0"><Link to="/app/timeline" state={{ openEditor: true }}>Skriv dina första rader <ArrowRight className="ml-2 h-4 w-4" /></Link></Button></div>}
             </div>
+          </section>
+        </div>
 
-            <WeeklyGardenSummary sowings={sowings} harvests={harvests} remindersData={remindersData} photos={photos} />
-            <DashboardActionCenter climateZone={climateZone} currentMonth={currentMonth} isNewUser={false} onNavigate={navigate} />
-            <HarvestValueLine />
-
-            {recentSowings.length > 0 && (
-              <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><CalendarDays className="h-4 w-4 text-primary" /> Senaste sådder</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="space-y-2.5">
-                    {recentSowings.map((sowing: any) => (
-                      <button key={sowing.id} onClick={() => navigate('/app/sowings')} className="flex w-full items-center justify-between gap-3 rounded-xl p-2 text-left hover:bg-primary/5">
-                        <div className="flex min-w-0 items-center gap-2"><Sprout className="h-3.5 w-3.5 text-primary shrink-0" /><span className="font-medium text-sm truncate">{sowing.variety}</span>{sowing.beds?.name && <span className="text-xs text-muted-foreground truncate">· {sowing.beds.name}</span>}</div>
-                        <span className="flex items-center gap-2 shrink-0">
-                          <span className="rounded-full bg-primary/8 px-2 py-0.5 text-[10px] font-medium text-primary">{SOWING_STATUS_META[normalizeSowingStatus(sowing.status)].short}</span>
-                          <span className="text-xs text-muted-foreground">{sowing.sow_date}</span>
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={() => navigate('/app/sowings')}><Plus className="h-4 w-4" /> Ny sådd</Button>
-              <Button variant="outline" onClick={() => navigate('/app/harvests')}><Carrot className="h-4 w-4" /> Logga skörd</Button>
-              <Button variant="outline" onClick={() => navigate('/app/photos')}><Camera className="h-4 w-4" /> Lägg till foto</Button>
-            </div>
-
-            {showSeasonWrap && (
-              <Card className="border-accent/25 bg-accent/5">
-                <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-3"><Leaf className="h-5 w-5 text-accent" /><div><p className="font-semibold text-sm">Dags att summera säsongen</p><p className="text-xs text-muted-foreground mt-0.5">Spara lärdomarna medan du fortfarande minns detaljerna.</p></div></div>
-                  <Button size="sm" onClick={() => setWrapOpen(true)}><Leaf className="h-4 w-4" /> Summera säsongen</Button>
-                </CardContent>
-              </Card>
-            )}
-          </CollapsibleSection>
-
-          <AchievementsSection />
-
-          <SeasonWrapDialog open={wrapOpen} onOpenChange={setWrapOpen} beds={beds} year={currentYear} />
-        </>
-      )}
+        <aside className="min-w-0 space-y-5">
+          <div className="garden-section-heading"><h2>En stund idag</h2><Link to="/app/reminders" aria-label="Alla påminnelser"><ArrowRight /></Link></div>
+          <GardenPulse weather={weather.data} rainData={rain.data} climateZone={climateZone} remindersData={reminders.data} sowings={garden.data?.sowings} beds={garden.data?.beds} overduePlants={overduePlants} isLoading={garden.isLoading || reminders.isLoading} isError={garden.isError || reminders.isError} compact />
+          <section className="garden-weather" aria-label="Väder vid odlingen"><div className="flex items-center gap-3"><CloudSun className="h-8 w-8 text-primary" /><div><p className="text-sm font-medium">{temperature != null ? `${Math.round(temperature)}° · ${weatherDescription(weather.data?.current?.weather_code)}` : weather.isError ? 'Vädret kunde inte hämtas' : 'Hämtar vädret…'}</p><p className="mt-1 text-xs text-muted-foreground">{hasLocation ? 'Vid din sparade plats' : `Ungefärligt väder · zon ${climateZone}`}</p></div></div><Link to="/app/settings" className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary"><MapPin className="h-3.5 w-3.5" />{hasLocation ? 'Ändra plats' : 'Ange din plats'}</Link></section>
+          <div className="border-t border-border/70 pt-5"><p className="garden-eyebrow">Din säsong {year}</p><div className="mt-3 flex gap-6"><Link to="/app/odlingar" className="text-sm text-muted-foreground"><strong className="mb-1 block font-serif text-3xl font-normal text-foreground">{garden.isPending || garden.isError ? '–' : active.length}</strong>aktiva odlingar</Link><Link to={plantOnly ? '/app/photos' : '/app/harvests'} className="text-sm text-muted-foreground"><strong className="mb-1 block font-serif text-3xl font-normal text-foreground">{garden.isPending || garden.isError ? '–' : plantOnly ? garden.data?.photos.filter(photo => photo.taken_at.startsWith(String(year))).length : (harvested / 1000).toLocaleString('sv-SE', { maximumFractionDigits: 1 })}</strong>{plantOnly ? 'foton i år' : 'kg skördat i år'}</Link></div><Link to="/app/statistics" className="mt-4 inline-flex items-center gap-2 text-sm text-primary">Se din statistik <ArrowRight className="h-3.5 w-3.5" /></Link></div>
+        </aside>
+      </div>
+      {new Date().getMonth() >= 8 && new Date().getMonth() <= 9 && !!garden.data?.beds.length && <section className="flex flex-wrap items-center justify-between gap-4 border-t border-border/70 pt-6"><div><h2 className="text-xl">Ta med dig det som fungerade.</h2><p className="mt-1 text-sm text-muted-foreground">Spara säsongens lärdomar inför nästa år.</p></div><Button variant="outline" className="rounded-full" onClick={() => setWrapOpen(true)}>Summera säsongen <ArrowRight className="ml-2 h-4 w-4" /></Button></section>}
+      <section className="border-t border-border/70 pt-5"><button type="button" aria-expanded={showProgress} aria-controls="garden-progress" onClick={() => setShowProgress(value => !value)} className="flex w-full items-center justify-between gap-3 py-2 text-left text-sm font-medium">Veckan & dina framsteg<ChevronDown className={`h-4 w-4 transition-transform ${showProgress ? 'rotate-180' : ''}`} /></button>{showProgress && <div id="garden-progress" className="mt-4 space-y-4"><Suspense fallback={<Skeleton className="h-32 rounded-2xl" />}>{plantOnly ? <PlantWeeklyCareSummary variant="compact" /> : <><WeeklyGardenSummary sowings={garden.data?.sowings || []} harvests={garden.data?.harvests || []} photos={garden.data?.photos || []} remindersData={reminders.data} /><AchievementsSection /></>}</Suspense></div>}</section>
+      <SeasonWrapDialog open={wrapOpen} onOpenChange={setWrapOpen} beds={garden.data?.beds || []} year={year} />
     </div>
   );
-};
-
-function CollapsibleSection({ open, onToggle, title, subtitle, children }: { open: boolean; onToggle: () => void; title: string; subtitle?: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-[1.75rem] border border-border/50 bg-card/50">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className="flex w-full items-center justify-between gap-3 rounded-[1.75rem] px-4 py-3 text-left transition-colors hover:bg-muted/20 sm:px-5 sm:py-4"
-      >
-        <div>
-          <p className="text-sm font-semibold">{title}</p>
-          {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
-        </div>
-        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform motion-reduce:transition-none ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
-      </button>
-      {open && <div className="space-y-4 border-t border-border/40 p-4 sm:p-5">{children}</div>}
-    </section>
-  );
 }
-
-function PlantOnlyDashboard({
-  plants,
-  weather,
-  rainData,
-  climateZone,
-  remindersData,
-  displayName,
-  moreOpen,
-  setMoreOpen,
-  trialDaysLeft,
-  showWelcomeBack,
-  daysSinceLastActivity,
-  onNavigate,
-}: {
-  plants: any[];
-  weather: any;
-  rainData: any;
-  climateZone: number;
-  remindersData: any;
-  displayName: string;
-  moreOpen: boolean;
-  setMoreOpen: (updater: (v: boolean) => boolean) => void;
-  trialDaysLeft: number | null;
-  showWelcomeBack: boolean;
-  daysSinceLastActivity: number | null;
-  onNavigate: (path: string) => void;
-}) {
-  const averageHealth = plants.length ? Math.round(plants.reduce((sum, plant) => sum + plant.care_profile.healthScore, 0) / plants.length) : 0;
-  const personalRhythms = plants.filter(plant => plant.care_profile.confidence === 'personal').length;
-  const attention = plants.filter(plant => ['urgent', 'due'].includes(plant.care_profile.status)).length;
-  const attentionPlants = plants.filter(plant => ['urgent', 'due'].includes(plant.care_profile.status));
-
-  const priority = computeDashboardPriority({ plants, reminders: ((remindersData?.settings as any)?.reminders || []), weather, rainData, climateZone });
-
-  return (
-    <>
-      <PrimaryActionCard result={priority} greeting={displayName ? `Hej ${displayName}` : undefined} />
-
-      {attentionPlants.length > 0 && <PlantCareSpotlight plants={attentionPlants.slice(0, 3)} />}
-
-      <CollapsibleSection open={moreOpen} onToggle={() => setMoreOpen(v => !v)} title="Utforska dina växter" subtitle="Veckosammanfattning, statistik och genvägar">
-        <PlantWeeklyCareSummary variant="compact" />
-        <TodayInGarden weather={weather} rainData={rainData} climateZone={climateZone} remindersData={remindersData} sowings={[]} overduePlants={attentionPlants} beds={[]} displayName={displayName} maxItems={4} />
-        {!isNativeApp() && trialDaysLeft !== null && (
-          <Card className="border-accent/25 bg-gradient-to-r from-accent/8 via-card to-primary/8">
-            <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent/12 flex items-center justify-center shrink-0"><Crown className="h-5 w-5 text-accent" /></div>
-                <div>
-                  <p className="font-semibold text-sm">{trialDaysLeft === 0 ? 'Din provperiod går ut idag' : `Din provperiod går ut om ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dag' : 'dagar'}`}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Behåll obegränsad historik och mer Gro.</p>
-                </div>
-              </div>
-              <Button size="sm" onClick={() => onNavigate('/app/premium')}><Crown className="h-4 w-4" /> Behåll Plus</Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {showWelcomeBack && (
-          <Card className="border-primary/20 bg-primary/5">
-            <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/12 flex items-center justify-center"><Hand className="h-5 w-5 text-primary" /></div>
-                <div>
-                  <p className="font-semibold text-sm">Välkommen tillbaka{displayName ? `, ${displayName}` : ''}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Det har gått {daysSinceLastActivity} dagar. Börja med en snabbkoll.</p>
-                </div>
-              </div>
-              <Button size="sm" variant="outline" onClick={() => onNavigate('/app/my-plants')}><HeartPulse className="h-4 w-4" /> Se växtpulsen</Button>
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="grid grid-cols-3 gap-3">
-          <button onClick={() => onNavigate('/app/my-plants')} className="rounded-2xl border border-border/60 bg-card/70 p-3 text-left transition hover:border-primary/30">
-            <HeartPulse className="h-4 w-4 text-primary" />
-            <p className="mt-2 text-2xl font-bold tabular-nums leading-none">{attention}</p>
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">Behöver koll</p>
-          </button>
-          <button onClick={() => onNavigate('/app/my-plants')} className="rounded-2xl border border-border/60 bg-card/70 p-3 text-left transition hover:border-primary/30">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <p className="mt-2 text-2xl font-bold tabular-nums leading-none">{averageHealth}</p>
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">Snitthälsa</p>
-          </button>
-          <button onClick={() => onNavigate('/app/my-plants')} className="rounded-2xl border border-border/60 bg-card/70 p-3 text-left transition hover:border-primary/30">
-            <Brain className="h-4 w-4 text-primary" />
-            <p className="mt-2 text-2xl font-bold tabular-nums leading-none">{personalRhythms}</p>
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">Personliga rytmer</p>
-          </button>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={() => onNavigate('/app/my-plants')}><HeartPulse className="h-4 w-4" /> Mina växter</Button>
-          <Button variant="outline" onClick={() => onNavigate('/app/photos')}><Camera className="h-4 w-4" /> Lägg till foto</Button>
-          <Button variant="outline" onClick={() => onNavigate('/app/gro')}><Sparkles className="h-4 w-4" /> Fråga Gro</Button>
-        </div>
-      </CollapsibleSection>
-    </>
-  );
-}
-
-export default Dashboard;
