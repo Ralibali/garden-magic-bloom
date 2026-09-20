@@ -1,3 +1,4 @@
+import { setAnalyticsConsent } from './ga4Runtime';
 // Granular cookie consent (GDPR / ePrivacy).
 // Categories: necessary (always), analytics, marketing.
 // Backward compatible with legacy `cookie-consent` = 'accepted' | 'declined'.
@@ -12,7 +13,7 @@ export interface CookieConsentState {
   version: 2;
 }
 
-export const CONSENT_KEY = 'cookie-consent-v2';
+export const CONSENT_KEY = 'cookie-consent-ga4-v1';
 export const LEGACY_KEY = 'cookie-consent';
 export const CONSENT_EVENT = 'cookie-consent-change';
 
@@ -31,14 +32,6 @@ export function getConsent(): CookieConsentState | null {
     if (raw) {
       const parsed = JSON.parse(raw);
       return { ...DEFAULT, ...parsed, necessary: true, version: 2 };
-    }
-    // Migrate legacy
-    const legacy = localStorage.getItem(LEGACY_KEY);
-    if (legacy === 'accepted') {
-      return { ...DEFAULT, analytics: true, marketing: true, updatedAt: new Date().toISOString() };
-    }
-    if (legacy === 'declined') {
-      return { ...DEFAULT, updatedAt: new Date().toISOString() };
     }
     return null;
   } catch {
@@ -77,6 +70,8 @@ export function saveConsent(next: Partial<Omit<CookieConsentState, 'necessary' |
       (window as any).loadGoogleAds();
     }
   } catch {}
+  setAnalyticsConsent(state.analytics);
+  (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag?.('consent', 'update', { ad_storage: state.marketing ? 'granted' : 'denied', ad_user_data: state.marketing ? 'granted' : 'denied', ad_personalization: state.marketing ? 'granted' : 'denied' });
   return state;
 }
 
