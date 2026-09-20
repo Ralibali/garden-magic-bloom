@@ -192,3 +192,45 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* The garden workspace: quiet paper, ink-green details, personal photographs. */
+.garden-workspace {
+  --background: 60 14% 97%;
+  --card: 0 0% 100%;
+  --border: 90 10% 87%;
+  --muted: 80 12% 93%;
+  --muted-foreground: 150 7% 38%;
+  background: hsl(var(--background));
+}
+.dark .garden-workspace {
+  --background: 154 19% 8%;
+  --card: 154 18% 11%;
+  --border: 154 11% 23%;
+  --muted: 154 12% 17%;
+  --muted-foreground: 48 8% 68%;
+}
+.garden-workspace.app-canvas::before { display: none; }
+.garden-eyebrow { font-size: .75rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
+.garden-section-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem; }
+.garden-section-heading h2 { font-size: 1.5rem; }
+.garden-section-heading a { display: inline-flex; align-items: center; gap: .4rem; font-size: .875rem; color: hsl(var(--primary)); padding-block: .4rem; }
+.garden-section-heading a:hover { text-decoration: underline; }
+.garden-section-heading a svg { width: 1rem; height: 1rem; }
+.garden-paper, .garden-plant-card { border: 1px solid hsl(var(--border)); background: hsl(var(--card)); border-radius: 1rem; }
+.garden-plant-card { overflow: hidden; transition: border-color .2s, box-shadow .2s; }
+.garden-plant-card:hover { border-color: hsl(var(--primary) / .4); box-shadow: 0 6px 18px hsl(var(--foreground) / .04); }
+.garden-plant-image { height: 10rem; display: flex; align-items: center; justify-content: center; overflow: hidden; background: hsl(var(--primary) / .055); }
+.garden-welcome { background: hsl(var(--primary) / .045); border: 1px solid hsl(var(--primary) / .12); }
+.garden-weather { padding: 1.25rem; border-radius: 1rem; background: hsl(var(--primary) / .04); }
+.garden-quick-actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-block: 1px solid hsl(var(--border)); }
+.garden-quick-actions a { display: flex; align-items: center; justify-content: center; gap: .6rem; padding: 1rem .5rem; min-height: 3.5rem; font-size: .875rem; font-weight: 500; transition: background .2s; }
+.garden-quick-actions a:hover { background: hsl(var(--primary) / .05); color: hsl(var(--primary)); }
+.garden-quick-actions svg { width: 1.125rem; height: 1.125rem; flex-shrink: 0; color: hsl(var(--primary)); }
+.garden-workspace a:focus-visible, .garden-workspace button:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
+@media (max-width: 639px) {
+  .garden-quick-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .garden-quick-actions a { justify-content: flex-start; padding-left: .75rem; }
+  .garden-plant-image { height: 8.5rem; }
+  .garden-plant-image span { max-width: 8rem; text-align: center; padding-inline: .5rem; }
+  .garden-section-heading h2 { font-size: 1.35rem; }
+}

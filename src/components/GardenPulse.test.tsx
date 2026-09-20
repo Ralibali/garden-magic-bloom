@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import GardenPulse from './GardenPulse';
@@ -110,5 +110,23 @@ describe('GardenPulse UI', () => {
     expect(screen.getByText('Varför: din logg')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /logga/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /inte relevant/i })).toBeInTheDocument();
+  });
+});
+
+
+describe('compact daily tasks', () => {
+  it('limits the entire list to three tasks and expands without dropping tasks', () => {
+    const today = localDateKey();
+    renderPulse({ compact: true, remindersData: { settings: { reminders: Array.from({ length: 7 }, (_, i) => ({ id: `task-${i}`, title: `Uppgift ${i}`, type: 'other', date: addDaysToDateKey(today, i - 2), done: false })) } } });
+    expect(screen.getAllByRole('button', { name: /markera klar/i })).toHaveLength(3);
+    fireEvent.click(screen.getByRole('button', { name: 'Visa alla 7 uppgifter' }));
+    expect(screen.getAllByRole('button', { name: /markera klar/i })).toHaveLength(7);
+    fireEvent.click(screen.getByRole('button', { name: 'Visa färre' }));
+    expect(screen.getAllByRole('button', { name: /markera klar/i })).toHaveLength(3);
+  });
+  it('does not claim a quiet garden when fetching tasks failed', () => {
+    renderPulse({ compact: true, isError: true });
+    expect(screen.getByRole('alert')).toHaveTextContent('kunde inte hämtas');
+    expect(screen.queryByText('En lugn stund.')).not.toBeInTheDocument();
   });
 });

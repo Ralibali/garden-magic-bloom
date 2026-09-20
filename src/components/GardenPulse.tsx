@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Bot, CalendarDays, Check, ChevronRight, Clock3, Leaf, PencilLine, SunMedium, X } from 'lucide-react';
+import { AlertTriangle, Bot, CalendarDays, Check, ChevronRight, Clock3, Leaf, MoreHorizontal, PencilLine, SunMedium, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { api } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { recordProductActivity } from '@/lib/analytics';
@@ -33,6 +34,7 @@ interface GardenPulseProps {
   beds?: any[];
   isLoading?: boolean;
   isError?: boolean;
+  compact?: boolean;
 }
 
 const BUCKETS: { key: PulseBucket; title: string }[] = [
@@ -67,6 +69,7 @@ function PulseRow({
   onLog,
   onDismiss,
   pending,
+  compact = false,
 }: {
   item: PulseItem;
   onComplete: (item: PulseItem) => void;
@@ -75,8 +78,21 @@ function PulseRow({
   onLog: (item: PulseItem) => void;
   onDismiss: (item: PulseItem) => void;
   pending: boolean;
+  compact?: boolean;
 }) {
   const navigate = useNavigate();
+  if (compact) return <article className="border-b border-border/60 py-4 last:border-0">
+    <div className="flex items-start gap-3"><div className="min-w-0 flex-1"><h3 className="font-sans text-sm font-semibold leading-relaxed">{item.title}</h3><p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.description}</p></div>
+      <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" aria-label={`Fler val för ${item.title}`}><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align="end">
+        <DropdownMenuItem disabled={pending} onSelect={() => onSnooze(item)}><Clock3 className="mr-2 h-4 w-4" />Flytta till imorgon</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => onLog(item)}><PencilLine className="mr-2 h-4 w-4" />Logga en händelse</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => onAskGro(item)}><Bot className="mr-2 h-4 w-4" />Fråga Gro</DropdownMenuItem>
+        <DropdownMenuItem disabled={pending} onSelect={() => onDismiss(item)}><X className="mr-2 h-4 w-4" />Inte relevant</DropdownMenuItem>
+      </DropdownMenuContent></DropdownMenu>
+    </div>
+    <div className="mt-3 flex flex-wrap items-center gap-2"><Button size="sm" variant="outline" className="rounded-full" disabled={pending} onClick={() => onComplete(item)} aria-label={`Markera klar: ${item.title}`}><Check className="mr-1 h-3.5 w-3.5" />Klar</Button><Button size="sm" variant="ghost" className="h-auto min-h-9 whitespace-normal text-left" onClick={() => navigate(item.actionPath)}>{item.actionLabel}<ChevronRight className="ml-1 h-3.5 w-3.5 shrink-0" /></Button></div>
+    <p className="mt-2 text-xs text-muted-foreground">{WHY_LABEL[item.why]}</p>
+  </article>;
   return (
     <article className="rounded-2xl border border-border/65 bg-card/80 p-3.5">
       <div className="flex items-start justify-between gap-3">
@@ -111,6 +127,7 @@ export default function GardenPulse({
   beds = [],
   isLoading = false,
   isError = false,
+  compact = false,
 }: GardenPulseProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -138,7 +155,7 @@ export default function GardenPulse({
 
   const saveMutation = useMutation({
     mutationFn: (nextSettings: any) => api.updateReminderSettings({ settings: { ...settings, ...nextSettings } }, settings),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reminder-settings'] }),
+    onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ['reminder-settings'] }), queryClient.invalidateQueries({ queryKey: ['cultivations'] })]); },
     onError: (error: any) => toast({ title: 'Kunde inte spara ändringen', description: error?.message || 'Försök igen.', variant: 'destructive' }),
   });
 
@@ -182,6 +199,17 @@ export default function GardenPulse({
       toast({ title: 'Dold', description: item.title });
     } });
   };
+
+  if (compact) {
+    const all = [...pulse.late, ...pulse.today, ...pulse.week];
+    const visible = expanded ? all : all.slice(0, 3);
+    return <section className="garden-paper px-4" aria-label="Dagens uppgifter" aria-busy={isLoading}>
+      {isLoading ? <p className="py-5 text-sm text-muted-foreground">Hämtar dagens uppgifter…</p>
+        : isError ? <div role="alert" className="py-5"><p className="text-sm">Dagens lista kunde inte hämtas.</p><Button variant="link" className="mt-2 h-auto p-0" onClick={() => { void queryClient.invalidateQueries({ queryKey: ['cultivations'] }); void queryClient.invalidateQueries({ queryKey: ['reminder-settings'] }); }}>Försök igen</Button></div>
+        : !all.length ? <div className="py-5"><Check className="mb-3 h-5 w-5 text-primary" /><h3 className="text-xl">En lugn stund.</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">Inga uppgifter i din lista just nu. Titta till det som växer eller spara ett ögonblick i dagboken.</p></div>
+        : <><p className="border-b border-border/60 py-3 text-xs text-muted-foreground">{all.length} {all.length === 1 ? 'uppgift' : 'uppgifter'} · idag och kommande veckan</p>{visible.map(item => <div key={item.id}><p className="pt-4 text-xs font-medium text-muted-foreground">{item.bucket === 'late' ? 'Att följa upp' : item.bucket === 'today' ? 'Idag' : 'Den här veckan'}</p><PulseRow item={item} onComplete={completeItem} onSnooze={snoozeItem} onAskGro={askGro} onLog={logItem} onDismiss={dismissItem} pending={saveMutation.isPending} compact /></div>)}{all.length > 3 && <Button variant="ghost" className="my-3 w-full" onClick={() => setExpanded(value => !value)} aria-expanded={expanded}>{expanded ? 'Visa färre' : `Visa alla ${all.length} uppgifter`}</Button>}</>}
+    </section>;
+  }
 
   if (isLoading) {
     return (

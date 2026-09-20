@@ -14,30 +14,22 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 const coreGroups = [
-  {
-    label: 'Idag',
-    items: [
-      { title: 'Översikt', url: '/app', icon: Home },
-      { title: 'Min dagbok', url: '/app/timeline', icon: BookOpen },
-      { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
-      { title: 'Påminnelser', url: '/app/reminders', icon: Bell },
-      { title: 'Fråga Gro', url: '/app/gro', icon: Sparkles },
-    ],
-  },
-  {
-    label: 'Min odling',
-    items: [
-      { title: 'Mina odlingar', url: '/app/odlingar', icon: Sprout },
-      { title: 'Mina platser', url: '/app/beds', icon: LayoutGrid },
-      { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
-      { title: 'Skördelogg', url: '/app/harvests', icon: Carrot },
-      { title: 'Fotodagbok', url: '/app/photos', icon: Camera },
-      { title: 'Mina växter', url: '/app/my-plants', icon: Flower2 },
-    ],
-  },
+  { label: 'Din odlingsdagbok', items: [
+    { title: 'Hem', url: '/app', icon: Home },
+    { title: 'Mina odlingar', url: '/app/odlingar', icon: Sprout },
+    { title: 'Min dagbok', url: '/app/timeline', icon: BookOpen },
+    { title: 'Påminnelser', url: '/app/reminders', icon: Bell },
+    { title: 'Fråga Gro', url: '/app/gro', icon: Sparkles },
+  ] },
 ];
 
 const advancedItems = [
+  { title: 'Mina platser', url: '/app/beds', icon: LayoutGrid },
+  { title: 'Sålogg', url: '/app/sowings', icon: Sprout },
+  { title: 'Skördelogg', url: '/app/harvests', icon: Carrot },
+  { title: 'Mina växter', url: '/app/my-plants', icon: Flower2 },
+  { title: 'Fotodagbok', url: '/app/photos', icon: Camera },
+  { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
   { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
   { title: 'Samplantering', url: '/app/companion', icon: Heart },
   { title: 'Fröförråd', url: '/app/seeds', icon: Package },
@@ -120,7 +112,7 @@ export function AppSidebar() {
             activeClassName="bg-white/[0.11] text-white font-semibold shadow-[inset_0_1px_rgba(255,255,255,0.07)] before:absolute before:left-0 before:top-2 before:bottom-2 before:w-1 before:rounded-full before:bg-sidebar-primary"
           >
             <item.icon className="h-[17px] w-[17px] shrink-0 transition-transform duration-200 group-hover:scale-105" />
-            {!collapsed && <span className="text-[13px] truncate">{item.title}</span>}
+            {!collapsed && <span className="text-sm truncate">{item.title}</span>}
           </NavLink>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -136,7 +128,7 @@ export function AppSidebar() {
         <div className={`mx-3 mb-4 rounded-[1.35rem] border border-white/8 bg-white/[0.045] ${collapsed ? 'p-2' : 'p-3.5'}`}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sidebar-primary to-emerald-300 text-sidebar-primary-foreground flex items-center justify-center shrink-0 shadow-lg shadow-black/15"><Sprout className="h-5 w-5" /></div>
-            {!collapsed && <div className="min-w-0"><h1 className="font-serif text-[17px] text-white leading-none truncate">Odlingsdagboken</h1><p className="text-[9px] uppercase tracking-[0.16em] text-sidebar-foreground/65 mt-1.5">Ett steg i taget</p></div>}
+            {!collapsed && <div className="min-w-0"><p className="font-serif text-[17px] text-white leading-none truncate">Odlingsdagboken</p><p className="text-xs uppercase tracking-[0.16em] text-sidebar-foreground/65 mt-1.5">Din plats att växa</p></div>}
           </div>
         </div>
 
@@ -145,7 +137,7 @@ export function AppSidebar() {
           if (!items.length) return null;
           return (
             <SidebarGroup key={group.label} className="py-1">
-              {!collapsed && <SidebarGroupLabel className="text-[9px] text-sidebar-foreground/45 uppercase tracking-[0.18em] px-5 mb-1 font-semibold">{group.label}</SidebarGroupLabel>}
+              {!collapsed && <SidebarGroupLabel className="text-xs text-sidebar-foreground/45 uppercase tracking-[0.18em] px-5 mb-1 font-semibold">{group.label}</SidebarGroupLabel>}
               <SidebarGroupContent><SidebarMenu className="gap-0.5 px-2">{renderItems(items)}</SidebarMenu></SidebarGroupContent>
             </SidebarGroup>
           );
@@ -160,13 +152,13 @@ export function AppSidebar() {
             title="Fler verktyg"
           >
             <MoreHorizontal className="h-[17px] w-[17px] shrink-0" />
-            {!collapsed && <><span className="text-[13px] flex-1 text-left">Fler verktyg</span><ChevronDown className={`h-4 w-4 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} /></>}
+            {!collapsed && <><span className="text-sm flex-1 text-left">Fler verktyg</span><ChevronDown className={`h-4 w-4 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} /></>}
           </button>
         </div>
 
         {showAdvanced && visibleAdvanced.length > 0 && (
           <SidebarGroup className="py-1">
-            {!collapsed && <SidebarGroupLabel className="text-[9px] text-sidebar-foreground/45 uppercase tracking-[0.18em] px-5 mb-1 font-semibold">Fördjupa</SidebarGroupLabel>}
+            {!collapsed && <SidebarGroupLabel className="text-xs text-sidebar-foreground/45 uppercase tracking-[0.18em] px-5 mb-1 font-semibold">Fördjupa</SidebarGroupLabel>}
             <SidebarGroupContent><SidebarMenu className="gap-0.5 px-2">{renderItems(visibleAdvanced as typeof coreGroups[number]['items'])}</SidebarMenu></SidebarGroupContent>
           </SidebarGroup>
         )}
@@ -174,15 +166,12 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-3 border-t border-white/8 space-y-3">
         {!isNativeApp() && !collapsed && !isPremium && (
-          <button onClick={() => navigate('/app/premium')} className="w-full text-left rounded-2xl border border-sidebar-primary/20 bg-gradient-to-br from-sidebar-primary/16 to-white/[0.04] p-3.5 hover:border-sidebar-primary/40 transition-colors group">
-            <div className="flex items-center justify-between gap-2 mb-2"><span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white"><Crown className="h-3.5 w-3.5 text-sidebar-primary" /> Plus</span><ArrowUpRight className="h-3.5 w-3.5 text-sidebar-foreground/55 group-hover:text-sidebar-primary" /></div>
-            <p className="text-[11px] leading-relaxed text-sidebar-foreground/70">Obegränsade platser, mer Gro och full statistik.</p>
-          </button>
+          <button onClick={() => navigate('/app/premium')} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-sidebar-foreground hover:bg-white/5 hover:text-white"><Crown className="h-4 w-4" />Odlingsdagboken Plus<ArrowUpRight className="ml-auto h-4 w-4" /></button>
         )}
 
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 rounded-2xl bg-white/[0.045] p-2.5'}`}>
           <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center text-sm font-bold text-white shrink-0">{initial}</div>
-          {!collapsed && <div className="min-w-0 flex-1"><p className="text-sm font-semibold text-white truncate">{displayName}</p><p className="text-[10px] text-sidebar-foreground/55 truncate">{isPremium ? 'Plus-medlem' : 'Gratis konto'}</p></div>}
+          {!collapsed && <div className="min-w-0 flex-1"><p className="text-sm font-semibold text-white truncate">{displayName}</p><p className="text-xs text-sidebar-foreground/55 truncate">{isPremium ? 'Plus-medlem' : 'Gratis konto'}</p></div>}
           {!collapsed && <Button variant="ghost" size="icon" className="h-8 w-8 text-sidebar-foreground/60 hover:text-white hover:bg-white/10" onClick={() => navigate('/app/settings')} aria-label="Inställningar"><Settings className="h-3.5 w-3.5" /></Button>}
           {!collapsed && <Button variant="ghost" size="icon" className="h-8 w-8 text-sidebar-foreground/60 hover:text-white hover:bg-white/10" onClick={handleLogout} aria-label="Logga ut"><LogOut className="h-3.5 w-3.5" /></Button>}
         </div>

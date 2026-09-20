@@ -14,13 +14,19 @@ vi.mock('@/components/PlantEditor', () => ({ default: () => <button>Redigera vä
 import Cultivations from '@/pages/Cultivations';
 const fixture = { beds: [{ id: 'bed', name: 'Växthuset' }], sowings: [{ id: 's1', variety: 'Tomat', sow_date: '2026-05-01', status: 'transplanted', type: 'indoor', plant_kind: 'edible', bed_id: 'bed' }], plants: [], care: [], waterings: [], photos: [], harvests: [], pests: [], reminders: [] };
 function Destination() { const location = useLocation(); return <pre data-testid="destination">{JSON.stringify(location.state)}</pre>; }
-function show() {
+function show(state?: Record<string, unknown>) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/app/odlingar']}><Routes><Route path="/app/odlingar" element={<Cultivations />} /><Route path="*" element={<Destination />} /></Routes></MemoryRouter></QueryClientProvider>);
+  render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[{ pathname: '/app/odlingar', state }]}><Routes><Route path="/app/odlingar" element={<Cultivations />} /><Route path="*" element={<Destination />} /></Routes></MemoryRouter></QueryClientProvider>);
 }
 beforeEach(() => { vi.clearAllMocks(); mocks.getCultivationData.mockResolvedValue(fixture); mocks.addReminder.mockResolvedValue(true); });
 afterEach(cleanup);
 describe('cultivation journeys', () => {
+  it('opens the exact cultivation selected on the dashboard', async () => {
+    show({ cultivationId: 'sowing:s1' });
+    expect(await screen.findByRole('dialog')).toHaveTextContent('Tomat');
+    expect(screen.getByRole('button', { name: 'Öppna hela loggen' })).toBeInTheDocument();
+  });
+
   it('shows an error and retries rather than presenting a missing garden as empty', async () => {
     mocks.getCultivationData.mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce(fixture);
     show();

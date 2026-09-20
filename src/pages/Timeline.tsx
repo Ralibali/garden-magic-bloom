@@ -48,7 +48,7 @@ function DiaryCard({ event, onEdit, onPhoto }: { event: DiaryEvent; onEdit: (eve
   const [expanded, setExpanded] = useState(false);
   const long = event.body.length > 260;
   return (
-    <article className={cn('diary-entry overflow-hidden rounded-2xl border bg-card', event.kind === 'note' ? 'border-amber-600/20' : 'border-border/70')}>
+    <article id={`diary-${event.id}`} tabIndex={-1} className={cn('diary-entry scroll-mt-24 focus:ring-2 focus:ring-primary focus:outline-none overflow-hidden rounded-2xl border bg-card', event.kind === 'note' ? 'border-amber-600/20' : 'border-border/70')}>
       {event.imagePath && <DiaryPhoto event={event} onOpen={() => onPhoto(event)} />}
       <div className="p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
@@ -74,11 +74,6 @@ export default function Timeline() {
   const diary = useQuery({ queryKey: ['garden-diary', user?.id], queryFn: getDiary, enabled: !!user?.id, staleTime: 0 });
   const events = diary.data || EMPTY;
   const [filters, setFilters] = useState<DiaryFilters>(INITIAL_FILTERS);
-  useEffect(() => {
-    if (!location.state?.subjectId) return;
-    setFilters({ ...INITIAL_FILTERS, subjectId: location.state.subjectId });
-    navigate(location.pathname, { replace: true, state: null });
-  }, [location.state, location.pathname, navigate]);
   const [limit, setLimit] = useState(30);
   const [editor, setEditor] = useState<{ id?: string; note: string; date: string } | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<DiaryEvent | null>(null);
@@ -91,6 +86,32 @@ export default function Timeline() {
     const draft = { id: event?.sourceId, note: event?.body || '', date: event?.date || localDateKey() };
     setEditor(draft); setOriginalDraft(draft); setFormError(''); setDiscardConfirm(false);
   };
+  const [targetEvent, setTargetEvent] = useState<string | null>(null);
+  useEffect(() => {
+    const intent = location.state;
+    if (!intent?.openEditor && !intent?.subjectId && !intent?.eventId) return;
+    if (intent.openEditor) {
+      const draft = { note: '', date: localDateKey() };
+      setEditor(draft); setOriginalDraft(draft); setFormError(''); setDiscardConfirm(false);
+    }
+    setFilters({ ...INITIAL_FILTERS, ...(intent.subjectId ? { subjectId: intent.subjectId } : {}) });
+    if (intent.eventId) setTargetEvent(intent.eventId);
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.state, location.pathname, navigate]);
+  useEffect(() => {
+    if (!targetEvent || !diary.isSuccess) return;
+    const filteredEvents = filterDiary(events, filters);
+    const index = filteredEvents.findIndex(event => event.id === targetEvent);
+    if (index < 0) { setTargetEvent(null); return; }
+    if (index >= limit) { setLimit(index + 1); return; }
+    const frame = requestAnimationFrame(() => {
+      const element = document.getElementById(`diary-${targetEvent}`);
+      element?.scrollIntoView({ block: 'center', behavior: 'auto' });
+      element?.focus({ preventScroll: true });
+      setTargetEvent(null);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [targetEvent, diary.isSuccess, events, filters, limit]);
   const save = useMutation({
     mutationFn: saveDiaryNote,
     onSuccess: () => {
@@ -125,8 +146,8 @@ export default function Timeline() {
   return (
     <div className="diary-page mx-auto max-w-6xl space-y-6">
       <section className="flex flex-wrap items-end justify-between gap-5">
-        <div><p className="mb-2 flex items-center gap-2 text-sm font-medium text-primary"><BookOpen className="h-4 w-4" />DIN ODLING, GENOM ÅREN</p><h1 className="font-serif text-4xl sm:text-5xl">Min odlingsdagbok<span className="text-accent">.</span></h1><p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">Det första fröet. Dagens skörd. Allt du vill minnas.</p></div>
-        <div className="flex flex-wrap gap-2"><Button variant="outline" asChild className="gap-2"><Link to="/app/photos" state={{ openUpload: true }}><Camera className="h-4 w-4" />Lägg till foto</Link></Button><Button onClick={() => openEditor()} className="gap-2"><Plus className="h-4 w-4" />Skriv i dagboken</Button></div>
+        <div><p className="garden-eyebrow">Dina sparade ögonblick</p><h1 className="font-serif text-3xl sm:text-[2.75rem]">Min dagbok.</h1><p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">Små upptäckter att komma tillbaka till.</p></div>
+        <div className="flex flex-wrap gap-2"><Button variant="outline" asChild className="gap-2"><Link to="/app/photos" state={{ openUpload: true }}><Camera className="h-4 w-4" />Lägg till foto</Link></Button><Button onClick={() => openEditor()} className="min-h-11 gap-2 rounded-full"><Plus className="h-4 w-4" />Skriv i dagboken</Button></div>
       </section>
       <section className="grid grid-cols-3 divide-x divide-border rounded-2xl border border-border/70 bg-card p-4 sm:p-5" aria-label="Din odling i siffror">
         {[{ label: 'sparade ögonblick', value: periodEvents.length, Icon: BookOpen }, { label: 'foton i dagboken', value: photos, Icon: Camera }, { label: 'kilo skördat', value: harvest.toLocaleString('sv-SE', { maximumFractionDigits: 2 }), Icon: Carrot }].map(({ label, value, Icon }) => <div key={label} className="px-2 first:pl-0 sm:px-6"><Icon className="mb-2 h-4 w-4 text-primary" /><p className="font-serif text-2xl sm:text-3xl tabular-nums">{diary.isLoading || diary.isError ? '–' : value}</p><p className="mt-1 text-sm leading-snug text-muted-foreground">{label}</p></div>)}

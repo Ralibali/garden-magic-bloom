@@ -1,6 +1,7 @@
 import { isNativeApp } from '@/lib/native';
 import { Home, Sprout, LayoutGrid, Flower2, MoreHorizontal, BarChart3, Settings, Crown, Shield, CalendarDays, RefreshCw, Package, Clock, Heart, Bug, Camera, Carrot, BookOpen, Sparkles, Bell } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -61,35 +62,17 @@ export function MobileNav() {
 
   return (
     <>
-      {showMore && (
-        <div className="fixed inset-0 z-40 md:hidden" onClick={() => setShowMore(false)}>
-          <div className="absolute inset-0 bg-foreground/28 backdrop-blur-md" />
-          <div className="absolute bottom-[92px] left-3 right-3 max-h-[68vh] overflow-y-auto rounded-[1.75rem] border border-white/60 bg-card/96 p-3 shadow-2xl" onClick={event => event.stopPropagation()}>
-            <div className="px-2 pt-1 pb-3"><p className="font-serif text-lg">Fler verktyg</p><p className="text-xs text-muted-foreground mt-0.5">De vanligaste valen ligger redan i nederkanten</p></div>
-            <div className="grid grid-cols-4 gap-1.5">
-              {allMore.map(item => (
-                <NavLink key={item.url} to={item.url} className="flex min-w-0 flex-col items-center gap-1.5 rounded-2xl px-1 py-3 text-muted-foreground transition-colors hover:bg-primary/7 hover:text-foreground" activeClassName="bg-primary/10 text-primary" onClick={() => setShowMore(false)}>
-                  <div className="w-9 h-9 rounded-xl bg-muted/70 flex items-center justify-center"><item.icon className="h-[18px] w-[18px]" /></div>
-                  <span className="max-w-full truncate text-[9px] font-semibold">{item.title}</span>
-                </NavLink>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      <nav className="fixed bottom-3 left-3 right-3 z-50 md:hidden pb-[env(safe-area-inset-bottom)]">
-        <div className="floating-dock h-[70px] rounded-[1.6rem] border border-white/65 bg-card/94 backdrop-blur-2xl px-1.5 flex items-center justify-around">
-          {primaryItems.map(item => {
-            const featured = 'featured' in item && item.featured;
-            if (item.url === '#more') {
-              return <button key="more" onClick={() => setShowMore(!showMore)} className={`flex w-[58px] flex-col items-center gap-1 rounded-2xl py-2 text-[10px] font-semibold transition-colors ${showMore ? 'text-primary bg-primary/8' : 'text-muted-foreground'}`}><item.icon className="h-5 w-5" /><span>{item.title}</span></button>;
-            }
-            if (featured) {
-              return <NavLink key={item.url} to={item.url} className="relative -mt-7 flex w-[62px] flex-col items-center gap-1 text-[10px] font-semibold text-muted-foreground" activeClassName="text-primary" onClick={() => setShowMore(false)}><span className="botanical-panel w-[52px] h-[52px] rounded-2xl flex items-center justify-center border-4 border-background shadow-xl"><item.icon className="h-5 w-5 text-white" /></span><span>{item.title}</span></NavLink>;
-            }
-            return <NavLink key={item.url} to={item.url} end={item.url === '/app'} className="flex w-[58px] flex-col items-center gap-1 rounded-2xl py-2 text-[10px] font-semibold text-muted-foreground transition-colors" activeClassName="text-primary bg-primary/7" onClick={() => setShowMore(false)}><item.icon className="h-5 w-5" /><span>{item.title}</span></NavLink>;
-          })}
+      <Sheet open={showMore} onOpenChange={setShowMore}>
+        <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-3xl pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          <SheetHeader className="mb-5 text-left"><SheetTitle>Mer i odlingsdagboken</SheetTitle><SheetDescription>Planera, följ upp och anpassa din odling.</SheetDescription></SheetHeader>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{allMore.map(item => <NavLink key={item.url} to={item.url} className="flex min-h-12 items-center gap-3 rounded-xl bg-muted/40 px-3 py-3 text-sm" activeClassName="bg-primary/10 text-primary" onClick={() => setShowMore(false)}><item.icon className="h-5 w-5 shrink-0 text-primary" /><span>{item.title}</span></NavLink>)}</div>
+        </SheetContent>
+      </Sheet>
+      <nav aria-label="Huvudmeny" className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg md:hidden">
+        <div className="mx-auto flex min-h-[72px] max-w-lg items-center justify-around">
+          {primaryItems.map(item => item.url === '#more'
+            ? <button key="more" onClick={() => setShowMore(true)} aria-expanded={showMore} className="flex min-h-12 min-w-14 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium text-muted-foreground"><item.icon className="h-5 w-5" /><span>{item.title}</span></button>
+            : <NavLink key={item.url} to={item.url} end={item.url === '/app'} className="flex min-h-12 min-w-14 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium text-muted-foreground" activeClassName="bg-primary/8 text-primary" onClick={() => setShowMore(false)}><item.icon className="h-5 w-5" /><span>{item.title}</span></NavLink>)}
         </div>
       </nav>
     </>
