@@ -1,15 +1,7 @@
 import { isNativeApp } from '@/lib/native';
-/**
- * Plausible Analytics helper.
- *
- * The Plausible snippet in index.html loads and initialises the tracker exactly
- * once, and pa-*.js auto-tracks SPA pushState pageviews — we must never call
- * pageview manually here or it would double-count.
- *
- * We only send anonymous product-funnel events with LOW-CARDINALITY properties.
- * NEVER pass emails, names, free text, notes, coordinates, internal ids or
- * anything user-identifying — the type system below enforces this at the call
- * sites for the approved event catalogue.
+/** Typed business events delivered through consent-gated GA4.
+ * ga4Runtime owns SPA pageviews, URL redaction and delivery callbacks.
+ * Existing exported helper names are kept for call-site compatibility.
  */
 
 type PlausibleProperty = string | number | boolean | null | undefined;
@@ -17,7 +9,7 @@ type PlausibleProperties = Record<string, PlausibleProperty>;
 
 declare global {
   interface Window {
-    plausible?: (
+    analyticsEvent?: (
       eventName: string,
       options?: { props?: Record<string, string | number | boolean> },
     ) => void;
@@ -66,12 +58,12 @@ function sanitizeProperties(properties: PlausibleProperties) {
 
 function send(eventName: string, properties: PlausibleProperties) {
   if (isNativeApp()) return;
-  if (typeof window === 'undefined' || typeof window.plausible !== 'function') return;
+  if (typeof window === 'undefined' || typeof window.analyticsEvent !== 'function') return;
   if (isAdminContext()) return;
   try {
-    window.plausible(eventName, { props: sanitizeProperties(properties) });
+    window.analyticsEvent(eventName, { props: sanitizeProperties(properties) });
   } catch (error) {
-    console.warn('[plausible]', eventName, error);
+    console.warn('[analytics]', eventName, error);
   }
 }
 

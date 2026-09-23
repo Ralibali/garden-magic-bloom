@@ -104,7 +104,7 @@ export default function CookieConsent() {
               <div className="space-y-1">
                 <label htmlFor="cookie-analytics" className="text-sm font-medium cursor-pointer">Analys</label>
                 <p className="text-xs text-muted-foreground">
-                  Hjälper oss förstå vad som fungerar (Plausible, sidvisningar, scrolldjup). Ingen försäljning till tredje part.
+                  Hjälper oss förstå vad som fungerar (Google Analytics 4, sidvisningar och produkthändelser). Ingen försäljning till tredje part.
                 </p>
               </div>
               <Switch

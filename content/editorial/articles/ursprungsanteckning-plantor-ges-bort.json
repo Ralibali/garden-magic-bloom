@@ -3,11 +3,11 @@
   "site": "odlingsdagboken",
   "content_id": "editorial-20260920-ursprungsanteckning-plantor-ges-bort",
   "author": "ChatGPT",
-  "status": "draft",
+  "status": "ready",
   "written_at": "2026-09-20T14:06:36.317515+00:00",
   "not_before": "2026-09-22",
-  "sources_checked_at": "2026-09-20T14:06:36.317515+00:00",
-  "quality_checked_at": "2026-09-20T14:06:36.317515+00:00",
+  "sources_checked_at": "2026-09-22T11:21:56.398545+00:00",
+  "quality_checked_at": "2026-09-22T11:21:56.398545+00:00",
   "slug": "ursprungsanteckning-plantor-ges-bort",
   "title": "Låt anteckningarna följa med när du ger bort plantor",
   "description": "Skriv en kort ursprungsanteckning för plantor du lämnar vidare. Behåll kända sortuppgifter, osäkerheter och kontakten med dina egna odlingsanteckningar.",
@@ -24,11 +24,12 @@
   ],
   "content_html": "<p>När en vän får med sig några plantor hem är det lätt att namn och sådatum stannar kvar i givarens anteckningsbok. En kort ursprungsanteckning hjälper mottagaren att förstå vad du faktiskt vet om plantorna. Den kan vara liten och ändå ha de uppgifter som behövs för nästa fråga.</p>\n<p>Den här mallen handlar om dokumentationen vid överlämningen. Den beskriver inte hur växter ska delas, transporteras eller skötas och bedömer inte vilka regler som gäller för en viss överlåtelse. Utgå från de plantor du redan har identifierat och de förutsättningar ni har rett ut.</p>\n<h2>Börja i den ursprungliga såddanteckningen</h2>\n<p>Leta fram de uppgifter du har sparat om gröda, sort och ursprung. Skriv varifrån namnet kommer: en känd fröpåse, en tidigare bekräftad etikett eller någon annan dokumenterad källa. Håll en osäker uppgift tydligt skild från ett bekräftat namn.</p>\n<p>Om etiketten saknas ska anteckningen visa det. Försök inte göra informationen komplett genom att gissa från plantans utseende. Mottagaren får ett mer användbart underlag när det framgår vad du vet och vad som inte har gått att fastställa.</p>\n<h2>Koppla anteckningen till just den grupp som lämnas vidare</h2>\n<p>Ge gruppen en begriplig beteckning och skriv vilken del av din egen dokumentation den hör till. Om bara några krukor lämnas vidare behöver det framgå vilka som omfattas. En etikett för en hel bricka kan annars bli svår att tolka efter att gruppen har delats.</p>\n<p>Använd gärna samma beteckning som i <a href=\"/blogg/plantmarkning-flyttlogg\">flyttloggen för plantor</a>. Anteckna överlämningen som en ny händelse och behåll kopplingen till ursprunget. Byt inte namn på hela sådden bara för att en del av plantorna får en ny ägare.</p>\n<h2>Skriv ett litet överlämningskort</h2>\n<p>Fyll i de här fälten med det underlag du har:</p>\n<ul><li>Gruppens beteckning och vad som lämnas vidare.</li><li>Känt gröd- och sortnamn, med källan till uppgiften.</li><li>Dokumenterat sådatum eller annan känd startpunkt.</li><li>Datum för överlämningen.</li><li>Observationer du vill att mottagaren känner till.</li><li>Osäkra uppgifter och frågor som återstår.</li><li>Hur mottagaren kan fråga om din dokumentation.</li></ul>\n<p>Fyll inte i ett datum som exakt om du bara minns en ungefärlig period. Skriv uppskattningen som en uppskattning. Kortet ska göra informationens kvalitet tydlig, inte bara samla så många ifyllda fält som möjligt.</p>\n<h2>Håll observationer åtskilda från skötselråd</h2>\n<p>Beskriv sådant du faktiskt har antecknat, exempelvis att ett foto togs ett visst datum eller att gruppen bytte plats. Skriv inte om en egen tolkning till ett säkert besked om plantornas egenskaper eller framtida utveckling.</p>\n<p>Om mottagaren behöver råd om växtens fortsatta skötsel kan ni hänvisa till en relevant och aktuell källa för just den växten. Låt källan vara synlig och håll den åtskild från dina egna noteringar. Den här arbetsmallen ger inga generella instruktioner om vattning, temperatur eller plantering.</p>\n<h2>Välj vad mottagaren behöver få med sig</h2>\n<p>En kopia av hela din odlingsdagbok behövs sällan för att förstå en liten grupp plantor. Välj de uppgifter som hör till överlämningen och spara dem i ett format som mottagaren kan öppna. Kontrollera tillsammans att gruppens beteckning och texten går att koppla ihop.</p>\n<p>Undvik att dela privata uppgifter som inte hjälper mottagaren. Behåll ditt fullständiga original och ange i din egen logg vilken sammanställning du lämnade vidare. Om du senare upptäcker ett fel blir det lättare att beskriva exakt vilken uppgift som behöver rättas.</p>\n<h2>Spara överlämningen i din egen historik</h2>\n<p>Anteckna vad som lämnades vidare och vilken grupp som blev kvar hos dig. Om mottagaren senare frågar om ursprunget kan du hitta samma underlag. En ny observation hos mottagaren är en ny anteckning och behöver inte ändra din tidigare dokumentation.</p>\n<p>Läs <a href=\"/hur-det-fungerar\">hur Odlingsdagboken fungerar</a> och <a href=\"/login\">samla dina egna odlingsanteckningar</a> om du vill hålla ursprunget lätt att hitta. AI-assisterad originalguide med en redaktionell mall. Texten lovar ingen särskild delningsfunktion eller automatisk överföring av plantuppgifter mellan konton.</p>",
   "editorial_review": {
-    "reviewed_at": "2026-09-20T14:06:36.317515+00:00",
+    "reviewed_at": "2026-09-22T11:21:56.398545+00:00",
     "published_inventory_reviewed": 137,
     "distinct_intent_confirmed": true,
-    "source_review": "Owned product entry and complete published inventory reviewed on 20 September. Original documentation template; no automatic feature, measured result, veterinary or horticultural advice claimed.",
-    "live_verification": "draft_only",
-    "publication_gate": "Earliest 22 September, after a fresh previous-publication reader check, current main, inventory and source review. Assign real publication dates only at publication. Use exact create-only SQL and verify hash, status and date separately."
-  }
+    "source_review": "Owned product entry, current main and complete published inventory reviewed on 22 September 2026. Original documentation template; no automatic feature or measured outcome claimed.",
+    "live_verification": "Previous publication reader flow passed on 22 September; this new article still requires post-publication verification.",
+    "publication_gate": "Current source and inventory review completed. Use exact create-only publisher SQL and verify hash, status and publication time separately before frontend verification."
+  },
+  "published_at": "2026-09-23T00:27:49.933385+00:00"
 }

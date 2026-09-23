@@ -192,7 +192,7 @@ export default function Terms() {
           </p>
           <ul className="text-sm text-foreground space-y-1 list-disc pl-5">
             <li><strong>Nödvändiga</strong> – inloggning, säkerhet, cookie-samtycke. Kräver inte samtycke.</li>
-            <li><strong>Analys</strong> – anonymiserad besöks- och funktionsstatistik (Plausible, scrolldjup). Aktiveras endast om du samtycker.</li>
+            <li><strong>Analys</strong> – anonymiserad besöks- och funktionsstatistik (Google Analytics 4, scrolldjup). Aktiveras endast om du samtycker.</li>
             <li><strong>Marknadsföring</strong> – mätning av annonseffekt (Google Ads-taggen). Aktiveras endast om du samtycker.</li>
           </ul>
           <p className="text-sm text-foreground leading-relaxed">

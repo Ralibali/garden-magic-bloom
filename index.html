@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#4A7C59" />
     <meta name="google-site-verification" content="ZN8K34rBoIGoGpv_W-BOhbroP9sNioyr2zqOmXCD0K8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://www.google.com https://pagead2.googlesyndication.com https://app.trysoro.com https://plausible.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co https://api.open-meteo.com https://ai.gateway.lovable.dev https://www.google-analytics.com https://googleads.g.doubleclick.net https://api.brevo.com https://fonts.googleapis.com https://fonts.gstatic.com https://app.trysoro.com https://plausible.io; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; worker-src 'self' blob:; manifest-src 'self';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://googleads.g.doubleclick.net https://www.google.com https://pagead2.googlesyndication.com https://app.trysoro.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co https://api.open-meteo.com https://ai.gateway.lovable.dev https://www.google-analytics.com https://*.google-analytics.com https://googleads.g.doubleclick.net https://api.brevo.com https://fonts.googleapis.com https://fonts.gstatic.com https://app.trysoro.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; worker-src 'self' blob:; manifest-src 'self';" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,24 +18,29 @@
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" /></noscript>
 
     <script>
+      window['ga-disable-G-C0XMZG0KDQ'] = true;
+      var adsConfigured = false;
       function loadGoogleAds() {
-        if (document.getElementById('gtag-ads')) return;
-        var s = document.createElement('script');
-        s.id = 'gtag-ads';
-        s.async = true;
-        s.src = 'https://www.googletagmanager.com/gtag/js?id=AW-10941540384';
-        document.head.appendChild(s);
+        if (!marketingConsented()) return;
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        window.gtag = gtag;
-        gtag('js', new Date());
-        gtag('config', 'AW-10941540384');
+        window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
+        window.gtag('consent', 'update', {ad_storage:'granted', ad_user_data:'granted', ad_personalization:'granted'});
+        if (adsConfigured) return;
+        if (!document.querySelector('script[src*="googletagmanager.com/gtag/js"]')) {
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=AW-10941540384';
+          document.head.appendChild(s);
+        }
+        window.gtag('js', new Date());
+        window.gtag('config', 'AW-10941540384', {send_page_view:false});
+        adsConfigured = true;
       }
       function marketingConsented() {
         try {
-          var v2 = localStorage.getItem('cookie-consent-v2');
+          var v2 = localStorage.getItem('cookie-consent-ga4-v1');
           if (v2) { try { return !!JSON.parse(v2).marketing; } catch(e) { return false; } }
-          return localStorage.getItem('cookie-consent') === 'accepted';
+          return false;
         } catch(e) { return false; }
       }
       window.loadGoogleAds = loadGoogleAds;
@@ -43,16 +48,11 @@
         if (marketingConsented()) loadGoogleAds();
       });
       window.addEventListener('storage', function(e) {
-        if ((e.key === 'cookie-consent-v2' || e.key === 'cookie-consent') && marketingConsented()) loadGoogleAds();
+        if ((e.key === 'cookie-consent-ga4-v1' || e.key === 'cookie-consent') && marketingConsented()) loadGoogleAds();
       });
     </script>
 
-    <!-- Privacy-friendly analytics by Plausible -->
-    <script async src="https://plausible.io/js/pa-XhCfJ2DTyLe2rkttFHAmY.js"></script>
-    <script>
-      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-      plausible.init()
-    </script>
+    <!-- GA4 is initialized by src/lib/initGa4.ts after statistics consent. -->
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
