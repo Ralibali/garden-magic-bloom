@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "site": "odlingsdagboken",
+  "content_id": "editorial-20260923-noll-skord-eller-saknad-anteckning",
+  "author": "ChatGPT",
+  "status": "ready",
+  "written_at": "2026-09-23T01:03:04.596606+00:00",
+  "not_before": "2026-09-25",
+  "sources_checked_at": "2026-09-25T08:27:21.467864+00:00",
+  "quality_checked_at": "2026-09-25T08:27:21.467864+00:00",
+  "slug": "noll-skord-eller-saknad-anteckning",
+  "title": "Skilj noll skörd från en saknad skördeanteckning",
+  "description": "Skilj bekräftat ingen skörd från okända mängder och saknade noteringar. En dokumentationsmall för att förstå underlaget bakom skördeloggens sammanställningar.",
+  "category": "guide",
+  "tags": [
+    "dokumentation",
+    "arbetsmall"
+  ],
+  "cover_image": "/blog-images/spring-garden.jpg",
+  "cta_path": "/login",
+  "search_intent": "Hobbyodlare som behöver markera bortfall och osäkerhet i skördeunderlag utan att förvandla tomma rutor till noll. Skilt från allmän skördelogg och odlingsråd.",
+  "source_urls": [
+    "https://odlingsdagboken.com/hur-det-fungerar"
+  ],
+  "content_html": "<p>En tom ruta i odlingsanteckningarna kan betyda flera saker: inget skördades, ingen anteckning gjordes eller uppgiften hör till en annan period. Om dessa situationer blandas ihop blir en sammanställning svår att tolka. En enkel märkning av vad du vet kan göra skördeloggen mer användbar utan att du behöver fylla i siffror i efterhand.</p>\n<h2>Bestäm vilken fråga anteckningen ska svara på</h2>\n<p>Börja med en tydlig avgränsning. Handlar loggen om vad du tog in under en viss vecka, från en viss bädd eller av en viss gröda? Skriv avgränsningen vid sammanställningen. ”Inget registrerat” blir annars lätt förväxlat med ”inget växte” trots att anteckningarna inte visar det.</p>\n<p>Håll också mängd och observation åtskilda. Du kan veta att något skördades utan att ha vägt eller räknat det. Skriv då det du vet och markera att mängden saknas. Ett saknat mått behöver inte göra hela observationen oanvändbar.</p>\n<h2>Använd tre tydliga beskrivningar</h2>\n<p>Välj formuleringar som går att förstå när du läser dem senare. Exempel är ”registrerad mängd”, ”bekräftat ingen skörd under perioden” och ”uppgift saknas”. De är förslag till din egen anteckningsrutin, inte bestämda statusfält i en app.</p>\n<p>Använd bara en nolluppgift när den motsvarar det du faktiskt vet inom den angivna perioden. En tom rad ska inte automatiskt göras om till noll. Det kan ge en snyggare tabell men samtidigt en mer säker bild än underlaget ger stöd för.</p>\n<h2>Kopiera en rad för osäkra uppgifter</h2>\n<p>När du går igenom äldre anteckningar kan följande fält hjälpa:</p>\n<ul><li>Period: vilka datum eller vilket tillfälle gäller frågan?</li><li>Plats och gröda: vilket underlag försöker du sammanställa?</li><li>Känd observation: vad är faktiskt dokumenterat?</li><li>Mängd och enhet: vad har mätts eller räknats?</li><li>Saknas: vilken del av uppgiften är okänd?</li><li>Källa: anteckning, foto eller annat känt underlag.</li><li>Komplettering: vad lades till i efterhand och när?</li></ul>\n<p>Skriv exempelvis ”skörd dokumenterad på foto, vikt saknas” om det är vad bilden ger stöd för. En bild utan tydlig koppling till plats och tid behöver först få den osäkerheten noterad. Hitta inte på en vikt för att fylla rutan.</p>\n<h2>Skilj uppskattning från mätning</h2>\n<p>Om du gör en uppskattning i efterhand ska den vara synlig som uppskattning. Spara hur du kom fram till den och undvik onödig precision. Läsaren ska kunna se skillnaden mellan ett värde som mättes vid skörden och ett senare försök att minnas mängden.</p>\n<p>Välj själv om uppskattningen hjälper den fråga du arbetar med. Ibland räcker en textnotering om att en mängduppgift saknas. Det viktiga är att samma osäkerhet inte försvinner när anteckningen förs vidare till en ny lista eller sammanställning.</p>\n<h2>Kontrollera underlaget innan du jämför perioder</h2>\n<p>Två summor kan bygga på olika täckning. Kontrollera om samma grödor, platser, datum och enheter ingår innan du använder dem i en jämförelse. Skriv om en period innehåller luckor. Då kan du läsa resultatet tillsammans med dess begränsningar.</p>\n<p>Se <a href=\"/blogg/digital-skordelogg\">guiden om digital skördelogg</a> när du vill ordna den löpande registreringen. Behåll sambandet mellan varje sammanställning och de anteckningar den bygger på. En totalsiffra berättar inte ensam vilka uppgifter som saknades när den räknades fram.</p>\n<h2>Gör nästa notering lätt att förstå</h2>\n<p>Välj en enkel rutin som du hinner använda när något faktiskt skördas. Ange tid, plats, gröda och det mått du har tillgång till. Lägg till en kort kommentar när en uppgift är osäker. Rutinen behöver hjälpa din egen uppföljning, inte skapa ett krav på att alla dagar ska ha en siffra.</p>\n<p>Läs <a href=\"/hur-det-fungerar\">hur Odlingsdagboken fungerar</a> och <a href=\"/login\">samla dina odlingsanteckningar</a> när du vill föra arbetet vidare. AI-assisterad originalguide med en egen dokumentationsmall.</p>",
+  "editorial_review": {
+    "reviewed_at": "2026-09-25T08:27:21.467864+00:00",
+    "published_inventory_reviewed": 138,
+    "distinct_intent_confirmed": true,
+    "source_review": "Current owned product route and complete inventory checked September 25. Original documentation template; no claimed automatic feature, invented result, medical or horticultural advice.",
+    "live_verification": "Previous article reader flow verified September 25; this new article requires post-publication checks.",
+    "publication_gate": "Use exact generated create-only SQL; separate hash/status/date readback; current main, CI, Lovable SHA and real-domain reader flow required."
+  },
+  "published_at": "2026-09-25T08:27:21.467864+00:00"
+}
