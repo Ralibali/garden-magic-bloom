@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "site": "odlingsdagboken",
+  "content_id": "editorial-20260925-fotopunkter-kokstradgard-jamforbara-bilder",
+  "author": "ChatGPT",
+  "status": "draft",
+  "written_at": "2026-09-25T10:06:46.303229+00:00",
+  "not_before": "2026-09-27",
+  "sources_checked_at": "2026-09-25T10:06:46.303229+00:00",
+  "quality_checked_at": "2026-09-25T10:06:46.303229+00:00",
+  "slug": "fotopunkter-kokstradgard-jamforbara-bilder",
+  "title": "Fotopunkter i köksträdgården: gör bäddbilder lättare att jämföra",
+  "description": "Välj återkommande fotopunkter för bäddarna och skriv tydliga bildanteckningar. En enkel mall som gör köksträdgårdens översiktsbilder lättare att jämföra.",
+  "category": "guide",
+  "tags": [
+    "dokumentation",
+    "arbetsmall"
+  ],
+  "cover_image": "/blog-images/spring-garden.jpg",
+  "cta_path": "/login",
+  "search_intent": "Dokumentera återkommande översiktsbilder av samma bädd med fasta fotopunkter; skilt från skördelogg och växtdiagnostik.",
+  "source_urls": [
+    "https://odlingsdagboken.com/hur-det-fungerar"
+  ],
+  "content_html": "<p>En bild från en bädd kan visa mycket, men två bilder är inte alltid enkla att jämföra. Den ena är tagen nära marken och den andra från andra sidan gången. Med några bestämda fotopunkter får bildanteckningarna ett tydligare sammanhang när du senare vill följa hur platsen förändrades.</p>\n<p>Det behövs inget avancerat fotosystem. Börja med en bädd och en återkommande översiktsbild. Mallen handlar om dokumentation, inte om att bedöma växters hälsa eller avgöra varför en odling utvecklats på ett visst sätt. Sådana slutsatser kräver mer underlag än bilderna ensamma ger.</p>\n<h2>Välj en plats att återvända till</h2>\n<p>Bestäm var du kan stå utan att gå i bädden eller flytta runt saker varje gång. Beskriv fotopunkten med något som är lätt att känna igen, exempelvis ett hörn av gången. Skriv också åt vilket håll kameran ska riktas och vilken bädd bilden avser.</p>\n<p>Ta en provbild och kontrollera att översikten visar det du vill följa. Försök få med fasta referenser som bäddens kanter. En alltför tät närbild kan vara användbar för en detalj men ger inget tydligt svar på var detaljen befann sig i odlingen.</p>\n<h2>Ge fotopunkten en egen beteckning</h2>\n<p>Skilj bäddens namn från fotopunktens. Samma bädd kan behöva en översikt från kortsidan och en annan bild från gången. Med två korta beteckningar kan du sortera bilderna utan att behöva gissa vilken vinkel som användes.</p>\n<p>Om du redan har en <a href=\"/blogg/digital-baddkarta-kontra-ritblock\">digital bäddkarta</a>, lägg hänvisningen till fotopunkten i kartans underlag eller i en tillhörande anteckning. Ändras kartan senare behöver de gamla beteckningarna fortfarande gå att förstå. Byt därför inte namn utan att spara förklaringen.</p>\n<h2>Skriv en kort bildanteckning</h2>\n<p>Använd samma uppgifter vid varje fotografering:</p>\n<ul><li>Datum då bilden faktiskt togs.</li><li>Bäddens beteckning och fotopunktens namn.</li><li>Bildens riktning och ungefärliga utsnitt.</li><li>Om något skymmer en del av motivet.</li><li>Händelser som du vet inträffat sedan föregående bild.</li><li>Filnamn eller hänvisning till bildens sparade plats.</li></ul>\n<p>Skriv bara in händelser som finns dokumenterade eller som du själv känner till. En förändring mellan två bilder visar inte i sig vilken åtgärd som orsakade den. Om tidpunkten för en händelse är okänd kan den stå kvar som en öppen fråga i anteckningen.</p>\n<h2>Hantera avvikande bilder öppet</h2>\n<p>Ibland går det inte att stå på samma plats, eller så har växtligheten skymt den gamla vyn. Ta den bild som är möjlig och notera skillnaden. Det är mer användbart än att behandla en ny vinkel som om den vore direkt jämförbar med den tidigare.</p>\n<p>Behåll originalbilden om du beskär en kopia för att visa en detalj. Anteckna vilken översiktsbild detaljen kommer från. Ljus, skuggor och kamerans automatiska inställningar kan ge olika intryck, så använd inte färgskillnader ensamma som bevis för en förändring i odlingen.</p>\n<h2>Läs bilderna tillsammans med dagboken</h2>\n<p>Lägg två daterade översikter bredvid varandra och läs de tillhörande anteckningarna. Beskriv först vad som syns och markera sedan vad som behöver mer underlag. Skördeuppgifter kan exempelvis följas i en <a href=\"/blogg/digital-skordelogg\">digital skördelogg</a>, utan att en bild används som ersättning för noterad mängd.</p>\n<p>Läs <a href=\"/hur-det-fungerar\">hur Odlingsdagboken fungerar</a> och <a href=\"/login\">samla dina odlingsanteckningar</a> när du vill prova ett digitalt arbetssätt. AI-assisterad originalguide med en dokumentationsmall. Välj själv var bilderna lagras; texten utlovar ingen automatisk bildjämförelse eller färdig funktion för fotopunkter.</p>",
+  "editorial_review": {
+    "reviewed_at": "2026-09-25T10:06:46.303229+00:00",
+    "published_inventory_reviewed": 139,
+    "distinct_intent_confirmed": true,
+    "source_review": "Owned product entry reviewed. Original documentation template; no medical, horticultural, pricing or automatic-feature claim.",
+    "live_verification": "draft_only",
+    "publication_gate": "Earliest 2026-09-27, and only after a fresh previous-publication reader check, current main, complete published inventory and current primary-source review. Keep unpublished until all checks pass; assign actual publication dates at release."
+  }
+}
