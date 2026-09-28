@@ -1,3 +1,5 @@
+import { addDaysToDateKey, localDateKey } from '@/lib/gardenToday';
+
 export interface SeasonJourneyInput {
   sowings?: any[];
   harvests?: any[];
@@ -25,19 +27,16 @@ function dateKey(value?: string | null): string | null {
   if (!value) return null;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return null;
-  return date.toISOString().slice(0, 10);
-}
-
-function startOfYear(date: Date): string {
-  return `${date.getFullYear()}-01-01`;
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : localDateKey(date);
 }
 
 function collectActivityDates(input: SeasonJourneyInput): Set<string> {
   const dates = new Set<string>();
-  const seasonStart = startOfYear(input.now ?? new Date());
+  const today = localDateKey(input.now ?? new Date());
+  const seasonStart = `${today.slice(0, 4)}-01-01`;
   const add = (value?: string | null) => {
     const key = dateKey(value);
-    if (key && key >= seasonStart) dates.add(key);
+    if (key && key >= seasonStart && key <= today) dates.add(key);
   };
 
   input.sowings?.forEach((item) => add(item.sow_date || item.created_at));
@@ -54,20 +53,19 @@ function collectActivityDates(input: SeasonJourneyInput): Set<string> {
 }
 
 function streakFromDates(dates: Set<string>, now = new Date()): number {
-  const cursor = new Date(now);
+  let key = localDateKey(now);
   let streak = 0;
 
   for (let i = 0; i < 365; i++) {
-    const key = cursor.toISOString().slice(0, 10);
     if (!dates.has(key)) {
       if (streak === 0 && i === 0) {
-        cursor.setDate(cursor.getDate() - 1);
+        key = addDaysToDateKey(key, -1);
         continue;
       }
       break;
     }
     streak++;
-    cursor.setDate(cursor.getDate() - 1);
+    key = addDaysToDateKey(key, -1);
   }
 
   return streak;
