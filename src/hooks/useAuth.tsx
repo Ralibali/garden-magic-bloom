@@ -1,3 +1,4 @@
+import { sendAnalyticsEvent } from '@/lib/ga4Runtime';
 import { useQueryClient } from '@tanstack/react-query';
 import { authWebOrigin, isNativeApp } from '@/lib/native';
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
@@ -28,9 +29,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function trackBrowserEvent(eventName: string, params: Record<string, unknown> = {}) {
-  if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
-    (window as any).gtag('event', eventName, params);
-  }
+  sendAnalyticsEvent(eventName, { props: params });
 }
 
 function authFailureReason(message?: string) {
