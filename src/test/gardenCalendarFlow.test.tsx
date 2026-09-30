@@ -80,7 +80,11 @@ beforeEach(() => {
   });
   mocks.updateSowing.mockResolvedValue({});
   mocks.addReminder.mockResolvedValue(true);
-  mocks.seedRpc.mockResolvedValue({});
+  mocks.seedRpc.mockImplementation(async (name: string) => {
+    if (name === 'calendar_feed_status') return [];
+    if (name === 'create_calendar_feed_token') return 'b'.repeat(64);
+    return {};
+  });
 });
 afterEach(cleanup);
 
@@ -132,6 +136,7 @@ describe('Odlingskalender', () => {
     show();
     await screen.findByRole('button', { name: /^måndag 18 maj – / });
     fireEvent.click(screen.getByRole('button', { name: /Till min kalender/ }));
+    fireEvent.click(await screen.findByRole('button', { name: /\.ics/ }));
     await waitFor(() => expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Kalenderfil skapad 📅' })));
     const blob = createObjectURL.mock.calls[0][0];
     expect(blob.type).toBe('text/calendar;charset=utf-8');
@@ -192,5 +197,36 @@ describe('Odlingskalender', () => {
     await waitFor(() => expect(mocks.addReminder).toHaveBeenCalledTimes(2));
     expect(mocks.addReminder).toHaveBeenCalledWith(expect.objectContaining({ title: 'Skördetid för tomat – kolla mognaden', date: '2026-08-03', source_action_id: 'season-plan:2026:Tomat:skorda' }));
     await waitFor(() => expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Säsongen är planerad 🌱' })));
+  });
+
+  it('skapar en hemlig prenumerationslänk och kan stänga av den', async () => {
+    vi.stubEnv('VITE_SUPABASE_URL', 'https://abc.supabase.co');
+    show();
+    await screen.findByRole('button', { name: /^måndag 18 maj – / });
+    fireEvent.click(screen.getByRole('button', { name: /Till min kalender/ }));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.click(await within(dialog).findByRole('button', { name: 'Skapa prenumerationslänk' }));
+    const input = await within(dialog).findByLabelText('Din kalenderlänk');
+    expect(input).toHaveValue(`https://abc.supabase.co/functions/v1/calendar-feed?token=${'b'.repeat(64)}`);
+    expect(within(dialog).getByRole('link', { name: 'Apple / iPhone' }).getAttribute('href')).toMatch(/^webcal:\/\//);
+    expect(within(dialog).getByRole('link', { name: 'Google' }).getAttribute('href')).toMatch(/^https:\/\/calendar\.google\.com\/calendar\/r\?cid=webcal/);
+    expect(within(dialog).getByText(/visas bara nu/)).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole('button', { name: /Stäng av länken/ }));
+    await waitFor(() => expect(mocks.seedRpc).toHaveBeenCalledWith('revoke_calendar_feed_token', {}));
+    await waitFor(() => expect(within(dialog).queryByLabelText('Din kalenderlänk')).not.toBeInTheDocument());
+    vi.unstubAllEnvs();
+  });
+
+  it('visar att en länk redan är aktiv utan att kunna visa den igen', async () => {
+    mocks.seedRpc.mockImplementation(async (name: string) => (name === 'calendar_feed_status'
+      ? [{ created_at: '2026-05-01T08:00:00Z', last_accessed_at: '2026-05-11T06:00:00Z' }]
+      : {}));
+    show();
+    await screen.findByRole('button', { name: /^måndag 18 maj – / });
+    fireEvent.click(screen.getByRole('button', { name: /Till min kalender/ }));
+    const dialog = await screen.findByRole('dialog');
+    expect(await within(dialog).findByText(/Din länk är aktiv sedan 1 maj/)).toBeInTheDocument();
+    expect(within(dialog).getByText(/Senast hämtad 11 maj/)).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Skapa ny länk' })).toBeInTheDocument();
   });
 });

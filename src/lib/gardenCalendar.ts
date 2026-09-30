@@ -599,7 +599,10 @@ function icsStamp(now: Date): string {
  * Kalender, Apple Kalender och Outlook. Heldagshändelser; uppgifter får en
  * avisering klockan 08.00 samma dag.
  */
-export function buildIcs(events: CalendarEvent[], { calendarName = 'Odlingsdagboken', now = new Date() }: { calendarName?: string; now?: Date } = {}): string {
+export function buildIcs(
+  events: CalendarEvent[],
+  { calendarName = 'Odlingsdagboken', now = new Date(), refreshHours }: { calendarName?: string; now?: Date; /** För prenumerationer: hur ofta kalenderappen ska hämta på nytt. */ refreshHours?: number } = {},
+): string {
   const stamp = icsStamp(now);
   const lines: string[] = [
     'BEGIN:VCALENDAR',
@@ -610,6 +613,7 @@ export function buildIcs(events: CalendarEvent[], { calendarName = 'Odlingsdagbo
     `X-WR-CALNAME:${escapeIcs(calendarName)}`,
     'X-WR-TIMEZONE:Europe/Stockholm',
   ];
+  if (refreshHours) lines.push(`REFRESH-INTERVAL;VALUE=DURATION:PT${refreshHours}H`, `X-PUBLISHED-TTL:PT${refreshHours}H`);
   for (const event of events) {
     if (!isDateKey(event.date)) continue;
     const summary = event.kind === 'reminder' && event.done ? `✓ ${event.title}` : event.title;
@@ -784,4 +788,20 @@ export function upcomingCalendarHighlights(events: CalendarEvent[], today: strin
   return events.filter((e) =>
     e.date >= today && e.date <= end
     && (e.kind === 'plant-out-due' || e.kind === 'succession' || e.kind === 'harvest-expected' || e.id.startsWith('forecast-frost:')));
+}
+
+// ─── Prenumeration ────────────────────────────────────────────────────────
+
+export type CalendarFeedLinks = { https: string; webcal: string; google: string; outlook: string };
+
+/** Alla sätt att prenumerera på samma hemliga kalenderlänk. */
+export function calendarFeedLinks(supabaseUrl: string, token: string): CalendarFeedLinks {
+  const https = `${supabaseUrl.replace(/\/+$/, '')}/functions/v1/calendar-feed?token=${encodeURIComponent(token)}`;
+  const webcal = https.replace(/^https?:\/\//, 'webcal://');
+  return {
+    https,
+    webcal,
+    google: `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(webcal)}`,
+    outlook: `https://outlook.live.com/calendar/0/addfromweb?url=${encodeURIComponent(https)}&name=${encodeURIComponent('Odlingsdagboken')}`,
+  };
 }

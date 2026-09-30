@@ -7,6 +7,7 @@ import {
   buildForecastFrostEvents,
   buildSeasonPlan,
   buildYearWheel,
+  calendarFeedLinks,
   exposedToFrost,
   forecastByDate,
   lastYearSameWeek,
@@ -233,6 +234,8 @@ describe('buildIcs', () => {
     expect(ics).toContain('DTSTAMP:20260930T120000Z');
     // Bara uppgifter får avisering
     expect(ics.match(/BEGIN:VALARM/g)).toHaveLength(1);
+    expect(ics).not.toContain('REFRESH-INTERVAL');
+    expect(buildIcs([], { refreshHours: 6 })).toContain('REFRESH-INTERVAL;VALUE=DURATION:PT6H\r\nX-PUBLISHED-TTL:PT6H');
     const encoder = new TextEncoder();
     for (const line of ics.split('\r\n')) expect(encoder.encode(line).length).toBeLessThanOrEqual(75);
   });
@@ -316,5 +319,15 @@ describe('minnen och höjdpunkter', () => {
     const events = buildCalendarEvents({ zone: 3, from: '2026-01-01', to: '2026-12-31', today: '2026-05-14', sowings: [tomato], reminders: [{ id: 'r', title: 'X', date: '2026-05-15' }] });
     const highlights = upcomingCalendarHighlights(events, '2026-05-14');
     expect(highlights.map((e) => e.kind)).toEqual(['plant-out-due']);
+  });
+});
+
+describe('calendarFeedLinks', () => {
+  it('bygger https-, webcal-, Google- och Outlook-länkar till samma flöde', () => {
+    const links = calendarFeedLinks('https://abc.supabase.co/', 'f'.repeat(64));
+    expect(links.https).toBe(`https://abc.supabase.co/functions/v1/calendar-feed?token=${'f'.repeat(64)}`);
+    expect(links.webcal).toBe(`webcal://abc.supabase.co/functions/v1/calendar-feed?token=${'f'.repeat(64)}`);
+    expect(links.google).toBe(`https://calendar.google.com/calendar/r?cid=${encodeURIComponent(links.webcal)}`);
+    expect(new URL(links.outlook).searchParams.get('url')).toBe(links.https);
   });
 });

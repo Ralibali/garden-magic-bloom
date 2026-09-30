@@ -60,7 +60,13 @@ Domänlogiken i `src/lib` är avsiktligt ren och enhetstestad — nya regler ska
 - **frostnätter från prognosen** (Open-Meteo), med namnen på de frostkänsliga plantor som står ute; bäddar som heter t.ex. ”Växthus” räknas som skyddade,
 - **samma vecka förra året** i dagspanelen.
 
-Vyerna är månad (med väder, och påminnelser som kan dras till en annan dag), agenda (8 veckor framåt) och årshjul. **Planera säsongen** gör valda grödor till datumsatta påminnelser för ett helt år; varje steg har en stabil `source_action_id` (`season-plan:<år>:<gröda>:<steg>`) så att planen aldrig läggs in två gånger. Startsidan visar veckans förslag i `CalendarWeekCard`. Allt kan exporteras som `.ics` till Google, Apple eller Outlook.
+Vyerna är månad (med väder, och påminnelser som kan dras till en annan dag), agenda (8 veckor framåt) och årshjul. **Planera säsongen** gör valda grödor till datumsatta påminnelser för ett helt år; varje steg har en stabil `source_action_id` (`season-plan:<år>:<gröda>:<steg>`) så att planen aldrig läggs in två gånger. Startsidan visar veckans förslag i `CalendarWeekCard`.
+
+**Synka med din kalender.** Användaren kan skapa en hemlig prenumerationslänk (webcal) som Google, Apple och Outlook hämtar ungefär var sjätte timme, eller ladda ner en `.ics`-fil en gång.
+
+- `supabase/migrations/20260930120000_calendar_feed.sql` sparar bara en SHA-256-hash av länkens token. Klienter når tabellen enbart via RPC:erna `create_calendar_feed_token`, `revoke_calendar_feed_token` och `calendar_feed_status`. En ny länk gör den gamla ogiltig. `supabase/tests/calendar_feed.sql` körs i CI.
+- Edge functionen `calendar-feed` (publik, `verify_jwt = false`) slår upp hashen med service role och returnerar `text/calendar`.
+- Funktionen kör exakt samma kalenderlogik som appen via `supabase/functions/_shared/gardenCalendar.bundle.js`. Den filen genereras: kör `node scripts/export-calendar-feed.mjs` efter ändringar i `src/lib/gardenCalendar.ts` eller dess beroenden. `src/test/calendarFeed.test.ts` larmar om kopian är inaktuell.
 
 Sådder har `plant_kind` (`edible` eller `ornamental`). Prydnadsväxter får blomnings- och övervintringsflöde i stället för skörd och räknas inte in i kg-statistiken.
 

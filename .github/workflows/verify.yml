@@ -64,7 +64,7 @@ jobs:
         run: npm ci
 
       - name: Typecheck edge functions
-        run: deno check --node-modules-dir=auto supabase/functions/gardening-coach/index.ts supabase/functions/analyze-seed-photo/index.ts supabase/functions/delete-account/index.ts supabase/functions/create-checkout/index.ts supabase/functions/native-push/index.ts supabase/functions/send-native-notifications/index.ts supabase/functions/frost-alert/index.ts supabase/functions/daily-briefing/index.ts supabase/functions/run-my-briefing/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/gardening-coach/index.ts supabase/functions/analyze-seed-photo/index.ts supabase/functions/delete-account/index.ts supabase/functions/create-checkout/index.ts supabase/functions/native-push/index.ts supabase/functions/send-native-notifications/index.ts supabase/functions/frost-alert/index.ts supabase/functions/daily-briefing/index.ts supabase/functions/run-my-briefing/index.ts supabase/functions/calendar-feed/index.ts
 
   native-push-database:
     name: Native push ownership and delivery leases
@@ -95,3 +95,33 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20260908130000_native_push.sql
       - name: Verify ownership, replay protection and delivery leases
         run: psql -v ON_ERROR_STOP=1 -f supabase/tests/native_push.sql
+
+  calendar-feed-database:
+    name: Calendar feed tokens
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: test-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: test-only
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare isolated auth schema
+        run: |
+          psql -v ON_ERROR_STOP=1 -c "create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as \$\$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid \$\$;"
+      - name: Apply calendar feed migration
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20260930120000_calendar_feed.sql
+      - name: Verify hashed tokens, rotation, revocation and isolation
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/calendar_feed.sql

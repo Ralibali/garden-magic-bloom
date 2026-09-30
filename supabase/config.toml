@@ -33,6 +33,9 @@ project_id = "ysonnvbkrwajacvdkqut"
     verify_jwt = true
   [functions.calendar-pdf]
     verify_jwt = false
+  # Behörigheten är den hemliga token i länken; kalenderappar kan inte skicka JWT.
+  [functions.calendar-feed]
+    verify_jwt = false
 
 # The function validates the user's JWT with auth.getUser before reading any image.
 [functions.analyze-seed-photo]

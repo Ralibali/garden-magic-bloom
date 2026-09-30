@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom";
 
-Object.defineProperty(window, "matchMedia", {
+// Edge function-tester kör i node-miljö utan window.
+if (typeof window !== "undefined") Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: (query: string) => ({
     matches: false,

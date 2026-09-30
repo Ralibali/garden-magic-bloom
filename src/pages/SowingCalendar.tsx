@@ -40,6 +40,7 @@ import CalendarAgendaView from '@/components/calendar/CalendarAgendaView';
 import CalendarYearWheel from '@/components/calendar/CalendarYearWheel';
 import CalendarDayPanel, { type DayPanelActions } from '@/components/calendar/CalendarDayPanel';
 import CalendarSeasonPlanner from '@/components/calendar/CalendarSeasonPlanner';
+import CalendarSyncDialog from '@/components/calendar/CalendarSyncDialog';
 import { EVENT_STYLE, type CalendarLayer } from '@/components/calendar/calendarStyles';
 
 type View = 'month' | 'agenda' | 'year';
@@ -98,6 +99,7 @@ export default function SowingCalendar() {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [zoneOverride, setZoneOverride] = useState<number | null>(null);
   const [plannerOpen, setPlannerOpen] = useState(false);
+  const [syncOpen, setSyncOpen] = useState(false);
 
   const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
   const { data: sowingsRaw, isLoading: loadingSowings } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
@@ -320,7 +322,7 @@ export default function SowingCalendar() {
             <Button className="gap-2" onClick={() => setPlannerOpen(true)}>
               <Wand2 className="h-4 w-4" /> Planera säsongen
             </Button>
-            <Button variant="outline" className="gap-2" onClick={() => void exportIcs()} disabled={loadingSowings}>
+            <Button variant="outline" className="gap-2" onClick={() => setSyncOpen(true)} disabled={loadingSowings}>
               <Download className="h-4 w-4" /> Till min kalender
             </Button>
           </div>
@@ -436,6 +438,8 @@ export default function SowingCalendar() {
         onClose={() => setSelectedDay(null)}
         actions={actions}
       />
+
+      <CalendarSyncDialog open={syncOpen} onOpenChange={setSyncOpen} onDownload={() => void exportIcs()} />
 
       {plannerOpen && (
         <CalendarSeasonPlanner
