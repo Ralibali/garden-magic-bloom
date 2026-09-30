@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams } from 'react-router-dom';
 import { trackEvent } from '@/lib/analytics';
 import { track, trackOnce } from '@/lib/plausible';
+import { PremiumCheckoutError, startPremiumCheckout } from '@/lib/premiumCheckout';
 
 const YEARLY_PRICE_ID = 'price_1T99UJHzffTezY826uLS56sV';
 
@@ -63,13 +64,14 @@ export default function Premium() {
       localStorage.setItem('plus-withdrawal-consent', JSON.stringify({ at: consentAt, price_sek: 99, plan: 'yearly-99' }));
     } catch {}
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', { body: { priceId: YEARLY_PRICE_ID } });
-      if (error) throw error;
+      const data = await startPremiumCheckout(YEARLY_PRICE_ID);
       if (!data?.url) throw new Error('Ingen betalningslänk returnerades.');
       window.location.href = data.url;
-    } catch (error: any) {
-      void trackEvent('checkout_failed', { message: error?.message });
-      toast({ title: 'Kunde inte starta betalningen', description: error?.message || 'Försök igen.', variant: 'destructive' });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Betalningen kunde inte startas. Försök igen.';
+      const metadata = error instanceof PremiumCheckoutError ? { status: error.status, code: error.code } : {};
+      void trackEvent('checkout_failed', { message, ...metadata });
+      toast({ title: 'Kunde inte starta betalningen', description: message, variant: 'destructive' });
       setLoading(false);
     }
   };
