@@ -48,7 +48,7 @@ const routeMeta = [
   { path: '/app/sowings', title: 'Sålogg', subtitle: 'Följ varje frö från start' },
   { path: '/app/harvests', title: 'Skördelogg', subtitle: 'Se vad odlingen faktiskt ger' },
   { path: '/app/reminders', title: 'Påminnelser', subtitle: 'Rätt uppgift vid rätt tid' },
-  { path: '/app/calendar', title: 'Såkalender', subtitle: 'Planera efter säsong och zon' },
+  { path: '/app/calendar', title: 'Odlingskalender', subtitle: 'Sådd, skörd och uppgifter – dag för dag' },
   { path: '/app/gro', title: 'Gro', subtitle: 'Din personliga odlingscoach' },
   { path: '/app/statistics', title: 'Statistik', subtitle: 'Mönster från din egen odling' },
   { path: '/app/my-plants', title: 'Mina växter', subtitle: 'Hälsa, rytm och omsorgshistorik' },

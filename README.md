@@ -48,6 +48,17 @@ Domänlogiken i `src/lib` är avsiktligt ren och enhetstestad — nya regler ska
 
 `src/data/sowingMatrix.ts` är enda källan för såtider per klimatzon. Kör `node scripts/export-sowing-weeks.mjs` efter ändringar så att edge functions får samma veckor via `supabase/functions/_shared/sowingWeeks.ts`.
 
+## Odlingskalendern
+
+`/app/calendar` är användarens personliga kalender. `src/lib/gardenCalendar.ts` slår ihop sådder, utplanteringar, skördar och påminnelser med såmatrisen för zonen och räknar fram:
+
+- **beräknad utplantering** för förodlade plantor som står inne,
+- **beräknad skörd** från den egna såddagen, med varning om skörden hamnar efter zonens säsong,
+- **omgångssådd** för snabba grödor (rädisa, sallat, spenat m.fl.) medan direktsåfönstret är öppet,
+- **frostmarkörer** för zonens normala sista frost och säsongsslut.
+
+Vyerna är månad, agenda (8 veckor framåt) och årshjul. Allt kan exporteras som `.ics` till Google, Apple eller Outlook.
+
 Sådder har `plant_kind` (`edible` eller `ornamental`). Prydnadsväxter får blomnings- och övervintringsflöde i stället för skörd och räknas inte in i kg-statistiken.
 
 ## CI

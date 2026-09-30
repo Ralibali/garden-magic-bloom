@@ -31,7 +31,7 @@ const moreItems = [
   { title: 'Skörd', url: '/app/harvests', icon: Carrot },
   { title: 'Växter', url: '/app/my-plants', icon: Flower2 },
   { title: 'Påminnelser', url: '/app/reminders', icon: Bell },
-  { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
+  { title: 'Kalender', url: '/app/calendar', icon: CalendarDays },
   { title: 'Växtbibliotek', url: '/app/plants', icon: BookOpen },
   { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
   { title: 'Samplantering', url: '/app/companion', icon: Heart },

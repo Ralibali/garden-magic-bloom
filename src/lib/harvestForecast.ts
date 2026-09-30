@@ -20,7 +20,7 @@ export interface HarvestHint {
 }
 
 /** Extraherar basgrödan ur ett sortnamn, t.ex. "Tomat – Sungold" → "tomat". */
-function catalogueNameForKey(cropKey: string): string | null {
+export function catalogueNameForKey(cropKey: string): string | null {
   const compact = cropKey.replace(/-/g, '');
   const crop = sowingMatrix.find((entry) => fold(entry.name).replace(/\s+/g, '') === compact);
   return crop?.name ?? null;

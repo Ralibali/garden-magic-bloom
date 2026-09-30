@@ -19,6 +19,7 @@ const coreGroups = [
     { title: 'Mina odlingar', url: '/app/odlingar', icon: Sprout },
     { title: 'Min dagbok', url: '/app/timeline', icon: BookOpen },
     { title: 'Påminnelser', url: '/app/reminders', icon: Bell },
+    { title: 'Odlingskalender', url: '/app/calendar', icon: CalendarDays },
     { title: 'Fråga Gro', url: '/app/gro', icon: Sparkles },
   ] },
 ];
@@ -29,7 +30,6 @@ const advancedItems = [
   { title: 'Skördelogg', url: '/app/harvests', icon: Carrot },
   { title: 'Mina växter', url: '/app/my-plants', icon: Flower2 },
   { title: 'Fotodagbok', url: '/app/photos', icon: Camera },
-  { title: 'Såkalender', url: '/app/calendar', icon: CalendarDays },
   { title: 'Växtföljd', url: '/app/rotation', icon: RefreshCw },
   { title: 'Samplantering', url: '/app/companion', icon: Heart },
   { title: 'Fröförråd', url: '/app/seeds', icon: Package },

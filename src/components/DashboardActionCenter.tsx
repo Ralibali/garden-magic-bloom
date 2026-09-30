@@ -45,7 +45,7 @@ export default function DashboardActionCenter({ climateZone, currentMonth, isNew
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/68 sm:text-base">{isNewUser ? 'Lägg in en plats och en sådd. Därefter kan appen börja ge personliga råd, påminnelser och statistik i stället för generella exempel.' : month.text}</p>
 
           <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-            <Button className="bg-white text-emerald-950 hover:bg-white/92 shadow-xl" onClick={() => onNavigate(isNewUser ? '/app/beds' : '/app/calendar')}>{isNewUser ? 'Skapa första platsen' : 'Öppna såkalendern'} <ArrowRight className="h-4 w-4" /></Button>
+            <Button className="bg-white text-emerald-950 hover:bg-white/92 shadow-xl" onClick={() => onNavigate(isNewUser ? '/app/beds' : '/app/calendar')}>{isNewUser ? 'Skapa första platsen' : 'Öppna odlingskalendern'} <ArrowRight className="h-4 w-4" /></Button>
             <Button className="border border-white/15 bg-white/[0.07] text-white shadow-none hover:bg-white/[0.13]" onClick={() => onNavigate('/app/gro')}><Bot className="h-4 w-4 text-lime-200" /> Fråga Gro</Button>
           </div>
         </div>
