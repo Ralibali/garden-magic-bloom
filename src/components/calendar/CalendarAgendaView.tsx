@@ -35,7 +35,7 @@ function EventRow({ event, onSelectDay, showDate }: { event: CalendarEvent; onSe
       <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${style.chip}`}><Icon className="h-4 w-4" /></span>
       <span className="min-w-0 flex-1">
         <span className={`block truncate text-sm font-semibold ${event.done ? 'line-through' : ''}`}>{event.title}</span>
-        <span className="block truncate text-[11px] capitalize text-muted-foreground">
+        <span className="block truncate text-[11px] first-letter:uppercase text-muted-foreground">
           {showDate ? formatLongDate(event.date) : formatLongDate(event.date).split(' ')[0]}
           {event.estimated ? ' · beräknat' : ''}
           {event.detail ? ` · ${event.detail}` : ''}

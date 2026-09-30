@@ -57,7 +57,10 @@ Domänlogiken i `src/lib` är avsiktligt ren och enhetstestad — nya regler ska
 - **omgångssådd** för snabba grödor (rädisa, sallat, spenat m.fl.) medan direktsåfönstret är öppet,
 - **frostmarkörer** för zonens normala sista frost och säsongsslut.
 
-Vyerna är månad, agenda (8 veckor framåt) och årshjul. Allt kan exporteras som `.ics` till Google, Apple eller Outlook.
+- **frostnätter från prognosen** (Open-Meteo), med namnen på de frostkänsliga plantor som står ute; bäddar som heter t.ex. ”Växthus” räknas som skyddade,
+- **samma vecka förra året** i dagspanelen.
+
+Vyerna är månad (med väder, och påminnelser som kan dras till en annan dag), agenda (8 veckor framåt) och årshjul. **Planera säsongen** gör valda grödor till datumsatta påminnelser för ett helt år; varje steg har en stabil `source_action_id` (`season-plan:<år>:<gröda>:<steg>`) så att planen aldrig läggs in två gånger. Startsidan visar veckans förslag i `CalendarWeekCard`. Allt kan exporteras som `.ics` till Google, Apple eller Outlook.
 
 Sådder har `plant_kind` (`edible` eller `ornamental`). Prydnadsväxter får blomnings- och övervintringsflöde i stället för skörd och räknas inte in i kg-statistiken.
 

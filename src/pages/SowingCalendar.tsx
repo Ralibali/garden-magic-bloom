@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CalendarDays, CalendarRange, ChevronLeft, ChevronRight, Download, Eye, EyeOff, ListTodo, MapPin, Snowflake, Sparkles } from 'lucide-react';
+import { CalendarDays, CalendarRange, ChevronLeft, ChevronRight, Download, Eye, EyeOff, ListTodo, MapPin, Snowflake, Sparkles, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,26 +14,32 @@ import { addReminder } from '@/lib/reminders';
 import { localDateKey } from '@/lib/gardenToday';
 import { buildStatusPatch } from '@/lib/sowingLifecycle';
 import { isNativeApp } from '@/lib/native';
+import { getGardenForecast } from '@/lib/gardenWeather';
 import { ZONE_LAST_FROST_WEEK, ZONE_SEASON_END_WEEK } from '@/data/sowingMatrix';
 import {
   addDays,
   buildCalendarEvents,
+  buildForecastFrostEvents,
   buildIcs,
   cropNameForSowing,
+  forecastByDate,
   getWeekGuide,
   groupEventsByDate,
   isoWeekOfKey,
+  lastYearSameWeek,
   MONTHS_SV,
   summarizeEvents,
   type CalendarEvent,
   type CalendarHarvest,
   type CalendarReminder,
   type CalendarSowing,
+  type SeasonPlanItem,
 } from '@/lib/gardenCalendar';
 import CalendarMonthView from '@/components/calendar/CalendarMonthView';
 import CalendarAgendaView from '@/components/calendar/CalendarAgendaView';
 import CalendarYearWheel from '@/components/calendar/CalendarYearWheel';
 import CalendarDayPanel, { type DayPanelActions } from '@/components/calendar/CalendarDayPanel';
+import CalendarSeasonPlanner from '@/components/calendar/CalendarSeasonPlanner';
 import { EVENT_STYLE, type CalendarLayer } from '@/components/calendar/calendarStyles';
 
 type View = 'month' | 'agenda' | 'year';
@@ -91,6 +97,7 @@ export default function SowingCalendar() {
   const [layers, setLayers] = useState<Record<CalendarLayer, boolean>>({ mine: true, tasks: true, guide: true });
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [zoneOverride, setZoneOverride] = useState<number | null>(null);
+  const [plannerOpen, setPlannerOpen] = useState(false);
 
   const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
   const { data: sowingsRaw, isLoading: loadingSowings } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
@@ -99,6 +106,17 @@ export default function SowingCalendar() {
 
   const profileZone = profile?.climate_zone ?? null;
   const zone = zoneOverride ?? profileZone ?? 3;
+  // Samma nyckel som startsidan, så prognosen delas i cachen.
+  const lat = profile?.location_lat;
+  const lon = profile?.location_lon;
+  const { data: forecast } = useQuery({
+    queryKey: ['garden-forecast', profileZone ?? 3, lat, lon],
+    queryFn: () => getGardenForecast(profileZone ?? 3, { lat, lon }),
+    enabled: !!profile,
+    staleTime: 600_000,
+    retry: 1,
+  });
+  const weatherByDate = useMemo(() => forecastByDate(forecast), [forecast]);
   const sowings = useMemo(() => (sowingsRaw ?? []) as unknown as (CalendarSowing & { bed_id?: string | null })[], [sowingsRaw]);
   const harvests = useMemo(() => (harvestsRaw ?? []) as unknown as CalendarHarvest[], [harvestsRaw]);
   const reminders = useMemo(
@@ -113,18 +131,21 @@ export default function SowingCalendar() {
 
   // Ett generöst fönster: hela det visade året plus agendans åtta veckor framåt.
   const range = useMemo(() => {
-    const yearStart = `${cursor.year}-01-01`;
     const yearEnd = `${cursor.year}-12-31`;
     const agendaEnd = addDays(today, 63);
     return {
-      from: addDays(today < yearStart ? today : yearStart, -7),
+      // Förra året följer med så att dagspanelen kan visa "samma vecka förra året".
+      from: `${Math.min(cursor.year, Number(today.slice(0, 4))) - 1}-01-01`,
       to: addDays(agendaEnd > yearEnd ? agendaEnd : yearEnd, 7),
     };
   }, [cursor.year, today]);
 
   const allEvents = useMemo(
-    () => buildCalendarEvents({ zone, from: range.from, to: range.to, today, sowings, harvests, reminders }),
-    [zone, range, today, sowings, harvests, reminders],
+    () => [
+      ...buildCalendarEvents({ zone, from: range.from, to: range.to, today, sowings, harvests, reminders }),
+      ...buildForecastFrostEvents(forecast, sowings),
+    ].sort((a, b) => a.date.localeCompare(b.date)),
+    [zone, range, today, sowings, harvests, reminders, forecast],
   );
 
   const visibleEvents = useMemo(
@@ -157,6 +178,12 @@ export default function SowingCalendar() {
     }
     return map;
   }, [sowings, cursor.year]);
+
+  const suggestedCrops = useMemo(() => [...mySowDates.keys()], [mySowDates]);
+  const existingPlanKeys = useMemo(
+    () => new Set(reminders.map((r) => (r as { source_action_id?: string }).source_action_id).filter((key): key is string => !!key)),
+    [reminders],
+  );
 
   // ─── Mutationer ────────────────────────────────────────────────────────
   const reminderChange = useMutation({
@@ -214,6 +241,32 @@ export default function SowingCalendar() {
     },
   };
 
+  const moveReminder = (id: string, date: string) => {
+    const target = reminders.find((r) => r.id === id);
+    if (!target || target.date === date || reminderChange.isPending) return;
+    reminderChange.mutate(
+      { action: 'replace', expected: target, item: { ...target, date } },
+      { onSuccess: () => toast({ title: 'Påminnelsen är flyttad', description: `${target.title} · ${date}` }) },
+    );
+  };
+
+  const createSeasonPlan = async (items: SeasonPlanItem[], onProgress: (done: number) => void) => {
+    let created = 0;
+    for (const item of items) {
+      const ok = await addReminder({ title: item.title, date: item.date, type: item.type, source_action_id: item.key, source: 'season-plan' });
+      if (!ok) break;
+      created += 1;
+      onProgress(created);
+    }
+    await queryClient.invalidateQueries({ queryKey: ['reminder-settings'] });
+    if (created === items.length) {
+      toast({ title: `Säsongen är planerad 🌱`, description: `${created} påminnelser ligger nu i kalendern och påminnelselistan.` });
+    } else {
+      toast({ title: 'Planen sparades bara delvis', description: `${created} av ${items.length} påminnelser sparades. Försök igen – det som redan finns läggs inte in två gånger.`, variant: 'destructive' });
+    }
+    return created;
+  };
+
   const exportIcs = useCallback(async () => {
     const events = buildCalendarEvents({ zone, from: `${cursor.year}-01-01`, to: `${cursor.year + 1}-12-31`, today, sowings, harvests, reminders });
     try {
@@ -264,6 +317,9 @@ export default function SowingCalendar() {
             {zoneOverride != null && zoneOverride !== profileZone && (
               <Button variant="outline" size="sm" disabled={saveZone.isPending} onClick={() => saveZone.mutate(zoneOverride)}>Spara som min zon</Button>
             )}
+            <Button className="gap-2" onClick={() => setPlannerOpen(true)}>
+              <Wand2 className="h-4 w-4" /> Planera säsongen
+            </Button>
             <Button variant="outline" className="gap-2" onClick={() => void exportIcs()} disabled={loadingSowings}>
               <Download className="h-4 w-4" /> Till min kalender
             </Button>
@@ -303,7 +359,7 @@ export default function SowingCalendar() {
           {view !== 'agenda' && (
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="icon" onClick={() => stepMonth(view === 'year' ? -12 : -1)} aria-label="Föregående"><ChevronLeft className="h-4 w-4" /></Button>
-              <span className="min-w-[9rem] text-center font-serif text-lg capitalize">{periodLabel}</span>
+              <span className="min-w-[9rem] text-center font-serif text-lg first-letter:uppercase">{periodLabel}</span>
               <Button variant="ghost" size="icon" onClick={() => stepMonth(view === 'year' ? 12 : 1)} aria-label="Nästa"><ChevronRight className="h-4 w-4" /></Button>
               <Button variant="outline" size="sm" onClick={goToday}>Idag</Button>
             </div>
@@ -334,9 +390,11 @@ export default function SowingCalendar() {
               zone={zone}
               today={today}
               eventsByDate={eventsByDate}
+              weatherByDate={weatherByDate}
               showGuide={layers.guide}
               selectedDay={selectedDay}
               onSelectDay={setSelectedDay}
+              onMoveReminder={moveReminder}
             />
           )}
           <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
@@ -372,10 +430,24 @@ export default function SowingCalendar() {
         today={today}
         events={selectedEvents}
         guide={selectedGuide}
+        weather={selectedDay ? weatherByDate.get(selectedDay) : null}
+        memories={selectedDay ? lastYearSameWeek(allEvents, selectedDay) : []}
         showGuide={layers.guide}
         onClose={() => setSelectedDay(null)}
         actions={actions}
       />
+
+      {plannerOpen && (
+        <CalendarSeasonPlanner
+          open={plannerOpen}
+          onOpenChange={setPlannerOpen}
+          zone={zone}
+          today={today}
+          suggestedCrops={suggestedCrops}
+          existingKeys={existingPlanKeys}
+          onCreate={createSeasonPlan}
+        />
+      )}
     </div>
   );
 }

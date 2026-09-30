@@ -334,6 +334,16 @@ export function estimateHarvest(sowing: CalendarSowing, zone: number): { date: s
   return { date, warning };
 }
 
+/** Varning när utplanteringen hamnar efter zonens fönster (t.ex. tomat förodlad i augusti). */
+export function plantOutWarning(sowing: CalendarSowing, zone: number, date: string): string | undefined {
+  const timing = timingFor(cropNameForSowing(sowing), zone);
+  if (!timing || timing.plantOutEnd == null) return undefined;
+  const windowEnd = addDays(isoWeekMonday(yearOf(date), timing.plantOutEnd), 6);
+  // Två veckors marginal: en planta som är en vecka sen klarar sig oftast fint.
+  if (diffDays(windowEnd, date) <= 14) return undefined;
+  return `Zonens utplanteringsfönster stängde v.${timing.plantOutEnd}. Låt plantan stå kvar i växthus eller i kruka inomhus i stället för att plantera ut.`;
+}
+
 /** Förslag på utplantering för förodlade plantor som ännu står inne. */
 export function estimatePlantOut(sowing: CalendarSowing, zone: number): string | null {
   if (!isDateKey(sowing.sow_date) || sowing.type !== 'indoor') return null;
@@ -392,7 +402,8 @@ export function buildCalendarEvents({ zone, from, to, today, sowings = [], harve
     }
     if (!isActive(sowing.status)) continue;
 
-    const plantOut = estimatePlantOut(sowing, z);
+    // En förodling som stått "inne" i ett halvår är en bortglömd rad, inte en planta att plantera ut idag.
+    const plantOut = diffDays(sowing.sow_date, today) <= 150 ? estimatePlantOut(sowing, z) : null;
     if (plantOut) {
       // Har datumet redan passerat flyttas förslaget till idag – plantan står ju fortfarande inne.
       const date = plantOut < today ? today : plantOut;
@@ -406,6 +417,7 @@ export function buildCalendarEvents({ zone, from, to, today, sowings = [], harve
           cropName,
           sowingId: sowing.id,
           estimated: true,
+          warning: plantOutWarning(sowing, z, date),
         });
       }
     }
@@ -621,4 +633,155 @@ export function buildIcs(events: CalendarEvent[], { calendarName = 'Odlingsdagbo
   }
   lines.push('END:VCALENDAR');
   return lines.map(foldLine).join('\r\n') + '\r\n';
+}
+
+// ─── Väder ────────────────────────────────────────────────────────────────
+
+export type DayWeather = { date: string; min: number | null; max: number | null; precip: number | null; code: number | null };
+
+type ForecastLike = {
+  daily?: {
+    time?: string[];
+    temperature_2m_min?: (number | null)[];
+    temperature_2m_max?: (number | null)[];
+    precipitation_sum?: (number | null)[];
+    weather_code?: (number | null)[];
+  };
+} | null | undefined;
+
+const num = (value: unknown): number | null => (typeof value === 'number' && Number.isFinite(value) ? value : null);
+
+/** Open-Meteo-prognosen som dag → väder. */
+export function forecastByDate(forecast: ForecastLike): Map<string, DayWeather> {
+  const map = new Map<string, DayWeather>();
+  const daily = forecast?.daily;
+  if (!daily?.time?.length) return map;
+  daily.time.forEach((date, i) => {
+    if (!isDateKey(date)) return;
+    map.set(date, {
+      date,
+      min: num(daily.temperature_2m_min?.[i]),
+      max: num(daily.temperature_2m_max?.[i]),
+      precip: num(daily.precipitation_sum?.[i]),
+      code: num(daily.weather_code?.[i]),
+    });
+  });
+  return map;
+}
+
+/** Grödor som tar skada redan vid någon minusgrad. */
+export const FROST_SENSITIVE_CROPS = new Set(['Tomat', 'Chili', 'Gurka', 'Squash', 'Pumpa', 'Majs', 'Bönor', 'Basilika', 'Potatis']);
+
+/** Platser vars namn säger att de är skyddade – bäddar saknar typ, så namnet får räcka. */
+const PROTECTED_PLACE = /v[äa]xthus|drivhus|inomhus|f[öo]nster|orangeri|uterum/i;
+
+/** Frostkänsliga sådder som står ute just nu. */
+export function exposedToFrost(sowings: CalendarSowing[]): CalendarSowing[] {
+  return sowings.filter((sowing) => {
+    if (!isActive(sowing.status) || normalizePlantKind(sowing.plant_kind) === 'ornamental') return false;
+    if (sowing.beds?.name && PROTECTED_PLACE.test(sowing.beds.name)) return false;
+    const crop = cropNameForSowing(sowing);
+    if (!crop || !FROST_SENSITIVE_CROPS.has(crop)) return false;
+    const outside = sowing.status === 'transplanted' || sowing.status === 'harvesting' || !!sowing.transplant_date || sowing.type === 'direct';
+    return outside;
+  });
+}
+
+/**
+ * Prognosens kalla nätter som kalenderhändelser, med namnen på de plantor som
+ * faktiskt står ute och behöver skydd. ≤0 °C är frost, ≤2 °C är risk.
+ */
+export function buildForecastFrostEvents(forecast: ForecastLike, sowings: CalendarSowing[] = []): CalendarEvent[] {
+  const exposed = exposedToFrost(sowings);
+  const names = [...new Set(exposed.map((s) => s.variety))];
+  const events: CalendarEvent[] = [];
+  for (const day of forecastByDate(forecast).values()) {
+    if (day.min == null || day.min > 2) continue;
+    const frost = day.min <= 0;
+    const temp = `${Math.round(day.min)} °C`.replace('-', '−');
+    events.push({
+      id: `forecast-frost:${day.date}`,
+      kind: 'frost',
+      date: day.date,
+      title: frost ? `Frostnatt väntas · ${temp}` : `Risk för frost · ${temp}`,
+      detail: names.length
+        ? `Täck med fiberduk eller ta in: ${names.slice(0, 5).join(', ')}${names.length > 5 ? ` och ${names.length - 5} till` : ''}.`
+        : 'Vänta med att plantera ut frostkänsligt och täck det som redan står ute.',
+      warning: frost && names.length ? `${names.length} ${names.length === 1 ? 'frostkänslig planta står' : 'frostkänsliga plantor står'} ute.` : undefined,
+    });
+  }
+  return events;
+}
+
+// ─── Säsongsplan ──────────────────────────────────────────────────────────
+
+export type SeasonPlanStep = 'forodla' | 'direktsa' | 'planteraUt' | 'skorda';
+
+export type SeasonPlanItem = {
+  /** Stabil nyckel så att samma plan aldrig skapas två gånger. */
+  key: string;
+  crop: string;
+  step: SeasonPlanStep;
+  title: string;
+  date: string;
+  type: 'sowing' | 'transplant' | 'other';
+};
+
+const PLAN_TITLE: Record<SeasonPlanStep, (crop: string) => string> = {
+  forodla: (c) => `Förodla ${c.toLowerCase()}`,
+  direktsa: (c) => `Direktså ${c.toLowerCase()}`,
+  planteraUt: (c) => `Plantera ut ${c.toLowerCase()}`,
+  skorda: (c) => `Skördetid för ${c.toLowerCase()} – kolla mognaden`,
+};
+
+/**
+ * Gör om valda grödor till datumsatta påminnelser för ett helt år, enligt
+ * zonens såmatris. Steg som redan passerat hoppas över.
+ */
+export function buildSeasonPlan(crops: string[], zone: number, year: number, today: string): SeasonPlanItem[] {
+  const z = safeZone(zone);
+  const items: SeasonPlanItem[] = [];
+  for (const crop of [...new Set(crops)]) {
+    const timing = timingFor(crop, z);
+    if (!timing) continue;
+    const steps: [SeasonPlanStep, number | null, SeasonPlanItem['type']][] = [
+      ['forodla', timing.preStart, 'sowing'],
+      ['direktsa', timing.directSowStart, 'sowing'],
+      // Utplantering utan förodling = köpta plantor eller sättlök – också värt en påminnelse.
+      ['planteraUt', timing.plantOutStart, 'transplant'],
+      ['skorda', timing.harvestStart, 'other'],
+    ];
+    for (const [step, week, type] of steps) {
+      if (week == null) continue;
+      const date = isoWeekMonday(year, week);
+      if (date < today) continue;
+      items.push({ key: `season-plan:${year}:${crop}:${step}`, crop, step, title: PLAN_TITLE[step](crop), date, type });
+    }
+  }
+  return items.sort((a, b) => a.date.localeCompare(b.date) || a.crop.localeCompare(b.crop, 'sv'));
+}
+
+// ─── Minnen ───────────────────────────────────────────────────────────────
+
+/** Det du gjorde samma vecka förra året – sådder, utplanteringar, skördar och klara uppgifter. */
+export function lastYearSameWeek(events: CalendarEvent[], date: string): CalendarEvent[] {
+  const week = isoWeekOfKey(date);
+  const lastYear = Number(date.slice(0, 4)) - 1;
+  const monday = isoWeekMonday(lastYear, week);
+  const sunday = addDays(monday, 6);
+  return events.filter((e) =>
+    e.date >= monday && e.date <= sunday
+    && (e.kind === 'sown' || e.kind === 'transplanted' || e.kind === 'harvested' || (e.kind === 'reminder' && e.done)));
+}
+
+/**
+ * Det kalendern själv räknat fram för de närmaste dagarna – utplantering,
+ * omgångssådd, skördestart och frostnätter. Påminnelser visas redan i Pulsen
+ * på startsidan och tas därför inte med här.
+ */
+export function upcomingCalendarHighlights(events: CalendarEvent[], today: string, days = 7): CalendarEvent[] {
+  const end = addDays(today, days - 1);
+  return events.filter((e) =>
+    e.date >= today && e.date <= end
+    && (e.kind === 'plant-out-due' || e.kind === 'succession' || e.kind === 'harvest-expected' || e.id.startsWith('forecast-frost:')));
 }

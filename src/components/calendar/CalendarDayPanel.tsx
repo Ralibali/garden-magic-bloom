@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertTriangle, Bell, Check, ChevronRight, Plus, Sprout } from 'lucide-react';
+import { AlertTriangle, Bell, Check, ChevronRight, CloudSun, History, Plus, Sprout } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import {
   formatLongDate,
   isoWeekOfKey,
   type CalendarEvent,
+  type DayWeather,
   type GuideActivity,
   type WeekGuide,
 } from '@/lib/gardenCalendar';
@@ -30,6 +31,9 @@ type Props = {
   today: string;
   events: CalendarEvent[];
   guide: WeekGuide | null;
+  weather?: DayWeather | null;
+  /** Samma vecka förra året. */
+  memories?: CalendarEvent[];
   showGuide: boolean;
   onClose: () => void;
   actions: DayPanelActions;
@@ -37,7 +41,7 @@ type Props = {
 
 const GUIDE_ORDER: GuideActivity[] = ['forodla', 'direktsa', 'planteraUt', 'skorda'];
 
-export default function CalendarDayPanel({ date, today, events, guide, showGuide, onClose, actions }: Props) {
+export default function CalendarDayPanel({ date, today, events, guide, weather, memories = [], showGuide, onClose, actions }: Props) {
   const [title, setTitle] = useState('');
   const [saving, setSaving] = useState(false);
   if (!date) return null;
@@ -59,9 +63,19 @@ export default function CalendarDayPanel({ date, today, events, guide, showGuide
       <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
         <SheetHeader className="text-left">
           <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary">Vecka {week}{date === today ? ' · Idag' : ''}</span>
-          <SheetTitle className="font-serif text-2xl capitalize">{formatLongDate(date)}</SheetTitle>
+          <SheetTitle className="font-serif text-2xl first-letter:uppercase">{formatLongDate(date)}</SheetTitle>
           <SheetDescription>Allt som hänt, ska hända och brukar hända i din trädgård den här dagen.</SheetDescription>
         </SheetHeader>
+
+        {weather && (
+          <div className={`mt-4 flex items-center gap-3 rounded-2xl p-3 text-sm ${weather.min != null && weather.min <= 2 ? 'bg-blue-500/10 text-blue-900 dark:text-blue-200' : 'bg-muted/40'}`}>
+            <CloudSun className="h-5 w-5 shrink-0" />
+            <span>
+              Prognos {weather.min != null ? `${Math.round(weather.min)}°`.replace('-', '−') : '–'} till {weather.max != null ? `${Math.round(weather.max)}°`.replace('-', '−') : '–'}
+              {weather.precip ? ` · ${weather.precip.toLocaleString('sv-SE')} mm nederbörd` : ' · uppehåll'}
+            </span>
+          </div>
+        )}
 
         <section className="mt-6 space-y-2">
           <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">I din odling</h3>
@@ -120,6 +134,20 @@ export default function CalendarDayPanel({ date, today, events, guide, showGuide
             );
           })}
         </section>
+
+        {memories.length > 0 && (
+          <section className="mt-5 rounded-2xl border border-dashed border-primary/30 bg-primary/[0.04] p-3">
+            <h3 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-primary"><History className="h-3.5 w-3.5" /> Samma vecka förra året</h3>
+            <ul className="mt-2 space-y-1">
+              {memories.map((memory) => (
+                <li key={memory.id} className="flex gap-2 text-sm">
+                  <span className="shrink-0 tabular-nums text-muted-foreground">{Number(memory.date.slice(8, 10))}/{Number(memory.date.slice(5, 7))}</span>
+                  <span className="min-w-0">{memory.title}{memory.detail ? <span className="text-muted-foreground"> · {memory.detail}</span> : null}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="mt-5">
           <label htmlFor="calendar-quick-reminder" className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Ny uppgift den här dagen</label>

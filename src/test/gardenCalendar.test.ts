@@ -4,7 +4,13 @@ import {
   buildCalendarEvents,
   buildIcs,
   buildMonthGrid,
+  buildForecastFrostEvents,
+  buildSeasonPlan,
   buildYearWheel,
+  exposedToFrost,
+  forecastByDate,
+  lastYearSameWeek,
+  upcomingCalendarHighlights,
   cropNameForSowing,
   estimateHarvest,
   estimatePlantOut,
@@ -135,9 +141,24 @@ describe('buildCalendarEvents', () => {
     expect(events.map((e) => e.date)).toEqual([...events.map((e) => e.date)].sort());
   });
 
+  it('varnar när utplanteringsfönstret redan har stängt', () => {
+    const late = { ...tomato, sow_date: '2026-08-10' };
+    const events = buildCalendarEvents({ ...base, today: '2026-09-30', sowings: [late] });
+    const plantOut = events.find((e) => e.kind === 'plant-out-due');
+    expect(plantOut?.date).toBe('2026-10-05');
+    expect(plantOut?.warning).toMatch(/stängde v\.22/);
+    const onTime = buildCalendarEvents({ ...base, today: '2026-04-01', sowings: [tomato] }).find((e) => e.kind === 'plant-out-due');
+    expect(onTime?.warning).toBeUndefined();
+  });
+
   it('flyttar en missad utplantering till idag', () => {
     const events = buildCalendarEvents({ ...base, today: '2026-06-10', sowings: [tomato] });
     expect(events.find((e) => e.kind === 'plant-out-due')?.date).toBe('2026-06-10');
+  });
+
+  it('tjatar inte om utplantering för bortglömda förodlingar från förra året', () => {
+    const events = buildCalendarEvents({ ...base, today: '2026-05-01', sowings: [{ ...tomato, sow_date: '2025-03-20' }] , from: '2025-01-01' });
+    expect(events.some((e) => e.kind === 'plant-out-due')).toBe(false);
   });
 
   it('visar ingen beräknad skörd för avslutade sådder eller sådder som redan ger skörd', () => {
@@ -214,5 +235,86 @@ describe('buildIcs', () => {
     expect(ics.match(/BEGIN:VALARM/g)).toHaveLength(1);
     const encoder = new TextEncoder();
     for (const line of ics.split('\r\n')) expect(encoder.encode(line).length).toBeLessThanOrEqual(75);
+  });
+});
+
+describe('väder i kalendern', () => {
+  const forecast = {
+    daily: {
+      time: ['2026-05-12', '2026-05-13', '2026-05-14'],
+      temperature_2m_min: [4, -2, 1.4],
+      temperature_2m_max: [14, 9, 11],
+      precipitation_sum: [0, 3.2, null],
+      weather_code: [1, 61, 3],
+    },
+  };
+
+  it('läser prognosen per dag', () => {
+    const map = forecastByDate(forecast);
+    expect(map.get('2026-05-13')).toEqual({ date: '2026-05-13', min: -2, max: 9, precip: 3.2, code: 61 });
+    expect(map.get('2026-05-14')?.precip).toBeNull();
+    expect(forecastByDate(null).size).toBe(0);
+  });
+
+  it('varnar för frostnätter och namnger plantorna som står ute', () => {
+    const outside = { ...tomato, status: 'transplanted', transplant_date: '2026-05-10', beds: { name: 'Pallkrage' } };
+    const indoor = { ...tomato, id: 's2', variety: 'Chili – Habanero', crop_key: 'chili' };
+    const events = buildForecastFrostEvents(forecast, [outside, indoor]);
+    expect(events.map((e) => e.date)).toEqual(['2026-05-13', '2026-05-14']);
+    expect(events[0].title).toBe('Frostnatt väntas · −2 °C');
+    expect(events[0].detail).toContain('Tomat – Sungold');
+    expect(events[0].detail).not.toContain('Habanero');
+    expect(events[0].warning).toMatch(/1 frostkänslig planta/);
+    expect(events[1].title).toBe('Risk för frost · 1 °C');
+    expect(events[1].warning).toBeUndefined();
+  });
+
+  it('räknar plantor i växthuset som skyddade', () => {
+    const greenhouse = { ...tomato, status: 'transplanted', beds: { name: 'Växthuset' } };
+    const outside = { ...tomato, id: 'b', status: 'transplanted', beds: { name: 'Pallkrage 2' } };
+    expect(exposedToFrost([greenhouse, outside]).map((s) => s.id)).toEqual(['b']);
+  });
+
+  it('räknar inte kål eller prydnadsväxter som frostkänsliga', () => {
+    const kale = { ...tomato, variety: 'Grönkål', crop_key: 'gronkal', status: 'transplanted' };
+    const dahlia = { ...tomato, status: 'transplanted', plant_kind: 'ornamental' };
+    expect(exposedToFrost([kale, dahlia])).toEqual([]);
+  });
+});
+
+describe('säsongsplanen', () => {
+  it('gör påminnelser av zonens fönster och hoppar över det som passerat', () => {
+    const plan = buildSeasonPlan(['Tomat', 'Morot', 'Tomat', 'Okänd'], 3, 2026, '2026-04-01');
+    expect(plan.map((p) => `${p.step}:${p.crop}:${p.date}`)).toEqual([
+      'direktsa:Morot:2026-04-27',
+      'planteraUt:Tomat:2026-05-11',
+      'skorda:Morot:2026-07-27',
+      'skorda:Tomat:2026-08-03',
+    ]);
+    expect(plan[1]).toMatchObject({ title: 'Plantera ut tomat', type: 'transplant', key: 'season-plan:2026:Tomat:planteraUt' });
+  });
+
+  it('ger hela året när planen görs i förväg', () => {
+    const plan = buildSeasonPlan(['Tomat'], 3, 2027, '2026-10-01');
+    expect(plan.map((p) => p.step)).toEqual(['forodla', 'planteraUt', 'skorda']);
+    expect(plan[0].date).toBe(isoWeekMonday(2027, 12));
+  });
+});
+
+describe('minnen och höjdpunkter', () => {
+  it('hittar det du gjorde samma vecka förra året', () => {
+    const events = buildCalendarEvents({
+      zone: 3, from: '2025-01-01', to: '2026-12-31', today: '2026-03-25',
+      sowings: [{ ...tomato, id: 'old', sow_date: '2025-03-19', status: 'done' }, tomato],
+      reminders: [{ id: 'r', title: 'Köp såjord', date: '2025-03-17', done: true }, { id: 'o', title: 'Öppen', date: '2025-03-18' }],
+    });
+    const memories = lastYearSameWeek(events, '2026-03-18');
+    expect(memories.map((e) => e.title)).toEqual(['Köp såjord', 'Sådde Tomat – Sungold']);
+  });
+
+  it('plockar kalenderns egna förslag för veckan, men inte vanliga påminnelser', () => {
+    const events = buildCalendarEvents({ zone: 3, from: '2026-01-01', to: '2026-12-31', today: '2026-05-14', sowings: [tomato], reminders: [{ id: 'r', title: 'X', date: '2026-05-15' }] });
+    const highlights = upcomingCalendarHighlights(events, '2026-05-14');
+    expect(highlights.map((e) => e.kind)).toEqual(['plant-out-due']);
   });
 });

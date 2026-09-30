@@ -18,6 +18,8 @@ import OnboardingFlow from '@/components/OnboardingFlow';
 import GardenPulse from '@/components/GardenPulse';
 import CultivationImage from '@/components/CultivationImage';
 import SeasonWrapDialog from '@/components/SeasonWrapDialog';
+import CalendarWeekCard from '@/components/calendar/CalendarWeekCard';
+import type { CalendarSowing } from '@/lib/gardenCalendar';
 import gardenImage from '@/assets/hero-harvest-hands.jpg';
 
 const AchievementsSection = lazy(() => import('@/components/AchievementsSection'));
@@ -115,6 +117,7 @@ export default function Dashboard() {
         <aside className="min-w-0 space-y-5">
           <div className="garden-section-heading"><h2>En stund idag</h2><Link to="/app/reminders" aria-label="Alla påminnelser"><ArrowRight /></Link></div>
           <GardenPulse weather={weather.data} rainData={rain.data} climateZone={climateZone} remindersData={reminders.data} sowings={garden.data?.sowings} beds={garden.data?.beds} overduePlants={overduePlants} isLoading={garden.isLoading || reminders.isLoading} isError={garden.isError || reminders.isError} compact />
+          {!plantOnly && garden.data && <CalendarWeekCard sowings={garden.data.sowings as unknown as CalendarSowing[]} zone={climateZone} today={today} />}
           <section className="garden-weather" aria-label="Väder vid odlingen"><div className="flex items-center gap-3"><CloudSun className="h-8 w-8 text-primary" /><div><p className="text-sm font-medium">{temperature != null ? `${Math.round(temperature)}° · ${weatherDescription(weather.data?.current?.weather_code)}` : weather.isError ? 'Vädret kunde inte hämtas' : 'Hämtar vädret…'}</p><p className="mt-1 text-xs text-muted-foreground">{hasLocation ? 'Vid din sparade plats' : `Ungefärligt väder · zon ${climateZone}`}</p></div></div><Link to="/app/settings" className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary"><MapPin className="h-3.5 w-3.5" />{hasLocation ? 'Ändra plats' : 'Ange din plats'}</Link></section>
           <div className="border-t border-border/70 pt-5"><p className="garden-eyebrow">Din säsong {year}</p><div className="mt-3 flex gap-6"><Link to="/app/odlingar" className="text-sm text-muted-foreground"><strong className="mb-1 block font-serif text-3xl font-normal text-foreground">{garden.isPending || garden.isError ? '–' : active.length}</strong>aktiva odlingar</Link><Link to={plantOnly ? '/app/photos' : '/app/harvests'} className="text-sm text-muted-foreground"><strong className="mb-1 block font-serif text-3xl font-normal text-foreground">{garden.isPending || garden.isError ? '–' : plantOnly ? garden.data?.photos.filter(photo => photo.taken_at.startsWith(String(year))).length : (harvested / 1000).toLocaleString('sv-SE', { maximumFractionDigits: 1 })}</strong>{plantOnly ? 'foton i år' : 'kg skördat i år'}</Link></div><Link to="/app/statistics" className="mt-4 inline-flex items-center gap-2 text-sm text-primary">Se din statistik <ArrowRight className="h-3.5 w-3.5" /></Link></div>
         </aside>
