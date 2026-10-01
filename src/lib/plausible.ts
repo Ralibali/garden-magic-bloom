@@ -36,6 +36,8 @@ export type TypedEvents = {
   'Premium Checkout Started': { plan: 'plus'; billing_interval: BillingInterval };
   'Premium Purchased': { plan: 'plus'; billing_interval: BillingInterval };
   'First Cultivation Logged': { cultivation_type: CultivationType };
+  'Sowing Created': Record<string, never>;
+  'Harvest Created': Record<string, never>;
 };
 
 // ---- Internals ---------------------------------------------------------------

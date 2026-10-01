@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, ArrowRight, Sprout, Scissors, Snowflake } from 'lucide-react';
 import { MONTH_NAMES_SV, MONTH_NAMES_TITLE, SEASON_LABEL, buildBreadcrumbs } from '@/lib/seoData';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
+import { registerUrl } from '@/lib/authReturn';
 import CalendarZonePicker from '@/components/CalendarZonePicker';
 import CalendarPdfDownload from '@/components/CalendarPdfDownload';
 import PersonalizeZoneCta from '@/components/PersonalizeZoneCta';
@@ -156,6 +157,7 @@ export default function OdlingskalenderIndex() {
           title="Låt odlingskalendern bli din egen dagbok"
           description="Skapa ett gratis konto – då sparas dina sådder, påminnelser och skördar månad för månad."
           buttonLabel="Börja gratis"
+          href={registerUrl({ source: 'odlingskalender', returnTo: '/app/calendar' })}
           className="mt-16"
         />
       </section>

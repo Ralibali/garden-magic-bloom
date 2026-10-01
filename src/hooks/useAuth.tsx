@@ -29,6 +29,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function trackBrowserEvent(eventName: string, params: Record<string, unknown> = {}) {
+  if (isNativeApp()) return;
   sendAnalyticsEvent(eventName, { props: params });
 }
 
@@ -136,10 +137,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const shouldHydrateProfile = event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'USER_UPDATED';
       applySession(session, shouldHydrateProfile);
-      if (event === 'SIGNED_IN' && session?.user) {
-        void trackEvent('login_completed', { email: session.user.email });
-        plausibleEvent('Login Completed', { method: 'email' });
-      }
       setLoading(false);
     });
 
@@ -164,7 +161,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(toBasicProfile(data.user));
       if (data.user.email) void markLeadConverted(data.user.email, data.user.id);
       void buildProfile(data.user).then(profile => { if (activeUserId.current === profile.id) setUser(profile); }).catch(() => undefined);
-      trackBrowserEvent('login', { method: 'email' });
+      // SIGNED_IN also fires on session recovery and tab focus. Count only this
+      // explicit password login after Supabase has returned a valid session.
+      if (data.session) {
+        void trackEvent('login_completed', { method: 'email' });
+        plausibleEvent('Login Completed', { method: 'email' });
+        trackBrowserEvent('login', { method: 'email' });
+      }
     }
   };
 

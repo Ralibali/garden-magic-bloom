@@ -352,6 +352,7 @@ export default function GuideArticle() {
                 title={contextualCta.title}
                 description={contextualCta.description}
                 buttonLabel={contextualCta.buttonLabel}
+                href={contextualCta.href}
                 variant="soft"
               />
             </div>

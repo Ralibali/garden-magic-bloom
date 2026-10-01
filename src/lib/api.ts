@@ -1,6 +1,7 @@
 import { assertWebPurchase } from '@/lib/native';
 import { supabase } from '@/integrations/supabase/client';
 import { resolveGardenLocation } from '@/lib/gardenWeather';
+import { track } from '@/lib/plausible';
 
 // Helper to get current user id
 async function getUserId(): Promise<string> {
@@ -60,6 +61,7 @@ export async function createSowing(record: {
   const userId = await getUserId();
   const { data, error } = await supabase.from('sowings').insert({ ...record, user_id: userId } as any).select().single();
   if (error) throw new Error(error.message);
+  if (data) track('Sowing Created', {});
   return data;
 }
 
@@ -93,6 +95,7 @@ export async function createHarvest(record: {
   const userId = await getUserId();
   const { data, error } = await supabase.from('harvests').insert({ ...record, user_id: userId }).select().single();
   if (error) throw new Error(error.message);
+  if (data) track('Harvest Created', {});
   return data;
 }
 

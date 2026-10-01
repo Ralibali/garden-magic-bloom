@@ -9,6 +9,8 @@ interface InlineSignupCTAProps {
   description?: string;
   /** Optional override of the button text */
   buttonLabel?: string;
+  /** Registration link that can preserve the relevant in-app destination. */
+  href?: string;
   /** Visual density – 'soft' fits inside articles, 'card' is a stronger end-of-page CTA */
   variant?: 'soft' | 'card';
   className?: string;
@@ -22,6 +24,7 @@ export default function InlineSignupCTA({
   title = 'Vill du komma ihåg vad som fungerar i din egen odling?',
   description = 'Skapa ett gratis konto i Odlingsdagboken och logga sådder, skördar och anteckningar år efter år.',
   buttonLabel = 'Börja gratis',
+  href = '/login?mode=register',
   variant = 'soft',
   className = '',
 }: InlineSignupCTAProps) {
@@ -44,7 +47,7 @@ export default function InlineSignupCTA({
       </p>
       <div className={isCard ? 'flex justify-center' : ''}>
         <Button asChild size={isCard ? 'lg' : 'default'} className="gap-2">
-          <Link to="/login?mode=register">
+          <Link to={href}>
             {buttonLabel} <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
