@@ -84,6 +84,18 @@ Inför iOS Release/TestFlight/App Store: kör `npm run build:native` och `npx ca
 6. Inspektera Androids sammanslagna manifest och APK: ingen `SCHEDULE_EXACT_ALARM`, inga breda bild-/lagringsbehörigheter; kontrollera alla `.so`-filers ELF-alignment och APK med `zipalign -c -P 16 -v 4`.
 7. Bekräfta slutliga integritetsuppgifter, offentliga policy-/raderingslänkar, support, granskningskonto, app-ID, säljare/EU-handlarstatus och verkliga skärmbilder. Markera inte dessa som klara på grund av ett lyckat kodbygge.
 
+## iOS-förberedelse och kontoradering, kontrollerat 1 oktober 2026
+
+- Native visar villkor för den kostnadsfria följeappen utan webbens pris-/abonnemangsinstruktioner eller klickbar startsidelänk. Köp- och uppgraderingsrutternas befintliga spärrar behålls.
+- Pushinställningar visas först när servern bekräftar tillgänglighet. Befintliga installationers avstängning och väntande återkallelse finns kvar även under ett serveravbrott. `native-push` svarade 404 vid kontrollen; någon APNs-leverans är inte verifierad.
+- Den driftsatta `delete-account` svarade på både `capacitor://localhost` och `https://localhost` med webbplatsens CORS-origin. Den förberedda funktionen tillåter båda native-origins och de befintliga webb-origins. Driftsättning och återkontroll krävs.
+- Skrivskyddad katalogkontroll i rätt projekts verkliga databas visade att `analytics_events`, `transactions` och `public_leads` saknas (`to_regclass` gav NULL). Endast dessa tre raderingsreferenser har tagits bort. Ingen generell ignorering av databasfel har införts. Alla befintliga, uttryckliga raderingar och det verifierade konto-ID:t behålls.
+- Samtliga kontokopplade tabeller med `user_id` omfattas av de uttryckliga raderingarna eller verifierad `ON DELETE CASCADE` från `auth.users`. De senare omfattar även `daily_briefing_log`, `frost_alert_log`, `gro_usage`, `push_subscriptions`, `seed_photo_imports`, `seed_sowing_plans` och `native_push_installations`; installationernas leveranser raderas i sin tur med cascade. Båda sidor av `referrals` raderas uttryckligen.
+- Den privata `plant-photos`-bucketen använder användarens ID som första sökvägssegment. Befintlig kod räknar upp även nästlade bilder innan borttagning, stoppar vid Storage-fel och tar Auth-kontot sist. Stripe-steget begränsas fortsatt till den verifierade e-postadressen, Odlingsdagbokens befintliga pris-ID och matchande metadata där sådan finns. Fakturor raderas inte. Stripe-/Storage-/databasstegen är fortfarande inte en gemensam transaktion; fel rapporteras och Auth-kontot lämnas kvar för återförsök.
+- `src/test/deleteAccountHandler.test.ts` kör den faktiska handlern med isolerade API-dubblar och det verifierade tabellunderlaget: native/webb-CORS, avvisad autentisering, ägaravgränsning, produktavgränsning, ordning samt stopp vid Stripe-, Storage-, databas-, referral- och Auth-fel. Inga produktionskonton raderas av dessa tester.
+
+Driftsättningsenheten är `supabase/functions/delete-account/index.ts` tillsammans med oförändrad `supabase/functions/_shared/accountDeletion.ts`. Efter driftsättning: kontrollera OPTIONS för iOS, Android och webb samt att obehöriga POST-anrop nekas. Verklig kontoradering har inte körts i denna kontroll och ska verifieras separat med ett isolerat testkonto före submission. Om någon av de tre saknade tabellerna införs senare måste raderingsomfattningen uppdateras samtidigt.
+
 ## Aktuella externa butikskrav, kontrollerade 8 september 2026
 
 - Apple kräver iOS 26 SDK eller senare för nya uppladdningar sedan 28 april 2026. Det är bygg-SDK, inte lägsta stödda iOS. [Apple](https://developer.apple.com/news/?id=ueeok6yw)
