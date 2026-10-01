@@ -1,3 +1,5 @@
+import { hasCategory } from '@/lib/cookieConsent';
+import { hasTelemetryConsent, telemetryPath, telemetryReferrer } from '@/lib/privacyTelemetry';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,17 +22,18 @@ function getDeviceType(): string {
 }
 
 /** Track page views on route change – only if consent given */
-export function usePageTracking(consent = true) {
+export function usePageTracking(consent = false) {
   const location = useLocation();
 
   useEffect(() => {
-    if (!consent) return;
-    const path = location.pathname;
+    if (!consent || !hasTelemetryConsent()) return;
+    const path = telemetryPath(location.pathname);
+    if (!path) return;
 
     supabase.from('page_views').insert({
       path,
-      referrer: document.referrer || null,
-      user_agent: navigator.userAgent,
+      referrer: telemetryReferrer(),
+
       session_id: getSessionId(),
       device_type: getDeviceType(),
     } as any).then(() => {});
@@ -53,7 +56,7 @@ function isCta(text: string): boolean {
 
 /** Fire gtag conversion event */
 function trackConversion(eventName: string, label?: string) {
-  if (typeof window !== 'undefined' && (window as any).gtag) {
+  if (hasCategory('marketing') && typeof window !== 'undefined' && (window as any).gtag) {
     (window as any).gtag('event', 'conversion', {
       send_to: 'AW-10941540384',
       event_category: 'engagement',
@@ -66,9 +69,12 @@ function trackConversion(eventName: string, label?: string) {
  * Auto-track interactive clicks. Anonymous CTA clicks always go to Plausible;
  * detailed Supabase/Google tracking still requires explicit consent.
  */
-export function useAutoClickTracking(consent = true) {
+export function useAutoClickTracking(consent = false) {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
+      if (!consent || !hasTelemetryConsent()) return;
+      const path = telemetryPath();
+      if (!path) return;
       let el = e.target as HTMLElement | null;
       let depth = 0;
 
@@ -90,21 +96,20 @@ export function useAutoClickTracking(consent = true) {
 
       if (ctaMatch) {
         plausibleEvent('CTA Clicked', {
-          path: window.location.pathname,
-          destination: href || trackId || 'button',
-          label: text.slice(0, 60),
+          path,
+          element: tag,
         });
       }
 
-      if (!consent) return;
+      if (!consent || !hasTelemetryConsent()) return;
 
       let eventName = 'button_click';
       if (ctaMatch) {
         eventName = 'cta_click';
         if (text.toLowerCase().includes('skapa') || text.toLowerCase().includes('kom igång') || text.toLowerCase().includes('registrera')) {
-          trackConversion('signup_click', text);
+          trackConversion('signup_click');
         } else if (text.toLowerCase().includes('prova plus') || text.toLowerCase().includes('uppgradera')) {
-          trackConversion('upgrade_click', text);
+          trackConversion('upgrade_click');
         }
       } else if (tag === 'a' && href.startsWith('/blogg/')) {
         eventName = 'blog_link_click';
@@ -117,10 +122,10 @@ export function useAutoClickTracking(consent = true) {
       supabase.from('click_events').insert({
         event_name: eventName,
         element_id: trackId || null,
-        element_text: text || null,
-        path: window.location.pathname,
+        element_text: null,
+        path,
         session_id: getSessionId(),
-        metadata: { tag, href: href.slice(0, 200), isCta: ctaMatch },
+        metadata: { tag, isCta: ctaMatch },
       } as any).then(() => {});
     };
 
@@ -130,17 +135,18 @@ export function useAutoClickTracking(consent = true) {
 }
 
 /** Track scroll depth on landing page (25%, 50%, 75%, 100%) – only if consent given */
-export function useScrollDepthTracking(consent = true) {
+export function useScrollDepthTracking(consent = false) {
   const location = useLocation();
 
   useEffect(() => {
-    if (!consent) return;
+    if (!consent || !hasTelemetryConsent()) return;
     if (location.pathname !== '/') return;
 
     const thresholds = [25, 50, 75, 100];
     const tracked = new Set<number>();
 
     const handler = () => {
+      if (!hasTelemetryConsent()) return;
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       if (docHeight <= 0) return;
@@ -158,7 +164,7 @@ export function useScrollDepthTracking(consent = true) {
             metadata: { depth: t },
           } as any).then(() => {});
 
-          if (typeof (window as any).gtag === 'function') {
+          if (hasCategory('analytics') && typeof (window as any).gtag === 'function') {
             (window as any).gtag('event', 'scroll_depth', {
               event_category: 'engagement',
               event_label: `${t}%`,

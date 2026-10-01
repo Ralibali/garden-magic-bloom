@@ -1,3 +1,4 @@
+import { parsePrivacyConsent } from './privacyConsent';
 import { setAnalyticsConsent } from './ga4Runtime';
 // Granular cookie consent (GDPR / ePrivacy).
 // Categories: necessary (always), analytics, marketing.
@@ -13,7 +14,7 @@ export interface CookieConsentState {
   version: 2;
 }
 
-export const CONSENT_KEY = 'cookie-consent-ga4-v1';
+export const CONSENT_KEY = 'cookie-consent-ga4-v2';
 export const LEGACY_KEY = 'cookie-consent';
 export const CONSENT_EVENT = 'cookie-consent-change';
 
@@ -31,7 +32,9 @@ export function getConsent(): CookieConsentState | null {
     const raw = localStorage.getItem(CONSENT_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { ...DEFAULT, ...parsed, necessary: true, version: 2 };
+      if (!parsePrivacyConsent(raw)) return null;
+      if (parsed?.version !== 2 || typeof parsed.analytics !== 'boolean' || typeof parsed.marketing !== 'boolean') return null;
+      return { necessary: true, analytics: parsed.analytics, marketing: parsed.marketing, updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : '', version: 2 };
     }
     return null;
   } catch {
@@ -74,6 +77,16 @@ export function saveConsent(next: Partial<Omit<CookieConsentState, 'necessary' |
   } catch {}
   setAnalyticsConsent(state.analytics);
   (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag?.('consent', 'update', { ad_storage: state.marketing ? 'granted' : 'denied', ad_user_data: state.marketing ? 'granted' : 'denied', ad_personalization: state.marketing ? 'granted' : 'denied' });
+  if (!state.marketing) {
+    for (const item of document.cookie.split(';')) {
+      const name = item.split('=')[0].trim();
+      if (!/^_gcl_|^_gac_/.test(name)) continue;
+      const labels = window.location.hostname.split('.');
+      for (const domain of ['', ...labels.map((_, i) => labels.slice(i).join('.')).filter(value => value.includes('.'))]) {
+        document.cookie = `${name}=; Max-Age=0; Path=/${domain ? `; Domain=${domain}` : ''}; SameSite=Lax`;
+      }
+    }
+  }
   return state;
 }
 

@@ -7,15 +7,15 @@
     <meta name="google-site-verification" content="ZN8K34rBoIGoGpv_W-BOhbroP9sNioyr2zqOmXCD0K8" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://googleads.g.doubleclick.net https://www.google.com https://pagead2.googlesyndication.com https://app.trysoro.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co https://api.open-meteo.com https://ai.gateway.lovable.dev https://www.google-analytics.com https://*.google-analytics.com https://googleads.g.doubleclick.net https://api.brevo.com https://fonts.googleapis.com https://fonts.gstatic.com https://app.trysoro.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; worker-src 'self' blob:; manifest-src 'self';" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+
+
     <link rel="preconnect" href="https://ysonnvbkrwajacvdkqut.supabase.co" />
     <link rel="preconnect" href="https://api.open-meteo.com" />
 
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" /></noscript>
+
+
+
 
     <script>
       window['ga-disable-G-C0XMZG0KDQ'] = true;
@@ -38,8 +38,8 @@
       }
       function marketingConsented() {
         try {
-          var v2 = localStorage.getItem('cookie-consent-ga4-v1');
-          if (v2) { try { return !!JSON.parse(v2).marketing; } catch(e) { return false; } }
+          var v2 = localStorage.getItem('cookie-consent-ga4-v2');
+          if (v2) { try { var state=JSON.parse(v2); var age=Date.now()-Date.parse(state.updatedAt); return state.version===2 && state.marketing===true && Number.isFinite(age) && age>=0 && age<365*24*60*60*1000; } catch(e) { return false; } }
           return false;
         } catch(e) { return false; }
       }
@@ -48,7 +48,7 @@
         if (marketingConsented()) loadGoogleAds();
       });
       window.addEventListener('storage', function(e) {
-        if ((e.key === 'cookie-consent-ga4-v1' || e.key === 'cookie-consent') && marketingConsented()) loadGoogleAds();
+        if ((e.key === 'cookie-consent-ga4-v2' || e.key === 'cookie-consent') && marketingConsented()) loadGoogleAds();
       });
     </script>
 
@@ -117,6 +117,7 @@
       ]
     }
     </script>
+      <link rel="stylesheet" href="/fonts/site-fonts.css" />
   </head>
 
   <body>

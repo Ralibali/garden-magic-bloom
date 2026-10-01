@@ -1,3 +1,4 @@
+import { hasTelemetryConsent, telemetryPath, telemetryMetadata } from './privacyTelemetry';
 import { isNativeApp } from '@/lib/native';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -21,7 +22,7 @@ export function getAnonymousId() {
 function analyticsAllowed() {
   if (isNativeApp()) return false;
   try {
-    return localStorage.getItem('cookie-consent') === 'accepted';
+    return hasTelemetryConsent();
   } catch {
     return false;
   }
@@ -30,16 +31,17 @@ function analyticsAllowed() {
 export async function trackEvent(eventName: string, metadata: AnalyticsMetadata = {}) {
   if (!analyticsAllowed()) return;
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const path = telemetryPath();
+    if (!path) return;
     const payload = {
       event_name: eventName,
       anonymous_id: getAnonymousId(),
-      user_id: user?.id ?? null,
-      email: user?.email ?? (localStorage.getItem('odlingsdagboken_lead_email') || null),
-      page_path: window.location.pathname,
-      source: typeof metadata.source === 'string' ? metadata.source : new URLSearchParams(window.location.search).get('source'),
-      metadata,
-      user_agent: navigator.userAgent,
+      user_id: null,
+      email: null,
+      page_path: path,
+      source: telemetryMetadata(metadata).source ?? null,
+      metadata: telemetryMetadata(metadata),
+      user_agent: null,
     };
     const { error } = await supabase.from('analytics_events' as any).insert(payload as any);
     if (error) throw error;
@@ -49,7 +51,7 @@ export async function trackEvent(eventName: string, metadata: AnalyticsMetadata 
 }
 
 export async function recordProductActivity(eventName: string, metadata: AnalyticsMetadata = {}) {
-  if (isNativeApp()) return;
+  if (isNativeApp() || !analyticsAllowed()) return;
   const occurredAt = new Date().toISOString();
   try {
     localStorage.setItem(ACTIVITY_KEY, occurredAt);
@@ -68,6 +70,7 @@ export async function recordProductActivity(eventName: string, metadata: Analyti
     const preferences = profile?.preferences && typeof profile.preferences === 'object' && !Array.isArray(profile.preferences)
       ? profile.preferences as Record<string, unknown>
       : {};
+    if (!analyticsAllowed()) return;
     await supabase
       .from('profiles')
       .update({ preferences: { ...preferences, last_active_at: occurredAt, last_activity: eventName } } as any)
@@ -82,7 +85,7 @@ export async function markLeadConverted(email: string, userId: string) {
   if (!email || !userId) return;
   try {
     await supabase.rpc('mark_public_leads_converted' as any, { _email: email.toLowerCase(), _user_id: userId } as any);
-    await trackEvent('lead_converted_to_user', { email: email.toLowerCase() });
+    await trackEvent('lead_converted_to_user');
   } catch (error) {
     console.warn('[markLeadConverted]', error);
   }

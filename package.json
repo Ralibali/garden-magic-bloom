@@ -23,7 +23,8 @@
     "build:native:dev": "node scripts/build-native.mjs sandbox",
     "native:sync": "npm run build:native && cap sync",
     "native:ios": "cap open ios",
-    "native:android": "cap open android"
+    "native:android": "cap open android",
+    "test:gdpr-leads": "node scripts/test-gdpr-lead-authorization.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.1",

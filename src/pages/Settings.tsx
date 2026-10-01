@@ -1,3 +1,4 @@
+import { downloadAccountData } from '@/lib/accountExport';
 import { hasAiConsent, setAiConsent } from '@/lib/aiConsent';
 import { isNativeApp } from '@/lib/native';
 import React, { useState, useEffect } from 'react';
@@ -78,6 +79,15 @@ const SettingsPage = () => {
 
   const [exporting, setExporting] = useState(false);
 
+  const handleAccountExport = async () => {
+    setExporting(true);
+    try {
+      const result = await downloadAccountData();
+      toast({ title: 'Personuppgifter hämtade', description: result.unavailable.length ? 'Vissa interna uppgifter behöver begäras via vår kontaktadress. Se filens information.' : 'Se filens information om registerutdrag från andra system.' });
+    } catch (error) { toast({ title: 'Exportfel', description: error instanceof Error ? error.message : 'Försök igen.', variant: 'destructive' }); }
+    finally { setExporting(false); }
+  };
+
   const handleExportCSV = async () => {
     setExporting(true);
     try {
@@ -148,7 +158,7 @@ const SettingsPage = () => {
     <div className="space-y-6">
       <Card><CardHeader><CardTitle>AI och dina uppgifter</CardTitle></CardHeader><CardContent className="space-y-3"><p className="text-sm text-muted-foreground">{aiAllowed ? 'Du har valt att dela odlingsuppgifter och valda bilder med Gemini via Lovable när du använder AI.' : 'Du har inte godkänt AI-delning på den här enheten.'}</p>{aiAllowed && <Button variant="outline" onClick={() => { if (user?.id) { setAiConsent(user.id, false); setAiAllowed(false); } }}>Återkalla AI-samtycke</Button>}</CardContent></Card>
       <h1 className="text-2xl font-bold flex items-center gap-2"><SettingsIcon className="h-6 w-6" /> Inställningar</h1>
-      
+
       <Card>
         <CardHeader><CardTitle>Profil</CardTitle></CardHeader>
         <CardContent className="space-y-4">
@@ -211,6 +221,7 @@ const SettingsPage = () => {
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">Ladda ner all din odlingsdata – bäddar, sådder och skördar – för att spara offline.</p>
           <div className="flex flex-wrap gap-3">
+            <Button variant="outline" onClick={handleAccountExport} disabled={exporting}>Hämta mina personuppgifter (JSON)</Button>
             <Button variant="outline" onClick={handleExportCSV} disabled={exporting}>
               <FileSpreadsheet className="h-4 w-4 mr-2" /> Exportera CSV
             </Button>

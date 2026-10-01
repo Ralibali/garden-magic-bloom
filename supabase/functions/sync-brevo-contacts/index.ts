@@ -48,11 +48,18 @@ Deno.serve(async (req) => {
       });
     }
 
+    // A cookie choice is not permission for newsletters. Only transfer contacts
+    // with an explicit stored opt-in from the separate newsletter form.
+    const { data: consentedLeads, error: consentError } = await supabase
+      .from("public_leads").select("email").eq("consent_marketing", true);
+    if (consentError) throw new Error("Marketing consent lookup failed");
+    const consentedEmails = new Set((consentedLeads ?? []).map((lead) => String(lead.email).trim().toLowerCase()));
+
     let synced = 0;
     let errors = 0;
 
     for (const profile of profiles) {
-      if (!profile.email) continue;
+      if (!profile.email || !consentedEmails.has(profile.email.trim().toLowerCase())) continue;
 
       const now = new Date();
       const lastActivity = profile.updated_at ? new Date(profile.updated_at) : null;

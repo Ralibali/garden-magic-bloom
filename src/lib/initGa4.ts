@@ -11,6 +11,6 @@ initGa4({
     "/app/admin",
     "/admin"
   ],
-  "consentKey": "cookie-consent-ga4-v1",
+  "consentKey": "cookie-consent-ga4-v2",
   "consentFormat": "updro"
 });

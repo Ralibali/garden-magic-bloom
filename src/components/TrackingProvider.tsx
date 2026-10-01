@@ -1,3 +1,4 @@
+import { hasTelemetryConsent } from '@/lib/privacyTelemetry';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -7,7 +8,7 @@ import { usePageTracking, useAutoClickTracking, useScrollDepthTracking } from '@
 const HEARTBEAT_KEY = 'odlingsdagboken_activity_heartbeat';
 
 function hasConsent(): boolean {
-  return typeof window !== 'undefined' && localStorage.getItem('cookie-consent') === 'accepted';
+  return typeof window !== 'undefined' && hasTelemetryConsent();
 }
 
 export function TrackingProvider() {
@@ -26,7 +27,7 @@ export function TrackingProvider() {
   }, []);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!consent || !hasTelemetryConsent() || !user?.id) return;
     const now = Date.now();
     const previous = Number(localStorage.getItem(HEARTBEAT_KEY) || 0);
     if (now - previous < 15 * 60 * 1000) return;
@@ -41,14 +42,15 @@ export function TrackingProvider() {
       const preferences = profile?.preferences && typeof profile.preferences === 'object' && !Array.isArray(profile.preferences)
         ? profile.preferences as Record<string, unknown>
         : {};
+      if (!hasTelemetryConsent()) return;
       await supabase
         .from('profiles')
-        .update({ preferences: { ...preferences, last_active_at: new Date().toISOString(), last_activity_path: location.pathname } } as any)
+        .update({ preferences: { ...preferences, last_active_at: new Date().toISOString(), last_activity_path: null } } as any)
         .eq('user_id', user.id);
     };
 
     void updateActivity();
-  }, [location.pathname, user?.id]);
+  }, [location.pathname, user?.id, consent]);
 
   usePageTracking(consent);
   useAutoClickTracking(consent);

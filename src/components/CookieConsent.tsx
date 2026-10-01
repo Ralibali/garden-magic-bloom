@@ -66,7 +66,7 @@ export default function CookieConsent() {
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex gap-2">
-                <Button onClick={handleAcceptAll} size="sm" className="flex-1">Godkänn alla</Button>
+                <Button onClick={handleAcceptAll} variant="outline" size="sm" className="flex-1">Godkänn alla</Button>
                 <Button onClick={handleRejectAll} variant="outline" size="sm" className="flex-1">Bara nödvändiga</Button>
               </div>
               <button
@@ -134,7 +134,7 @@ export default function CookieConsent() {
           <DialogFooter className="flex flex-col sm:flex-row gap-2">
             <Button variant="outline" onClick={handleRejectAll} className="sm:flex-1">Bara nödvändiga</Button>
             <Button variant="outline" onClick={handleSavePrefs} className="sm:flex-1">Spara val</Button>
-            <Button onClick={handleAcceptAll} className="sm:flex-1">Godkänn alla</Button>
+            <Button variant="outline" onClick={handleAcceptAll} className="sm:flex-1">Godkänn alla</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

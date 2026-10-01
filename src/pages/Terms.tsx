@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const LAST_UPDATED = '2026-09-08';
+const LAST_UPDATED = '2026-10-01';
 
 export default function Terms() {
   const navigate = useNavigate();
@@ -117,7 +117,7 @@ export default function Terms() {
             <li><strong>Betalningsdata:</strong> prenumerationsstatus och kund-ID hos Stripe. Fullständiga kortuppgifter hanteras enbart av Stripe.</li>
             <li><strong>Tekniska data:</strong> IP-adress, enhets- och webbläsartyp, händelseloggar för säkerhet och felsökning.</li>
             <li><strong>Valfria mobilnotiser:</strong> om du aktiverar push kopplas telefonens notistoken och ett slumpmässigt installations-ID till ditt konto. Apple (iOS) eller Google Firebase (Android) förmedlar notiserna. Notistexten innehåller inga växtnamn, anteckningar eller platsuppgifter.</li>
-            <li><strong>Statistik:</strong> anonymiserad användningsstatistik – endast efter cookie-samtycke.</li>
+            <li><strong>Statistik:</strong> användningsstatistik med pseudonyma identifierare – endast efter cookie-samtycke.</li>
             <li><strong>Kommunikation:</strong> mejl du skickar till oss och supportärenden.</li>
           </ul>
 
@@ -125,17 +125,17 @@ export default function Terms() {
           <ul className="text-sm text-foreground space-y-1 list-disc pl-5">
             <li><strong>Avtal (art. 6.1.b):</strong> tillhandahålla, drifta och fakturera tjänsten.</li>
             <li><strong>Rättslig förpliktelse (art. 6.1.c):</strong> bokförings-, skatte- och konsumentlagstiftning.</li>
-            <li><strong>Berättigat intresse (art. 6.1.f):</strong> säkerhet, missbruksskydd, produktförbättring, direkta produktutskick till befintliga kunder.</li>
+            <li><strong>Berättigat intresse (art. 6.1.f):</strong> säkerhet, missbruksskydd, produktförbättring, behandling som behövs för att skydda tjänsten.</li>
             <li><strong>Samtycke (art. 6.1.a):</strong> icke-nödvändiga cookies, statistik, nyhetsbrev, mobilpush och AI-genererade råd. Kan återkallas när som helst.</li>
           </ul>
 
           <h3 className="font-serif text-base text-foreground mt-4 mb-1">5.3 Lagringstider</h3>
           <ul className="text-sm text-foreground space-y-1 list-disc pl-5">
-            <li>Kontodata: så länge kontot är aktivt. Vid radering: borttag inom 30 dagar.</li>
+            <li>Kontodata: medan kontot används. Du kan avsluta kontot i appen och begära radering via kontaktadressen. Lagkrävda uppgifter och leverantörsdata kan behöva hanteras separat.</li>
             <li>Bokföringsunderlag (fakturor via Stripe): 7 år enligt bokföringslagen (1999:1078).</li>
-            <li>Säkerhets- och åtkomstloggar: högst 12 månader.</li>
-            <li>Cookie-samtycken: 12 månader eller tills du återkallar dem.</li>
-            <li>Supportmejl: högst 24 månader efter avslutat ärende.</li>
+            <li>Säkerhets- och åtkomstloggar: kontakta oss för besked om lagringstiden för en viss uppgift.</li>
+            <li>Cookie-samtycken: 365 dagar eller tills du återkallar dem.</li>
+            <li>Supportärenden: behandlas för att hantera ditt ärende; kontakta oss om lagring och radering efteråt.</li>
             <li>Mobilpush: avstängda installationer och utskicksloggar rensas efter 30 dagar. Vid kontoradering tas kontots installationer och utskick bort. Tekniska återkallelsemarkörer utan konto-ID eller notistoken sparas i högst 30 dagar för att stoppa försenad återregistrering. Serveravregistrering väntar på anslutning om telefonen är offline.</li>
           </ul>
 
@@ -151,13 +151,12 @@ export default function Terms() {
             <li>Rätt att <strong>lämna klagomål</strong> till <a href="https://www.imy.se" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Integritetsskyddsmyndigheten (IMY)</a>.</li>
           </ul>
           <p className="text-sm text-foreground leading-relaxed mt-2">
-            Kontakta oss på <a href="mailto:info@auroramedia.se" className="text-primary hover:underline">info@auroramedia.se</a> för att utöva dina rättigheter. Vi svarar utan onödigt dröjsmål, senast inom 30 dagar.
+            Kontakta oss på <a href="mailto:info@auroramedia.se" className="text-primary hover:underline">info@auroramedia.se</a> för att utöva dina rättigheter. Vi svarar utan onödigt dröjsmål, senast inom en månad.
           </p>
 
           <h3 className="font-serif text-base text-foreground mt-4 mb-1">5.5 Överföring utanför EU/EES</h3>
           <p className="text-sm text-foreground leading-relaxed">
-            Data lagras i huvudsak inom EU/EES. Vissa underbiträden (t.ex. Stripe) kan behandla data i USA. Överföring
-            sker då med EU-kommissionens standardavtalsklausuler (SCC) samt kompletterande skyddsåtgärder enligt Schrems II-domen.
+            Vissa leverantörer kan behandla personuppgifter utanför EU/EES. Kontakta oss för information om mottagare, behandlingsländer och tillämpliga skyddsåtgärder.
           </p>
 
           <h3 className="font-serif text-base text-foreground mt-4 mb-1">5.6 Personuppgiftsincident</h3>
@@ -169,17 +168,16 @@ export default function Terms() {
           {/* ---------------------------------------------------------------- */}
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">6. Underbiträden</h2>
           <p className="text-sm text-foreground leading-relaxed">
-            För att kunna leverera tjänsten anlitar vi följande personuppgiftsbiträden. Skriftliga biträdesavtal enligt
-            GDPR art. 28 finns med samtliga.
+            Följande leverantörer används i tjänsten. Kontakta oss för information om mottagare, biträdesavtal och behandling utanför EU/EES.
           </p>
           <ul className="text-sm text-foreground space-y-1 list-disc pl-5">
-            <li><strong>Lovable Cloud</strong> – databas, autentisering, filsäkerhet, edge-funktioner. EU/EES.</li>
-            <li><strong>Stripe Payments Europe</strong> – betalning, kortdata, fakturor. Irland/USA (SCC).</li>
-            <li><strong>Brevo (Sendinblue)</strong> – nyhetsbrev och marknadsutskick, endast efter samtycke. EU.</li>
-            <li><strong>Resend</strong> – transaktionsmejl (kontobekräftelser, återställning). EU/USA (SCC).</li>
+            <li><strong>Supabase</strong> – databas, autentisering, fillagring och serverfunktioner.</li>
+            <li><strong>Stripe Payments Europe</strong> – betalning, kortdata, fakturor.</li>
+            <li><strong>Brevo (Sendinblue)</strong> – nyhetsbrev och marknadsutskick, endast efter samtycke.</li>
+            <li><strong>Resend</strong> – transaktionsmejl (kontobekräftelser, återställning).</li>
             <li><strong>Lovable AI Gateway (Google Gemini)</strong> – AI-coachen ”Gro” samt eventuell foto-observationshjälp. Behandlar uppgifter som du väljer att dela genom AI-funktionerna.</li>
-            <li><strong>Open-Meteo</strong> – väderprognos utifrån vald ort/klimatzon. EU.</li>
-            <li><strong>Firecrawl</strong> – uppslag av produktinformation för affiliatelänkar (endast produktsidor, inga användardata skickas). EU/USA (SCC).</li>
+            <li><strong>Open-Meteo</strong> – väderprognos utifrån vald ort/klimatzon.</li>
+            <li><strong>Firecrawl</strong> – uppslag av produktinformation för affiliatelänkar (endast produktsidor, inga användardata skickas).</li>
           </ul>
           <p className="text-sm text-foreground leading-relaxed">
             Om vi byter underbiträde med tillgång till personuppgifter meddelar vi det via appen eller mejl i förväg.
@@ -192,11 +190,11 @@ export default function Terms() {
           </p>
           <ul className="text-sm text-foreground space-y-1 list-disc pl-5">
             <li><strong>Nödvändiga</strong> – inloggning, säkerhet, cookie-samtycke. Kräver inte samtycke.</li>
-            <li><strong>Analys</strong> – anonymiserad besöks- och funktionsstatistik (Google Analytics 4, scrolldjup). Aktiveras endast om du samtycker.</li>
+            <li><strong>Analys</strong> – besöks- och funktionsstatistik med pseudonyma identifierare (Google Analytics 4, scrolldjup). Aktiveras endast om du samtycker.</li>
             <li><strong>Marknadsföring</strong> – mätning av annonseffekt (Google Ads-taggen). Aktiveras endast om du samtycker.</li>
           </ul>
           <p className="text-sm text-foreground leading-relaxed">
-            Du kan när som helst ändra ditt val nedan. Ditt val sparas i 12 månader eller tills du återkallar det.
+            Du kan när som helst ändra ditt val nedan. Valet sparas i localStorage under cookie-consent-ga4-v2 i högst 365 dagar. Google kan efter samtycke använda _ga och _ga_* för pseudonyma besöksidentifierare, normalt upp till två år efter senaste användning. Annonsmätning kan använda _gcl_* för klickidentifierare, normalt upp till 90 dagar. Inloggningslagring (sb-*-auth-token) används tills du loggar ut eller rensar den. Återkallat samtycke stoppar nya händelser och rensar tillgängliga mätcookies.
           </p>
           {!isNativeApp() && <button
             type="button"
@@ -259,15 +257,13 @@ export default function Terms() {
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">12. E-post och marknadsföring</h2>
           <p className="text-sm text-foreground leading-relaxed">
             Vi skickar transaktionsmejl (t.ex. kontobekräftelse, kvitton, säkerhetsvarningar) med stöd av avtalet.
-            Nyhetsbrev och erbjudanden skickas endast till dig som samtyckt eller är befintlig kund enligt undantaget för
-            liknande produkter i marknadsföringslagen 19 §. Du kan när som helst avregistrera dig via länken i varje utskick.
+            Nyhetsbrev och erbjudanden förutsätter ett separat samtycke. Ett cookieval är inte ett samtycke till nyhetsbrev. Du kan när som helst avregistrera dig via länken i varje utskick.
           </p>
 
           {/* ---------------------------------------------------------------- */}
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">13. Säkerhet</h2>
           <p className="text-sm text-foreground leading-relaxed">
-            All trafik krypteras med TLS. Lösenord lagras hashade. Bilder ligger i privat lagring med signerade tidsbegränsade
-            länkar. Databasen skyddas med radnivåsäkerhet (RLS) så att varje användare endast når sin egen data. Du ansvarar
+            Webbplatsen använder HTTPS/TLS och inloggningen hanteras av Supabase. Åtkomstregler används för kontodata. Innehåll som du publicerar eller delar blir tillgängligt för de mottagare du väljer. Du ansvarar
             för att hålla ditt lösenord hemligt och rekommenderas välja ett unikt starkt lösenord på minst åtta tecken.
           </p>
 
