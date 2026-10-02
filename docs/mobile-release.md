@@ -6,7 +6,7 @@ Mobilappen använder Capacitor 8 med den befintliga React-appen som paketerade f
 
 - Visningsnamn: **Odlingsdagboken**.
 - Föreslaget Bundle ID / applicationId: **com.odlingsdagboken.app**. Bekräfta att det matchar eventuell befintlig butiksapp innan identifieraren registreras eller en release signeras.
-- Appversion: **1.0**, build **1**. Höj buildnummer inför varje ny butiksuppladdning.
+- Appversion: **1.0**, iOS build **2** för nästa uppladdning. Höj buildnummer inför varje ny butiksuppladdning.
 - Minsta OS: iOS 15 / Android 7 (API 24). Android compile/target SDK 36.
 - Distributionsmodell: gratis följeapp. Native har inga köp, Stripe-kassor, portal- eller uppgraderingslänkar. Befintliga kontorättigheter respekteras.
 - Ingen automatisk publicering ingår i dessa byggkommandon. Ett lyckat osignerat bygge är inte en uppladdad, granskad eller publicerad app.
@@ -50,6 +50,8 @@ npx cap sync
 ```
 
 Bygget använder `native.html` och skriver `dist-native/index.html`. Byggkontrollen avvisar webbmätning/service worker i den ingången. Kör nativebygge och `cap sync` efter varje ändring av webbkoden före plattformsbygge. Vite-webbbygget använder fortsatt `npm run build` och prerender.
+
+Nativebygget bevarar tredjepartsnotiser i `THIRD_PARTY_NOTICES.txt`, inventerar de faktiskt paketerade JavaScript-paketen i `THIRD_PARTY_PACKAGES.json` och sparar källor/hashar i `THIRD_PARTY_SOURCES.json`. Swift-notiserna är bundna till projektets upplösta revisioner. Saknade npm-licensfiler kompletteras med verifierade upstreamtexter. För `@lovable.dev/cloud-auth-js@1.1.2` och `@pdf-lib/fontkit@1.1.1` publicerar paketen enbart MIT-deklaration; deras exakta deklaration och standardvillkor bevaras med uttrycklig proveniens, utan påhittad upphovsrättsinnehavare eller årtal. Inventeringen omfattar inte alla transienta Android/Gradle-bibliotek och är ingen fullständig rättighetsrevision av appens bilder eller användarinnehåll.
 
 iOS, simulator utan distributionssignering:
 

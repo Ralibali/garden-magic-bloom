@@ -32,20 +32,21 @@ const CATEGORY_IMAGES: Record<string, string> = {
   tropisk: 'https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=800&q=80',
 };
 
-export function getPlantImage(plantName: string, subcategory?: string | null): string {
+export function getPlantImage(plantName: string, subcategory?: string | null): string | null {
   const key = plantName.toLowerCase();
   // Specific plant images
-  const SPECIFIC: Record<string, string> = {
+  // Known unavailable photos use the local botanical placeholder instead of a different plant.
+  const SPECIFIC: Record<string, string | null> = {
     'tomat': 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=800&q=80',
     'gurka': 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?w=800&q=80',
     'morot': 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=800&q=80',
-    'potatis': 'https://images.unsplash.com/photo-1518977676601-b53f82ber67a?w=800&q=80',
+    'potatis': null,
     'lök': 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=800&q=80',
-    'vitlök': 'https://images.unsplash.com/photo-1615478503562-ec2d8aa2e60c?w=800&q=80',
-    'basilika': 'https://images.unsplash.com/photo-1618375531912-867984bdfd72?w=800&q=80',
-    'basilika (inne)': 'https://images.unsplash.com/photo-1618375531912-867984bdfd72?w=800&q=80',
-    'persilja': 'https://images.unsplash.com/photo-1536161708395-1dae3eb1a1e3?w=800&q=80',
-    'persilja (inne)': 'https://images.unsplash.com/photo-1536161708395-1dae3eb1a1e3?w=800&q=80',
+    'vitlök': null,
+    'basilika': null,
+    'basilika (inne)': null,
+    'persilja': null,
+    'persilja (inne)': null,
     'jordgubbe': 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=800&q=80',
     'hallon': 'https://images.unsplash.com/photo-1577003811926-53b288a6e5d0?w=800&q=80',
     'blåbär': 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=800&q=80',
@@ -55,8 +56,8 @@ export function getPlantImage(plantName: string, subcategory?: string | null): s
     'zucchini': 'https://images.unsplash.com/photo-1563252722-6434563a985d?w=800&q=80',
     'pumpa': 'https://images.unsplash.com/photo-1570586437263-ab629fccc818?w=800&q=80',
     'paprika': 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=800&q=80',
-    'chili': 'https://images.unsplash.com/photo-1588252303782-cb80119abd6e?w=800&q=80',
-    'dill': 'https://images.unsplash.com/photo-1601004890684-d8573369ee73?w=800&q=80',
+    'chili': null,
+    'dill': null,
     'mynta': 'https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=800&q=80',
     'mynta (inne)': 'https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=800&q=80',
     'rosmarin': 'https://images.unsplash.com/photo-1515586000433-45406d8e6662?w=800&q=80',
@@ -64,19 +65,19 @@ export function getPlantImage(plantName: string, subcategory?: string | null): s
     'timjan': 'https://images.unsplash.com/photo-1509223197845-458d87318791?w=800&q=80',
     'lavendel': 'https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=800&q=80',
     'solros': 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=800&q=80',
-    'ärta': 'https://images.unsplash.com/photo-1587049016823-69ef9d68f4fe?w=800&q=80',
-    'böna': 'https://images.unsplash.com/photo-1567375698348-5d9d5ae3ee6c?w=800&q=80',
-    'rädisor': 'https://images.unsplash.com/photo-1585063560830-41c84c54038e?w=800&q=80',
+    'ärta': null,
+    'böna': null,
+    'rädisor': null,
     'rödbetor': 'https://images.unsplash.com/photo-1593105544559-ecb03bf76f82?w=800&q=80',
     'kål': 'https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?w=800&q=80',
     'broccoli': 'https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=800&q=80',
     'blomkål': 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=800&q=80',
-    'fredslilja': 'https://images.unsplash.com/photo-1593691509543-c55fb32e7355?w=800&q=80',
+    'fredslilja': null,
     'monstera': 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=800&q=80',
-    'svärmorstunga': 'https://images.unsplash.com/photo-1593691509543-c55fb32e7355?w=800&q=80',
+    'svärmorstunga': null,
     'murgröna': 'https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=800&q=80',
     'penningträd': 'https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=800&q=80',
-    'olivträd (kruka)': 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80',
+    'olivträd (kruka)': null,
   };
 
   for (const [k, v] of Object.entries(SPECIFIC)) {

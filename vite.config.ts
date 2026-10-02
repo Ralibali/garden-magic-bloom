@@ -5,6 +5,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 import { visualizer } from "rollup-plugin-visualizer";
+import { nativeNotices } from "./scripts/native-notices";
 
 const PUBLISH_ID = `od-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -67,6 +68,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
+    mode === "native" && nativeNotices(),
     mode === "development" && componentTagger(),
     mode !== "native" && VitePWA({
       registerType: "autoUpdate",
