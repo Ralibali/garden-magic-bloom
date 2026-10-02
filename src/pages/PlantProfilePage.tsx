@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import PlantProfileImage from '@/components/PlantProfileImage';
 import {
   ArrowLeft, Sun, CloudSun, Cloud, Droplets, Thermometer,
   Plus, ExternalLink, Sprout, Scissors, Lightbulb, Users, Ban, Leaf,
@@ -89,7 +90,7 @@ const PlantProfilePage = () => {
       {/* Hero image + title */}
       <div className="rounded-xl overflow-hidden border border-border">
         <AspectRatio ratio={16 / 9}>
-          <img src={imageUrl} alt={plant.name_sv} className="w-full h-full object-cover" loading="eager" />
+          <PlantProfileImage src={imageUrl} name={plant.name_sv} />
         </AspectRatio>
       </div>
 

@@ -1,0 +1,66 @@
+[
+  {
+    "file": "radix-primitives-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/radix-ui/primitives/fcef0668a5c827e5a4baac405474d75680f9a4eb/LICENSE",
+    "sha256": "0e80a2d229d2fd4fc7e8636142ec5d0ff0bc031f14c15b682e2ac01dfd5b5138"
+  },
+  {
+    "file": "react-remove-scroll-bar-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/theKashey/react-remove-scroll-bar/8ca9ba5ea52de03308fe8ced94f7b159a44d28ff/LICENSE",
+    "sha256": "a79aae0c0f21990d9d963bb3c5a79cdcea9a46f8523ba55c58d7fe776b6ebc84"
+  },
+  {
+    "file": "cordova-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/apache/cordova-ios/8.0.0/LICENSE",
+    "sha256": "13f233916083b30b6b0683bfa6e4c10c3687574ad84e94e668c0833c888324e7"
+  },
+  {
+    "file": "cordova-NOTICE.txt",
+    "source": "https://raw.githubusercontent.com/apache/cordova-ios/8.0.0/NOTICE",
+    "sha256": "26a222224bcd2277143ea1317b55c3258b5748d3eee7e768ee89c0eff544cf6a"
+  },
+  {
+    "file": "capacitor-swift-pm-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/ionic-team/capacitor-swift-pm/6afa7424fd2fcd8ca1e577478e8a00af284b7e82/LICENSE.md",
+    "sha256": "48f126b6311bd8e86b56bb3d2c5105a7999e9c348c2ceca7e60e397e7b5f41de"
+  },
+  {
+    "file": "ion-ios-camera-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/ionic-team/ion-ios-camera/00c3dfdd6267f80db299d9c5a0bad522156b6cbc/LICENSE",
+    "sha256": "731d2fac39f3d6dc79c04f9a7d2e59c2999caa0dd1dbcf295f9c0e922580dacc"
+  },
+  {
+    "file": "ion-ios-filesystem-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/ionic-team/ion-ios-filesystem/56e86f9dd944a5050d182d2eba9db8d627d87b4b/LICENSE",
+    "sha256": "de884404585ed20280150b0768082b6004d3548aaa0d6e596d6bfa0538ab331d"
+  },
+  {
+    "file": "feather-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/feathericons/feather/v4.29.2/LICENSE",
+    "sha256": "308028e93fcf84972523cdf6e616f73168546b4953895f516d01287f16fe7bee"
+  },
+  {
+    "file": "supabase-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/supabase/supabase-js/v2.98.0/LICENSE",
+    "sha256": "334dd6820e2eaeab2064e7c59001b810566728a28a41a7c1dbf69bbee17d0936"
+  },
+  {
+    "file": "next-themes-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/pacocoursey/next-themes/f5df9660d1c4b977ff31adc3e69ccc50896191fa/license.md",
+    "sha256": "b5acfd21b3b61508365224c40ec1b03ec71091248baaf989d4be916551e7d532"
+  },
+  {
+    "file": "cloud-auth-js-MIT-declaration.txt",
+    "source": "https://registry.npmjs.org/@lovable.dev/cloud-auth-js/1.1.2",
+    "sha256": "c96989bccbb9d873cc0bbdc4b89e899d8b448492201d9df6a1df509c5c2dcac0",
+    "basis": "Exact installed package MIT declaration and README license section, followed by standard MIT terms; publisher supplied no copyright notice.",
+    "standard_terms_source": "https://opensource.org/license/mit"
+  },
+  {
+    "file": "fontkit-MIT-declaration.txt",
+    "source": "https://registry.npmjs.org/@pdf-lib/fontkit/1.1.1",
+    "sha256": "c31b4ab796c5383f46d41690ed2aa60c09ab6e2e0bf4323a555d6eb9469275a8",
+    "basis": "Exact installed package MIT declaration and README license section, followed by standard MIT terms; publisher supplied no copyright notice.",
+    "standard_terms_source": "https://opensource.org/license/mit"
+  }
+]
