@@ -684,6 +684,7 @@ export type Database = {
           pest_name: string
           resolved: boolean | null
           severity: string | null
+          sowing_id: string | null
           treatment: string | null
           user_id: string
         }
@@ -696,6 +697,7 @@ export type Database = {
           pest_name: string
           resolved?: boolean | null
           severity?: string | null
+          sowing_id?: string | null
           treatment?: string | null
           user_id: string
         }
@@ -708,6 +710,7 @@ export type Database = {
           pest_name?: string
           resolved?: boolean | null
           severity?: string | null
+          sowing_id?: string | null
           treatment?: string | null
           user_id?: string
         }
@@ -717,6 +720,13 @@ export type Database = {
             columns: ["bed_id"]
             isOneToOne: false
             referencedRelation: "beds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pest_logs_sowing_id_fkey"
+            columns: ["sowing_id"]
+            isOneToOne: false
+            referencedRelation: "sowings"
             referencedColumns: ["id"]
           },
         ]

@@ -96,6 +96,12 @@ Inför iOS Release/TestFlight/App Store: kör `npm run build:native` och `npx ca
 
 Driftsättningsenheten är `supabase/functions/delete-account/index.ts` tillsammans med oförändrad `supabase/functions/_shared/accountDeletion.ts`. Efter driftsättning: kontrollera OPTIONS för iOS, Android och webb samt att obehöriga POST-anrop nekas. Verklig kontoradering har inte körts i denna kontroll och ska verifieras separat med ett isolerat testkonto före submission. Om någon av de tre saknade tabellerna införs senare måste raderingsomfattningen uppdateras samtidigt.
 
+## Driftsättning och schemaavstämning, 2 oktober 2026
+
+PR 38 är mergad på `19446ed76fcfc6710160e88570c1a89f0c8e9832` efter sex godkända CI-kontroller. `delete-account` och `create-checkout` med delad `accountDeletion.ts` är driftsatta. Oberoende livekontroll av `delete-account` gav OPTIONS 200 med rätt origin för iOS, Android och båda webbdomänerna; POST utan inloggning gav 401 med samma CORS-rubriker. En obetrodd origin återges inte. Full radering av ett disponibelt testkonto är fortfarande inte verifierad.
+
+Lovables automatiska typgenerering visade en faktisk schemaavvikelse: `pest_logs.sowing_id` saknades i produktion trots befintliga migreringen `20260902160000_garden_os_spine.sql`. Appens formulär skickar alltid fältet vid ny skadedjurslogg, så även en logg utan såddkoppling skulle avvisas. Efter katalogkontroll tillämpades **endast** den befintliga migreringens `ALTER TABLE public.pest_logs ADD COLUMN IF NOT EXISTS sowing_id uuid REFERENCES public.sowings(id) ON DELETE SET NULL` och `CREATE INDEX IF NOT EXISTS pest_logs_sowing_id_idx ON public.pest_logs (sowing_id)` i en transaktion med lås- och tidsgräns. Kolumnens nullbarhet/UUID-typ, FK och index återlästes; befintlig RLS och ägarpolicy är oförändrade. Inga kundposter skrevs om, och migreringshistoriken ändrades inte eller markerades som fullständigt avstämd. De övriga delarna av migreringen återkördes inte. Typerna speglar nu den verifierade kolumnen igen. Detta kräver ingen ny nativebinär.
+
 ## Aktuella externa butikskrav, kontrollerade 8 september 2026
 
 - Apple kräver iOS 26 SDK eller senare för nya uppladdningar sedan 28 april 2026. Det är bygg-SDK, inte lägsta stödda iOS. [Apple](https://developer.apple.com/news/?id=ueeok6yw)
