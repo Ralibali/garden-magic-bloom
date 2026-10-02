@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -525,6 +525,125 @@ export type Database = {
           },
         ]
       }
+      native_push_deliveries: {
+        Row: {
+          attempts: number
+          available_at: string
+          created_at: string
+          event_key: string
+          expires_at: string
+          generation: string
+          id: string
+          installation_id: string
+          kind: string
+          lease_id: string | null
+          lease_until: string | null
+          provider_code: string | null
+          sent_at: string | null
+          state: string
+        }
+        Insert: {
+          attempts?: number
+          available_at?: string
+          created_at?: string
+          event_key: string
+          expires_at?: string
+          generation: string
+          id?: string
+          installation_id: string
+          kind: string
+          lease_id?: string | null
+          lease_until?: string | null
+          provider_code?: string | null
+          sent_at?: string | null
+          state?: string
+        }
+        Update: {
+          attempts?: number
+          available_at?: string
+          created_at?: string
+          event_key?: string
+          expires_at?: string
+          generation?: string
+          id?: string
+          installation_id?: string
+          kind?: string
+          lease_id?: string | null
+          lease_until?: string | null
+          provider_code?: string | null
+          sent_at?: string | null
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "native_push_deliveries_installation_id_fkey"
+            columns: ["installation_id"]
+            isOneToOne: false
+            referencedRelation: "native_push_installations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      native_push_installations: {
+        Row: {
+          app_id: string
+          device_secret_hash: string
+          enabled: boolean
+          environment: string
+          generation: string
+          id: string
+          provider: string
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          app_id: string
+          device_secret_hash: string
+          enabled?: boolean
+          environment: string
+          generation: string
+          id: string
+          provider: string
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          app_id?: string
+          device_secret_hash?: string
+          enabled?: boolean
+          environment?: string
+          generation?: string
+          id?: string
+          provider?: string
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      native_push_revocations: {
+        Row: {
+          created_at: string
+          device_secret_hash: string
+          generation: string
+          installation_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_secret_hash: string
+          generation: string
+          installation_id: string
+        }
+        Update: {
+          created_at?: string
+          device_secret_hash?: string
+          generation?: string
+          installation_id?: string
+        }
+        Relationships: []
+      }
       page_views: {
         Row: {
           created_at: string
@@ -565,7 +684,6 @@ export type Database = {
           pest_name: string
           resolved: boolean | null
           severity: string | null
-          sowing_id: string | null
           treatment: string | null
           user_id: string
         }
@@ -578,7 +696,6 @@ export type Database = {
           pest_name: string
           resolved?: boolean | null
           severity?: string | null
-          sowing_id?: string | null
           treatment?: string | null
           user_id: string
         }
@@ -591,7 +708,6 @@ export type Database = {
           pest_name?: string
           resolved?: boolean | null
           severity?: string | null
-          sowing_id?: string | null
           treatment?: string | null
           user_id?: string
         }
@@ -601,13 +717,6 @@ export type Database = {
             columns: ["bed_id"]
             isOneToOne: false
             referencedRelation: "beds"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pest_logs_sowing_id_fkey"
-            columns: ["sowing_id"]
-            isOneToOne: false
-            referencedRelation: "sowings"
             referencedColumns: ["id"]
           },
         ]
@@ -1047,6 +1156,127 @@ export type Database = {
           variety?: string
         }
         Relationships: []
+      }
+      seed_photo_imports: {
+        Row: {
+          attempts: number
+          created_at: string
+          fields: Json | null
+          id: string
+          image_hash: string
+          lease_id: string
+          lease_until: string
+          model: string | null
+          reviewed_at: string | null
+          reviewed_fields: Json | null
+          reviewed_seed_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          fields?: Json | null
+          id: string
+          image_hash: string
+          lease_id?: string
+          lease_until?: string
+          model?: string | null
+          reviewed_at?: string | null
+          reviewed_fields?: Json | null
+          reviewed_seed_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          fields?: Json | null
+          id?: string
+          image_hash?: string
+          lease_id?: string
+          lease_until?: string
+          model?: string | null
+          reviewed_at?: string | null
+          reviewed_fields?: Json | null
+          reviewed_seed_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seed_photo_imports_reviewed_seed_id_fkey"
+            columns: ["reviewed_seed_id"]
+            isOneToOne: false
+            referencedRelation: "seed_inventory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seed_sowing_plans: {
+        Row: {
+          brand: string | null
+          created_at: string
+          growing_method: string
+          id: string
+          light: string
+          notes: string
+          place: string
+          request: Json
+          seed_id: string | null
+          sow_date: string
+          sow_type: string
+          transplant_date: string | null
+          user_id: string
+          variety: string
+          zone: number | null
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string
+          growing_method: string
+          id: string
+          light: string
+          notes?: string
+          place: string
+          request: Json
+          seed_id?: string | null
+          sow_date: string
+          sow_type: string
+          transplant_date?: string | null
+          user_id: string
+          variety: string
+          zone?: number | null
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string
+          growing_method?: string
+          id?: string
+          light?: string
+          notes?: string
+          place?: string
+          request?: Json
+          seed_id?: string | null
+          sow_date?: string
+          sow_type?: string
+          transplant_date?: string | null
+          user_id?: string
+          variety?: string
+          zone?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seed_sowing_plans_seed_id_fkey"
+            columns: ["seed_id"]
+            isOneToOne: false
+            referencedRelation: "seed_inventory"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       seo_generation_log: {
         Row: {
@@ -1620,6 +1850,43 @@ export type Database = {
       }
     }
     Functions: {
+      change_garden_reminder: {
+        Args: { p_action: string; p_expected?: Json; p_item: Json }
+        Returns: Json
+      }
+      claim_native_push: {
+        Args: { p_installation?: string }
+        Returns: {
+          attempts: number
+          available_at: string
+          created_at: string
+          event_key: string
+          expires_at: string
+          generation: string
+          id: string
+          installation_id: string
+          kind: string
+          lease_id: string | null
+          lease_until: string | null
+          provider_code: string | null
+          sent_at: string | null
+          state: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "native_push_deliveries"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      claim_seed_photo: {
+        Args: { p_hash: string; p_id: string; p_user: string }
+        Returns: Json
+      }
+      create_seed_sowing_plan: {
+        Args: { p_id: string; p_plan: Json; p_seed: string }
+        Returns: string
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -1628,6 +1895,15 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: undefined
+      }
+      enqueue_native_push: {
+        Args: {
+          p_event_key: string
+          p_installation?: string
+          p_kind: string
+          p_user: string
+        }
+        Returns: number
       }
       get_recent_user_activity: {
         Args: { _limit?: number; _user_id?: string }
@@ -1688,6 +1964,27 @@ export type Database = {
           read_ct: number
         }[]
       }
+      register_native_push: {
+        Args: {
+          p_app_id: string
+          p_environment: string
+          p_generation: string
+          p_id: string
+          p_provider: string
+          p_secret_hash: string
+          p_token: string
+          p_user: string
+        }
+        Returns: boolean
+      }
+      save_reviewed_seed: {
+        Args: { p_fields: Json; p_import: string; p_reviewed: boolean }
+        Returns: string
+      }
+      unregister_native_push: {
+        Args: { p_generation: string; p_id: string; p_secret_hash: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
@@ -1706,12 +2003,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1735,11 +2032,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1760,11 +2057,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1785,11 +2082,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1802,11 +2099,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
