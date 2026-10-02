@@ -1,3 +1,5 @@
+import { registerUrl } from '@/lib/authReturn';
+
 /**
  * Deterministisk parsing av rubriker + slug-generering för TOC,
  * samt relaterad-sortering. Extraheras för testbarhet.
@@ -156,7 +158,7 @@ export function pickContextualCta(post: {
       title: 'Ge varje bädd sin egen historik',
       description: 'Anteckningar, foton och skörd per pallkrage och bädd.',
       buttonLabel: 'Skapa din första bädd',
-      href: '/login?mode=register',
+      href: registerUrl({ source: 'blog_beds', returnTo: '/app/beds' }),
     };
   }
   if (has('skadedjur') || has('pest') || has('sjukdom')) {
