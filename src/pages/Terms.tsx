@@ -10,6 +10,7 @@ const LAST_UPDATED = '2026-10-01';
 
 export default function Terms() {
   const navigate = useNavigate();
+  const nativeApp = isNativeApp();
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4 animate-fade-in">
@@ -55,7 +56,7 @@ export default function Terms() {
           <p className="text-sm text-foreground leading-relaxed">
             Tjänsten Odlingsdagboken (”tjänsten”, ”appen”, ”vi”, ”oss”) tillhandahålls av Aurora Media.<br />
             Kontakt: <a href="mailto:info@auroramedia.se" className="text-primary hover:underline">info@auroramedia.se</a><br />
-            Webbplats: <a href="https://www.odlingsdagboken.com" className="text-primary hover:underline">www.odlingsdagboken.com</a>
+            Webbplats: {nativeApp ? 'www.odlingsdagboken.com' : <a href="https://www.odlingsdagboken.com" className="text-primary hover:underline">www.odlingsdagboken.com</a>}
           </p>
           <p className="text-sm text-foreground leading-relaxed">
             Aurora Media är personuppgiftsansvarig för behandlingen av personuppgifter i tjänsten och
@@ -79,6 +80,14 @@ export default function Terms() {
           </p>
 
           {/* ---------------------------------------------------------------- */}
+          {nativeApp ? <>
+          <h2 className="font-serif text-lg text-foreground mt-6 mb-2">3. Kostnadsfri följeapp</h2>
+          <p className="text-sm text-foreground leading-relaxed">
+            Mobilappen är kostnadsfri. Fältdagboken kan användas utan konto och internet.
+            Om du loggar in får du tillgång till de funktioner som redan ingår i ditt konto.
+            Köp, uppgraderingar och abonnemangshantering finns inte i mobilappen.
+          </p>
+          </> : <>
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">3. Prenumeration, pris och betalning</h2>
           <p className="text-sm text-foreground leading-relaxed">
             Grundfunktionerna är gratis. Odlingsdagboken Plus kostar 99 kr per år inklusive moms och förnyas automatiskt
@@ -89,6 +98,7 @@ export default function Terms() {
             Priser anges i svenska kronor inklusive moms. Om moms eller lagstadgade avgifter ändras kan priset justeras
             från nästa förnyelse.
           </p>
+          </>}
 
           {/* ---------------------------------------------------------------- */}
           <h2 className="font-serif text-lg text-foreground mt-6 mb-2">4. Ångerrätt (distansavtalslagen 2005:59)</h2>

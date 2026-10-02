@@ -54,6 +54,11 @@ export default function NativePushSettings() {
       setBusy(false);
     }
   };
+  // A missing or unconfigured push service must not advertise an unavailable
+  // feature. Keep revocation controls visible for an existing installation.
+  if (!status || (!status.available && !status.enabled && !status.pending)) {
+    return null;
+  }
   return (
     <div className="space-y-3 rounded-xl border p-4">
       <div className="flex items-center justify-between gap-4">
@@ -95,7 +100,7 @@ export default function NativePushSettings() {
       <Button
         size="sm"
         variant="outline"
-        disabled={busy || !status?.enabled}
+        disabled={busy || !status.enabled || !status.available}
         onClick={() =>
           void run(async () => {
             const result = await testNativePush();

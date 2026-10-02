@@ -75,7 +75,6 @@ Deno.serve(async (req) => {
     const tables = [
       "plant_care_events",
       "blog_comments",
-      "analytics_events",
       "watering_log",
       "plant_logs",
       "plant_photos",
@@ -84,7 +83,6 @@ Deno.serve(async (req) => {
       "sowings",
       "seed_inventory",
       "season_summaries",
-      "transactions",
       "my_plants",
       "beds",
       "feedback",
@@ -102,8 +100,6 @@ Deno.serve(async (req) => {
 
     const { error: referralError } = await supabaseAdmin.from("referrals").delete().or(`referrer_user_id.eq.${userId},referred_user_id.eq.${userId}`);
     if (referralError) throw referralError;
-    const { error: leadError } = await supabaseAdmin.from("public_leads").delete().eq("converted_user_id", userId);
-    if (leadError) throw leadError;
 
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
     if (deleteError) {
