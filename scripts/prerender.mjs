@@ -3,6 +3,7 @@ import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderSitemap } from './sitemap.mjs';
+import { satiderPages, writeZoneCalendars } from './sowing-guide-pages.mjs';
 import {
   REQUIRED_FIRST_BYTE_PAGES,
   allGuardedFirstBytePages,
@@ -89,7 +90,7 @@ async function loadDynamicPages() {
       throw new Error('[prerender] Supabase-miljö saknas i produktionsbygget. Utan den levereras slug-sidor som homepage SPA-fallback.');
     }
     console.warn('[prerender] Supabase-miljö saknas; hoppar över dynamiska slug-sidor i denna build.');
-    return [];
+    return { pages: [], published: { plants: [], zones: [] } };
   }
 
   try {
@@ -188,7 +189,7 @@ async function loadDynamicPages() {
       });
     }
 
-    return pages;
+    return { pages, published: { plants: plants || [], zones: zones || [] } };
   } catch (error) {
     throw new Error('[prerender] Dynamisk SEO-data kunde inte hämtas; avbryter för att inte publicera ofullständiga artikelsidor och webbplatskarta.', { cause: error });
   }
@@ -224,10 +225,13 @@ export async function prerenderDist(dist = join(root, 'dist')) {
     return output;
   }
 
-  const dynamicPages = await loadDynamicPages();
+  const { pages: cmsPages, published } = await loadDynamicPages();
+  // Såtidssidorna kräver ingen databas – bara såmatrisen – men länkar till publicerade CMS-sidor.
+  const dynamicPages = [...cmsPages, ...(await satiderPages(published))];
   const allPages = mergeRequiredPages([...staticPages, ...dynamicPages]);
   for (const page of allPages) await writePage(page);
   await writeFile(join(dist, 'sitemap.xml'), renderSitemap(allPages), 'utf8');
+  await writeZoneCalendars(dist);
 
   for (const required of allGuardedFirstBytePages()) {
     const file = routeOutput(dist, required.route);

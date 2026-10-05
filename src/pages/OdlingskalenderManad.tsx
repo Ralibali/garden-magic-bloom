@@ -24,6 +24,7 @@ import { DIN_TRADGARD_MAJ_ANNONS, isDinTradgardMajRoute } from '@/lib/annonsOffe
 import CalendarZonePicker from '@/components/CalendarZonePicker';
 import { useOdlingszon } from '@/hooks/useOdlingszon';
 import { CALENDAR_SECTIONS, getMonthActivities, type CalendarCrop } from '@/lib/calendarMonth';
+import { cropSlug, SATIDER_PATH } from '@/lib/sowingGuide';
 import { useAuth } from '@/hooks/useAuth';
 import { CURRENT_YEAR } from '@/lib/currentYear';
 import { trackEvent } from '@/lib/analytics';
@@ -213,7 +214,9 @@ export default function OdlingskalenderManad() {
                 {crops.map(crop => (
                   <li key={crop.name} className="flex flex-wrap items-center justify-between gap-3 bg-card/50 px-4 py-3">
                     <div className="min-w-0">
-                      <p className="font-medium text-foreground">{crop.name}</p>
+                      <p className="font-medium text-foreground">
+                        <Link to={`${SATIDER_PATH}/${cropSlug(crop.name)}`} className="hover:text-primary hover:underline" title={`Såtider för ${crop.name.toLowerCase()} i alla zoner`}>{crop.name}</Link>
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {crop.weekLabel} i zon {zone}
                         {crop.note ? ` · ${crop.note}` : ''}

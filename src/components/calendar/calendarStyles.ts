@@ -1,4 +1,4 @@
-import { Bell, Carrot, Repeat, Shovel, Snowflake, Sprout, Wheat, type LucideIcon } from 'lucide-react';
+import { Bell, Carrot, Leaf, Repeat, Shovel, Snowflake, Sprout, Wheat, type LucideIcon } from 'lucide-react';
 import type { CalendarEventKind, GuideActivity } from '@/lib/gardenCalendar';
 
 export type CalendarLayer = 'mine' | 'tasks' | 'guide';
@@ -12,6 +12,7 @@ export const EVENT_STYLE: Record<CalendarEventKind, { icon: LucideIcon; dot: str
   succession: { icon: Repeat, dot: 'bg-green-500', chip: 'bg-green-500/12 text-green-900 dark:text-green-200 border border-dashed border-green-500/50', layer: 'tasks' },
   reminder: { icon: Bell, dot: 'bg-sky-500', chip: 'bg-sky-500/12 text-sky-900 dark:text-sky-200', layer: 'tasks' },
   frost: { icon: Snowflake, dot: 'bg-blue-400', chip: 'bg-blue-400/12 text-blue-900 dark:text-blue-200', layer: 'climate' },
+  guide: { icon: Leaf, dot: 'bg-primary', chip: 'bg-primary/10 text-primary', layer: 'climate' },
 };
 
 export const GUIDE_STYLE: Record<GuideActivity, { bar: string; soft: string; label: string }> = {

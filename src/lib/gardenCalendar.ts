@@ -206,7 +206,9 @@ export type CalendarEventKind =
   | 'harvested'
   | 'succession'
   | 'reminder'
-  | 'frost';
+  | 'frost'
+  /** Zonens såguide som veckohändelse – används i de publika kalenderprenumerationerna. */
+  | 'guide';
 
 export type CalendarEvent = {
   id: string;
@@ -233,6 +235,7 @@ export const EVENT_KIND_LABEL: Record<CalendarEventKind, string> = {
   succession: 'Nästa omgång',
   reminder: 'Påminnelse',
   frost: 'Klimat',
+  guide: 'Såguide',
 };
 
 export type CalendarSowing = {
@@ -522,7 +525,7 @@ export function buildCalendarEvents({ zone, from, to, today, sowings = [], harve
   }
 
   const order: Record<CalendarEventKind, number> = {
-    frost: 0, reminder: 1, 'plant-out-due': 2, succession: 3, 'harvest-expected': 4, sown: 5, transplanted: 6, harvested: 7,
+    frost: 0, guide: 0, reminder: 1, 'plant-out-due': 2, succession: 3, 'harvest-expected': 4, sown: 5, transplanted: 6, harvested: 7,
   };
   return events.sort((a, b) => a.date.localeCompare(b.date) || order[a.kind] - order[b.kind] || a.title.localeCompare(b.title, 'sv'));
 }

@@ -5247,5 +5247,6 @@ export function normalizeZone(zone: unknown): number {
 
 export function getSowingWeekTiming(cropName: string, zone: unknown): SowingWeekTiming | null {
   const normalizedZone = String(normalizeZone(zone))
-  return sowingWeeks[cropName as keyof typeof sowingWeeks]?.[normalizedZone] ?? null
+  const byZone = sowingWeeks[cropName as keyof typeof sowingWeeks] as Record<string, SowingWeekTiming> | undefined
+  return byZone?.[normalizedZone] ?? null
 }

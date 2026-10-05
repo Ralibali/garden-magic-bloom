@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CalendarDays, CalendarRange, ChevronLeft, ChevronRight, Download, Eye, EyeOff, ListTodo, MapPin, Snowflake, Sparkles, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import { localDateKey } from '@/lib/gardenToday';
 import { buildStatusPatch } from '@/lib/sowingLifecycle';
 import { isNativeApp } from '@/lib/native';
 import { getGardenForecast } from '@/lib/gardenWeather';
+import { guideCropForName } from '@/lib/sowingGuide';
 import { ZONE_LAST_FROST_WEEK, ZONE_SEASON_END_WEEK } from '@/data/sowingMatrix';
 import {
   addDays,
@@ -91,14 +92,24 @@ async function downloadFile(content: string, filename: string, type: string) {
 
 export default function SowingCalendar() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Från en såtidssida eller zonväljaren: { planCrops?: string[]; zone?: number }.
+  const [entryIntent] = useState(() => {
+    const state = (location.state ?? {}) as { planCrops?: unknown; zone?: unknown };
+    const zone = Number(state.zone);
+    const crops = Array.isArray(state.planCrops)
+      ? state.planCrops.map((crop) => guideCropForName(String(crop))?.name).filter((crop): crop is string => !!crop)
+      : [];
+    return { zone: zone >= 1 && zone <= 8 ? Math.round(zone) : null, crops };
+  });
   const queryClient = useQueryClient();
   const today = localDateKey();
   const [cursor, setCursor] = useState(() => ({ year: Number(today.slice(0, 4)), month: Number(today.slice(5, 7)) }));
   const [view, setViewState] = useState<View>(readView);
   const [layers, setLayers] = useState<Record<CalendarLayer, boolean>>({ mine: true, tasks: true, guide: true });
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
-  const [zoneOverride, setZoneOverride] = useState<number | null>(null);
-  const [plannerOpen, setPlannerOpen] = useState(false);
+  const [zoneOverride, setZoneOverride] = useState<number | null>(entryIntent.zone);
+  const [plannerOpen, setPlannerOpen] = useState(entryIntent.crops.length > 0);
   const [syncOpen, setSyncOpen] = useState(false);
 
   const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
@@ -181,7 +192,12 @@ export default function SowingCalendar() {
     return map;
   }, [sowings, cursor.year]);
 
-  const suggestedCrops = useMemo(() => [...mySowDates.keys()], [mySowDates]);
+  const suggestedCrops = useMemo(() => [...new Set([...entryIntent.crops, ...mySowDates.keys()])], [entryIntent.crops, mySowDates]);
+
+  // Avsikten ska bara gälla en gång – inte efter en omladdning eller bakåtknapp.
+  useEffect(() => {
+    if (entryIntent.zone || entryIntent.crops.length) navigate(location.pathname, { replace: true, state: null });
+  }, [entryIntent, navigate, location.pathname]);
   const existingPlanKeys = useMemo(
     () => new Set(reminders.map((r) => (r as { source_action_id?: string }).source_action_id).filter((key): key is string => !!key)),
     [reminders],

@@ -12,6 +12,7 @@ import { formatMonthRange, CATEGORY_LABEL, ORG_AUTHOR, ORG_PUBLISHER, buildBread
 import { ArticleAttribution } from '@/components/ArticleAttribution';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
 import CalendarCrossLink from '@/components/CalendarCrossLink';
+import { guideCropForVaxt, SATIDER_PATH } from '@/lib/sowingGuide';
 import PublicNotFound from '@/components/PublicNotFound';
 import AddPlantCta from '@/components/AddPlantCta';
 import { plantCtaCrop, readPrerenderBoot } from '@/lib/prerenderBoot';
@@ -262,6 +263,18 @@ export default function VaxtDetail() {
           className="mb-10"
           description={`Vill du se vad mer än ${plant.name} som ska sås, planteras ut och skördas den här månaden?`}
         />
+
+        {(() => {
+          const guideCrop = guideCropForVaxt(plant);
+          return guideCrop ? (
+            <Link
+              to={`${SATIDER_PATH}/${guideCrop.slug}`}
+              className="mb-10 flex items-center justify-between gap-3 rounded-2xl border border-border/60 bg-card/60 p-5 text-sm font-semibold text-primary hover:underline"
+            >
+              Se exakta såtider för {plant.name.toLowerCase()} i alla zoner, vecka för vecka <Calendar className="h-4 w-4 shrink-0" />
+            </Link>
+          ) : null;
+        })()}
 
         <AddPlantCta crop={plant.name} slug={plant.slug} className="mb-10" />
 

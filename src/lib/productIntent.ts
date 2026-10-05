@@ -7,6 +7,7 @@ export const PRODUCT_INTENT_KEY = 'odlingsdagboken_product_intent';
 export type ProductIntent =
   | { kind: 'add-plant'; crop: string; slug?: string; returnTo: '/app/sowings' }
   | { kind: 'personalize-zone'; zone: number; place?: string; returnTo: '/app/calendar' }
+  | { kind: 'plan-season'; crops: string[]; zone?: number; returnTo: '/app/calendar' }
   | { kind: 'save-problem'; crop: string; symptom: string; place?: string; moisture?: string; coldNights?: string; advice?: Array<{ title: string; text: string }>; returnTo: '/app/pests' };
 
 function isIntent(value: unknown): value is ProductIntent {
@@ -21,6 +22,9 @@ function isIntent(value: unknown): value is ProductIntent {
   if (raw.kind === 'save-problem' && typeof raw.crop === 'string' && typeof raw.symptom === 'string') {
     return true;
   }
+  if (raw.kind === 'plan-season' && Array.isArray(raw.crops) && raw.crops.every((crop) => typeof crop === 'string')) {
+    return true;
+  }
   return false;
 }
 
@@ -31,7 +35,10 @@ export function saveProductIntent(intent: ProductIntent): void {
     if (intent.kind === 'personalize-zone') {
       localStorage.setItem(ODLINGSZON_STORAGE_KEY, String(intent.zone));
     }
-    if (intent.kind === 'add-plant' || intent.kind === 'save-problem' || intent.kind === 'personalize-zone') {
+    if (intent.kind === 'plan-season' && intent.zone) {
+      localStorage.setItem(ODLINGSZON_STORAGE_KEY, String(intent.zone));
+    }
+    if (intent.kind === 'add-plant' || intent.kind === 'save-problem' || intent.kind === 'personalize-zone' || intent.kind === 'plan-season') {
       const plan = intentToPublicPlan(intent);
       localStorage.setItem('odlingsdagboken_latest_public_plan', JSON.stringify(plan));
     }
@@ -72,6 +79,15 @@ export function intentToPublicPlan(intent: ProductIntent): Record<string, unknow
       createdAt: new Date().toISOString(),
     };
   }
+  if (intent.kind === 'plan-season') {
+    return {
+      type: 'sakalender',
+      zone: intent.zone,
+      crops: intent.crops,
+      method: 'Pallkrage',
+      createdAt: new Date().toISOString(),
+    };
+  }
   if (intent.kind === 'personalize-zone') {
     return {
       type: 'sakalender',
@@ -102,6 +118,9 @@ export function registerUrlForIntent(intent: ProductIntent): string {
   if (intent.kind === 'personalize-zone') {
     return registerUrl({ source: 'zon', returnTo: intent.returnTo, zone: intent.zone });
   }
+  if (intent.kind === 'plan-season') {
+    return registerUrl({ source: 'satider', returnTo: intent.returnTo, crop: intent.crops[0], zone: intent.zone });
+  }
   return registerUrl({
     source: 'odlingsakuten',
     returnTo: intent.returnTo,
@@ -119,6 +138,9 @@ export function navigationForIntent(intent: ProductIntent): { path: string; stat
   }
   if (intent.kind === 'personalize-zone') {
     return { path: '/app/calendar', state: { zone: intent.zone, place: intent.place } };
+  }
+  if (intent.kind === 'plan-season') {
+    return { path: '/app/calendar', state: { planCrops: intent.crops, ...(intent.zone ? { zone: intent.zone } : {}) } };
   }
   const notes = [
     intent.crop ? `Växt: ${intent.crop}` : '',
@@ -178,6 +200,9 @@ export function destinationFromSearch(
         },
       },
     };
+  }
+  if (returnTo === '/app/calendar' && crop) {
+    return { path: returnTo, state: { planCrops: [crop], ...(Number.isFinite(zone) ? { zone } : {}) } };
   }
   if (returnTo === '/app/calendar' && Number.isFinite(zone)) {
     return { path: returnTo, state: { zone } };

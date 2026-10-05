@@ -651,7 +651,8 @@ var EVENT_KIND_LABEL = {
   harvested: "Skördat",
   succession: "Nästa omgång",
   reminder: "Påminnelse",
-  frost: "Klimat"
+  frost: "Klimat",
+  guide: "Såguide"
 };
 var SUCCESSION_WEEKS = {
   "Rädisa": 2,
@@ -864,6 +865,7 @@ function buildCalendarEvents({ zone, from, to, today, sowings = [], harvests = [
   }
   const order = {
     frost: 0,
+    guide: 0,
     reminder: 1,
     "plant-out-due": 2,
     succession: 3,

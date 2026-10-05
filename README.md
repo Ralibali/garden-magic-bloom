@@ -44,6 +44,10 @@ docs/               Driftsanteckningar
 
 Domänlogiken i `src/lib` är avsiktligt ren och enhetstestad — nya regler ska läggas där, inte i komponenter.
 
+## Såtidssidor (SEO)
+
+`/satider` och `/satider/:gröda` (en sida per gröda i såmatrisen, t.ex. `/satider/tomat`) svarar på "när ska man så …?" med veckor och datum för zon 1–8, FAQ och interna länkar. Innehållet räknas fram i `src/lib/sowingGuide.ts`, och samma modell används av React-sidorna och av prerender (`scripts/sowing-guide-pages.mjs`), som skriver fullständig HTML med `FAQPage`- och `BreadcrumbList`-schema. Prerender skriver också prenumererbara zonkalendrar till `/kalender/sakalender-zon-N.ics`. Sidorna kommer med i sitemap och `llms.txt` via `supabase/functions/_shared/satiderRoutes.ts`.
+
 ## Odlingsdata
 
 `src/data/sowingMatrix.ts` är enda källan för såtider per klimatzon. Kör `node scripts/export-sowing-weeks.mjs` efter ändringar så att edge functions får samma veckor via `supabase/functions/_shared/sowingWeeks.ts`.

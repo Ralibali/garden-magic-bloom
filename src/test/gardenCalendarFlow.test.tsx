@@ -52,11 +52,11 @@ const tomato = {
   beds: { name: 'Växthuset' },
 };
 
-function show() {
+function show(state?: Record<string, unknown>) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={['/app/calendar']}>
+      <MemoryRouter initialEntries={[{ pathname: '/app/calendar', state }]}>
         <SowingCalendar />
       </MemoryRouter>
     </QueryClientProvider>,
@@ -228,5 +228,13 @@ describe('Odlingskalender', () => {
     expect(await within(dialog).findByText(/Din länk är aktiv sedan 1 maj/)).toBeInTheDocument();
     expect(within(dialog).getByText(/Senast hämtad 11 maj/)).toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: 'Skapa ny länk' })).toBeInTheDocument();
+  });
+
+  it('öppnar säsongsplaneraren med grödan och zonen från en såtidssida', async () => {
+    show({ planCrops: ['Morot', 'Okänd gröda'], zone: 5 });
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByRole('heading', { name: /Planera säsongen/ })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: /^Morot$/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(dialog).getByText(/enligt zon 5/)).toBeInTheDocument();
   });
 });

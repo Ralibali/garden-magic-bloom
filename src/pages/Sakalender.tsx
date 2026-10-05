@@ -7,6 +7,7 @@ import CalendarCrossLink from '@/components/CalendarCrossLink';
 import { ArrowRight, CalendarDays, Check, Copy, Sprout } from 'lucide-react';
 import { sowingMatrix, formatRange, getCropTiming, type CropTiming } from '@/data/sowingMatrix';
 import { CURRENT_YEAR } from '@/lib/currentYear';
+import { cropSlug, SATIDER_PATH } from '@/lib/sowingGuide';
 
 const methods = ['Pallkrage', 'Växthus', 'Friland', 'Balkong', 'Krukor'];
 
@@ -26,7 +27,9 @@ function CropRow({ name, timing }: { name: string; timing: CropTiming }) {
   return (
     <article className="bg-card border border-border rounded-2xl p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-serif text-xl text-foreground">{name}</h3>
+        <h3 className="font-serif text-xl text-foreground">
+          <Link to={`${SATIDER_PATH}/${cropSlug(name)}`} className="hover:text-primary hover:underline" title={`Såtider för ${name.toLowerCase()} i alla zoner`}>{name}</Link>
+        </h3>
         <CalendarDays className="h-5 w-5 text-primary" />
       </div>
       <dl className="space-y-3 text-sm">
