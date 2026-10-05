@@ -24,7 +24,7 @@ import { DIN_TRADGARD_MAJ_ANNONS, isDinTradgardMajRoute } from '@/lib/annonsOffe
 import CalendarZonePicker from '@/components/CalendarZonePicker';
 import { useOdlingszon } from '@/hooks/useOdlingszon';
 import { CALENDAR_SECTIONS, getMonthActivities, type CalendarCrop } from '@/lib/calendarMonth';
-import { cropSlug, SATIDER_PATH } from '@/lib/sowingGuide';
+import { cropSlug, SATIDER_PATH } from '@/lib/guideRoutes';
 import { useAuth } from '@/hooks/useAuth';
 import { CURRENT_YEAR } from '@/lib/currentYear';
 import { trackEvent } from '@/lib/analytics';

@@ -43,3 +43,30 @@ describe('prerender av såtidssidorna', () => {
     expect(xml).toContain('<loc>https://odlingsdagboken.com/satider/pak-choi</loc>');
   });
 });
+
+describe('prerender av frostsidan och interna länkar', async () => {
+  const { frostPage, homeGuideLinksMarkup, loadSowingGuideLib, relatedSatiderMarkup } = await import('../../scripts/sowing-guide-pages.mjs');
+  const lib = await loadSowingGuideLib();
+
+  it('skriver frostsidan med svar, tabell, orter och FAQ', () => {
+    const page = frostPage(lib, new Date('2026-10-05T12:00:00Z'));
+    const html = renderPage(TEMPLATE, page);
+    assertUniqueFirstByte(html, page);
+    expect(html).toContain('<h1>När är sista frosten 2026?</h1>');
+    expect(html).toContain('Umeå (zon 6): vecka 23');
+    expect(html).toContain('<h3>När är sista frosten i Stockholm?</h3>');
+    expect(html).toContain('href="/satider/tomat"');
+  });
+
+  it('ger startsidan länkar till de mest sökta såtiderna i första svaret', () => {
+    const html = renderPage(TEMPLATE, { route: '/', title: 'Odlingsdagboken', heading: 'Hem', description: 'Intro', contentHtml: homeGuideLinksMarkup(lib, 'Intro') });
+    expect(html).toContain('<a href="/satider/potatis">När ska man sätta potatis?</a>');
+    expect(html).toContain('<a href="/sista-frost">');
+  });
+
+  it('länkar blogginlägg till såtiderna för grödorna de handlar om', () => {
+    const page = { route: '/blogg/tomater', title: 'Tomater', heading: 'Odla tomater i växthus', description: 'x', articleContent: '<p>Text</p>', afterContentHtml: relatedSatiderMarkup(lib, 'Odla tomater i växthus tomat') };
+    expect(renderPage(TEMPLATE, page)).toContain('<a href="/satider/tomat">När ska man så tomater?</a>');
+    expect(relatedSatiderMarkup(lib, 'Kompostera rätt')).toBe('');
+  });
+});

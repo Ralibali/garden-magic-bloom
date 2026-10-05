@@ -181,6 +181,7 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
                 {[
                   ['Såkalender', '/sakalender'],
                   ['Såtider per gröda', '/satider'],
+                  ['Sista frost', '/sista-frost'],
                   ['Odlingszoner', '/zoner'],
                   ['Funktioner', '/funktioner'],
                   ['Hur det fungerar', '/hur-det-fungerar'],

@@ -16,3 +16,6 @@ export const SATIDER_CROPS: { name: string; route: string }[] = Object.keys(sowi
 }));
 
 export const SATIDER_ROUTES: string[] = [SATIDER_PATH, ...SATIDER_CROPS.map((crop) => crop.route)];
+
+/** Frostsidan bygger på samma zonveckor. */
+export const FROST_PATH = '/sista-frost';

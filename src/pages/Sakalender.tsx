@@ -7,7 +7,7 @@ import CalendarCrossLink from '@/components/CalendarCrossLink';
 import { ArrowRight, CalendarDays, Check, Copy, Sprout } from 'lucide-react';
 import { sowingMatrix, formatRange, getCropTiming, type CropTiming } from '@/data/sowingMatrix';
 import { CURRENT_YEAR } from '@/lib/currentYear';
-import { cropSlug, SATIDER_PATH } from '@/lib/sowingGuide';
+import { cropSlug, SATIDER_PATH } from '@/lib/guideRoutes';
 
 const methods = ['Pallkrage', 'Växthus', 'Friland', 'Balkong', 'Krukor'];
 

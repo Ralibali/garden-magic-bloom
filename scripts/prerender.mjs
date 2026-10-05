@@ -3,7 +3,7 @@ import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderSitemap } from './sitemap.mjs';
-import { satiderPages, writeZoneCalendars } from './sowing-guide-pages.mjs';
+import { frostPage, homeGuideLinksMarkup, loadSowingGuideLib, relatedSatiderMarkup, satiderPages, writeZoneCalendars } from './sowing-guide-pages.mjs';
 import {
   REQUIRED_FIRST_BYTE_PAGES,
   allGuardedFirstBytePages,
@@ -83,7 +83,7 @@ async function fetchTable(table, query) {
   return response.json();
 }
 
-async function loadDynamicPages() {
+async function loadDynamicPages(guideLib) {
   const { url, key } = supabaseConfig();
   if (!url || !key) {
     if (process.env.VERCEL === '1' || process.env.NETLIFY === 'true' || process.env.LOVABLE === 'true') {
@@ -129,6 +129,7 @@ async function loadDynamicPages() {
         description,
         body: post.excerpt || post.content,
         articleContent: post.content,
+        afterContentHtml: guideLib ? relatedSatiderMarkup(guideLib, `${post.title} ${(post.tags || []).join(' ')} ${post.excerpt || ''}`) : '',
         type: 'article',
         image: post.cover_image_url || DEFAULT_OG_IMAGE,
         imageAlt: post.title,
@@ -225,13 +226,16 @@ export async function prerenderDist(dist = join(root, 'dist')) {
     return output;
   }
 
-  const { pages: cmsPages, published } = await loadDynamicPages();
-  // Såtidssidorna kräver ingen databas – bara såmatrisen – men länkar till publicerade CMS-sidor.
-  const dynamicPages = [...cmsPages, ...(await satiderPages(published))];
+  const guideLib = await loadSowingGuideLib();
+  const home = staticPages.find((page) => page.route === '/');
+  if (home) home.contentHtml = homeGuideLinksMarkup(guideLib, home.description);
+  const { pages: cmsPages, published } = await loadDynamicPages(guideLib);
+  // Såtids- och frostsidorna kräver ingen databas – bara såmatrisen – men länkar till publicerade CMS-sidor.
+  const dynamicPages = [...cmsPages, ...(await satiderPages(published, new Date(), guideLib)), frostPage(guideLib)];
   const allPages = mergeRequiredPages([...staticPages, ...dynamicPages]);
   for (const page of allPages) await writePage(page);
   await writeFile(join(dist, 'sitemap.xml'), renderSitemap(allPages), 'utf8');
-  await writeZoneCalendars(dist);
+  await writeZoneCalendars(dist, new Date(), guideLib);
 
   for (const required of allGuardedFirstBytePages()) {
     const file = routeOutput(dist, required.route);

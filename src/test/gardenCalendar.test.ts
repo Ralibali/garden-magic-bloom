@@ -189,6 +189,11 @@ describe('buildCalendarEvents', () => {
     expect(events.some((e) => e.kind === 'sown')).toBe(true);
   });
 
+  it('tål sådder helt utan såddatum', () => {
+    const events = buildCalendarEvents({ ...base, sowings: [{ ...tomato, sow_date: undefined as unknown as string }, { ...tomato, id: 'n', sow_date: null as unknown as string }] });
+    expect(events.every((e) => e.kind === 'frost')).toBe(true);
+  });
+
   it('tål trasiga datum', () => {
     const events = buildCalendarEvents({
       ...base,

@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { SATIDER_ROUTES } from "../_shared/satiderRoutes.ts";
+import { FROST_PATH, SATIDER_ROUTES } from "../_shared/satiderRoutes.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -86,6 +86,7 @@ Deno.serve(async (req) => {
     { loc: "/zoner", lastmod: latestDate(zones.map((zone) => zone.updated_at || zone.created_at)) },
     // Såtidssidorna genereras ur såmatrisen – ingen CMS-rad, därför ingen lastmod.
     ...SATIDER_ROUTES.map((loc) => ({ loc })),
+    { loc: FROST_PATH },
     { loc: "/install" },
     { loc: "/terms" },
   ];

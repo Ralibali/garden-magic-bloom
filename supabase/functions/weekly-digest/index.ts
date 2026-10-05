@@ -6,14 +6,14 @@ import {
   normalizeEmail,
   unsubscribeUrl,
 } from '../_shared/email.ts'
-import { buildDigestModel, getIsoWeek, type DigestReminder } from '../_shared/weeklyDigestModel.ts'
+import { buildDigestModel, getIsoWeek, stockholmDateKey, type DigestReminder, type DigestReminderItem } from '../_shared/weeklyDigestModel.ts'
+import { renderDigestHtml } from '../_shared/weeklyDigestHtml.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
 }
 
-const appUrl = 'https://odlingsdagboken.com/app'
 
 interface ProfileRow {
   user_id: string
@@ -26,6 +26,9 @@ interface ProfileRow {
 }
 
 interface SowingRow {
+  id: string
+  crop_key: string | null
+  plant_kind: string | null
   variety: string
   status: string | null
   sow_date: string | null
@@ -46,14 +49,6 @@ function json(body: unknown, status = 200) {
   })
 }
 
-function escapeHtml(value: unknown): string {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;')
-}
 
 function zoneCoordinates(zone: number | null): { lat: number; lon: number } {
   switch (zone) {
@@ -90,13 +85,11 @@ async function forecastMinTemp(profile: ProfileRow): Promise<number | null> {
 }
 
 function todayDate(): string {
-  return new Date().toISOString().slice(0, 10)
+  return stockholmDateKey(new Date())
 }
 
 function plusDaysDate(days: number): string {
-  const date = new Date()
-  date.setDate(date.getDate() + days)
-  return date.toISOString().slice(0, 10)
+  return stockholmDateKey(new Date(Date.now() + days * 86_400_000))
 }
 
 function yearBounds(year: number): { start: string; end: string } {
@@ -113,46 +106,6 @@ function remindersFromSowings(sowings: SowingRow[]): DigestReminder[] {
       due_date: sowing.transplant_date!,
     }))
     .slice(0, 7)
-}
-
-function list(items: string[]): string {
-  if (!items.length) return ''
-  return `<ul style="padding-left:20px; margin:10px 0 0;">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
-}
-
-function renderDigestHtml(model: ReturnType<typeof buildDigestModel>): string {
-  const parts: string[] = [
-    `<p style="margin:0 0 12px;">Hej ${escapeHtml(model.firstName)}!</p>`,
-    `<p style="margin:0 0 18px;">Här är din odlingsvecka för zon ${model.zone}. Små steg nu gör säsongen enklare att följa upp senare.</p>`,
-  ]
-
-  if (model.frostWarning) {
-    parts.push(`<div style="border:1px solid #f59e0b; background:#fffbeb; border-radius:14px; padding:14px; margin:14px 0;"><strong>Frostrisk:</strong> prognosen visar ner mot ${escapeHtml(String(model.forecastMinTemp))} °C kommande veckan. Skydda känsliga plantor eller vänta med utplantering.</div>`)
-  }
-
-  if (model.sowNow.length) {
-    parts.push(`<h2 style="font-size:18px; margin:22px 0 6px; color:#16351f;">Att så nu</h2>${list(model.sowNow)}`)
-  }
-
-  if (model.soonHarvest.length) {
-    parts.push(`<h2 style="font-size:18px; margin:22px 0 6px; color:#16351f;">Snart skörd</h2>${list(model.soonHarvest)}`)
-  }
-
-  if (model.activeSowings.length) {
-    parts.push(`<h2 style="font-size:18px; margin:22px 0 6px; color:#16351f;">Aktiva sådder</h2>${list(model.activeSowings.map((sowing) => `${sowing.variety}${sowing.status ? ` – ${sowing.status}` : ''}`))}`)
-  }
-
-  if (model.reminders.length) {
-    parts.push(`<h2 style="font-size:18px; margin:22px 0 6px; color:#16351f;">Kommande 7 dagar</h2>${list(model.reminders.map((reminder) => `${reminder.title} (${reminder.due_date})`))}`)
-  }
-
-  if (model.harvestKg > 0 || model.photoCountLastWeek > 0) {
-    parts.push(`<h2 style="font-size:18px; margin:22px 0 6px; color:#16351f;">Din säsong hittills</h2><ul style="padding-left:20px; margin:10px 0 0;">${model.harvestKg > 0 ? `<li>${model.harvestKg} kg registrerad skörd i år</li>` : ''}${model.photoCountLastWeek > 0 ? `<li>${model.photoCountLastWeek} nya bilder senaste veckan</li>` : ''}</ul>`)
-  }
-
-  parts.push(`<p style="margin:26px 0 8px;"><a href="${appUrl}" style="display:inline-block; background:#3E7C4C; color:#ffffff; text-decoration:none; padding:13px 18px; border-radius:999px; font-weight:700;">Öppna Odlingsdagboken</a></p>`)
-
-  return parts.join('\n')
 }
 
 async function alreadyHandled(admin: ReturnType<typeof createClient>, messageId: string): Promise<boolean> {
@@ -217,10 +170,10 @@ Deno.serve(async (req) => {
       continue
     }
 
-    const [sowingsRes, harvestsRes, photosRes, minTemp] = await Promise.all([
+    const [sowingsRes, harvestsRes, photosRes, minTemp, reminderRes] = await Promise.all([
       admin
         .from('sowings')
-        .select('variety, status, sow_date, transplant_date, type')
+        .select('id, crop_key, plant_kind, variety, status, sow_date, transplant_date, type')
         .eq('user_id', profile.user_id)
         .order('sow_date', { ascending: false })
         .limit(30),
@@ -236,6 +189,11 @@ Deno.serve(async (req) => {
         .eq('user_id', profile.user_id)
         .gte('created_at', weekStart.toISOString()),
       forecastMinTemp(profile),
+      admin
+        .from('reminder_settings')
+        .select('settings')
+        .eq('user_id', profile.user_id)
+        .maybeSingle(),
     ])
 
     if (sowingsRes.error || harvestsRes.error || photosRes.error) {
@@ -250,11 +208,16 @@ Deno.serve(async (req) => {
     }
 
     const sowings = (sowingsRes.data ?? []) as SowingRow[]
+    // Påminnelserna är ett tillägg: saknas de eller går de inte att läsa skickas mejlet ändå.
+    const reminderList = (reminderRes.data?.settings as { reminders?: unknown } | null)?.reminders
+    if (reminderRes.error) console.error('Failed to fetch weekly digest reminders', { user_id: profile.user_id, error: reminderRes.error })
     const model = buildDigestModel({
       profile,
       sowings,
       harvests: (harvestsRes.data ?? []) as HarvestRow[],
       reminders: remindersFromSowings(sowings),
+      reminderItems: Array.isArray(reminderList) ? (reminderList as DigestReminderItem[]) : [],
+      today: todayDate(),
       photoCountLastWeek: (photosRes.data ?? []).length,
       forecastMinTemp: minTemp,
       currentDate: now,

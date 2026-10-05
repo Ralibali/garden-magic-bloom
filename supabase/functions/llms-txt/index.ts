@@ -1,7 +1,7 @@
 // Dynamiskt /llms.txt — AI-motsvarighet till robots.txt.
 // Streamas live från seo_plants/seo_months/seo_zones via Supabase.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { SATIDER_CROPS, SATIDER_PATH } from "../_shared/satiderRoutes.ts";
+import { FROST_PATH, SATIDER_CROPS, SATIDER_PATH } from "../_shared/satiderRoutes.ts";
 
 const BASE = "https://odlingsdagboken.com";
 
@@ -46,6 +46,7 @@ Deno.serve(async (req) => {
     "## Såtider per gröda",
     "",
     `- [Alla såtider](${BASE}${SATIDER_PATH}): När ska man så, förodla, plantera ut och skörda – vecka för vecka i zon 1–8`,
+    `- [Sista frost](${BASE}${FROST_PATH}): Normal sista vårfrost och första höstfrost per ort och odlingszon`,
   );
   for (const crop of SATIDER_CROPS) {
     lines.push(`- [Såtider för ${crop.name.toLowerCase()}](${BASE}${crop.route}): Förodling, utplantering, direktsådd och skörd i alla svenska odlingszoner`);

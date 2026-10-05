@@ -406,7 +406,7 @@ export function buildCalendarEvents({ zone, from, to, today, sowings = [], harve
     if (!isActive(sowing.status)) continue;
 
     // En förodling som stått "inne" i ett halvår är en bortglömd rad, inte en planta att plantera ut idag.
-    const plantOut = diffDays(sowing.sow_date, today) <= 150 ? estimatePlantOut(sowing, z) : null;
+    const plantOut = isDateKey(sowing.sow_date) && diffDays(sowing.sow_date, today) <= 150 ? estimatePlantOut(sowing, z) : null;
     if (plantOut) {
       // Har datumet redan passerat flyttas förslaget till idag – plantan står ju fortfarande inne.
       const date = plantOut < today ? today : plantOut;

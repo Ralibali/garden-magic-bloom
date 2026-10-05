@@ -7,8 +7,10 @@
 import { sowingMatrix, ZONE_LAST_FROST_WEEK, type CropEntry, type CropTiming } from '@/data/sowingMatrix';
 import { ZONE_PLACES } from '@/lib/swedishZones';
 import { addDays, buildIcs, FROST_SENSITIVE_CROPS, isoWeekMonday, MONTHS_SV, type CalendarEvent } from '@/lib/gardenCalendar';
+import { cropSlug, POPULAR_CROP_NAMES, queryName, SATIDER_PATH, VERB, verbFor } from '@/lib/guideRoutes';
 
-export const SATIDER_PATH = '/satider';
+export { cropSlug, queryName, SATIDER_PATH, verbFor };
+
 export const SITE_ORIGIN = 'https://odlingsdagboken.com';
 /** Zonen texterna utgår från: flest svenska odlare bor i zon 3 (Mälardalen och Östergötland). */
 export const REFERENCE_ZONE = 3;
@@ -55,37 +57,6 @@ export const ZONE_REGION: Record<number, string> = {
 
 // ─── Namn och ordval ──────────────────────────────────────────────────────
 
-/** "Rödbeta" → "rodbeta", "Pak choi" → "pak-choi". Samma regel som växtbibliotekets sluggar. */
-export function cropSlug(name: string): string {
-  return name.toLowerCase()
-    .replace(/å/g, 'a').replace(/ä/g, 'a').replace(/ö/g, 'o')
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-}
-
-/** Hur folk söker: "när ska man så tomater", inte "så tomat". */
-const QUERY_NAME: Record<string, string> = {
-  Tomat: 'tomater',
-  Morot: 'morötter',
-  Rödbeta: 'rödbetor',
-  Rädisa: 'rädisor',
-  Sockerärt: 'sockerärtor',
-  Bondböna: 'bondbönor',
-};
-
-/** Potatis och lök sätts, bär och perenner planteras – resten sås. */
-const VERB: Record<string, 'sätta' | 'plantera'> = {
-  Potatis: 'sätta',
-  Lök: 'sätta',
-  Vitlök: 'sätta',
-  Jordärtskocka: 'sätta',
-  Jordgubbar: 'plantera',
-  Hallon: 'plantera',
-  Vinbär: 'plantera',
-  Krusbär: 'plantera',
-  Rabarber: 'plantera',
-  Sparris: 'plantera',
-};
-
 /** Rubriker för stegen när standardorden blir fel för grödan. */
 const STEP_LABEL_OVERRIDE: Record<string, Partial<Record<GuideStep, string>>> = {
   Potatis: { forodla: 'Förgro', planteraUt: 'Sätt' },
@@ -103,14 +74,6 @@ export const STEP_LABEL: Record<GuideStep, string> = {
   direktsa: 'Direktså',
   skorda: 'Skörd',
 };
-
-export function queryName(crop: string): string {
-  return QUERY_NAME[crop] ?? crop.toLowerCase();
-}
-
-export function verbFor(crop: string): 'så' | 'sätta' | 'plantera' {
-  return VERB[crop] ?? 'så';
-}
 
 export function stepLabel(crop: string, step: GuideStep): string {
   if (step === 'planteraUt' && VERB[crop] === 'plantera') return 'Plantera';
@@ -603,3 +566,54 @@ export function vaxtSlugFor(crop: string, published: { slug: string; name?: stri
 export function guideCropForVaxt(plant: { slug: string; name?: string | null }): GuideCrop | null {
   return GUIDE_CROPS.find((crop) => vaxtSlugFor(crop.name, [plant]) === plant.slug) ?? null;
 }
+
+// ─── Interna länkar från fritext ──────────────────────────────────────────
+
+/** Fler sätt att skriva grödan än namnet och sökformen. */
+const EXTRA_FORMS: Record<string, string[]> = {
+  Tomat: ['tomat', 'tomater', 'tomaterna', 'tomatplantor'],
+  Morot: ['morot', 'morötter', 'morötterna'],
+  Sallat: ['sallad', 'sallader'],
+  Squash: ['zucchini'],
+  Bönor: ['böna', 'bönorna'],
+  Ärtor: ['ärta', 'ärter'],
+  Sockerärt: ['sockerärta', 'sockerärtor'],
+  Jordgubbar: ['jordgubbe', 'jordgubbsplantor'],
+  Ruccola: ['rucola'],
+  Gurka: ['gurkor', 'gurkplantor'],
+  Potatis: ['sättpotatis', 'potatisen'],
+  Lök: ['sättlök'],
+  Chili: ['chilifrön', 'chiliplantor'],
+  Pumpa: ['pumpor'],
+  Rödbeta: ['rödbetor'],
+  Rädisa: ['rädisor'],
+};
+
+const FORM_INDEX = GUIDE_CROPS.map((crop) => ({
+  crop,
+  forms: [...new Set([crop.name.toLowerCase(), queryName(crop.name), ...(EXTRA_FORMS[crop.name] ?? [])])],
+}));
+
+/**
+ * Grödor som nämns i en text, i den ordning de först förekommer. Hela ord
+ * krävs, så "lök" träffar inte "vitlök".
+ */
+export function relatedGuideCrops(text: string | null | undefined, limit = 4): GuideCrop[] {
+  const haystack = String(text ?? '').toLowerCase();
+  if (!haystack) return [];
+  const hits: { crop: GuideCrop; index: number }[] = [];
+  for (const { crop, forms } of FORM_INDEX) {
+    let first = -1;
+    for (const form of forms) {
+      const match = new RegExp(`(?<![a-zåäöé])${form.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![a-zåäöé])`).exec(haystack);
+      if (match && (first === -1 || match.index < first)) first = match.index;
+    }
+    if (first !== -1) hits.push({ crop, index: first });
+  }
+  return hits.sort((a, b) => a.index - b.index).slice(0, limit).map((hit) => hit.crop);
+}
+
+/** Startsidans urval: de mest sökta grödorna. */
+export const POPULAR_GUIDE_CROPS = POPULAR_CROP_NAMES
+  .map((name) => GUIDE_CROPS.find((crop) => crop.name === name)!)
+  .filter(Boolean);

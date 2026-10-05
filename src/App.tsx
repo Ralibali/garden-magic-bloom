@@ -67,6 +67,7 @@ const ZonerIndex = React.lazy(() => import("./pages/ZonerIndex"));
 const ZonDetail = React.lazy(() => import("./pages/ZonDetail"));
 const SatiderIndex = React.lazy(() => import("./pages/SatiderIndex"));
 const SatiderCrop = React.lazy(() => import("./pages/SatiderCrop"));
+const SistaFrost = React.lazy(() => import("./pages/SistaFrost"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -215,6 +216,7 @@ const AppRoutes = () => (
           <Route path="/zoner/:slug" element={<ZonDetail />} />
           <Route path="/satider" element={<SatiderIndex />} />
           <Route path="/satider/:slug" element={<SatiderCrop />} />
+          <Route path="/sista-frost" element={<SistaFrost />} />
           <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="beds" element={<Beds />} />

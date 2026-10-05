@@ -17,6 +17,8 @@ vi.mock('@/hooks/usePublishedSeoSlugs', () => ({
 
 import SatiderCrop from '@/pages/SatiderCrop';
 import SatiderIndex from '@/pages/SatiderIndex';
+import SistaFrost from '@/pages/SistaFrost';
+import RelatedSowingTimes from '@/components/RelatedSowingTimes';
 import { destinationFromSearch, navigationForIntent } from '@/lib/productIntent';
 
 function Where() {
@@ -32,6 +34,8 @@ function show(path: string) {
         <Routes>
           <Route path="/satider" element={<SatiderIndex />} />
           <Route path="/satider/:slug" element={<SatiderCrop />} />
+          <Route path="/sista-frost" element={<SistaFrost />} />
+          <Route path="/blogg/test" element={<RelatedSowingTimes text="Så lyckas du med tomater och vitlök" />} />
           <Route path="*" element={<Where />} />
         </Routes>
       </MemoryRouter>
@@ -106,5 +110,34 @@ describe('avsikten "planera säsongen"', () => {
   it('behåller den gamla zonvägen', () => {
     const search = new URLSearchParams({ return: '/app/calendar', zone: '6' });
     expect(destinationFromSearch(search, null)).toEqual({ path: '/app/calendar', state: { zone: 6 } });
+  });
+});
+
+describe('/sista-frost', () => {
+  it('svarar för en sökt ort och erbjuder frostvarning', () => {
+    show('/sista-frost');
+    expect(screen.getByRole('heading', { level: 1, name: /När är sista frosten/ })).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Ort'), { target: { value: 'umeå' } });
+    const status = screen.getByRole('status');
+    expect(status).toHaveTextContent('Umeå ligger i odlingszon 6');
+    expect(status).toHaveTextContent('Sista frost normalt: vecka 23');
+    fireEvent.click(screen.getByRole('button', { name: 'Spara zon 6 som min zon på sajten' }));
+    expect(localStorage.getItem('odlingszon')).toBe('6');
+    const alert = new URL(screen.getByRole('link', { name: /Slå på frostvarning/ }).getAttribute('href')!, 'https://x.se');
+    expect(alert.searchParams.get('return')).toBe('/app/settings');
+  });
+
+  it('säger ifrån vänligt för okända orter', () => {
+    show('/sista-frost');
+    fireEvent.change(screen.getByLabelText('Ort'), { target: { value: 'Atlantis' } });
+    expect(screen.getByRole('status')).toHaveTextContent('Vi har ingen uppgift om orten');
+  });
+});
+
+describe('såtidsrutan i bloggartiklar', () => {
+  it('länkar till grödorna artikeln handlar om, med rätt verb', () => {
+    show('/blogg/test');
+    expect(screen.getByRole('link', { name: 'När ska man så tomater?' })).toHaveAttribute('href', '/satider/tomat');
+    expect(screen.getByRole('link', { name: 'När ska man sätta vitlök?' })).toHaveAttribute('href', '/satider/vitlok');
   });
 });

@@ -12,6 +12,7 @@ import ShareButtons from '@/components/ShareButtons';
 import BlogComments from '@/components/BlogComments';
 import { Seo } from '@/hooks/useSeo';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
+import RelatedSowingTimes from '@/components/RelatedSowingTimes';
 import PublicLayout from '@/components/PublicLayout';
 import PublicNotFound from '@/components/PublicNotFound';
 import { extractHeadings, injectHeadingIds, sortRelatedPosts, pickContextualCta } from '@/lib/blogArticle';
@@ -357,6 +358,8 @@ export default function GuideArticle() {
               />
             </div>
           )}
+
+          <RelatedSowingTimes text={`${post.title} ${(post.tags ?? []).join(' ')} ${post.excerpt ?? ''}`} className="mt-10" />
 
           {/* Share + tags */}
           <div className="mt-10 pt-6 border-t border-border/50 space-y-4">

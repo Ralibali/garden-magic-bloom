@@ -10,6 +10,7 @@ import {
   BarChart3, Camera, Bell, BookOpen, Sparkles, Sun, Home, Building2, Trees
 } from 'lucide-react';
 import { CURRENT_YEAR } from '@/lib/currentYear';
+import { FROST_PATH, POPULAR_CROP_NAMES, queryName, SATIDER_PATH, satiderHref, verbFor } from '@/lib/guideRoutes';
 import { trackEvent } from '@/lib/analytics';
 
 const trackCta = (label: string) => {
@@ -252,6 +253,30 @@ export default function GrowthHome() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Såtider – interna länkar till de mest sökta grödorna */}
+      <section aria-labelledby="satider-heading" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div className="mb-8 max-w-2xl">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-primary font-semibold mb-3">Såtider {CURRENT_YEAR}</p>
+          <h2 id="satider-heading" className="font-serif text-3xl sm:text-4xl text-foreground">När ska man så?</h2>
+          <p className="mt-3 text-muted-foreground leading-relaxed">Vecka för vecka i din odlingszon – samma tider som appens kalender räknar med.</p>
+        </div>
+        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {POPULAR_CROP_NAMES.map((crop) => (
+            <li key={crop}>
+              <Link to={satiderHref(crop)} className="flex items-center justify-between rounded-xl border border-border/60 bg-card/60 px-4 py-3 text-foreground transition-colors hover:border-primary/40 hover:text-primary">
+                När ska man {verbFor(crop)} {queryName(crop)}? <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+              </Link>
+            </li>
+          ))}
+          <li>
+            <Link to={FROST_PATH} className="flex items-center justify-between rounded-xl border border-border/60 bg-card/60 px-4 py-3 text-foreground transition-colors hover:border-primary/40 hover:text-primary">
+              När är sista frosten där du bor? <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+            </Link>
+          </li>
+        </ul>
+        <p className="mt-5"><Link to={SATIDER_PATH} className="text-sm font-semibold text-primary hover:underline">Se såtider för alla grödor →</Link></p>
       </section>
 
       {/* FAQ */}

@@ -1,4 +1,6 @@
 import { getSowingWeekTiming, normalizeZone, sowingWeeks } from './sowingWeeks.ts'
+import { calendarLib } from './calendarLib.ts'
+import { cropSlug, SATIDER_PATH } from './satiderRoutes.ts'
 
 export interface DigestProfile {
   user_id: string
@@ -7,6 +9,8 @@ export interface DigestProfile {
 }
 
 export interface DigestSowing {
+  id?: string
+  crop_key?: string | null
   variety: string
   status?: string | null
   sow_date?: string | null
@@ -27,15 +31,42 @@ export interface DigestReminder {
   due_date: string
 }
 
+/** En rad ur reminder_settings.settings.reminders – användarens egna påminnelser. */
+export interface DigestReminderItem {
+  id?: string
+  title?: string | null
+  date?: string | null
+  done?: boolean | null
+}
+
+/** Något kalendern själv räknat fram för veckan: utplantering, omgångssådd, skördestart. */
+export interface DigestHighlight {
+  kind: string
+  title: string
+  date: string
+  warning?: string
+}
+
+export interface DigestCropLink {
+  name: string
+  url: string
+  /** Sista veckan i såfönstret. */
+  closing: boolean
+}
+
 export interface DigestModelInput {
   profile: DigestProfile
   sowings: DigestSowing[]
   harvests: DigestHarvest[]
   reminders?: DigestReminder[]
+  /** Användarens egna påminnelser (reminder_settings). */
+  reminderItems?: DigestReminderItem[]
   photoCountLastWeek?: number
   forecastMinTemp?: number | null
   currentDate?: Date
   currentWeek?: number
+  /** Dagens datum i Sverige (YYYY-MM-DD). Räknas från currentDate om det saknas. */
+  today?: string
 }
 
 export interface DigestModel {
@@ -46,6 +77,12 @@ export interface DigestModel {
   zone: number
   firstName: string
   sowNow: string[]
+  /** Samma grödor som sowNow, med länk till såtidssidan och flagga för sista veckan. */
+  sowNowLinks: DigestCropLink[]
+  /** Kalenderns egna förslag för de kommande sju dagarna. */
+  calendarHighlights: DigestHighlight[]
+  /** Öppna påminnelser vars datum redan passerat. */
+  overdueReminders: number
   soonHarvest: string[]
   activeSowings: DigestSowing[]
   harvestKg: number
@@ -106,6 +143,51 @@ function harvestKgForYear(harvests: DigestHarvest[], year: number): number {
   return Math.round((grams / 1000) * 10) / 10
 }
 
+/** Appens statusar på svenska – mejlet ska aldrig visa "indoor". */
+export const STATUS_LABEL_SV: Record<string, string> = {
+  sown: 'sådd',
+  indoor: 'förodlas',
+  transplanted: 'utplanterad',
+  harvesting: 'ger skörd',
+  flowering: 'blommar',
+  overwintering: 'övervintras',
+  done: 'avslutad',
+}
+
+export const SITE_URL = 'https://odlingsdagboken.com'
+
+export function stockholmDateKey(date: Date): string {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Stockholm', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date)
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+  return `${values.year}-${values.month}-${values.day}`
+}
+
+function upcomingReminders(items: DigestReminderItem[], today: string, end: string) {
+  const open = items.filter((item) => item && !item.done && item.title && /^\d{4}-\d{2}-\d{2}$/.test(String(item.date ?? '')))
+  return {
+    upcoming: open
+      .filter((item) => item.date! >= today && item.date! <= end)
+      .sort((a, b) => a.date!.localeCompare(b.date!))
+      .map((item) => ({ title: String(item.title), due_date: item.date! })),
+    // Bara det senaste kvartalet – riktigt gamla rader är glömda, inte försenade.
+    overdue: open.filter((item) => item.date! < today && item.date! >= calendarLib.addDays(today, -90)).length,
+  }
+}
+
+function calendarHighlights(sowings: DigestSowing[], zone: number, today: string): DigestHighlight[] {
+  const events = calendarLib.buildCalendarEvents({
+    zone,
+    from: today,
+    to: calendarLib.addDays(today, 6),
+    today,
+    sowings: sowings.map((sowing, i) => ({ ...sowing, id: sowing.id ?? `digest-${i}` })),
+  })
+  return calendarLib.upcomingCalendarHighlights(events, today, 7)
+    .filter((event) => !event.id.startsWith('forecast-frost:'))
+    .slice(0, 5)
+    .map((event) => ({ kind: event.kind, title: event.title, date: event.date, ...(event.warning ? { warning: event.warning } : {}) }))
+}
+
 export function buildDigestModel(input: DigestModelInput): DigestModel {
   const now = input.currentDate ?? new Date()
   const iso = input.currentWeek
@@ -113,6 +195,7 @@ export function buildDigestModel(input: DigestModelInput): DigestModel {
     : getIsoWeek(now)
   const zone = normalizeZone(input.profile.climate_zone)
   const crops = Object.keys(sowingWeeks)
+  const today = input.today ?? stockholmDateKey(now)
 
   const sowNow = crops
     .filter((crop) => {
@@ -120,6 +203,10 @@ export function buildDigestModel(input: DigestModelInput): DigestModel {
       return inRange(iso.week, timing?.pre, 1) || inRange(iso.week, timing?.direct, 1)
     })
     .slice(0, 5)
+
+  const guide = calendarLib.getWeekGuide(zone, iso.week)
+  const closing = new Set([...guide.forodla, ...guide.direktsa].filter((crop) => crop.closesNow).map((crop) => crop.name))
+  const sowNowLinks = sowNow.map((name) => ({ name, url: `${SITE_URL}${SATIDER_PATH}/${cropSlug(name)}`, closing: closing.has(name) }))
 
   const soonHarvest = Array.from(new Set(
     input.sowings
@@ -133,12 +220,25 @@ export function buildDigestModel(input: DigestModelInput): DigestModel {
 
   const active = activeSowings(input.sowings)
   const harvestKg = harvestKgForYear(input.harvests, iso.year)
-  const reminders = (input.reminders ?? []).slice(0, 7)
+  const own = upcomingReminders(input.reminderItems ?? [], today, calendarLib.addDays(today, 6))
+  const seen = new Set<string>()
+  const reminders = [...own.upcoming, ...(input.reminders ?? [])]
+    .filter((reminder) => {
+      const key = `${reminder.title.toLowerCase()}|${reminder.due_date}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    .sort((a, b) => a.due_date.localeCompare(b.due_date))
+    .slice(0, 7)
+  const highlights = calendarHighlights(input.sowings, zone, today)
   const photoCountLastWeek = input.photoCountLastWeek ?? 0
   const forecastMinTemp = input.forecastMinTemp ?? null
   const frostWarning = typeof forecastMinTemp === 'number' && forecastMinTemp < 3
 
   const hasContent = Boolean(
+    highlights.length ||
+    own.overdue ||
     sowNow.length ||
     soonHarvest.length ||
     active.length ||
@@ -156,6 +256,9 @@ export function buildDigestModel(input: DigestModelInput): DigestModel {
     zone,
     firstName: firstName(input.profile.display_name),
     sowNow,
+    sowNowLinks,
+    calendarHighlights: highlights,
+    overdueReminders: own.overdue,
     soonHarvest,
     activeSowings: active,
     harvestKg,

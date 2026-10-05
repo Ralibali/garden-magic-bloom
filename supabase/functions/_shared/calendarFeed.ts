@@ -1,23 +1,8 @@
 // Prenumererbar odlingskalender. Ren logik utan Supabase-beroenden så att den
 // går att testa från vitest; index.ts i calendar-feed kopplar in databasen.
-import * as bundle from './gardenCalendar.bundle.js';
+import { calendarLib } from './calendarLib.ts';
 
-// Den genererade filen är JS; här är de signaturer servern använder. Beteendet
-// testas mot den riktiga koden i src/test/calendarFeed.test.ts.
-interface CalendarLib {
-  addDays(key: string, days: number): string;
-  buildCalendarEvents(input: {
-    zone: number;
-    from: string;
-    to: string;
-    today: string;
-    sowings?: unknown[];
-    harvests?: unknown[];
-    reminders?: unknown[];
-  }): unknown[];
-  buildIcs(events: unknown[], options?: { calendarName?: string; now?: Date; refreshHours?: number }): string;
-}
-const { addDays, buildCalendarEvents, buildIcs } = bundle as unknown as CalendarLib;
+const { addDays, buildCalendarEvents, buildIcs } = calendarLib;
 
 export interface FeedGarden {
   zone: number | null;

@@ -754,7 +754,7 @@ function buildCalendarEvents({ zone, from, to, today, sowings = [], harvests = [
       });
     }
     if (!isActive(sowing.status)) continue;
-    const plantOut = diffDays(sowing.sow_date, today) <= 150 ? estimatePlantOut(sowing, z) : null;
+    const plantOut = isDateKey(sowing.sow_date) && diffDays(sowing.sow_date, today) <= 150 ? estimatePlantOut(sowing, z) : null;
     if (plantOut) {
       const date = plantOut < today ? today : plantOut;
       if (inRange(date)) {
