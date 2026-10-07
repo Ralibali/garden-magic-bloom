@@ -56,6 +56,8 @@ function staticPagesForYear(currentYear = new Date().getFullYear()) {
     { route: '/zoner', title: 'Odlingszoner i Sverige – frost, såtid och utplantering', description: 'Lär dig hur svensk odlingszon påverkar frost, såtid, utplantering och vilka växter som passar där du bor.', heading: 'Odlingszoner i Sverige', schemaType: 'CollectionPage' },
     { route: '/install', title: 'Installera Odlingsdagboken som app', description: 'Installera Odlingsdagboken på mobil, surfplatta eller dator och öppna din odling direkt från hemskärmen.', heading: 'Installera Odlingsdagboken' },
     { route: '/terms', title: 'Villkor och integritet | Odlingsdagboken', description: 'Läs användarvillkor och information om hur Odlingsdagboken behandlar personuppgifter.', heading: 'Villkor och integritet' },
+    { route: '/auth/connect', title: 'Koppla konton – Odlingsdagboken', description: 'Koppla dina konton.', heading: 'Odling + Höns', noindex: true },
+    { route: '/auth/garden-invite', title: 'Inbjudan till odling – Odlingsdagboken', description: 'Granska en inbjudan.', heading: 'Dela en odling', noindex: true },
     { route: '/auth/confirm', title: 'Bekräfta din e-post – Odlingsdagboken', description: 'Bekräfta din e-postadress.', heading: 'Bekräftar din e-post', noindex: true },
     { route: '/login', title: 'Skapa gratis konto | Odlingsdagboken', description: 'Skapa ett gratis konto och börja spara såkalender, odlingsplan, skördar och anteckningar.', heading: 'Skapa konto eller logga in', noindex: true },
     { route: '/reset-password', title: 'Återställ lösenord | Odlingsdagboken', description: 'Återställ lösenordet till ditt konto i Odlingsdagboken.', heading: 'Återställ lösenord', noindex: true },

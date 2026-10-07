@@ -1,3 +1,4 @@
+import { prepareLinkedAccountDeletion } from '../_shared/linkedAccountDeletion.ts';
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { deleteAccountPhotos, isGardenSubscription } from "../_shared/accountDeletion.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -47,6 +48,7 @@ Deno.serve(async (req) => {
       });
     }
 
+    await prepareLinkedAccountDeletion(authHeader,'garden');
     const userId = user.id;
 
     const supabaseAdmin = createClient(

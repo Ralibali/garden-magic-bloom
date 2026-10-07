@@ -1,4 +1,4 @@
-export type AccessType = 'free' | 'trial' | 'granted' | 'stripe' | 'stripe_trial' | 'unknown';
+export type AccessType = 'free' | 'trial' | 'granted' | 'stripe' | 'stripe_trial' | 'unknown' | 'bundle';
 export type AccessSummary = {
   subscribed: boolean;
   access_type: AccessType;

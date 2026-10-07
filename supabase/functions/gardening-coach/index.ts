@@ -1,3 +1,4 @@
+import { readBundleAccess } from '../_shared/bundleEntitlement.ts';
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -155,7 +156,7 @@ serve(async (req) => {
     const admin = createClient(supabaseUrl, serviceRoleKey);
     const { data: profileRow } = await admin.from("profiles").select("display_name, climate_zone, subscription_status, premium_expires_at, preferences").eq("user_id", user.id).maybeSingle();
     const zone = profileRow?.climate_zone || 3;
-    const isPremium = profileRow?.subscription_status === "premium" && (!profileRow?.premium_expires_at || new Date(profileRow.premium_expires_at) > new Date());
+    const isPremium = (await readBundleAccess(admin,user.id)).active || ( profileRow?.subscription_status === "premium" && (!profileRow?.premium_expires_at || new Date(profileRow.premium_expires_at) > new Date()));
     const hasUserQuestion = clientMessages.some((message) => message.role === "user");
     let pendingUsage: { date: string; current: number } | null = null;
 

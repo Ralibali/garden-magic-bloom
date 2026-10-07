@@ -1,3 +1,6 @@
+import GardenInvite from '@/pages/GardenInvite';
+import { gardenExpansionEnabled } from '@/lib/gardenFeatures';
+import ConnectAccount from '@/pages/ConnectAccount';
 import { isNativeApp } from './lib/native';
 import NativeShell from './components/NativeShell';
 import AiConsentGate from './components/AiConsentGate';
@@ -41,6 +44,7 @@ const Terms = React.lazy(() => import("./pages/Terms"));
 const Guides = React.lazy(() => import("./pages/Guides"));
 const GuideArticle = React.lazy(() => import("./pages/GuideArticle"));
 const SowingCalendar = React.lazy(() => import("./pages/SowingCalendar"));
+const SeedExchange = React.lazy(() => import('./pages/SeedExchange'));
 const CropRotation = React.lazy(() => import("./pages/CropRotation"));
 const SeedInventory = React.lazy(() => import("./pages/SeedInventory"));
 const Cultivations = React.lazy(() => import("./pages/Cultivations"));
@@ -189,6 +193,8 @@ const AppRoutes = () => (
           <Route path="/faltdagbok" element={<FieldJournal />} />
           <Route path="/radera-konto" element={<DeleteAccountInfo />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/auth/garden-invite" element={<GardenInvite />} />
+          <Route path="/auth/connect" element={<ConnectAccount />} />
           <Route path="/auth/confirm" element={<ConfirmEmail />} />
           <Route path="/villkor" element={<Navigate to="/terms" replace />} />
           <Route path="/integritet" element={<Navigate to="/terms#integritet" replace />} />
@@ -233,6 +239,7 @@ const AppRoutes = () => (
             <Route path="premium" element={<Premium />} />
             <Route path="admin" element={<Admin />} />
             <Route path="calendar" element={<SowingCalendar />} />
+            <Route path="seed-exchange" element={gardenExpansionEnabled ? <SeedExchange /> : <Navigate to="/app/seeds" replace />} />
             <Route path="rotation" element={<CropRotation />} />
             <Route path="seeds" element={<SeedInventory />} />
             <Route path="odlingar" element={<Cultivations />} />

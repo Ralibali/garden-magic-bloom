@@ -1,3 +1,4 @@
+import { readAll } from '@/lib/diaryApi';
 import { assertWebPurchase } from '@/lib/native';
 import { supabase } from '@/integrations/supabase/client';
 import { resolveGardenLocation } from '@/lib/gardenWeather';
@@ -32,16 +33,14 @@ export async function updateBed(id: string, bedData: any) {
 }
 
 export async function deleteBed(id: string) {
-  const { error } = await supabase.from('beds').delete().eq('id', id);
+  const { error } = await supabase.from('beds').delete().eq('id', id).select('id').single();
   if (error) throw new Error(error.message);
 }
 
 // ==================== SOWINGS ====================
 
 export async function getSowings() {
-  const { data, error } = await supabase.from('sowings').select('*, beds(name)').order('sow_date', { ascending: false });
-  if (error) throw new Error(error.message);
-  return data;
+  return readAll((from,to)=>supabase.from('sowings').select('*, beds(name)').order('sow_date',{ascending:false}).order('id').range(from,to));
 }
 
 export async function createSowing(record: {
@@ -72,16 +71,14 @@ export async function updateSowing(id: string, record: any) {
 }
 
 export async function deleteSowing(id: string) {
-  const { error } = await supabase.from('sowings').delete().eq('id', id);
+  const { error } = await supabase.from('sowings').delete().eq('id', id).select('id').single();
   if (error) throw new Error(error.message);
 }
 
 // ==================== HARVESTS ====================
 
 export async function getHarvests() {
-  const { data, error } = await supabase.from('harvests').select('*, beds(name), sowings(variety)').order('harvest_date', { ascending: false });
-  if (error) throw new Error(error.message);
-  return data;
+  return readAll((from,to)=>supabase.from('harvests').select('*, beds(name), sowings(variety)').order('harvest_date',{ascending:false}).order('id').range(from,to));
 }
 
 export async function createHarvest(record: {
@@ -113,7 +110,7 @@ export async function updateHarvest(id: string, record: {
 }
 
 export async function deleteHarvest(id: string) {
-  const { error } = await supabase.from('harvests').delete().eq('id', id);
+  const { error } = await supabase.from('harvests').delete().eq('id', id).select('id').single();
   if (error) throw new Error(error.message);
 }
 
@@ -211,15 +208,13 @@ export async function getSummaryStats() {
   const yearStart = `${currentYear}-01-01`;
   const yearEnd = `${currentYear}-12-31`;
 
-  const [bedsRes, sowingsRes, harvestsRes] = await Promise.all([
-    supabase.from('beds').select('id'),
-    supabase.from('sowings').select('id, sow_date').gte('sow_date', yearStart).lte('sow_date', yearEnd),
-    supabase.from('harvests').select('weight_grams, harvest_date').gte('harvest_date', yearStart).lte('harvest_date', yearEnd),
+  const [bedRows, sowingRows, harvestRows] = await Promise.all([
+    readAll((from,to)=>supabase.from('beds').select('id').order('id').range(from,to)),
+    readAll((from,to)=>supabase.from('sowings').select('id').gte('sow_date',yearStart).lte('sow_date',yearEnd).order('id').range(from,to)),
+    readAll((from,to)=>supabase.from('harvests').select('weight_grams').gte('harvest_date',yearStart).lte('harvest_date',yearEnd).order('id').range(from,to)),
   ]);
-
-  const beds = (bedsRes.data || []).length;
-  const sowings = (sowingsRes.data || []).length;
-  const totalHarvestGrams = (harvestsRes.data || []).reduce((s, r) => s + (r.weight_grams || 0), 0);
+  const beds=bedRows.length,sowings=sowingRows.length;
+  const totalHarvestGrams=harvestRows.reduce((sum,row)=>sum+(row.weight_grams||0),0);
 
   return {
     active_beds: beds,
@@ -255,26 +250,19 @@ export async function getWeather(climateZone?: number | null) {
 export async function getRainHistory(
   climateZone?: number | null,
   location?: { lat?: number | null; lon?: number | null } | null,
-): Promise<{ dryDays: number; totalPrecipitation: number }> {
-  const { lat, lon } = resolveGardenLocation(climateZone, location);
-  const end = new Date();
-  const start = new Date();
-  start.setDate(start.getDate() - 6);
-  const fmt = (d: Date) => d.toISOString().split('T')[0];
-  const res = await fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum&timezone=Europe/Stockholm&start_date=${fmt(start)}&end_date=${fmt(end)}`
-  );
-  if (!res.ok) throw new Error('Rain history fetch failed');
+): Promise<import('./wateringAdvice').RainHistory> {
+  const resolved = resolveGardenLocation(climateZone, location);
+  const params = new URLSearchParams({ latitude: String(resolved.lat), longitude: String(resolved.lon), daily: 'precipitation_sum', timezone: 'Europe/Stockholm', past_days: '7', forecast_days: '1' });
+  const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { signal: AbortSignal.timeout(12000) });
+  if (!res.ok) throw new Error('Nederbörden kunde inte hämtas');
   const json = await res.json();
-  const precip: number[] = json.daily?.precipitation_sum ?? [];
-  // Count consecutive dry days from today backwards
+  const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Stockholm' }).format(new Date());
+  const times: string[] = json.daily?.time ?? [];
+  const precip = times.map((date, i) => ({ date, value: json.daily?.precipitation_sum?.[i] })).filter(p => p.date < today).slice(-7);
+  if (precip.length !== 7 || precip.some(p => typeof p.value !== 'number' || !Number.isFinite(p.value) || p.value < 0)) throw new Error('Nederbördsunderlaget är ofullständigt');
   let dryDays = 0;
-  for (let i = precip.length - 1; i >= 0; i--) {
-    if (precip[i] < 1) dryDays++;
-    else break;
-  }
-  const totalPrecipitation = precip.reduce((a, b) => a + b, 0);
-  return { dryDays, totalPrecipitation };
+  for (let i = precip.length - 1; i >= 0 && precip[i].value < 1; i--) dryDays++;
+  return { dryDays, totalPrecipitation: precip.reduce((sum,p) => sum+p.value,0), lastThreeDays: precip.slice(-3).reduce((sum,p) => sum+p.value,0), location_source: resolved.location_source };
 }
 
 // ==================== AI ====================

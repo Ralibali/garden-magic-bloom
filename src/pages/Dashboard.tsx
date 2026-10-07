@@ -1,3 +1,4 @@
+import WateringAdvice from '@/components/garden/WateringAdvice';
 import { subscriptionDescription } from '@/lib/subscriptionStatus';
 import { formatKg } from '@/lib/formatNumber';
 import { lazy, Suspense, useMemo, useState } from 'react';
@@ -94,6 +95,8 @@ export default function Dashboard() {
       </nav>
 
       {!planDismissed && !garden.isPending && !garden.isError && !active.length && prefs.onboarding_plan && ((prefs.onboarding_plan.crops?.length ?? 0) > 0 || prefs.onboarding_plan.public_plan) && <PublicPlanHandoff plan={prefs.onboarding_plan.public_plan ?? prefs.onboarding_plan} onDismiss={() => setPlanDismissed(true)} onNavigate={(path, state) => navigate(path, { state })} />}
+
+      {!plantOnly && <WateringAdvice rain={rain.data} temperature={temperature} />}
 
       {frost && <section role="status" className="flex items-start gap-3 rounded-2xl border border-sky-300/60 bg-sky-50 p-4 text-sky-950 dark:border-sky-800 dark:bg-sky-950 dark:text-sky-100"><Snowflake className="mt-0.5 h-5 w-5 shrink-0" /><div><h2 className="font-sans text-base font-semibold text-inherit">{frost.headline}</h2><p className="mt-1 text-sm">{frost.advice}</p></div></section>}
 

@@ -1,3 +1,5 @@
+import { GARDEN_YEARLY_PRICE } from '../_shared/accountDeletion.ts';
+import { readBundleAccess } from '../_shared/bundleEntitlement.ts';
 import { profileAccess } from '../_shared/subscriptionAccess.ts';
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
@@ -29,6 +31,9 @@ serve(async (req) => {
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated");
 
+    const bundle=await readBundleAccess(supabaseClient,user.id);
+    if(bundle.active) return new Response(JSON.stringify({subscribed:true,access_type:'bundle',premium_type:'bundle',subscription_end:bundle.until,can_manage_subscription:false,source:'bundle'}),{headers:{...corsHeaders,'Content-Type':'application/json'}});
+
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles').select('subscription_status, premium_expires_at, created_at')
       .eq('user_id', user.id).single();
@@ -56,10 +61,10 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     // A Checkout trial is manageable even before its first invoice is paid.
     const [active, trials] = await Promise.all([
-      stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 }),
-      stripe.subscriptions.list({ customer: customerId, status: "trialing", limit: 1 }),
+      stripe.subscriptions.list({ customer: customerId, status: "active", limit: 100 }),
+      stripe.subscriptions.list({ customer: customerId, status: "trialing", limit: 100 }),
     ]);
-    const subscription = active.data[0] || trials.data[0];
+    const subscription = [...active.data,...trials.data].find(s=>s.items.data.some(item=>item.price.id===GARDEN_YEARLY_PRICE));
     if (!subscription) return await respondWithProfile(true);
 
     const trial = subscription.status === 'trialing';

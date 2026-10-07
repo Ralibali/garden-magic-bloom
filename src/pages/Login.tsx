@@ -1,3 +1,4 @@
+import { pendingAccountLink } from '@/lib/linkedApps';
 import { authWebOrigin, isNativeApp } from '@/lib/native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Seo } from '@/hooks/useSeo';
@@ -95,6 +96,8 @@ export default function Login() {
   const source = searchParams.get('source') || 'direct';
 
   const goAfterAuth = () => {
+    if(pendingAccountLink()){navigate('/auth/connect',{replace:true});return;}
+    if(sessionStorage.getItem('pending_garden_invite')){navigate('/app/settings',{replace:true});return;}
     const dest = destinationFromSearch(searchParams, loadProductIntent());
     clearProductIntent();
     navigate(dest.path, { replace: true, state: dest.state });

@@ -1,3 +1,4 @@
+import { readBundleAccess } from '../_shared/bundleEntitlement.ts';
 import { GARDEN_YEARLY_PRICE } from "../_shared/accountDeletion.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
@@ -33,6 +34,8 @@ serve(async (req) => {
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated");
 
+    const admin=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+    if((await readBundleAccess(admin,user.id)).active)throw new Error('Du har redan Odling + Höns Plus. Hantera kombopaketet under Inställningar.');
     const body = await req.json();
     const priceId = body.priceId === "default" ? GARDEN_YEARLY_PRICE : body.priceId;
     if (priceId !== GARDEN_YEARLY_PRICE) throw new Error("Unknown plan");

@@ -8,7 +8,7 @@ export function assertWebPurchase() {
 export function nativePathAllowed(path: string) {
   try { path = decodeURIComponent(path).toLowerCase().replace(/\/+$/, '') || '/'; } catch { return false; }
   if (path.includes('%') || path.includes('\\') || path.includes('//')) return false;
-  if (['/', '/faltdagbok', '/login', '/reset-password', '/auth/confirm', '/terms', '/radera-konto'].includes(path)) return true;
+  if (['/', '/faltdagbok', '/login', '/reset-password', '/auth/confirm', '/auth/connect', '/auth/garden-invite', '/terms', '/radera-konto'].includes(path)) return true;
   return (path === '/app' || path.startsWith('/app/')) &&
     !/^\/app\/(premium|admin)(\/|$)/.test(path);
 }

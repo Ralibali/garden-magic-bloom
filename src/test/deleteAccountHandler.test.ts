@@ -72,6 +72,7 @@ function setup(options: Options = {}) {
     require: (specifier: string) => {
       if (specifier === 'https://esm.sh/stripe@18.5.0') return Stripe;
       if (specifier === 'https://esm.sh/@supabase/supabase-js@2') return { createClient: () => client };
+      if (specifier === '../_shared/linkedAccountDeletion.ts') return { prepareLinkedAccountDeletion: async () => { if(options.failure === 'bundle')throw new Error('Bundle unavailable'); } };
       if (specifier === '../_shared/accountDeletion.ts') return { deleteAccountPhotos, isGardenSubscription };
       throw new Error(`Unexpected dependency: ${specifier}`);
     },
@@ -98,6 +99,8 @@ describe('account deletion against the deployed schema', () => {
     expect((await request(undefined, invalidSession)).status).toBe(401);
     expect(calls).toEqual([]);
   });
+
+  it('stops before deleting logs if linked billing cannot be cancelled',async()=>{const {calls,request}=setup({failure:'bundle'});expect((await request()).status).toBe(500);expect(calls).toEqual([]);});
 
   it('removes the verified caller through the existing schema and deletes Auth last', async () => {
     const { calls, request } = setup();

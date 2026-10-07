@@ -1,3 +1,6 @@
+import { OnboardingFrame } from '../../packages/app-foundation/src/OnboardingFrame';
+import { subscriptionDescription } from '@/lib/subscriptionStatus';
+import { useAuth } from '@/hooks/useAuth';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -37,6 +40,7 @@ function ToggleButton({ active, children, onClick }: { active: boolean; children
 }
 
 export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
+  const { user } = useAuth();
   const [publicContext] = useState(loadPublicPlan);
   const importedPlan = publicContext?.type !== 'odlingsakuten' ? publicContext : null;
   const [step, setStep] = useState(importedPlan?.zone && importedPlan.method ? 4 : 0);
@@ -129,7 +133,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         </div>
 
         <div className="bg-card border border-border rounded-3xl shadow-xl p-5 sm:p-8 overflow-hidden">
-          <AnimatePresence mode="wait">
+          <OnboardingFrame onSkip={() => void skip()} busy={saving} status={subscriptionDescription(user)}><AnimatePresence mode="wait">
             <motion.div key={step} initial={{ opacity: 0, x: 28 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -28 }} transition={{ duration: 0.22 }}>
               {step === 0 && <div className="text-center space-y-6 py-4 sm:py-8"><div className="w-16 h-16 rounded-3xl bg-primary/10 text-primary flex items-center justify-center mx-auto"><Leaf className="h-8 w-8" /></div><div className="space-y-3"><p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold">Välkommen till din odling</p><h1 className="font-serif text-3xl sm:text-5xl">Låt appen börja med en plan – inte en tom skärm</h1><p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">På ungefär en minut anpassar vi verktyg, såtider och nästa steg efter vad du odlar och var i Sverige du bor.</p></div><Button size="lg" className="gap-2 h-12 px-7" onClick={() => setStep(1)}>Anpassa min dagbok <ArrowRight className="h-4 w-4" /></Button></div>}
 
@@ -142,10 +146,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               {step === 4 && <div className="space-y-6"><div>{importedPlan && <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary border border-primary/20 px-3 py-1 text-xs font-medium mb-4"><Check className="h-3.5 w-3.5" /> Din {importedPlan.type === 'sakalender' ? 'såkalender' : 'plan'} är hämtad</div>}<p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Nivå och sammanfattning</p><h1 className="font-serif text-3xl mb-2">{importedPlan ? 'Spara planen i din odlingsdagbok' : 'Hur mycket guidning passar dig?'}</h1><p className="text-sm text-muted-foreground">{importedPlan ? 'Du har en sparad plan från ett publikt verktyg. Kontrollera valen nedan innan du sparar din odlingsprofil.' : 'Det påverkar hur detaljerade rekommendationerna blir.'}</p></div><div className="grid gap-3">{EXPERIENCE_LEVELS.map(level => <button key={level.id} type="button" onClick={() => setExperience(level.id)} className={`text-left rounded-2xl border p-4 transition-all ${experience === level.id ? 'border-primary bg-primary/8' : 'border-border hover:border-primary/30'}`}><div className="flex items-center justify-between gap-3"><div><p className="font-medium">{level.title}</p><p className="text-xs text-muted-foreground mt-1">{level.text}</p></div>{experience === level.id && <Check className="h-4 w-4 text-primary shrink-0" />}</div></button>)}</div><div className="rounded-2xl bg-primary/10 border border-primary/20 p-4 flex gap-3"><Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" /><div><p className="text-sm font-medium">Dina val</p><p className="text-sm text-muted-foreground mt-1">{selectedCategories.length} odlingsområde{selectedCategories.length === 1 ? '' : 'n'}, zon {climateZone}, {crops.length} önskade grödor och nivån “{experienceLabel}”.</p><p className="text-sm text-muted-foreground mt-2">{methods.length ? `Odlingssätt: ${methods.join(', ')}. ` : ''}{crops.length ? `Grödor: ${crops.join(', ')}. ` : ''}Det här sparar dina önskemål. En aktiv odling skapas först när du lägger till en växt eller loggar en sådd.</p></div></div><div className="grid gap-3 sm:grid-cols-2"><Button variant="outline" className="h-auto min-h-11 whitespace-normal" disabled={saving} onClick={() => setStep(2)}>Justera planen</Button><Button className="h-auto min-h-11 whitespace-normal gap-2" onClick={finish} disabled={saving}>{saving ? 'Sparar din plan…' : importedPlan ? 'Spara och öppna min dagbok' : 'Öppna min Odlingsdagbok'} {!saving && <ArrowRight className="h-4 w-4" />}</Button></div></div>}
             </motion.div>
           </AnimatePresence>
-          <div className="mt-6 border-t border-border pt-4 text-center">
-            <Button variant="ghost" disabled={saving} onClick={skip}>Hoppa över</Button>
-            <p className="text-sm text-muted-foreground">Du kan anpassa din odlingsprofil senare i inställningarna.</p>
-          </div>
+          </OnboardingFrame>
         </div>
       </div>
     </div>

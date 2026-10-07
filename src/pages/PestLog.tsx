@@ -1,3 +1,4 @@
+import PestPhoto from '@/components/garden/PestPhoto';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -140,6 +141,7 @@ export default function PestLog() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
+      <PestPhoto />
       <section className="premium-panel relative overflow-hidden p-5 sm:p-6">
         <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-destructive/8 blur-3xl" />
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">

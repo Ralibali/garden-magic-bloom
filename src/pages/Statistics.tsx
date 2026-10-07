@@ -1,3 +1,4 @@
+import SeasonShareDialog from '@/components/SeasonShareDialog';
 import CropPriceEditor from '@/components/CropPriceEditor';
 import { useCropPrices } from '@/hooks/useCropPrices';
 import { formatKg } from '@/lib/formatNumber';
@@ -40,9 +41,9 @@ const Statistics = () => {
   const currentYear = new Date().getFullYear();
   const prevYear = currentYear - 1;
 
-  const { data: stats, isLoading } = useQuery({ queryKey: ['summary-stats'], queryFn: api.getSummaryStats });
-  const { data: harvests } = useQuery({ queryKey: ['harvests'], queryFn: api.getHarvests });
-  const { data: sowingsRaw } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const { data: stats, isLoading, isError: statsError } = useQuery({ queryKey: ['summary-stats'], queryFn: api.getSummaryStats });
+  const { data: harvests, isError: harvestError } = useQuery({ queryKey: ['harvests'], queryFn: api.getHarvests });
+  const { data: sowingsRaw, isError: sowingError } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const sowings = useMemo(
     () => (sowingsRaw || []).filter((s: any) => normalizePlantKind(s.plant_kind) === 'edible'),
     [sowingsRaw],
@@ -138,10 +139,10 @@ const Statistics = () => {
   const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
 
   // Komplett delbar säsongsrapport
-  const seasonSummaryText = useMemo(() => {
+  const seasonSummary = useMemo(() => {
     const yearHarvests = (harvests || []).filter((h: any) => new Date(h.harvest_date).getFullYear() === currentYear);
     const totalGrams = yearHarvests.reduce((sum: number, h: any) => sum + (h.weight_grams || 0), 0);
-    return buildSeasonSummary({
+    return {
       year: currentYear,
       totalGrams,
       harvestCount: yearHarvests.length,
@@ -150,13 +151,14 @@ const Statistics = () => {
       topCrops: harvestValue.byVariety.map((v) => ({ variety: v.variety, grams: Math.round(v.kg * 1000) })),
       valueSek: harvestValue.total,
       climateZone: profile?.climate_zone ?? null,
-    });
+    };
   }, [harvests, currentYear, stats, harvestValue, profile]);
 
   if (isLoading) return <div className="space-y-4"><Skeleton className="h-8 w-48" /><Skeleton className="h-64" /></div>;
 
   const isEmpty = stats?.active_beds === 0 && stats?.sowings_this_year === 0 && stats?.harvest_kg === 0;
 
+  if(statsError||harvestError||sowingError)return <div role="alert" className="rounded-xl border p-6"><h1 className="font-serif text-xl">Statistiken kunde inte hämtas</h1><p>Uppdatera sidan för att försöka igen. Dina loggar är kvar.</p></div>;
   return (
     <PremiumGate feature="Statistik & trender">
     <div className="space-y-6">
@@ -180,17 +182,7 @@ const Statistics = () => {
                   <p className="text-3xl font-bold text-foreground">{harvestValue.total.toLocaleString('sv-SE')} kr</p>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                className="gap-1.5"
-                onClick={async () => {
-                  const result = await shareSeasonText(seasonSummaryText);
-                  if (result === 'copied') toast({ title: 'Säsongsrapporten är kopierad! 📋', description: 'Klistra in den var du vill dela din säsong.' });
-                  else if (result === 'failed') toast({ title: 'Kunde inte dela', description: 'Försök igen.', variant: 'destructive' });
-                }}
-              >
-                <Share2 className="h-4 w-4" /> Dela säsongen
-              </Button>
+              <SeasonShareDialog season={seasonSummary} />
             </CardContent>
           </Card>
         </FadeIn>

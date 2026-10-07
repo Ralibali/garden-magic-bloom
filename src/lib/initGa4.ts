@@ -9,7 +9,7 @@ initGa4({
   ],
   "excluded": [
     "/app/admin",
-    "/admin"
+    "/admin", "/auth"
   ],
   "consentKey": "cookie-consent-ga4-v2",
   "consentFormat": "updro"

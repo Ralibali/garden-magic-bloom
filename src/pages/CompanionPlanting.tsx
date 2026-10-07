@@ -1,3 +1,5 @@
+import { gardenExpansionEnabled } from '@/lib/gardenFeatures';
+import { getBedPlantings } from '@/lib/gardenPlanningApi';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,6 +20,9 @@ const CompanionPlanting = () => {
   const [search, setSearch] = useState('');
   const { data: sowings } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
 
+  const plans = useQuery({ queryKey: ['bed-plantings'], queryFn: getBedPlantings, enabled: gardenExpansionEnabled });
+  const currentYear=new Date().getFullYear();
+  const currentPlans = useMemo(()=>(plans.data ?? []).filter(p => p.year === currentYear),[plans.data,currentYear]);
   const plants = Object.keys(COMPANION_DATA);
   const q = search.trim().toLowerCase();
   const filtered = plants.filter(p => p.toLowerCase().includes(q));
@@ -25,10 +30,10 @@ const CompanionPlanting = () => {
   // Analysera användarens aktiva sådder mot samplanteringstabellen
   const analysis = useMemo(() => {
     const active = (sowings || []).filter((s: any) => normalizeSowingStatus(s.status) !== 'done');
-    return analyzeUserSowings(active);
-  }, [sowings]);
+    return analyzeUserSowings([...active, ...currentPlans]);
+  }, [sowings, currentPlans]);
 
-  const hasActiveSowings = (sowings || []).some((s: any) => normalizeSowingStatus(s.status) !== 'done');
+  const hasActiveSowings = currentPlans.length > 0 || (sowings || []).some((s: any) => normalizeSowingStatus(s.status) !== 'done');
   const hasAnalysis = analysis.good.length > 0 || analysis.bad.length > 0;
 
   return (
@@ -44,7 +49,7 @@ const CompanionPlanting = () => {
         </section>
       </FadeIn>
 
-      {/* Analys av användarens faktiska odling */}
+      <p className="text-sm text-muted-foreground">Jämförelsen inkluderar årets planerade grödor från bäddkartan och dina aktiva sådder.</p>{plans.isError && <p role="alert">Bäddplanen kunde inte hämtas. <Button variant="outline" onClick={() => void plans.refetch()}>Försök igen</Button></p>}
       {hasActiveSowings && (
         <FadeIn delay={0.05}>
           <section className="space-y-3">

@@ -1,3 +1,6 @@
+import { gardenExpansionEnabled } from '@/lib/gardenFeatures';
+import LinkedApps from '@/components/LinkedApps';
+import GardenSharing from '@/components/garden/GardenSharing';
 import { subscriptionLabel, subscriptionDescription } from '@/lib/subscriptionStatus';
 import { downloadAccountData } from '@/lib/accountExport';
 import { hasAiConsent, setAiConsent } from '@/lib/aiConsent';
@@ -156,7 +159,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6"><LinkedApps />{gardenExpansionEnabled && <GardenSharing />}
       <Card><CardHeader><CardTitle>AI och dina uppgifter</CardTitle></CardHeader><CardContent className="space-y-3"><p className="text-sm text-muted-foreground">{aiAllowed ? 'Du har valt att dela odlingsuppgifter och valda bilder med Gemini via Lovable när du använder AI.' : 'Du har inte godkänt AI-delning på den här enheten.'}</p>{aiAllowed && <Button variant="outline" onClick={() => { if (user?.id) { setAiConsent(user.id, false); setAiAllowed(false); } }}>Återkalla AI-samtycke</Button>}</CardContent></Card>
       <h1 className="text-2xl font-bold flex items-center gap-2"><SettingsIcon className="h-6 w-6" /> Inställningar</h1>
 
@@ -262,7 +265,7 @@ const SettingsPage = () => {
                   <AlertTriangle className="h-5 w-5 text-destructive" /> Är du säker?
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  All din data raderas permanent och kan inte återställas. Ditt konto, alla bäddar, sådder, skördar, krukväxter, foton och inställningar tas bort.
+                  All din data raderas permanent och kan inte återställas. Ditt konto, alla bäddar, sådder, skördar, krukväxter, foton och inställningar tas bort. Har du Odling + Höns Plus avslutas kombopaketet och Plus-tillgången i båda apparna.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

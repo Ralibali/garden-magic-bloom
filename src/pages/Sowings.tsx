@@ -105,6 +105,7 @@ const Sowings = () => {
   useEffect(() => { const handler = (event: MouseEvent) => { if (brandRef.current && !brandRef.current.contains(event.target as Node)) setShowBrandSuggestions(false); }; document.addEventListener('mousedown', handler); return () => document.removeEventListener('mousedown', handler); }, []);
 
   const { data: sowingsRaw, isLoading } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
+  const ownSowingCount=(sowingsRaw??[]).filter(row=>row.user_id===user?.id).length;
   useEffect(() => {
     if (!locationState.sowingId || !sowingsRaw) return;
     const target = sowingsRaw.find(s => s.id === locationState.sowingId);
@@ -166,7 +167,7 @@ const Sowings = () => {
 
   const createMutation = useMutation({
     mutationFn: () => {
-      if (!isPremium && (sowingsRaw?.length ?? 0) >= FREE_SOWING_LIMIT) throw new Error('SOWING_LIMIT');
+      if (!isPremium && ownSowingCount >= FREE_SOWING_LIMIT) throw new Error('SOWING_LIMIT');
       return api.createSowing({
         ...sowingPayloadFromVariety(variety.trim(), {
           bed_id: bedId || undefined,
@@ -268,7 +269,7 @@ const Sowings = () => {
   });
 
   const openCreate = () => {
-    if (!isPremium && (sowingsRaw?.length || 0) >= FREE_SOWING_LIMIT) {
+    if (!isPremium && ownSowingCount >= FREE_SOWING_LIMIT) {
       toast({ title: 'Gratisgränsen är nådd', description: (isNativeApp() ? 'Kontots gratisgräns är nådd.' : 'Plus ger obegränsad sålogg.'), variant: 'destructive' });
       return;
     }
@@ -294,7 +295,7 @@ const Sowings = () => {
           <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-primary/8 blur-3xl" />
           <div className="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div><span className="section-kicker mb-3"><Sparkles className="h-3.5 w-3.5" /> Din odlingshistorik</span><h1 className="page-title">Sålogg</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Följ varje sådd från frö till skörd. Flytta den vidare i livscykeln med ett tryck — tidslinjen och statistiken hänger med automatiskt.</p></div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center"><FreeLimitBadge current={sowingsRaw?.length || 0} limit={FREE_SOWING_LIMIT} label="sådder" /><div className="relative"><Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Sök sort eller märke…" value={search} onChange={(event) => setSearch(event.target.value)} className="pl-10 w-full sm:w-60" /></div><Button className="gap-2" onClick={openCreate}><Plus className="h-4 w-4" /> Ny sådd</Button></div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center"><FreeLimitBadge current={ownSowingCount} limit={FREE_SOWING_LIMIT} label="sådder" /><div className="relative"><Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Sök sort eller märke…" value={search} onChange={(event) => setSearch(event.target.value)} className="pl-10 w-full sm:w-60" /></div><Button className="gap-2" onClick={openCreate}><Plus className="h-4 w-4" /> Ny sådd</Button></div>
           </div>
         </section>
       </FadeIn>

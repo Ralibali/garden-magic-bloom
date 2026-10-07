@@ -13,6 +13,7 @@ import PublicEmailCapture from '@/components/PublicEmailCapture';
 const mocks = vi.hoisted(() => ({ verifyOtp: vi.fn(), getSession: vi.fn(), getUser: vi.fn(), getProfile: vi.fn(), updateProfile: vi.fn(), insert: vi.fn(), toast: vi.fn() }));
 vi.mock('@/integrations/supabase/client', () => ({ supabase: { auth: { verifyOtp: mocks.verifyOtp, getSession: mocks.getSession, getUser: mocks.getUser }, from: () => ({ insert: mocks.insert }) } }));
 vi.mock('@/lib/api', () => ({ api: { getProfile: mocks.getProfile, updateProfile: mocks.updateProfile } }));
+vi.mock('@/hooks/useAuth',()=>({useAuth:()=>({user:{is_premium:false,access_type:'free'}})}));
 vi.mock('@/hooks/use-toast', () => ({ toast: mocks.toast }));
 vi.mock('@/lib/analytics', () => ({ trackEvent: vi.fn() }));
 vi.mock('@/lib/plausible', () => ({ plausibleEvent: vi.fn() }));

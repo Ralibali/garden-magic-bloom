@@ -1,3 +1,5 @@
+import { gardenExpansionEnabled } from '@/lib/gardenFeatures';
+import SeedTasks from '@/components/seeds/SeedTasks';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -261,7 +263,7 @@ const SeedInventory = () => {
         </StaggerContainer>
       )}
 
-      <SeedPlans />
+      {gardenExpansionEnabled && <Button variant="outline" onClick={() => navigate('/app/seed-exchange')}>Byt eller ge bort frön</Button>}<SeedTasks seeds={seeds ?? []} onPlan={setPlanning} /><SeedPlans />
       {planning && <SeedPlanForm seed={planning} onClose={() => setPlanning(null)} />}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>

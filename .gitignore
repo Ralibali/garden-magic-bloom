@@ -40,3 +40,6 @@ android/key.properties
 android/app/google-services.json
 GoogleService-Info.plist
 *.p8
+
+# Local Supabase CLI metadata
+supabase/.temp/

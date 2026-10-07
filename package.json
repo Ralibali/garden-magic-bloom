@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "editorial:check": "node scripts/editorial-publisher.mjs check && node --test scripts/editorial-publisher.test.mjs",
-    "prebuild": "npm run editorial:check",
+    "prebuild": "node scripts/check-app-foundation.mjs && npm run editorial:check",
     "build:native": "node scripts/build-native.mjs production",
     "build:native:dev": "node scripts/build-native.mjs sandbox",
     "native:sync": "npm run build:native && cap sync",
@@ -100,6 +100,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "8.5.1",
+    "@electric-sql/pglite": "0.5.8",
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.0",

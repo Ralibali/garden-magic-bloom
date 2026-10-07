@@ -1,3 +1,4 @@
+import { gardenExpansionEnabled } from '@/lib/gardenFeatures';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,42 +8,8 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Vegetable family classification
-const FAMILY_MAP: Record<string, { family: string; color: string; label: string }> = {
-  tomat: { family: 'nightshade', color: 'bg-red-100 text-red-800 border-red-200', label: 'Nattskatta' },
-  paprika: { family: 'nightshade', color: 'bg-red-100 text-red-800 border-red-200', label: 'Nattskatta' },
-  chili: { family: 'nightshade', color: 'bg-red-100 text-red-800 border-red-200', label: 'Nattskatta' },
-  potatis: { family: 'nightshade', color: 'bg-red-100 text-red-800 border-red-200', label: 'Nattskatta' },
-  aubergine: { family: 'nightshade', color: 'bg-red-100 text-red-800 border-red-200', label: 'Nattskatta' },
-  morot: { family: 'root', color: 'bg-orange-100 text-orange-800 border-orange-200', label: 'Rotfrukt' },
-  palsternacka: { family: 'root', color: 'bg-orange-100 text-orange-800 border-orange-200', label: 'Rotfrukt' },
-  betor: { family: 'root', color: 'bg-orange-100 text-orange-800 border-orange-200', label: 'Rotfrukt' },
-  rödbeta: { family: 'root', color: 'bg-orange-100 text-orange-800 border-orange-200', label: 'Rotfrukt' },
-  rödbetor: { family: 'root', color: 'bg-orange-100 text-orange-800 border-orange-200', label: 'Rotfrukt' },
-  lök: { family: 'root', color: 'bg-orange-100 text-orange-800 border-orange-200', label: 'Rotfrukt' },
-  vitlök: { family: 'root', color: 'bg-orange-100 text-orange-800 border-orange-200', label: 'Rotfrukt' },
-  böna: { family: 'legume', color: 'bg-green-100 text-green-800 border-green-200', label: 'Baljväxt' },
-  bönor: { family: 'legume', color: 'bg-green-100 text-green-800 border-green-200', label: 'Baljväxt' },
-  ärtor: { family: 'legume', color: 'bg-green-100 text-green-800 border-green-200', label: 'Baljväxt' },
-  ärta: { family: 'legume', color: 'bg-green-100 text-green-800 border-green-200', label: 'Baljväxt' },
-  kål: { family: 'brassica', color: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Kål' },
-  broccoli: { family: 'brassica', color: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Kål' },
-  blomkål: { family: 'brassica', color: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Kål' },
-  grönkål: { family: 'brassica', color: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Kål' },
-  vitkål: { family: 'brassica', color: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Kål' },
-  rödkål: { family: 'brassica', color: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Kål' },
-  rädisa: { family: 'brassica', color: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Kål' },
-};
-
-const DEFAULT_FAMILY = { family: 'other', color: 'bg-muted text-muted-foreground border-border', label: 'Övrigt' };
-
-function getFamily(variety: string) {
-  const lower = variety.toLowerCase();
-  for (const [key, val] of Object.entries(FAMILY_MAP)) {
-    if (lower.includes(key)) return val;
-  }
-  return DEFAULT_FAMILY;
-}
+import { cropFamily as getFamily } from '@/lib/gardenPlanner';
+import { getBedPlantings } from '@/lib/gardenPlanningApi';
 
 interface BedYear {
   bedId: string;
@@ -58,7 +25,8 @@ export default function CropRotation() {
   const { data: sowings, isLoading: sowingsLoading } = useQuery({ queryKey: ['sowings'], queryFn: api.getSowings });
   const { data: summaries, isLoading: summariesLoading } = useQuery({ queryKey: ['season-summaries'], queryFn: () => api.getSeasonSummaries() });
 
-  const isLoading = bedsLoading || sowingsLoading || summariesLoading;
+  const plans = useQuery({ queryKey: ['bed-plantings'], queryFn: getBedPlantings, enabled: gardenExpansionEnabled });
+  const isLoading = bedsLoading || sowingsLoading || summariesLoading || (gardenExpansionEnabled && plans.isPending);
 
   const currentYear = new Date().getFullYear();
   const years = [currentYear - 2, currentYear - 1, currentYear];
@@ -69,7 +37,7 @@ export default function CropRotation() {
       const yearSowings = (sowings || []).filter(
         (s: any) => s.bed_id === bed.id && new Date(s.sow_date).getFullYear() === year
       );
-      const varieties = yearSowings.map((s: any) => s.variety);
+      const varieties = [...yearSowings.map((s: any) => s.variety), ...(plans.data || []).filter(p => p.bed_id === bed.id && p.year === year).map(p => p.variety)];
       const families = [...new Set(varieties.map((v: string) => getFamily(v).family))];
       const summary = (summaries || []).find((s: any) => s.bed_id === bed.id && s.year === year);
       return { bedId: bed.id, bedName: bed.name, year, varieties, families, summary };
@@ -84,7 +52,7 @@ export default function CropRotation() {
     const repeated = curr.families.filter(f => f !== 'other' && prev.families.includes(f));
     if (repeated.length > 0) {
       const labels = repeated.map(f => {
-        const entry = Object.values(FAMILY_MAP).find(v => v.family === f);
+        const entry = curr.varieties.map(getFamily).find(v => v.family === f);
         return entry?.label || f;
       });
       return `Samma växtfamilj som förra året (${labels.join(', ')}) – byt plats för bättre växtföljd`;
@@ -92,6 +60,7 @@ export default function CropRotation() {
     return null;
   }
 
+  if (plans.isError) return <p role="alert">Planen kunde inte hämtas. <button onClick={() => void plans.refetch()}>Försök igen</button></p>;
   if (isLoading) {
     return (
       <div className="max-w-6xl mx-auto space-y-4">
@@ -105,14 +74,14 @@ export default function CropRotation() {
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl sm:text-3xl font-serif text-foreground">Växtföljd 🔄</h1>
-        <p className="text-sm text-muted-foreground mt-1">Se vad du odlat i varje bädd – och undvik att odla samma familj på samma plats</p>
+        <p className="text-sm text-muted-foreground mt-1">Sådder och planerade grödor från kartan, per bädd och år. Planer är inte en bekräftelse på att något har odlats.</p>
       </div>
 
       {/* Legend */}
       <div className="flex flex-wrap gap-2">
         {[
           { label: 'Nattskatta', color: 'bg-red-100 text-red-800 border-red-200' },
-          { label: 'Rotfrukt', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+          { label: 'Flockblommiga', color: 'bg-orange-100 text-orange-800 border-orange-200' },
           { label: 'Baljväxt', color: 'bg-green-100 text-green-800 border-green-200' },
           { label: 'Kål', color: 'bg-blue-100 text-blue-800 border-blue-200' },
           { label: 'Övrigt', color: 'bg-muted text-muted-foreground border-border' },
