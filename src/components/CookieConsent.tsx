@@ -1,3 +1,4 @@
+import { useBottomInset } from '@/hooks/useBottomInset';
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -7,6 +8,7 @@ import { acceptAll, rejectAll, saveConsent, getConsent, hasDecision } from '@/li
 
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
+  const bannerRef = useBottomInset(visible);
   const [prefsOpen, setPrefsOpen] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [marketing, setMarketing] = useState(false);
@@ -47,12 +49,13 @@ export default function CookieConsent() {
     <>
       {visible && (
         <div
+          ref={bannerRef}
           role="dialog"
           aria-live="polite"
           aria-label="Cookie-samtycke"
-          className="fixed bottom-16 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-[60] sm:max-w-sm animate-fade-in"
+          className="fixed bottom-0 inset-x-0 z-[60] p-3 pb-[max(.75rem,env(safe-area-inset-bottom))]"
         >
-          <div className="bg-card border border-border rounded-2xl shadow-xl p-5">
+          <div className="max-w-4xl mx-auto bg-card border border-border rounded-2xl shadow-xl p-5">
             <div className="flex items-start gap-3 mb-3">
               <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                 <Cookie className="h-[18px] w-[18px] text-primary" />
@@ -60,7 +63,7 @@ export default function CookieConsent() {
               <div>
                 <p className="text-sm font-medium mb-1">Du väljer vad vi mäter</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Nödvändiga cookies håller dig inloggad. Vi använder även cookies för statistik och marknadsföring – med ditt samtycke. <a href="/terms" className="text-primary hover:underline">Läs mer</a>
+                  Nödvändiga cookies håller dig inloggad. Vi använder även cookies för statistik och marknadsföring – med ditt samtycke. <a href="/terms" className="text-primary underline">Läs mer</a>
                 </p>
               </div>
             </div>

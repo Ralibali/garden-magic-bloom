@@ -216,6 +216,7 @@ const AppRoutes = () => (
           <Route path="/odlingsplan" element={<Odlingsplan />} />
           <Route path="/odlingsakuten" element={<Odlingsakuten />} />
           {/* Programmatic SEO routes */}
+          <Route path="/vaxtguider" element={<Navigate to="/vaxter" replace />} />
           <Route path="/vaxter" element={<VaxterIndex />} />
           <Route path="/vaxter/:slug" element={<VaxtDetail />} />
           <Route path="/odlingskalender" element={<OdlingskalenderIndex />} />

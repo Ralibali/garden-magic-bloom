@@ -1,5 +1,6 @@
+import PublicLayout from '@/components/PublicLayout';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Seo } from '@/hooks/useSeo';
 import { Button } from '@/components/ui/button';
 import PublicEmailCapture from '@/components/PublicEmailCapture';
@@ -61,10 +62,12 @@ function CropRow({ name, timing }: { name: string; timing: CropTiming }) {
 }
 
 export default function Sakalender() {
+  const [params] = useSearchParams();
+  const initialCrop = sowingMatrix.find(c => c.name.toLocaleLowerCase('sv') === (params.get('crop') || '').toLocaleLowerCase('sv'));
   const [zone, setZone] = useState('3');
   const [method, setMethod] = useState('Pallkrage');
-  const [selected, setSelected] = useState(['Tomat', 'Gurka', 'Morot', 'Sallat']);
-  const [created, setCreated] = useState(false);
+  const [selected, setSelected] = useState(initialCrop ? [initialCrop.name] : ['Tomat', 'Gurka', 'Morot', 'Sallat']);
+  const [created, setCreated] = useState(Boolean(initialCrop));
   const [copied, setCopied] = useState(false);
 
   const numericZone = useMemo(() => {
@@ -92,18 +95,13 @@ export default function Sakalender() {
   const resetCalendar = () => setCreated(false);
 
   return (
-    <div className="min-h-screen bg-background">
+    <PublicLayout>
       <Seo title={`Såkalender ${CURRENT_YEAR} – personlig såkalender för din zon`} description="Skapa en gratis såkalender för svenska odlare. Välj klimatzon och få förodlings-, utplanterings- och skördetider beräknade för just din zon (1–8)." path="/sakalender" ogImage="https://odlingsdagboken.com/og-image.png" />
-      <header className="border-b border-border/50 bg-card/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 font-serif font-semibold text-foreground"><Sprout className="h-5 w-5 text-primary" /> Odlingsdagboken</Link>
-          <Button asChild size="sm"><Link to="/login?mode=register">Börja gratis</Link></Button>
-        </div>
-      </header>
-      <main>
+
+      <div>
         {!created ? (
           <section className="bg-gradient-to-br from-background via-primary/5 to-accent/10">
-            <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-20 grid lg:grid-cols-[1fr_420px] gap-10 items-start">
+            <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-20 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-10 items-start">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-4">Gratis odlingsverktyg</p>
                 <h1 className="font-serif text-4xl sm:text-5xl text-foreground leading-tight mb-5">Skapa din personliga såkalender för {CURRENT_YEAR}</h1>
@@ -120,9 +118,9 @@ export default function Sakalender() {
                 <label htmlFor="sak-zone" className="text-sm font-medium text-foreground">Välj klimatzon</label>
                 <select id="sak-zone" value={zone} onChange={event => setZone(event.target.value)} className="mt-2 mb-4 w-full h-11 rounded-lg border border-input bg-background px-3 text-sm">{['1','2','3','4','5','6','7','8','Vet inte'].map(item => <option key={item} value={item}>{item === 'Vet inte' ? 'Jag vet inte' : `Zon ${item}`}</option>)}</select>
                 <div id="sak-method-label" className="text-sm font-medium text-foreground">Hur odlar du?</div>
-                <div role="group" aria-labelledby="sak-method-label" className="grid grid-cols-2 gap-2 mt-2 mb-4">{methods.map(item => <button key={item} type="button" onClick={() => setMethod(item)} className={`rounded-lg border px-3 py-2 text-sm transition-colors ${method === item ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{item}</button>)}</div>
+                <div role="group" aria-labelledby="sak-method-label" className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 mb-4">{methods.map(item => <button key={item} type="button" onClick={() => setMethod(item)} className={`rounded-lg border px-3 py-2 text-sm transition-colors ${method === item ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{item}</button>)}</div>
                 <div id="sak-crops-label" className="text-sm font-medium text-foreground">Välj växter</div>
-                <div role="group" aria-labelledby="sak-crops-label" className="grid grid-cols-2 gap-2 mt-2 mb-5 max-h-56 overflow-auto pr-1">{sowingMatrix.map(crop => <button key={crop.name} type="button" onClick={() => setSelected(current => current.includes(crop.name) ? current.filter(item => item !== crop.name) : [...current, crop.name])} className={`rounded-lg border px-3 py-2 text-sm text-left transition-colors ${selected.includes(crop.name) ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{crop.name}</button>)}</div>
+                <div role="group" aria-labelledby="sak-crops-label" className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 mb-5 sm:max-h-56 sm:overflow-auto pr-1">{sowingMatrix.map(crop => <button key={crop.name} type="button" onClick={() => setSelected(current => current.includes(crop.name) ? current.filter(item => item !== crop.name) : [...current, crop.name])} className={`rounded-lg border px-3 py-2 text-sm text-left transition-colors ${selected.includes(crop.name) ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{crop.name}</button>)}</div>
                 <Button onClick={createCalendar} disabled={selected.length === 0} className="w-full gap-2" size="lg">Skapa min såkalender <ArrowRight className="h-4 w-4" /></Button>
               </div>
             </div>
@@ -130,7 +128,7 @@ export default function Sakalender() {
         ) : (
           <section className="bg-gradient-to-br from-background via-primary/5 to-accent/10">
             <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
-              <div className="grid lg:grid-cols-[1fr_420px] gap-6 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-6 items-start">
                 <div className="rounded-3xl border border-primary/20 bg-card p-5 sm:p-7 shadow-xl">
                   <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-3">Din såkalender för zon {zone} är klar 🌱</p>
                   <h1 className="font-serif text-3xl sm:text-5xl text-foreground leading-tight mb-4">Tider beräknade för zon {zone}</h1>
@@ -155,11 +153,11 @@ export default function Sakalender() {
                   {selectedCrops.length > 4 && <p className="text-sm text-muted-foreground mb-4">+ {selectedCrops.length - 4} fler grödor finns med i din plan.</p>}
                   <button type="button" onClick={resetCalendar} className="text-xs text-muted-foreground hover:text-foreground">Ändra mina val</button>
                 </div>
-                <div className="space-y-4">
+                <div className="min-w-0 space-y-4">
                   <div className="bg-primary text-primary-foreground rounded-2xl p-5 sm:p-6">
-                    <h2 className="font-serif text-2xl mb-2">Spara i gratis konto</h2>
+                    <h2 className="font-serif text-2xl text-primary-foreground mb-2">Spara i gratis konto</h2>
                     <p className="text-primary-foreground/85 mb-5 text-sm leading-relaxed">Skapa ett konto på samma enhet så plockar Odlingsdagboken upp kalendern i appen.</p>
-                    <Button asChild variant="secondary" size="lg" className="w-full gap-2"><Link to="/login?mode=register&source=sakalender">Spara planen och få påminnelser <ArrowRight className="h-4 w-4" /></Link></Button>
+                    <Button asChild variant="secondary" size="lg" className="w-full min-h-12 h-auto py-3 whitespace-normal gap-2"><Link to="/login?mode=register&source=sakalender">Spara planen och få påminnelser <ArrowRight className="h-4 w-4" /></Link></Button>
                   </div>
                   <PublicEmailCapture source="sakalender" plan={planPayload} title="Vill du få såkalendern skickad till dig?" description="Spara din e-post och fortsätt när det passar. När du skapar konto på samma enhet finns kalendern redo i appen." />
                 </div>
@@ -191,7 +189,7 @@ export default function Sakalender() {
             />
           </section>
         )}
-      </main>
-    </div>
+      </div>
+    </PublicLayout>
   );
 }

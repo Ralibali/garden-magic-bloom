@@ -12,7 +12,7 @@
   --secondary: 45 24% 90%;
   --secondary-foreground: 151 26% 20%;
   --muted: 46 20% 91%;
-  --muted-foreground: 151 9% 40%;
+  --muted-foreground: 151 9% 35%;
   --accent: 24 61% 46%;
   --accent-foreground: 48 40% 98%;
   --border: 48 18% 84%;
@@ -199,7 +199,7 @@ body {
   --card: 0 0% 100%;
   --border: 90 10% 87%;
   --muted: 80 12% 93%;
-  --muted-foreground: 150 7% 38%;
+  --muted-foreground: 150 7% 35%;
   background: hsl(var(--background));
 }
 .dark .garden-workspace {

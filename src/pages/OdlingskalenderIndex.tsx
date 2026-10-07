@@ -19,6 +19,7 @@ import { CURRENT_YEAR } from '@/lib/currentYear';
 const ORIGIN = 'https://odlingsdagboken.com';
 
 export default function OdlingskalenderIndex() {
+  const currentMonth = new Date().getMonth() + 1;
   const { zone, setZone } = useOdlingszon();
 
   const { data: months = [] } = useQuery({
@@ -89,6 +90,7 @@ export default function OdlingskalenderIndex() {
           </p>
         </header>
 
+        <Link to={`/odlingskalender/${MONTH_NAMES_SV[currentMonth - 1]}`} className="mb-6 block rounded-2xl border border-primary bg-primary/5 p-6"><span className="text-sm text-muted-foreground">Aktuell månad</span><h2 className="font-serif text-2xl">{MONTH_NAMES_TITLE[currentMonth - 1]} – vad gör jag nu?</h2><span className="text-primary underline">Öppna månadens odlingskalender →</span></Link>
         <CalendarZonePicker zone={zone} onChange={setZone} className="mb-6" />
         <PersonalizeZoneCta source="odlingskalender" className="mb-8" />
 

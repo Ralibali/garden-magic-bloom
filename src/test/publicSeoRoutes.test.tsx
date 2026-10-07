@@ -64,10 +64,12 @@ describe('standalone marketing routes (hydrate must not 404)', () => {
     expect(how).toContain('path="/hur-det-fungerar"');
   });
 
-  it('shows plant CTA copy and a real register href', () => {
+  it('opens the anonymous calendar and offers account saving separately', () => {
     wrap(<AddPlantCta crop="Morot" slug="morot" />, '/vaxter/morot');
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Lägg till Morot i min odling');
-    const link = screen.getByRole('link', { name: /lägg till morot/i });
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Planera morot');
+    const calendar = screen.getByRole('link', { name: /visa min såkalender/i });
+    expect(calendar.getAttribute('href')).toBe('/sakalender?crop=Morot');
+    const link = screen.getByRole('link', { name: /spara till konto/i });
     expect(link.getAttribute('href')).toContain('/login');
     expect(link.getAttribute('href')).toContain('crop=Morot');
   });

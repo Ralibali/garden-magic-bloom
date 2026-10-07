@@ -1,8 +1,10 @@
+import { subjectImage } from '@/lib/plantImage';
+import { plantTiming } from "@/lib/plantPresentation";
 import { Seo } from '@/hooks/useSeo';
 import PublicLayout from '@/components/PublicLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowRight, Loader2, Sprout, Search } from 'lucide-react';
@@ -12,7 +14,8 @@ import { Input } from '@/components/ui/input';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
 
 export default function VaxterIndex() {
-  const [q, setQ] = useState('');
+  const [params] = useSearchParams();
+  const [q, setQ] = useState(params.get('q') || '');
   const [cat, setCat] = useState<string | null>(null);
 
   const { data: plants = [], isLoading } = useQuery({
@@ -20,7 +23,7 @@ export default function VaxterIndex() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('seo_plants')
-        .select('id, slug, name, latin_name, category, description_short, image_url, image_alt, difficulty, harvest_start, harvest_end, sow_indoor_start, sow_indoor_end')
+        .select('id, slug, name, latin_name, category, description_short, image_url, image_alt, difficulty, harvest_start, harvest_end, sow_indoor_start, sow_indoor_end, sow_outdoor_start, sow_outdoor_end')
         .eq('published', true)
         .order('featured', { ascending: false })
         .order('name', { ascending: true });
@@ -127,44 +130,41 @@ export default function VaxterIndex() {
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map(p => (
+            {filtered.map(p => { const timing = plantTiming(p); const image = subjectImage(p.slug); return (
               <Link key={p.id} to={`/vaxter/${p.slug}`} className="group">
                 <Card className="border-border/50 overflow-hidden hover:shadow-md transition-all duration-300 h-full">
-                  {p.image_url ? (
+                  {image || p.image_url ? (
                     <div className="aspect-video overflow-hidden bg-secondary/30">
-                      <img src={p.image_url} alt={p.image_alt || p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={image?.src || p.image_url || undefined} srcSet={image?.srcSet} sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw" width={640} height={427} alt={p.image_alt || p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                   ) : (
-                    <div className="aspect-video bg-gradient-to-br from-primary/8 to-accent/8 flex items-center justify-center text-4xl">🌱</div>
+                    <div className="aspect-video bg-secondary p-6 flex items-center justify-center text-muted-foreground text-sm">Bild kommer</div>
                   )}
                   <CardContent className="p-4 space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
                       {p.category && <Badge variant="secondary" className="text-[9px]">{CATEGORY_LABEL[p.category] || p.category}</Badge>}
                       {p.difficulty && <Badge variant="outline" className="text-[9px]">{p.difficulty}</Badge>}
                     </div>
-                    <h3 className="font-serif text-lg text-foreground leading-snug group-hover:text-primary transition-colors">{p.name}</h3>
+                    <h3 className="font-serif text-lg text-foreground leading-snug group-hover:text-primary transition-colors">{p.name.charAt(0).toLocaleUpperCase('sv') + p.name.slice(1)}</h3>
                     {p.latin_name && <p className="text-xs italic text-muted-foreground">{p.latin_name}</p>}
                     {p.description_short && <p className="text-sm text-muted-foreground line-clamp-2">{p.description_short}</p>}
-                    {(p.harvest_start || p.sow_indoor_start) && (
-                      <div className="flex flex-wrap gap-3 text-[10px] text-muted-foreground pt-1">
-                        {formatMonthRange(p.sow_indoor_start, p.sow_indoor_end) && (
-                          <span>Sådd: <strong className="text-foreground/80">{formatMonthRange(p.sow_indoor_start, p.sow_indoor_end)}</strong></span>
-                        )}
-                        {formatMonthRange(p.harvest_start, p.harvest_end) && (
-                          <span>Skörd: <strong className="text-foreground/80">{formatMonthRange(p.harvest_start, p.harvest_end)}</strong></span>
-                        )}
-                      </div>
-                    )}
+                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground pt-1">
+                      {timing.plantingTime && <span>Planteringstid: <strong className="text-foreground">{timing.plantingTime}</strong></span>}
+                      {(timing.sowIndoor || timing.sowOutdoor) && <span>Sådd (zon 3): <strong className="text-foreground">{timing.sowIndoor || timing.sowOutdoor}</strong></span>}
+                      {formatMonthRange(p.harvest_start, p.harvest_end) && <span>Skörd: <strong className="text-foreground">{formatMonthRange(p.harvest_start, p.harvest_end)}</strong></span>}
+                    </div>
                     <span className="inline-flex items-center text-xs font-medium text-primary gap-1 pt-1">
                       Läs guiden <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                     </span>
                   </CardContent>
                 </Card>
               </Link>
-            ))}
+            ); })}
           </div>
         )}
       
+        <details className="mt-8 rounded-xl border border-border p-4 text-sm text-muted-foreground"><summary className="cursor-pointer min-h-11 font-medium">Bildkällor och licenser</summary><ul className="mt-3 space-y-3">{plants.map(plant => { const image = subjectImage(plant.slug); return image?.author ? <li key={plant.slug}><span className="capitalize">{plant.name}</span>: {image.author} · <a href={image.source} className="underline" rel="noreferrer" target="_blank">Originalfoto</a> · <a href={image.licenseUrl || image.source} className="underline" rel="noreferrer" target="_blank">{image.license}</a>. Storleksanpassad.</li> : null })}</ul></details>
+
         <InlineSignupCTA
           variant="card"
           title="Logga din odling – gratis"

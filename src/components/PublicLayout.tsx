@@ -61,20 +61,20 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
   return (
     <div className="min-h-screen bg-background flex flex-col app-canvas">
       <a
-        href="#public-main"
+        href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground focus:shadow-lg"
       >
         Hoppa till innehåll
       </a>
 
       <header className="sticky top-0 z-40 border-b border-border/45 bg-background/85 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] flex items-center justify-between gap-4">
-          <Link to="/" className="group flex items-center gap-3 min-w-0" aria-label="Odlingsdagboken – till startsidan">
-            <span className="botanical-panel w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105 motion-reduce:transition-none motion-reduce:transform-none">
-              <Sprout className="h-5 w-5 text-white" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] flex items-center justify-between gap-2 lg:gap-4">
+          <Link to="/" className="group flex items-center gap-2 sm:gap-3 min-w-0">
+            <span className="botanical-panel w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105 motion-reduce:transition-none motion-reduce:transform-none">
+              <Sprout className="h-5 w-5 text-white" aria-hidden="true" />
             </span>
             <span className="min-w-0">
-              <span className="block font-serif text-[15px] sm:text-[18px] leading-none text-foreground whitespace-nowrap">Odlingsdagboken</span>
+              <span className="block font-serif text-[14px] sm:text-[18px] leading-none text-foreground whitespace-nowrap">Odlingsdagboken</span>
               <span className="hidden sm:block text-[9px] uppercase tracking-[0.15em] text-muted-foreground mt-1.5">Svensk odlingshjälp</span>
             </span>
           </Link>
@@ -96,7 +96,7 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex min-h-[40px]">
               <Link to="/login?mode=login">Logga in</Link>
             </Button>
@@ -153,7 +153,7 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
         )}
       </header>
 
-      <main id="public-main" className="flex-1">{children}</main>
+      <main id="main-content" tabIndex={-1} className="flex-1">{children}</main>
 
       <StickySignupBar />
 
@@ -167,16 +167,16 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
                 </span>
                 <div>
                   <p className="font-serif text-xl">Odlingsdagboken</p>
-                  <p className="text-[10px] uppercase tracking-[0.16em] text-white/45 mt-1">Från frö till erfarenhet</p>
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-white/75 mt-1">Från frö till erfarenhet</p>
                 </div>
               </div>
-              <p className="mt-5 text-sm leading-relaxed text-white/60">
+              <p className="mt-5 text-sm leading-relaxed text-white/80">
                 Planera sådd, logga skörd och bygg din egen kunskapsbank för svenska förhållanden — säsong efter säsong.
               </p>
             </div>
 
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/40 mb-4">Upptäck</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/75 mb-4">Upptäck</p>
               <div className="grid gap-3 text-sm text-white/70">
                 {[
                   ['Såkalender', '/sakalender'],
@@ -197,7 +197,7 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
             </div>
 
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/40 mb-4">Företaget</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/75 mb-4">Företaget</p>
               <div className="grid gap-3 text-sm text-white/70">
                 {[
                   ['Blogg', '/blogg'],
@@ -214,7 +214,7 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
             </div>
           </div>
 
-          <div className="mt-12 pt-6 border-t border-white/8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-white/45">
+          <div className="mt-12 pt-6 border-t border-white/8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-white/75">
             <span>© {new Date().getFullYear()} Aurora Media AB · Org.nr 559272-0220</span>
             <div className="flex items-center gap-3">
               <span>Byggd med omtanke i Sverige</span>

@@ -1,3 +1,4 @@
+import ContentToc from '@/components/ContentToc';
 import React, { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
@@ -64,7 +65,7 @@ function renderMarkdown(md: string): string {
 
 /** Wrap raw <table> in a horizontally scrollable container for mobile. */
 function wrapTablesForMobile(html: string): string {
-  return html.replace(/<table(\s[^>]*)?>([\s\S]*?)<\/table>/gi, (m) => `<div class="table-wrapper">${m}</div>`);
+  return html.replace(/<table(\s[^>]*)?>([\s\S]*?)<\/table>/gi, (m) => `<div class="table-wrapper table-scroll" tabindex="0" role="region" aria-label="Tabell – scrolla i sidled">${m}</div>`);
 }
 
 function renderContent(
@@ -122,7 +123,6 @@ function renderContent(
 
 export default function GuideArticle() {
   const { slug } = useParams<{ slug: string }>();
-  const [tocOpen, setTocOpen] = useState(false);
 
   const { data: post, isLoading, isError } = useQuery({
     queryKey: ['blog-post', slug],
@@ -179,7 +179,7 @@ export default function GuideArticle() {
     [post, allPosts, slug, glossary],
   );
   const headings = useMemo(() => extractHeadings(rawHtml), [rawHtml]);
-  const showToc = headings.length >= 3;
+  const showToc = /<h[23]\b/i.test(rawHtml);
   const contentHtml = useMemo(() => (showToc ? injectHeadingIds(rawHtml, headings) : rawHtml), [rawHtml, headings, showToc]);
   const contextualCta = useMemo(() => post ? pickContextualCta({ category: post.category, tags: post.tags }) : null, [post]);
   const relatedPosts = useMemo(
@@ -241,30 +241,8 @@ export default function GuideArticle() {
           showToc ? 'lg:grid lg:grid-cols-[240px_minmax(0,720px)] lg:gap-14 lg:justify-center' : ''
         }`}
       >
-        {/* Desktop TOC */}
-        {showToc && (
-          <aside className="hidden lg:block" aria-label="Innehållsförteckning">
-            <nav className="sticky top-[84px] pr-2">
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground mb-3 flex items-center gap-1.5">
-                <List className="h-3 w-3" aria-hidden="true" /> Innehåll
-              </p>
-              <ol className="space-y-1.5 text-sm">
-                {headings.map(h => (
-                  <li key={h.id} className={h.level === 3 ? 'pl-3' : ''}>
-                    <a
-                      href={`#${h.id}`}
-                      className="block py-1 text-muted-foreground hover:text-primary focus-visible:outline-none focus-visible:text-primary focus-visible:underline transition-colors"
-                    >
-                      {h.text}
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </nav>
-          </aside>
-        )}
-
-        <article className={`w-full ${showToc ? '' : 'max-w-[720px] mx-auto'}`}>
+        <ContentToc target="#garden-article" />
+        <article id="garden-article" className={`min-w-0 w-full ${showToc ? '' : 'max-w-[720px] mx-auto'}`}>
           {/* Header */}
           <header className="mb-8 sm:mb-10">
             <div className="flex items-center gap-2 flex-wrap mb-5">
@@ -312,35 +290,6 @@ export default function GuideArticle() {
                 fetchPriority="high"
               />
             </div>
-          )}
-
-          {/* Mobile TOC */}
-          {showToc && (
-            <details
-              className="lg:hidden mb-8 rounded-2xl border border-border/60 bg-card/60 overflow-hidden"
-              open={tocOpen}
-              onToggle={(e) => setTocOpen((e.currentTarget as HTMLDetailsElement).open)}
-            >
-              <summary className="flex items-center justify-between gap-2 px-4 py-3 cursor-pointer list-none min-h-[48px]">
-                <span className="text-sm font-semibold flex items-center gap-2">
-                  <List className="h-4 w-4 text-primary" aria-hidden="true" /> Innehåll ({headings.length})
-                </span>
-                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform motion-reduce:transition-none ${tocOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
-              </summary>
-              <ol className="px-4 pb-4 space-y-1.5 text-sm">
-                {headings.map(h => (
-                  <li key={h.id} className={h.level === 3 ? 'pl-3' : ''}>
-                    <a
-                      href={`#${h.id}`}
-                      className="block py-1.5 min-h-[36px] text-muted-foreground hover:text-primary transition-colors"
-                      onClick={() => setTocOpen(false)}
-                    >
-                      {h.text}
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </details>
           )}
 
           {/* Article body */}
@@ -407,7 +356,7 @@ export default function GuideArticle() {
             <section className="mt-16 pt-10 border-t border-border/50">
               <div className="flex items-baseline justify-between mb-6">
                 <h2 className="font-serif text-2xl sm:text-3xl text-foreground flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-primary" aria-hidden="true" /> Fler artiklar
+                  <BookOpen className="h-5 w-5 text-primary" aria-hidden="true" /> Relaterade guider
                 </h2>
                 <Link to="/blogg" className="text-sm text-primary hover:underline">Alla artiklar →</Link>
               </div>
