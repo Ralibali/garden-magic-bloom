@@ -1,3 +1,4 @@
+import PublicLayout from '@/components/PublicLayout';
 import { useId, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Seo } from '@/hooks/useSeo';
@@ -14,7 +15,7 @@ const coldNights = ['Ja', 'Nej', 'Vet ej'];
 
 function PillGroup({ label, options, value, onChange }: { label: string; options: string[]; value: string; onChange: (value: string) => void }) {
   const labelId = useId();
-  return <div><div id={labelId} className="text-sm font-medium text-foreground">{label}</div><div role="group" aria-labelledby={labelId} className="grid grid-cols-2 gap-2 mt-2">{options.map(option => <button key={option} type="button" onClick={() => onChange(option)} className={`rounded-lg border px-3 py-2 text-sm text-left transition-colors ${value === option ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{option}</button>)}</div></div>;
+  return <div><div id={labelId} className="text-sm font-medium text-foreground">{label}</div><div role="group" aria-labelledby={labelId} className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">{options.map(option => <button key={option} type="button" onClick={() => onChange(option)} className={`rounded-lg border px-3 py-2 text-sm text-left transition-colors ${value === option ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted'}`}>{option}</button>)}</div></div>;
 }
 
 function getDiagnosis(problem: string, moist: string, cold: string, plant: string) {
@@ -57,7 +58,7 @@ export default function Odlingsakuten() {
 
   const resetDiagnosis = () => setCreated(false);
 
-  return <div className="min-h-screen bg-background"><Seo title="Odlingsakuten – felsök gula blad, skadedjur och svag tillväxt" description="Felsök vanliga odlingsproblem som gula blad, slokande plantor, skadedjur och dålig tillväxt. Få råd anpassade för svenska odlare." path="/odlingsakuten" ogImage="/og-image.png" /><header className="border-b border-border/50 bg-card/80 backdrop-blur-md sticky top-0 z-40"><div className="max-w-6xl mx-auto px-4 sm:px-8 h-14 flex items-center justify-between"><Link to="/" className="flex items-center gap-2 font-serif font-semibold text-foreground"><Sprout className="h-5 w-5 text-primary" /> Odlingsdagboken</Link><Button asChild size="sm"><Link to="/login?mode=register">Börja gratis</Link></Button></div></header><main>
+  return <PublicLayout><Seo title="Odlingsakuten – felsök gula blad, skadedjur och svag tillväxt" description="Felsök vanliga odlingsproblem som gula blad, slokande plantor, skadedjur och dålig tillväxt. Få råd anpassade för svenska odlare." path="/odlingsakuten" ogImage="/og-image.png" /><div>
     {!created ? (
       <section className="bg-gradient-to-br from-background via-primary/5 to-accent/10"><div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-20 grid lg:grid-cols-[1fr_460px] gap-10 items-start"><div><p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-4">Snabb felsökning</p><h1 className="font-serif text-4xl sm:text-5xl text-foreground leading-tight mb-5">Odlingsakuten – vad är fel med min planta?</h1><p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mb-6">Gula blad, slokande plantor, dålig tillväxt eller svag skörd? Svara på några frågor så får du en första vägledning om vad som kan vara fel – och vad du kan göra nu.</p><div className="grid sm:grid-cols-3 gap-3 max-w-2xl">{['Snabba råd', 'Svenska förhållanden', 'Spara och följ upp'].map(item => <div key={item} className="bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> {item}</div>)}</div></div><div className="bg-card border border-border rounded-2xl shadow-xl p-5 sm:p-6 space-y-5"><PillGroup label="Vilken växt gäller det?" options={plants} value={plant} onChange={setPlant} /><PillGroup label="Vilket problem ser du?" options={problems} value={problem} onChange={setProblem} /><PillGroup label="Var odlas plantan?" options={places} value={place} onChange={setPlace} /><PillGroup label="Hur känns jorden?" options={moisture} value={moist} onChange={setMoist} /><PillGroup label="Har det varit kalla nätter nyligen?" options={coldNights} value={cold} onChange={setCold} /><Button onClick={runDiagnosis} className="w-full gap-2" size="lg">Felsök min planta <ArrowRight className="h-4 w-4" /></Button></div></div></section>
     ) : (
@@ -82,5 +83,5 @@ export default function Odlingsakuten() {
         </div>
       </div>
     </section>
-  </main></div>;
+  </div></PublicLayout>;
 }

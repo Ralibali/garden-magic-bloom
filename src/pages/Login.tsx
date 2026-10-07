@@ -1,3 +1,4 @@
+import PublicLayout from '@/components/PublicLayout';
 import { pendingAccountLink } from '@/lib/linkedApps';
 import { authWebOrigin, isNativeApp } from '@/lib/native';
 import React, { useEffect, useRef, useState } from 'react';
@@ -288,6 +289,7 @@ export default function Login() {
   );
 
   return (
+    <PublicLayout>
     <div className="min-h-screen flex bg-background">
       <Seo title="Skapa gratis konto | Odlingsdagboken" description="Skapa ett gratis konto och börja spara såkalender, odlingsplan, skördar och anteckningar." path="/login" noindex />
 
@@ -323,7 +325,7 @@ export default function Login() {
                 {!isNativeApp() && <>{renderGoogleButton()}{renderAppleButton()}<AuthDivider label="eller med e-post" /></>}
                 <div className="space-y-4">
                   <div><Label htmlFor="email">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="pl-10 h-11" required /></div></div>
-                  <div><Label htmlFor="password">Lösenord</Label>{renderPasswordField('password', 'current-password')}</div>
+                  <div><p className="text-sm text-muted-foreground mb-4">Inget betalkort krävs för att skapa konto.</p><Label htmlFor="password">Lösenord</Label>{renderPasswordField('password', 'current-password')}</div>
                 </div>
                 <Button type="submit" className="w-full h-12" disabled={loading}>{loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Logga in <ArrowRight className="ml-2 h-4 w-4" /></Button>
                 <div className="flex justify-between text-sm"><button type="button" className="text-primary hover:underline" onClick={() => setAuthMode('forgot')}>Glömt lösenord?</button><button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setAuthMode('register')}>Skapa konto</button></div>
@@ -338,7 +340,7 @@ export default function Login() {
                 <div className="space-y-4">
                   <div><Label htmlFor="name">Förnamn</Label><div className="relative mt-1.5"><User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="name" autoComplete="given-name" value={name} onChange={(event) => setName(event.target.value)} className="pl-10 h-11" required /></div></div>
                   <div><Label htmlFor="reg-email">E-post</Label><div className="relative mt-1.5"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="reg-email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="pl-10 h-11" required /></div></div>
-                  <div><Label htmlFor="reg-password">Lösenord</Label>{renderPasswordField('reg-password', 'new-password')}<p className="mt-1.5 text-[11px] text-muted-foreground">Minst 8 tecken. Använd gärna en unik lösenfras.</p></div>
+                  <div><p className="text-sm text-muted-foreground mb-4">Inget betalkort krävs.</p><Label htmlFor="reg-password">Lösenord</Label>{renderPasswordField('reg-password', 'new-password')}<p className="mt-1.5 text-[11px] text-muted-foreground">Minst 8 tecken. Använd gärna en unik lösenfras.</p></div>
                   {!showReferralField ? <button type="button" className="text-xs text-primary hover:underline" onClick={() => setShowReferralField(true)}>Har du en värvningskod?</button> : <div><Label htmlFor="referral">Värvningskod</Label><div className="relative mt-1.5"><Gift className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input id="referral" value={referralCode} onChange={(event) => setReferralCode(event.target.value.toUpperCase())} className="pl-10 h-11 uppercase" maxLength={6} /></div></div>}
                 </div>
                 <Button type="submit" className="w-full h-12" disabled={loading}>{loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Skapa gratis konto <ArrowRight className="ml-2 h-4 w-4" /></Button>
@@ -374,5 +376,6 @@ export default function Login() {
         </div>
       </main>
     </div>
+    </PublicLayout>
   );
 }

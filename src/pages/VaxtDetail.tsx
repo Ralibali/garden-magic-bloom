@@ -1,3 +1,6 @@
+import { subjectImage } from '@/lib/plantImage';
+import SubjectImage from '@/components/SubjectImage';
+import { plantTiming } from "@/lib/plantPresentation";
 import { Seo } from '@/hooks/useSeo';
 import PublicLayout from '@/components/PublicLayout';
 import { useParams, Link } from 'react-router-dom';
@@ -76,15 +79,15 @@ export default function VaxtDetail() {
     return <PublicNotFound path={`/vaxter/${slug || ''}`} title="Växtguiden hittades inte" description="Växtguiden finns inte eller är inte publicerad." backTo="/vaxter" backLabel="Alla växtguider" />;
   }
 
-  const sowIndoor = formatMonthRange(plant.sow_indoor_start, plant.sow_indoor_end);
-  const sowOutdoor = formatMonthRange(plant.sow_outdoor_start, plant.sow_outdoor_end);
+  const photo = subjectImage(plant.slug);
+  const { sowIndoor, sowOutdoor, plantingTime, note: timingNote, source: timingSource } = plantTiming(plant);
   const harvest = formatMonthRange(plant.harvest_start, plant.harvest_end);
   const germ = rangeOrSingle(plant.germination_days_min, plant.germination_days_max, 'dagar');
   const toHarvest = rangeOrSingle(plant.days_to_harvest_min, plant.days_to_harvest_max, 'dagar');
   const zoneRange = plant.zone_min && plant.zone_max ? `Zon ${plant.zone_min} till ${plant.zone_max}` : null;
   const faqArr = Array.isArray(plant.faq) ? plant.faq as Array<{ question: string; answer: string }> : [];
 
-  const sanitizedHtml = plant.content_html ? DOMPurify.sanitize(plant.content_html) : '';
+  const sanitizedHtml = plant.content_html ? DOMPurify.sanitize(plant.content_html.replace(/(?:^|\n)\s*(?:`{3}|'{3})(?:html|markdown)?\s*(?=\n|$)/g, '').replace(/^(?:`{3}|'{3})(?:html)?|(?:`{3}|'{3})$/g, '')) : '';
 
   const jsonLd: any[] = [
     {
@@ -142,7 +145,7 @@ export default function VaxtDetail() {
         description={plant.description_short}
         path={`/vaxter/${plant.slug}`}
         ogType="article"
-        ogImage={plant.image_url || undefined}
+        ogImage={photo ? `https://odlingsdagboken.com${photo.src}` : plant.image_url || undefined}
         ogImageAlt={plant.image_alt || plant.name}
         articleMeta={{
           publishedTime: plant.created_at,
@@ -171,11 +174,11 @@ export default function VaxtDetail() {
           )}
         </header>
 
-        {plant.image_url && (
+        {photo ? <SubjectImage image={photo} alt={`${plant.name.charAt(0).toLocaleUpperCase('sv')}${plant.name.slice(1)}`} /> : plant.image_url ? (
           <div className="rounded-2xl overflow-hidden mb-8 aspect-video">
             <img src={plant.image_url} alt={plant.image_alt || plant.name} className="w-full h-full object-cover" />
           </div>
-        )}
+        ) : null}
 
         {/* SEO-critical: fact summary first, with semantic dl/dt/dd for AI extraction */}
         <Card className="border-border/50 mb-8">
@@ -186,20 +189,22 @@ export default function VaxtDetail() {
             <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
               {plant.latin_name && (<><dt className="text-muted-foreground">Latinskt namn</dt><dd className="font-medium italic">{plant.latin_name}</dd></>)}
               {plant.difficulty && (<><dt className="text-muted-foreground">Svårighetsgrad</dt><dd className="font-medium">{plant.difficulty}</dd></>)}
-              {sowIndoor && (<><dt className="text-muted-foreground flex items-center gap-1.5"><Calendar className="h-3 w-3" />Såtid inomhus</dt><dd className="font-medium">{sowIndoor}</dd></>)}
-              {sowOutdoor && (<><dt className="text-muted-foreground flex items-center gap-1.5"><Calendar className="h-3 w-3" />Såtid utomhus</dt><dd className="font-medium">{sowOutdoor}</dd></>)}
+              {plantingTime && (<><dt className="text-muted-foreground">Planteringstid</dt><dd className="font-medium">{plantingTime}</dd></>)}
+              {sowIndoor && (<><dt className="text-muted-foreground flex items-center gap-1.5"><Calendar className="h-3 w-3" />Såtid inomhus (zon 3)</dt><dd className="font-medium">{sowIndoor}</dd></>)}
+              {sowOutdoor && (<><dt className="text-muted-foreground flex items-center gap-1.5"><Calendar className="h-3 w-3" />Såtid utomhus (zon 3)</dt><dd className="font-medium">{sowOutdoor}</dd></>)}
               {harvest && (<><dt className="text-muted-foreground flex items-center gap-1.5"><Sprout className="h-3 w-3" />Skördetid</dt><dd className="font-medium">{harvest}</dd></>)}
-              {germ && (<><dt className="text-muted-foreground">Groning</dt><dd className="font-medium">{germ}</dd></>)}
+              {(!plantingTime || sowIndoor || sowOutdoor) && germ && (<><dt className="text-muted-foreground">Groning</dt><dd className="font-medium">{germ}</dd></>)}
               {toHarvest && (<><dt className="text-muted-foreground">Tid till skörd</dt><dd className="font-medium">{toHarvest}</dd></>)}
               {plant.plant_spacing_cm && (<><dt className="text-muted-foreground flex items-center gap-1.5"><Ruler className="h-3 w-3" />Plantavstånd</dt><dd className="font-medium">{plant.plant_spacing_cm} cm</dd></>)}
               {plant.row_spacing_cm && (<><dt className="text-muted-foreground">Radavstånd</dt><dd className="font-medium">{plant.row_spacing_cm} cm</dd></>)}
-              {plant.planting_depth_cm && (<><dt className="text-muted-foreground">Sådjup</dt><dd className="font-medium">{plant.planting_depth_cm} cm</dd></>)}
+              {(!plantingTime || sowIndoor || sowOutdoor) && plant.planting_depth_cm && (<><dt className="text-muted-foreground">Sådjup</dt><dd className="font-medium">{plant.planting_depth_cm} cm</dd></>)}
               {plant.mature_height_cm && (<><dt className="text-muted-foreground">Höjd vid mognad</dt><dd className="font-medium">{plant.mature_height_cm} cm</dd></>)}
               {zoneRange && (<><dt className="text-muted-foreground flex items-center gap-1.5"><MapPin className="h-3 w-3" />Odlingszon</dt><dd className="font-medium">{zoneRange}</dd></>)}
               {plant.sun_requirement && (<><dt className="text-muted-foreground flex items-center gap-1.5"><Sun className="h-3 w-3" />Sol</dt><dd className="font-medium">{plant.sun_requirement}</dd></>)}
               {plant.water_requirement && (<><dt className="text-muted-foreground flex items-center gap-1.5"><Droplets className="h-3 w-3" />Vatten</dt><dd className="font-medium">{plant.water_requirement}</dd></>)}
               {plant.soil_ph_min && plant.soil_ph_max && (<><dt className="text-muted-foreground">Jord-pH</dt><dd className="font-medium">{plant.soil_ph_min} – {plant.soil_ph_max}</dd></>)}
             </dl>
+            <p className="mt-4 text-sm text-muted-foreground">{timingNote} {timingSource && <a href={timingSource} className="underline">Källa till planteringstid</a>}</p>
           </CardContent>
         </Card>
 
@@ -259,7 +264,6 @@ export default function VaxtDetail() {
         )}
 
         <CalendarCrossLink
-          month={plant.sow_indoor_start ?? plant.sow_outdoor_start ?? undefined}
           className="mb-10"
           description={`Vill du se vad mer än ${plant.name} som ska sås, planteras ut och skördas den här månaden?`}
         />

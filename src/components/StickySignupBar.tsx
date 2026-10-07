@@ -1,3 +1,4 @@
+import { useBottomInset } from '@/hooks/useBottomInset';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,7 +17,7 @@ const SCROLL_TRIGGER_VH = 0.55;
  * Visas efter att besökaren scrollat en bit (engagemang), först efter att
  * cookie-beslut fattats (så den aldrig kolliderar med cookie-bannern), och
  * aldrig på /login där registreringsformuläret redan finns.
- * Stängs per session via sessionStorage.
+ * Stängningen sparas i localStorage.
  */
 export default function StickySignupBar() {
   const location = useLocation();
@@ -24,7 +25,7 @@ export default function StickySignupBar() {
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(() => {
     try {
-      return sessionStorage.getItem(DISMISS_KEY) === '1';
+      return localStorage.getItem(DISMISS_KEY) === '1';
     } catch {
       return false;
     }
@@ -70,7 +71,7 @@ export default function StickySignupBar() {
     setVisible(false);
     setDismissed(true);
     try {
-      sessionStorage.setItem(DISMISS_KEY, '1');
+      localStorage.setItem(DISMISS_KEY, '1');
     } catch {
       /* noop */
     }
@@ -78,15 +79,17 @@ export default function StickySignupBar() {
 
   const show = visible && !dismissed && !isLoginPage && !loading && !isAuthenticated;
 
+  const bannerRef = useBottomInset(show, 'promo');
+
   return (
     <AnimatePresence>
       {show && (
-        <motion.div
+        <motion.div ref={bannerRef}
           initial={{ y: 96, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 96, opacity: 0 }}
           transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-          className="fixed inset-x-3 bottom-3 sm:inset-x-0 sm:bottom-5 z-40 flex justify-center pointer-events-none"
+          className="fixed inset-x-0 bottom-0 p-3 z-40 flex justify-center pointer-events-none"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           <div
@@ -117,7 +120,7 @@ export default function StickySignupBar() {
               type="button"
               onClick={dismiss}
               aria-label="Stäng"
-              className="absolute -top-2.5 -right-2.5 w-6 h-6 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground flex items-center justify-center shadow-sm transition-colors"
+              className="absolute -top-4 -right-2 min-w-11 min-h-11 rounded-full bg-card border border-border text-muted-foreground hover:text-foreground flex items-center justify-center shadow-sm transition-colors"
             >
               <X className="h-3 w-3" aria-hidden="true" />
             </button>

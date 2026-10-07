@@ -1,0 +1,362 @@
+{
+  "krusbar": {
+    "src": "/plants/krusbar-1200.webp",
+    "srcSet": "/plants/krusbar-640.webp 432w, /plants/krusbar-1200.webp 768w",
+    "source": "https://commons.wikimedia.org/wiki/File:Stachelbeeren.jpg",
+    "author": "Unknown",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "subject": "Gooseberry"
+  },
+  "majs": {
+    "src": "/plants/majs-1200.webp",
+    "srcSet": "/plants/majs-640.webp 421w, /plants/majs-1200.webp 790w",
+    "source": "https://commons.wikimedia.org/wiki/File:GreenCorn.JPG",
+    "author": "Jonathunder",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "subject": "majs"
+  },
+  "gronkal": {
+    "src": "/plants/gronkal-1200.webp",
+    "srcSet": "/plants/gronkal-640.webp 603w, /plants/gronkal-1200.webp 1131w",
+    "source": "https://commons.wikimedia.org/wiki/File:Boerenkool.jpg",
+    "author": "Rasbak",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "subject": "Kale"
+  },
+  "druva": {
+    "src": "/plants/druva-1200.webp",
+    "srcSet": "/plants/druva-640.webp 640w, /plants/druva-1200.webp 882w",
+    "source": "https://commons.wikimedia.org/wiki/File:Cabernet_Sauvignon_Gaillac.jpg",
+    "author": "Unknown",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "subject": "Vitis vinifera"
+  },
+  "blabar": {
+    "src": "/plants/blabar-1200.webp",
+    "srcSet": "/plants/blabar-640.webp 528w, /plants/blabar-1200.webp 550w",
+    "source": "https://commons.wikimedia.org/wiki/File:Vaccinium_corymbosum(01).jpg",
+    "author": "Unknown",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "subject": "Vaccinium corymbosum"
+  },
+  "sallad": {
+    "src": "/plants/sallad-1200.webp",
+    "srcSet": "/plants/sallad-640.webp 640w, /plants/sallad-1200.webp 1200w",
+    "source": "https://commons.wikimedia.org/wiki/File:Iceberg_lettuce_in_SB.jpg",
+    "author": "en:User:Geographer",
+    "license": "CC BY 1.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/1.0",
+    "subject": "Lettuce"
+  },
+  "rodbeta": {
+    "src": "/plants/rodbeta-1200.webp",
+    "srcSet": "/plants/rodbeta-640.webp 383w, /plants/rodbeta-1200.webp 718w",
+    "source": "https://commons.wikimedia.org/wiki/File:Detroitdarkredbeets.png",
+    "author": "BriannaWalther",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "subject": "Beetroot"
+  },
+  "bona": {
+    "src": "/plants/bona-1200.webp",
+    "srcSet": "/plants/bona-640.webp 432w, /plants/bona-1200.webp 810w",
+    "source": "https://commons.wikimedia.org/wiki/File:Snijboon_peulen_Phaseolus_vulgaris.jpg",
+    "author": "Rasbak",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "subject": "Common bean"
+  },
+  "arta": {
+    "src": "/plants/arta-1200.webp",
+    "srcSet": "/plants/arta-640.webp 432w, /plants/arta-1200.webp 810w",
+    "source": "https://commons.wikimedia.org/wiki/File:Doperwt_rijserwt_peulen_Pisum_sativum.jpg",
+    "author": "Rasbak",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "subject": "Pea"
+  },
+  "mangold": {
+    "src": "/plants/mangold-1200.webp",
+    "srcSet": "/plants/mangold-640.webp 432w, /plants/mangold-1200.webp 810w",
+    "source": "https://commons.wikimedia.org/wiki/File:Chard_(Beta_vulgaris_var_cicla).jpg",
+    "author": "Neelix at English Wikipedia",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "subject": "Chard"
+  },
+  "bondbona": {
+    "src": "/plants/bondbona-1200.webp",
+    "srcSet": "/plants/bondbona-640.webp 432w, /plants/bondbona-1200.webp 810w",
+    "source": "https://commons.wikimedia.org/wiki/File:Vicia_faba.jpg",
+    "author": "Honeyhuyue",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "subject": "bondbona"
+  },
+  "hallon": {
+    "src": "/plants/hallon-1200.webp",
+    "srcSet": "/plants/hallon-640.webp 461w, /plants/hallon-1200.webp 864w",
+    "source": "https://commons.wikimedia.org/wiki/File:Raspberry_-_halved_(Rubus_idaeus).jpg",
+    "author": "Ivar Leidus",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "subject": "Raspberry"
+  },
+  "fikon": {
+    "src": "/plants/fikon-1200.webp",
+    "srcSet": "/plants/fikon-640.webp 640w, /plants/fikon-1200.webp 1200w",
+    "source": "https://commons.wikimedia.org/wiki/File:Smokve_na_grani.jpg",
+    "author": "Silverije",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "subject": "fikon"
+  },
+  "purjolok": {
+    "src": "/plants/purjolok-1200.webp",
+    "srcSet": "/plants/purjolok-640.webp 393w, /plants/purjolok-1200.webp 736w",
+    "source": "https://commons.wikimedia.org/wiki/File:Leek_on_white_background_-_0947.jpg",
+    "author": "Amada44",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "subject": "Leek"
+  },
+  "radisa": {
+    "src": "/plants/radisa-1200.webp",
+    "srcSet": "/plants/radisa-640.webp 432w, /plants/radisa-1200.webp 810w",
+    "source": "https://commons.wikimedia.org/wiki/File:Radish_3371103037_4ab07db0bf_o.jpg",
+    "author": "Self, en:User:Jengod",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "subject": "Radish"
+  },
+  "rucola": {
+    "src": "/plants/rucola-1200.webp",
+    "srcSet": "/plants/rucola-640.webp 590w, /plants/rucola-1200.webp 1106w",
+    "source": "https://commons.wikimedia.org/wiki/File:Eruca_sativa_0006842.jpg",
+    "author": "Juan Carlos Fonseca Mata",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "subject": "rucola"
+  },
+  "vinbar": {
+    "src": "/plants/vinbar-1200.webp",
+    "srcSet": "/plants/vinbar-640.webp 633w, /plants/vinbar-1200.webp 1187w",
+    "source": "https://commons.wikimedia.org/wiki/File:Ribes_rubrum_1.jpg",
+    "author": "Unknown",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "subject": "Redcurrant"
+  },
+  "dill": {
+    "src": "/plants/dill-1200.webp",
+    "srcSet": "/plants/dill-640.webp 576w, /plants/dill-1200.webp 1080w",
+    "source": "https://commons.wikimedia.org/wiki/File:Dill1_(cropped).jpg",
+    "author": "Rillke",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "subject": "dill"
+  },
+  "spenat": {
+    "src": "/plants/spenat-1200.webp",
+    "srcSet": "/plants/spenat-640.webp 442w, /plants/spenat-1200.webp 539w",
+    "source": "https://commons.wikimedia.org/wiki/File:Spinacia_oleracea_Spinazie_bloeiend.jpg",
+    "author": "Rasbak",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "subject": "Spinach"
+  },
+  "paprika": {
+    "src": "/plants/paprika-1200.webp",
+    "srcSet": "/plants/paprika-640.webp 640w, /plants/paprika-1200.webp 1200w",
+    "source": "https://commons.wikimedia.org/wiki/File:Green-Yellow-Red-Pepper-2009.jpg",
+    "author": "Kham Tran - www.khamtran.com",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "subject": "Bell pepper"
+  },
+  "graslok": {
+    "src": "/plants/graslok-1200.webp",
+    "srcSet": "/plants/graslok-640.webp 640w, /plants/graslok-1200.webp 1200w",
+    "source": "https://commons.wikimedia.org/wiki/File:Allium_schoenoprasum_-_Bombus_lapidarius_-_Tootsi.jpg",
+    "author": "Ivar Leidus",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "subject": "Chives"
+  },
+  "oregano": {
+    "src": "/plants/oregano-1200.webp",
+    "srcSet": "/plants/oregano-640.webp 384w, /plants/oregano-1200.webp 720w",
+    "source": "https://commons.wikimedia.org/wiki/File:Origanum_vulgare_-_harilik_pune.jpg",
+    "author": "Ivar Leidus",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "subject": "Oregano"
+  },
+  "palsternacka": {
+    "src": "/plants/palsternacka-1200.webp",
+    "srcSet": "/plants/palsternacka-640.webp 640w, /plants/palsternacka-1200.webp 1200w",
+    "source": "https://commons.wikimedia.org/wiki/File:Pastinaca_sativa_MHNT.BOT.2004.0.jpg",
+    "author": "Didier Descouens",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "subject": "Parsnip"
+  },
+  "mynta": {
+    "src": "/plants/mynta-1200.webp",
+    "srcSet": "/plants/mynta-640.webp 640w, /plants/mynta-1200.webp 1200w",
+    "source": "https://commons.wikimedia.org/wiki/File:Minze.jpg",
+    "author": "Simon Eugster --Simon 13:07, 2 July 2006 (UTC)",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "subject": "Spearmint"
+  },
+  "sockerarta": {
+    "src": "/plants/sockerarta-1200.webp",
+    "srcSet": "/plants/sockerarta-640.webp 386w, /plants/sockerarta-1200.webp 723w",
+    "source": "https://commons.wikimedia.org/wiki/File:Snow_Pea_on_Plant.JPG",
+    "author": "JS",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "subject": "Snow pea"
+  },
+  "lok": {
+    "src": "/plants/lok-1200.webp",
+    "srcSet": "/plants/lok-640.webp 576w, /plants/lok-1200.webp 1080w",
+    "source": "https://commons.wikimedia.org/wiki/File:Mixed_onions.jpg",
+    "author": "Colin",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "subject": "Onion"
+  },
+  "broccoli": {
+    "src": "/plants/broccoli-1200.webp",
+    "srcSet": "/plants/broccoli-640.webp 640w, /plants/broccoli-1200.webp 960w",
+    "source": "https://commons.wikimedia.org/wiki/File:Broccoli_plants_growing_in_New_Jersey_in_April.jpg",
+    "author": "Tomwsulcer",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "subject": "broccoli"
+  },
+  "persilja": {
+    "src": "/plants/persilja-1200.webp",
+    "srcSet": "/plants/persilja-1200.webp 592w",
+    "source": "https://commons.wikimedia.org/wiki/File:Parsley100.jpg",
+    "author": "Tharish",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "subject": "persilja"
+  },
+  "tomat": {
+    "src": "/plants/tomat-1200.webp",
+    "srcSet": "/plants/tomat-640.webp 640w, /plants/tomat-1200.webp 1024w",
+    "source": "blog-images/odla-tomater.jpg",
+    "author": "",
+    "license": "Befintlig sajtbild",
+    "licenseUrl": "",
+    "subject": "tomat"
+  },
+  "chili": {
+    "src": "/plants/chili-1200.webp",
+    "srcSet": "/plants/chili-640.webp 640w, /plants/chili-1200.webp 1024w",
+    "source": "blog-images/odla-chili.jpg",
+    "author": "",
+    "license": "Befintlig sajtbild",
+    "licenseUrl": "",
+    "subject": "chili"
+  },
+  "jordgubbe": {
+    "src": "/plants/jordgubbe-1200.webp",
+    "srcSet": "/plants/jordgubbe-640.webp 640w, /plants/jordgubbe-1200.webp 1024w",
+    "source": "blog-images/odla-jordgubbar.jpg",
+    "author": "",
+    "license": "Befintlig sajtbild",
+    "licenseUrl": "",
+    "subject": "jordgubbe"
+  },
+  "morot": {
+    "src": "/plants/morot-1200.webp",
+    "srcSet": "/plants/morot-640.webp 640w, /plants/morot-1200.webp 1024w",
+    "source": "blog-images/odla-morotter.jpg",
+    "author": "",
+    "license": "Befintlig sajtbild",
+    "licenseUrl": "",
+    "subject": "morot"
+  },
+  "potatis": {
+    "src": "/plants/potatis-1200.webp",
+    "srcSet": "/plants/potatis-640.webp 640w, /plants/potatis-1200.webp 1024w",
+    "source": "blog-images/odla-potatis.jpg",
+    "author": "",
+    "license": "Befintlig sajtbild",
+    "licenseUrl": "",
+    "subject": "potatis"
+  },
+  "gurka": {
+    "src": "/plants/gurka-1200.webp",
+    "srcSet": "/plants/gurka-640.webp 640w, /plants/gurka-1200.webp 1024w",
+    "source": "blog-images/odla-gurka.jpg",
+    "author": "",
+    "license": "Befintlig sajtbild",
+    "licenseUrl": "",
+    "subject": "gurka"
+  },
+  "pumpa": {
+    "src": "/plants/pumpa-1200.webp",
+    "srcSet": "/plants/pumpa-640.webp 640w, /plants/pumpa-1200.webp 1024w",
+    "source": "blog-images/odla-pumpa.jpg",
+    "author": "",
+    "license": "Befintlig sajtbild",
+    "licenseUrl": "",
+    "subject": "pumpa"
+  },
+  "squash": {
+    "src": "/plants/squash-1200.webp",
+    "srcSet": "/plants/squash-640.webp 640w, /plants/squash-1200.webp 1024w",
+    "source": "blog-images/odla-squash.jpg",
+    "author": "",
+    "license": "Befintlig sajtbild",
+    "licenseUrl": "",
+    "subject": "squash"
+  },
+  "zucchini": {
+    "src": "/plants/zucchini-1200.webp",
+    "srcSet": "/plants/zucchini-640.webp 640w, /plants/zucchini-1200.webp 1024w",
+    "source": "blog-images/odla-squash.jpg",
+    "author": "",
+    "license": "Befintlig sajtbild",
+    "licenseUrl": "",
+    "subject": "zucchini"
+  },
+  "vitlok": {
+    "src": "/plants/vitlok-1200.webp",
+    "srcSet": "/plants/vitlok-640.webp 640w, /plants/vitlok-1200.webp 1024w",
+    "source": "blog-images/odla-vitlok.jpg",
+    "author": "",
+    "license": "Befintlig sajtbild",
+    "licenseUrl": "",
+    "subject": "vitlok"
+  },
+  "rabarber": {
+    "src": "/plants/rabarber-1200.webp",
+    "srcSet": "/plants/rabarber-640.webp 640w, /plants/rabarber-1200.webp 1024w",
+    "source": "blog-images/odla-rabarber.jpg",
+    "author": "",
+    "license": "Befintlig sajtbild",
+    "licenseUrl": "",
+    "subject": "rabarber"
+  },
+  "basilika": {
+    "src": "/plants/basilika-1200.webp",
+    "srcSet": "/plants/basilika-640.webp 640w, /plants/basilika-1200.webp 1024w",
+    "source": "blog-images/odla-basilika.jpg",
+    "author": "",
+    "license": "Befintlig sajtbild",
+    "licenseUrl": "",
+    "subject": "basilika"
+  }
+}

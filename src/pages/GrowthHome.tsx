@@ -1,3 +1,4 @@
+import { freeFeatures, plusFeatures } from '@/lib/publicPricing';
 import { useAuth } from '@/hooks/useAuth';
 import harvestImage from '@/assets/hero-harvest-hands.jpg';
 import { Link } from 'react-router-dom';
@@ -40,7 +41,7 @@ const features = [
 ];
 
 const faqs = [
-  { q: 'Är Odlingsdagboken gratis?', a: 'Ja. Du kan börja gratis utan betalkort och logga sådder, skördar och anteckningar. Plus (99 kr/år) ger obegränsade bäddar, AI-coachen Gro, avancerad statistik och export.' },
+  { q: 'Är Odlingsdagboken gratis?', a: 'Ja. Du kan börja gratis utan betalkort med upp till tre bäddar och tio sådder, obegränsad skördelogg och anteckningar. Plus (99 kr/år) ger obegränsade bäddar, AI-coachen Gro, avancerad statistik och export.' },
   { q: 'Passar det nybörjare?', a: 'Ja. Onboardingen är byggd för att du snabbt ska komma igång även om du aldrig odlat förr. Du får förslag anpassade efter din zon och ditt odlingssätt.' },
   { q: 'Fungerar det för pallkrage, växthus, balkong och kolonilott?', a: 'Ja. Du väljer själv odlingssätt när du kommer igång, och råden anpassas därefter — inklusive växtföljd, jordvolym och ljusförhållanden.' },
   { q: 'Vad är Gro?', a: 'Gro är vår AI-coach som hjälper dig med såtider, växtföljd, skadedjur och felsökning. Ju mer du loggar, desto mer personliga svar kan Gro ge.' },
@@ -119,7 +120,7 @@ export default function GrowthHome() {
               const Icon = s.icon;
               return (
                 <li key={s.title} className="relative rounded-3xl border border-border bg-card p-6 sm:p-7">
-                  <span className="absolute top-6 right-6 font-serif text-4xl text-primary/15">0{i + 1}</span>
+                  <span className="absolute top-6 right-6 font-serif text-4xl text-primary/80">0{i + 1}</span>
                   <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-5">
                     <Icon className="h-5 w-5" />
                   </div>
@@ -228,7 +229,7 @@ export default function GrowthHome() {
               <p className="text-muted-foreground text-sm mb-5">För dig som vill komma igång.</p>
               <div className="font-serif text-4xl text-foreground mb-6">0 kr</div>
               <ul className="space-y-2.5 text-sm mb-8">
-                {['Logga sådder och skördar', 'Skapa dina första bäddar', 'Grundläggande såkalender', 'Anteckningar och fotodagbok'].map(item => (
+                {freeFeatures.map(item => (
                   <li key={item} className="flex gap-2.5"><Check className="h-4 w-4 text-primary shrink-0 mt-0.5" /> <span className="text-muted-foreground">{item}</span></li>
                 ))}
               </ul>
@@ -238,12 +239,12 @@ export default function GrowthHome() {
             </div>
             <div className="rounded-3xl border-2 border-primary bg-primary text-primary-foreground p-6 sm:p-8 shadow-2xl relative overflow-hidden">
               <div className="absolute right-6 top-6 rounded-full bg-primary-foreground/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider">Mest värde</div>
-              <h3 className="font-serif text-2xl mb-2">Plus</h3>
+              <h3 className="font-serif text-2xl text-primary-foreground mb-2">Plus</h3>
               <p className="text-primary-foreground/85 text-sm mb-5">För dig som vill odla mer genomtänkt.</p>
               <div className="font-serif text-4xl mb-1">99 kr<span className="text-base font-sans text-primary-foreground/75 ml-1">/år</span></div>
-              <p className="text-xs text-primary-foreground/70 mb-6">Bara ~åtta kronor i månaden.</p>
+              <p className="text-xs text-primary-foreground/90 mb-6">Bara ~åtta kronor i månaden.</p>
               <ul className="space-y-2.5 text-sm mb-8">
-                {['Allt i Gratis', 'Obegränsade bäddar och pallkrage', 'AI-coachen Gro', 'Avancerad skörd- och statistikvy', 'Export av din odlingsdata', '14 dagars Plus gratis'].map(item => (
+                {plusFeatures.map(item => (
                   <li key={item} className="flex gap-2.5"><Check className="h-4 w-4 shrink-0 mt-0.5" /> <span className="text-primary-foreground/95">{item}</span></li>
                 ))}
               </ul>

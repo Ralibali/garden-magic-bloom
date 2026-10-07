@@ -1,26 +1,10 @@
+import { freeFeatures, plusFeatures } from '@/lib/publicPricing';
 import { Seo } from '@/hooks/useSeo';
 import PublicLayout from '@/components/PublicLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check, Sprout, Crown, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-const freeFeatures = [
-  'Upp till tre bäddar',
-  'Upp till tio sådder och obegränsad skördelogg',
-  'Personlig dashboard och egna påminnelser',
-  'Väderdata och råd för din klimatzon',
-  'Växtbibliotek och grundläggande planering',
-];
-
-const plusFeatures = [
-  'Obegränsade bäddar och sådder',
-  'Fler personliga frågor till AI-coachen Gro',
-  'Statistik, trender och säsongsjämförelser',
-  'Skördens uppskattade butiksvärde',
-  'Växtföljd och historik mellan säsonger',
-  'Alla Plus-funktioner under provperioden',
-];
 
 const faq = [
   { q: 'Är Odlingsdagboken gratis?', a: 'Ja. Gratisversionen innehåller upp till tre bäddar och tio sådder, obegränsad skördelogg, dashboard, påminnelser, väder och växtbibliotek.' },
