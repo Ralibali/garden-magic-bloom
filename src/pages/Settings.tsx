@@ -1,3 +1,4 @@
+import { subscriptionLabel, subscriptionDescription } from '@/lib/subscriptionStatus';
 import { downloadAccountData } from '@/lib/accountExport';
 import { hasAiConsent, setAiConsent } from '@/lib/aiConsent';
 import { isNativeApp } from '@/lib/native';
@@ -172,7 +173,7 @@ const SettingsPage = () => {
             </Select>
             <p className="text-xs text-muted-foreground mt-1">Zon 1–3 = Syd, Zon 4–5 = Mitt, Zon 6–8 = Nord</p>
           </div>
-          <div><label className="text-sm font-medium">Abonnemang</label><p className="text-sm text-muted-foreground">{profile?.subscription_status === 'premium' ? 'Plus' : 'Gratis'}</p></div>
+          <div className="space-y-2"><h2 className="text-sm font-medium">Abonnemang</h2><p className="font-medium">{subscriptionLabel(user)}</p><p className="text-sm text-muted-foreground">{subscriptionDescription(user)}</p>{!isNativeApp() && <Button variant="outline" onClick={() => navigate('/app/premium')}>{user?.can_manage_subscription ? 'Hantera abonnemang' : 'Visa abonnemang och Plus'}</Button>}</div>
           <Button onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>{updateMutation.isPending ? 'Sparar...' : 'Spara inställningar'}</Button>
         </CardContent>
       </Card>

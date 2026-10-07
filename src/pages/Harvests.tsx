@@ -1,3 +1,4 @@
+import { formatKg } from '@/lib/formatNumber';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,7 @@ import AskGroButton from '@/components/AskGroButton';
 import { FadeIn } from '@/components/animations';
 
 const formatWeight = (grams: number) => {
-  if (grams >= 1000) return `${(grams / 1000).toLocaleString('sv-SE', { maximumFractionDigits: 1 })} kg`;
+  if (grams >= 1000) return `${formatKg(grams / 1000)} kg`;
   return `${grams.toLocaleString('sv-SE')} g`;
 };
 

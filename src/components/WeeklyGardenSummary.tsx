@@ -1,3 +1,4 @@
+import { formatKg } from '@/lib/formatNumber';
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, CalendarCheck2, Camera, Carrot, CheckCircle2, Sparkles, Sprout, TrendingUp } from 'lucide-react';
@@ -47,7 +48,7 @@ export default function WeeklyGardenSummary({ sowings = [], harvests = [], remin
   const hasActivity = summary.sowings + summary.harvestKg + summary.completed + summary.photos > 0;
   const metrics = [
     { value: summary.sowings, label: 'nya sådder', icon: Sprout, path: '/app/sowings', tone: 'text-primary' },
-    { value: `${summary.harvestKg.toFixed(1)} kg`, label: 'skördat', icon: Carrot, path: '/app/harvests', tone: 'text-accent' },
+    { value: `${formatKg(summary.harvestKg)} kg`, label: 'skördat', icon: Carrot, path: '/app/harvests', tone: 'text-accent' },
     { value: summary.completed, label: 'saker klara', icon: CheckCircle2, path: '/app/reminders', tone: 'text-primary' },
     { value: summary.photos, label: 'nya bilder', icon: Camera, path: '/app/photos', tone: 'text-accent' },
   ];

@@ -1,5 +1,7 @@
+import { subscriptionDescription } from '@/lib/subscriptionStatus';
+import { formatKg } from '@/lib/formatNumber';
 import { lazy, Suspense, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowRight, BookOpen, Camera, Carrot, ChevronDown, CloudSun, Flower2, MapPin, NotebookPen, Plus, Snowflake, Sparkles, Sprout } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +16,7 @@ import { localDateKey } from '@/lib/gardenToday';
 import { getGardenForecast, weatherDescription } from '@/lib/gardenWeather';
 import { getFrostWarning } from '@/lib/frostWarning';
 import type { GardenCategory } from '@/lib/gardenModules';
+import PublicPlanHandoff from '@/components/PublicPlanHandoff';
 import OnboardingFlow from '@/components/OnboardingFlow';
 import GardenPulse from '@/components/GardenPulse';
 import CultivationImage from '@/components/CultivationImage';
@@ -30,7 +33,9 @@ const dateLabel = (date: string) => new Intl.DateTimeFormat('sv-SE', { day: 'num
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const client = useQueryClient();
+  const [planDismissed, setPlanDismissed] = useState(false);
   const [wrapOpen, setWrapOpen] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const profile = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
@@ -53,7 +58,7 @@ export default function Dashboard() {
   const items = useMemo(() => garden.data ? buildCultivations(garden.data) : [], [garden.data]);
   const active = items.filter(item => item.status !== 'done');
   const overduePlants = items.filter(item => item.plant && item.profile && ['urgent', 'due'].includes(item.profile.status)).map(item => ({ ...item.plant, care_profile: item.profile }));
-  const prefs = (profile.data?.preferences || {}) as { garden_categories?: GardenCategory[] };
+  const prefs = (profile.data?.preferences || {}) as { garden_categories?: GardenCategory[]; onboarding_plan?: { crops?: string[]; methods?: string[]; public_plan?: Record<string, unknown> | null } };
   const plantOnly = !!prefs.garden_categories?.length && prefs.garden_categories.every(category => category === 'krukvaxter');
   const firstName = profile.data?.display_name?.trim().split(' ')[0];
   const today = localDateKey();
@@ -64,8 +69,7 @@ export default function Dashboard() {
   const temperature = weather.data?.current?.temperature_2m;
   const hasLocation = lat != null && lon != null;
 
-  const completeOnboarding = async (data: { categories: GardenCategory[]; climateZone: number }) => {
-    await api.updateProfile({ climate_zone: data.climateZone, preferences: { ...prefs, garden_categories: data.categories }, onboarding_completed: true });
+  const completeOnboarding = async () => {
     await client.invalidateQueries({ queryKey: ['profile'] });
   };
   if (profile.data && !(profile.data as { onboarding_completed?: boolean }).onboarding_completed) return <OnboardingFlow onComplete={completeOnboarding} />;
@@ -81,12 +85,15 @@ export default function Dashboard() {
         <Button asChild className="min-h-11 gap-2 rounded-full px-5"><Link to="/app/timeline" state={{ openEditor: true }}><NotebookPen className="h-4 w-4" />Skriv i dagboken</Link></Button>
       </header>
 
+      {(user?.access_type === 'trial' || user?.access_type === 'stripe_trial') && <section className="rounded-2xl border border-primary/20 bg-primary/5 p-4"><p className="font-semibold">Du provar Plus</p><p className="mt-1 text-sm text-muted-foreground">{subscriptionDescription(user)}</p><Link to="/app/settings" className="mt-2 inline-block text-sm font-medium text-primary">Visa abonnemang</Link></section>}
       <nav aria-label="Lägg till i odlingen" className="garden-quick-actions">
         <Link to={plantOnly ? '/app/my-plants' : '/app/sowings'} state={plantOnly ? { openCreate: true } : { prefill: {} }}><Plus />{plantOnly ? 'Ny växt' : 'Ny sådd'}</Link>
         <Link to="/app/photos" state={{ openUpload: true }}><Camera />Lägg till foto</Link>
         <Link to={plantOnly ? '/app/my-plants' : '/app/harvests'} state={plantOnly ? undefined : { prefill: {} }}>{plantOnly ? <Flower2 /> : <Carrot />}{plantOnly ? 'Titta till växter' : 'Logga skörd'}</Link>
         <Link to="/app/gro"><Sparkles />Fråga Gro</Link>
       </nav>
+
+      {!planDismissed && !garden.isPending && !garden.isError && !active.length && prefs.onboarding_plan && ((prefs.onboarding_plan.crops?.length ?? 0) > 0 || prefs.onboarding_plan.public_plan) && <PublicPlanHandoff plan={prefs.onboarding_plan.public_plan ?? prefs.onboarding_plan} onDismiss={() => setPlanDismissed(true)} onNavigate={(path, state) => navigate(path, { state })} />}
 
       {frost && <section role="status" className="flex items-start gap-3 rounded-2xl border border-sky-300/60 bg-sky-50 p-4 text-sky-950 dark:border-sky-800 dark:bg-sky-950 dark:text-sky-100"><Snowflake className="mt-0.5 h-5 w-5 shrink-0" /><div><h2 className="font-sans text-base font-semibold text-inherit">{frost.headline}</h2><p className="mt-1 text-sm">{frost.advice}</p></div></section>}
 
@@ -119,7 +126,7 @@ export default function Dashboard() {
           <GardenPulse weather={weather.data} rainData={rain.data} climateZone={climateZone} remindersData={reminders.data} sowings={garden.data?.sowings} beds={garden.data?.beds} overduePlants={overduePlants} isLoading={garden.isLoading || reminders.isLoading} isError={garden.isError || reminders.isError} compact />
           {!plantOnly && garden.data && <CalendarWeekCard sowings={garden.data.sowings as unknown as CalendarSowing[]} zone={climateZone} today={today} />}
           <section className="garden-weather" aria-label="Väder vid odlingen"><div className="flex items-center gap-3"><CloudSun className="h-8 w-8 text-primary" /><div><p className="text-sm font-medium">{temperature != null ? `${Math.round(temperature)}° · ${weatherDescription(weather.data?.current?.weather_code)}` : weather.isError ? 'Vädret kunde inte hämtas' : 'Hämtar vädret…'}</p><p className="mt-1 text-xs text-muted-foreground">{hasLocation ? 'Vid din sparade plats' : `Ungefärligt väder · zon ${climateZone}`}</p></div></div><Link to="/app/settings" className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary"><MapPin className="h-3.5 w-3.5" />{hasLocation ? 'Ändra plats' : 'Ange din plats'}</Link></section>
-          <div className="border-t border-border/70 pt-5"><p className="garden-eyebrow">Din säsong {year}</p><div className="mt-3 flex gap-6"><Link to="/app/odlingar" className="text-sm text-muted-foreground"><strong className="mb-1 block font-serif text-3xl font-normal text-foreground">{garden.isPending || garden.isError ? '–' : active.length}</strong>aktiva odlingar</Link><Link to={plantOnly ? '/app/photos' : '/app/harvests'} className="text-sm text-muted-foreground"><strong className="mb-1 block font-serif text-3xl font-normal text-foreground">{garden.isPending || garden.isError ? '–' : plantOnly ? garden.data?.photos.filter(photo => photo.taken_at.startsWith(String(year))).length : (harvested / 1000).toLocaleString('sv-SE', { maximumFractionDigits: 1 })}</strong>{plantOnly ? 'foton i år' : 'kg skördat i år'}</Link></div><Link to="/app/statistics" className="mt-4 inline-flex items-center gap-2 text-sm text-primary">Se din statistik <ArrowRight className="h-3.5 w-3.5" /></Link></div>
+          <div className="border-t border-border/70 pt-5"><p className="garden-eyebrow">Din säsong {year}</p><div className="mt-3 flex gap-6"><Link to="/app/odlingar" className="text-sm text-muted-foreground"><strong className="mb-1 block font-serif text-3xl font-normal text-foreground">{garden.isPending || garden.isError ? '–' : active.length}</strong>aktiva odlingar</Link><Link to={plantOnly ? '/app/photos' : '/app/harvests'} className="text-sm text-muted-foreground"><strong className="mb-1 block font-serif text-3xl font-normal text-foreground">{garden.isPending || garden.isError ? '–' : plantOnly ? garden.data?.photos.filter(photo => photo.taken_at.startsWith(String(year))).length : formatKg(harvested / 1000)}</strong>{plantOnly ? 'foton i år' : 'kg skördat i år'}</Link></div><Link to="/app/statistics" className="mt-4 inline-flex items-center gap-2 text-sm text-primary">Se din statistik <ArrowRight className="h-3.5 w-3.5" /></Link></div>
         </aside>
       </div>
       {new Date().getMonth() >= 8 && new Date().getMonth() <= 9 && !!garden.data?.beds.length && <section className="flex flex-wrap items-center justify-between gap-4 border-t border-border/70 pt-6"><div><h2 className="text-xl">Ta med dig det som fungerade.</h2><p className="mt-1 text-sm text-muted-foreground">Spara säsongens lärdomar inför nästa år.</p></div><Button variant="outline" className="rounded-full" onClick={() => setWrapOpen(true)}>Summera säsongen <ArrowRight className="ml-2 h-4 w-4" /></Button></section>}

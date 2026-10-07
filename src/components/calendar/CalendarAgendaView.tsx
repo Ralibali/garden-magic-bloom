@@ -60,11 +60,16 @@ export default function CalendarAgendaView({ today, zone, weeks = 8, events, sho
       const sunday = addDays(monday, 6);
       const from = i === 0 ? today : monday;
       const week = isoWeekOfKey(monday);
+      const guide = getWeekGuide(zone, week);
+      for (const activity of GUIDE_ORDER) {
+        guide[activity] = guide[activity].filter(crop => i === 0 || crop.opensNow || crop.closesNow);
+      }
+      guide.total = GUIDE_ORDER.reduce((sum, activity) => sum + guide[activity].length, 0);
       return {
         monday,
         week,
         events: events.filter((e) => e.date >= from && e.date <= sunday),
-        guide: getWeekGuide(zone, week),
+        guide,
       };
     });
   }, [events, today, weeks, zone]);
@@ -93,7 +98,7 @@ export default function CalendarAgendaView({ today, zone, weeks = 8, events, sho
           </div>
 
           {showGuide && block.guide.total > 0 && (
-            <div className="mt-4 space-y-2 border-t border-border/50 pt-3">
+            <div className="mt-4 space-y-2 border-t border-border/50 pt-3"><p className="text-xs text-muted-foreground">{index === 0 ? 'Odlingsperioder som pågår nu. Veckospannet gäller hela perioden.' : 'Odlingsperioder som börjar eller tar slut.'}</p>
               {GUIDE_ORDER.map((activity) => {
                 const crops = block.guide[activity];
                 if (!crops.length) return null;
@@ -108,7 +113,7 @@ export default function CalendarAgendaView({ today, zone, weeks = 8, events, sho
                         className={`rounded-full border px-2 py-0.5 text-xs transition-colors hover:border-primary/40 ${crop.closesNow ? 'border-destructive/40 text-destructive' : 'border-border/70 text-foreground/80'}`}
                         title={crop.closesNow ? 'Sista veckan i fönstret' : `v.${crop.startWeek}–${crop.endWeek}`}
                       >
-                        {crop.name}{crop.closesNow ? ' · sista v.' : ''}
+                        {crop.name} · {crop.closesNow ? 'sista v.' : `v.${crop.startWeek}–${crop.endWeek}`}
                       </button>
                     ))}
                   </div>

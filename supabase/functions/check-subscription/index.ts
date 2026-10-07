@@ -1,3 +1,4 @@
+import { profileAccess } from '../_shared/subscriptionAccess.ts';
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -28,101 +29,51 @@ serve(async (req) => {
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated");
 
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles').select('subscription_status, premium_expires_at, created_at')
+      .eq('user_id', user.id).single();
+    if (profileError) throw profileError;
+    const fallback = profileAccess(profile);
+    const respond = (body: object) => new Response(JSON.stringify(body), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+    const respondWithProfile = async (canManage = false) => {
+      // Keep server-side limits in sync when a time-limited grant has expired.
+      if (!fallback.subscribed && profile.subscription_status === 'premium') {
+        const { error } = await supabaseClient.from('profiles')
+          .update({ subscription_status: 'free' }).eq('user_id', user.id);
+        if (error) throw error;
+      }
+      return respond({ ...fallback, can_manage_subscription: canManage });
+    };
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-
-    // If Stripe is not configured, fall back to database profile status
-    if (!stripeKey) {
-      const { data: profile } = await supabaseClient
-        .from('profiles')
-        .select('subscription_status, premium_expires_at')
-        .eq('user_id', user.id)
-        .single();
-
-      const isPremium = profile?.subscription_status === 'premium' &&
-        (!profile?.premium_expires_at || new Date(profile.premium_expires_at) > new Date());
-
-      return new Response(JSON.stringify({
-        subscribed: isPremium,
-        subscription_end: profile?.premium_expires_at,
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    if (!stripeKey) return respond({ ...fallback, access_type: fallback.subscribed ? 'unknown' : 'free', can_manage_subscription: null });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-
-    if (customers.data.length === 0) {
-      // No Stripe customer – check if premium was granted manually via DB
-      const { data: profile } = await supabaseClient
-        .from('profiles')
-        .select('subscription_status, premium_expires_at')
-        .eq('user_id', user.id)
-        .single();
-
-      const manualPremium = profile?.subscription_status === 'premium' &&
-        (!profile?.premium_expires_at || new Date(profile.premium_expires_at) > new Date());
-
-      if (manualPremium) {
-        return new Response(JSON.stringify({
-          subscribed: true,
-          subscription_end: profile?.premium_expires_at,
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      await supabaseClient.from('profiles').update({ subscription_status: 'free' }).eq('user_id', user.id);
-      return new Response(JSON.stringify({ subscribed: false }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    if (!customers.data.length) return await respondWithProfile();
 
     const customerId = customers.data[0].id;
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 1,
-    });
+    // A Checkout trial is manageable even before its first invoice is paid.
+    const [active, trials] = await Promise.all([
+      stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 }),
+      stripe.subscriptions.list({ customer: customerId, status: "trialing", limit: 1 }),
+    ]);
+    const subscription = active.data[0] || trials.data[0];
+    if (!subscription) return await respondWithProfile(true);
 
-    const hasActiveSub = subscriptions.data.length > 0;
-    let subscriptionEnd = null;
-    let productId = null;
-
-    if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
-      try {
-        const endTimestamp = subscription.current_period_end;
-        if (endTimestamp && typeof endTimestamp === 'number') {
-          subscriptionEnd = new Date(endTimestamp * 1000).toISOString();
-        }
-      } catch {
-        // Skip if date parsing fails
-      }
-      productId = subscription.items.data[0].price.product;
-      await supabaseClient.from('profiles').update({ subscription_status: 'premium' }).eq('user_id', user.id);
-    } else {
-      // No active Stripe sub – check manual premium before downgrading
-      const { data: profile } = await supabaseClient
-        .from('profiles')
-        .select('subscription_status, premium_expires_at')
-        .eq('user_id', user.id)
-        .single();
-
-      const manualPremium = profile?.subscription_status === 'premium' &&
-        (!profile?.premium_expires_at || new Date(profile.premium_expires_at) > new Date());
-
-      if (!manualPremium) {
-        await supabaseClient.from('profiles').update({ subscription_status: 'free' }).eq('user_id', user.id);
-      }
-    }
-
-    return new Response(JSON.stringify({
-      subscribed: hasActiveSub,
-      product_id: productId,
-      subscription_end: subscriptionEnd,
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const trial = subscription.status === 'trialing';
+    const end = trial ? subscription.trial_end : subscription.items.data[0]?.current_period_end;
+    const { error: updateError } = await supabaseClient.from('profiles')
+      .update({ subscription_status: 'premium' }).eq('user_id', user.id);
+    if (updateError) throw updateError;
+    return respond({
+      subscribed: true,
+      access_type: trial ? 'stripe_trial' : 'stripe',
+      can_manage_subscription: true,
+      product_id: subscription.items.data[0]?.price.product,
+      subscription_end: end ? new Date(end * 1000).toISOString() : null,
+      trial_end: trial && end ? new Date(end * 1000).toISOString() : null,
     });
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {

@@ -10,7 +10,6 @@ import { clearPublicPlan, loadPublicPlan } from '@/lib/publicPlan';
 import { ZONE_PLACES } from '@/lib/swedishZones';
 import { toast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
-import { useQueryClient } from '@tanstack/react-query';
 
 const ZONE_CITIES = ZONE_PLACES.map(({ zone, places }) => ({ zone, cities: places }));
 
@@ -23,7 +22,7 @@ const EXPERIENCE_LEVELS = [
 ];
 
 interface OnboardingFlowProps {
-  onComplete: (data: { categories: GardenCategory[]; climateZone: number }) => void | Promise<void>;
+  onComplete: () => void | Promise<void>;
 }
 
 function ToggleButton({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) {
@@ -38,13 +37,13 @@ function ToggleButton({ active, children, onClick }: { active: boolean; children
 }
 
 export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
-  const queryClient = useQueryClient();
-  const [importedPlan] = useState(loadPublicPlan);
-  const [step, setStep] = useState(importedPlan ? 4 : 0);
+  const [publicContext] = useState(loadPublicPlan);
+  const importedPlan = publicContext?.type !== 'odlingsakuten' ? publicContext : null;
+  const [step, setStep] = useState(importedPlan?.zone && importedPlan.method ? 4 : 0);
   const [selectedCategories, setSelectedCategories] = useState<GardenCategory[]>(['kokstradgard']);
-  const [climateZone, setClimateZone] = useState(importedPlan?.zone ?? 3);
-  const [methods, setMethods] = useState<string[]>(importedPlan?.method ? [importedPlan.method] : ['Pallkrage']);
-  const [crops, setCrops] = useState<string[]>(importedPlan?.crops.length ? importedPlan.crops : ['Tomat', 'Sallat']);
+  const [climateZone, setClimateZone] = useState(importedPlan?.zone ?? null);
+  const [methods, setMethods] = useState<string[]>(importedPlan?.method ? [importedPlan.method] : []);
+  const [crops, setCrops] = useState<string[]>(importedPlan?.crops ?? []);
   const [experience, setExperience] = useState('intermediate');
   const [saving, setSaving] = useState(false);
 
@@ -56,7 +55,20 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     setter(current => current.includes(value) ? current.filter(item => item !== value) : [...current, value]);
   };
 
+  const skip = async () => {
+    setSaving(true);
+    try {
+      await api.updateProfile({ onboarding_completed: true });
+      clearPublicPlan();
+      await onComplete();
+    } catch {
+      toast({ title: 'Kunde inte hoppa över introduktionen', description: 'Försök igen.', variant: 'destructive' });
+      setSaving(false);
+    }
+  };
+
   const finish = async () => {
+    if (climateZone === null) { setStep(3); return; }
     if (!selectedCategories.length) {
       toast({ title: 'Välj minst ett odlingsområde', description: 'Det gör att vi kan visa rätt verktyg för dig.', variant: 'destructive' });
       setStep(1);
@@ -71,13 +83,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       experience,
       climateZone,
       imported_from: importedPlan?.type ?? null,
-      public_plan: importedPlan?.raw ?? null,
+      public_plan: publicContext?.type === 'odlingsakuten' ? publicContext.raw : importedPlan ? { ...importedPlan.raw, zone: climateZone, method: methods[0] || '', methods, crops } : null,
       createdAt: new Date().toISOString(),
     };
 
     try {
-      localStorage.setItem('odlingsdagboken_onboarding_plan', JSON.stringify(plan));
-      await onComplete({ categories: selectedCategories, climateZone });
       const profile = await api.getProfile();
       const currentPreferences = profile?.preferences && typeof profile.preferences === 'object' && !Array.isArray(profile.preferences)
         ? profile.preferences as Record<string, unknown>
@@ -96,10 +106,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           last_activity: 'onboarding_completed',
         },
       });
-      await trackEvent('onboarding_completed', { categories: selectedCategories, methods, crops, climate_zone: climateZone, experience, imported_from: importedPlan?.type });
-      plausibleEvent('Onboarding Completed', { imported_plan: Boolean(importedPlan), plan_type: importedPlan?.type ?? 'manual' });
       clearPublicPlan();
-      await queryClient.invalidateQueries({ queryKey: ['profile'] });
+      await onComplete();
+      void trackEvent('onboarding_completed', { categories: selectedCategories, methods, crops, climate_zone: climateZone, experience, imported_from: importedPlan?.type });
+      plausibleEvent('Onboarding Completed', { imported_plan: Boolean(importedPlan), plan_type: importedPlan?.type ?? 'manual' });
+
     } catch (error: any) {
       toast({ title: 'Kunde inte spara dina val', description: error?.message || 'Försök igen.', variant: 'destructive' });
       setSaving(false);
@@ -126,11 +137,15 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
               {step === 2 && <div className="space-y-6"><div><p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Din säsong</p><h1 className="font-serif text-3xl mb-2">Hur och vad odlar du?</h1><p className="text-sm text-muted-foreground">Välj det som stämmer bäst just nu.</p></div><div><p className="text-sm font-medium mb-2">Odlingssätt</p><div className="grid grid-cols-2 sm:grid-cols-3 gap-2">{GROWING_METHODS.map(method => <ToggleButton key={method} active={methods.includes(method)} onClick={() => toggleArray(method, setMethods)}>{method}</ToggleButton>)}</div></div><div><p className="text-sm font-medium mb-2">Några grödor du vill odla</p><div className="grid grid-cols-2 sm:grid-cols-5 gap-2">{POPULAR_CROPS.map(crop => <ToggleButton key={crop} active={crops.includes(crop)} onClick={() => toggleArray(crop, setCrops)}>{crop}</ToggleButton>)}</div></div><div className="flex items-center justify-between"><Button variant="ghost" onClick={() => setStep(1)}>Tillbaka</Button><Button className="gap-2" disabled={!methods.length} onClick={() => setStep(3)}>Nästa <ArrowRight className="h-4 w-4" /></Button></div></div>}
 
-              {step === 3 && <div className="space-y-6"><div><p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Lokala råd</p><h1 className="font-serif text-3xl mb-2">Vilken odlingszon ligger närmast?</h1><p className="text-sm text-muted-foreground">Zonen används för frost, såtider och utplantering. Exemplen är ungefärliga.</p></div><div className="grid sm:grid-cols-2 gap-2 max-h-[48vh] overflow-y-auto pr-1">{ZONE_CITIES.map(({ zone, cities }) => <button key={zone} type="button" onClick={() => setClimateZone(zone)} className={`text-left p-3.5 rounded-2xl border transition-all ${climateZone === zone ? 'border-primary bg-primary/8 shadow-sm' : 'border-border hover:border-primary/30'}`}><div className="flex items-center justify-between"><span className="font-medium text-sm flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Zon {zone}</span>{climateZone === zone && <span className="text-[10px] bg-primary text-primary-foreground px-2 py-0.5 rounded-full">Vald</span>}</div><p className="text-xs text-muted-foreground mt-1 ml-6">{cities.join(', ')}</p></button>)}</div><div className="flex items-center justify-between"><Button variant="ghost" onClick={() => setStep(2)}>Tillbaka</Button><Button className="gap-2" onClick={() => setStep(4)}>Nästa <ArrowRight className="h-4 w-4" /></Button></div></div>}
+              {step === 3 && <div className="space-y-6"><div><p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Lokala råd</p><h1 className="font-serif text-3xl mb-2">Vilken odlingszon ligger närmast?</h1><p className="text-sm text-muted-foreground">Zonen används för frost, såtider och utplantering. Exemplen är ungefärliga.</p></div><div className="grid sm:grid-cols-2 gap-2 max-h-[48vh] overflow-y-auto pr-1">{ZONE_CITIES.map(({ zone, cities }) => <button key={zone} type="button" onClick={() => setClimateZone(zone)} className={`text-left p-3.5 rounded-2xl border transition-all ${climateZone === zone ? 'border-primary bg-primary/8 shadow-sm' : 'border-border hover:border-primary/30'}`}><div className="flex items-center justify-between"><span className="font-medium text-sm flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Zon {zone}</span>{climateZone === zone && <span className="text-[10px] bg-primary text-primary-foreground px-2 py-0.5 rounded-full">Vald</span>}</div><p className="text-xs text-muted-foreground mt-1 ml-6">{cities.join(', ')}</p></button>)}</div><div className="flex items-center justify-between"><Button variant="ghost" onClick={() => setStep(2)}>Tillbaka</Button><Button className="gap-2" disabled={climateZone === null} onClick={() => setStep(4)}>Nästa <ArrowRight className="h-4 w-4" /></Button></div></div>}
 
-              {step === 4 && <div className="space-y-6"><div>{importedPlan && <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary border border-primary/20 px-3 py-1 text-xs font-medium mb-4"><Check className="h-3.5 w-3.5" /> Din {importedPlan.type === 'sakalender' ? 'såkalender' : 'plan'} är hämtad</div>}<p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Nivå och sammanfattning</p><h1 className="font-serif text-3xl mb-2">{importedPlan ? 'Spara planen i din odlingsdagbok' : 'Hur mycket guidning passar dig?'}</h1><p className="text-sm text-muted-foreground">{importedPlan ? `Vi har hämtat zon ${climateZone}, ${methods.join(', ').toLowerCase()} och ${crops.length} valda grödor från verktyget du nyss använde.` : 'Det påverkar hur detaljerade rekommendationerna blir.'}</p></div><div className="grid gap-3">{EXPERIENCE_LEVELS.map(level => <button key={level.id} type="button" onClick={() => setExperience(level.id)} className={`text-left rounded-2xl border p-4 transition-all ${experience === level.id ? 'border-primary bg-primary/8' : 'border-border hover:border-primary/30'}`}><div className="flex items-center justify-between gap-3"><div><p className="font-medium">{level.title}</p><p className="text-xs text-muted-foreground mt-1">{level.text}</p></div>{experience === level.id && <Check className="h-4 w-4 text-primary shrink-0" />}</div></button>)}</div><div className="rounded-2xl bg-primary/10 border border-primary/20 p-4 flex gap-3"><Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" /><div><p className="text-sm font-medium">Din startprofil är klar</p><p className="text-sm text-muted-foreground mt-1">{selectedCategories.length} odlingsområde{selectedCategories.length === 1 ? '' : 'n'}, zon {climateZone}, {crops.length} valda grödor och nivån “{experienceLabel}”.</p></div></div><div className="flex items-center justify-between"><Button variant="ghost" onClick={() => setStep(importedPlan ? 2 : 3)}>{importedPlan ? 'Justera planen' : 'Tillbaka'}</Button><Button className="gap-2" onClick={finish} disabled={saving}>{saving ? 'Sparar din plan…' : importedPlan ? 'Spara och öppna min dagbok' : 'Öppna min Odlingsdagbok'} {!saving && <ArrowRight className="h-4 w-4" />}</Button></div></div>}
+              {step === 4 && <div className="space-y-6"><div>{importedPlan && <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary border border-primary/20 px-3 py-1 text-xs font-medium mb-4"><Check className="h-3.5 w-3.5" /> Din {importedPlan.type === 'sakalender' ? 'såkalender' : 'plan'} är hämtad</div>}<p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold mb-2">Nivå och sammanfattning</p><h1 className="font-serif text-3xl mb-2">{importedPlan ? 'Spara planen i din odlingsdagbok' : 'Hur mycket guidning passar dig?'}</h1><p className="text-sm text-muted-foreground">{importedPlan ? 'Du har en sparad plan från ett publikt verktyg. Kontrollera valen nedan innan du sparar din odlingsprofil.' : 'Det påverkar hur detaljerade rekommendationerna blir.'}</p></div><div className="grid gap-3">{EXPERIENCE_LEVELS.map(level => <button key={level.id} type="button" onClick={() => setExperience(level.id)} className={`text-left rounded-2xl border p-4 transition-all ${experience === level.id ? 'border-primary bg-primary/8' : 'border-border hover:border-primary/30'}`}><div className="flex items-center justify-between gap-3"><div><p className="font-medium">{level.title}</p><p className="text-xs text-muted-foreground mt-1">{level.text}</p></div>{experience === level.id && <Check className="h-4 w-4 text-primary shrink-0" />}</div></button>)}</div><div className="rounded-2xl bg-primary/10 border border-primary/20 p-4 flex gap-3"><Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" /><div><p className="text-sm font-medium">Dina val</p><p className="text-sm text-muted-foreground mt-1">{selectedCategories.length} odlingsområde{selectedCategories.length === 1 ? '' : 'n'}, zon {climateZone}, {crops.length} önskade grödor och nivån “{experienceLabel}”.</p><p className="text-sm text-muted-foreground mt-2">{methods.length ? `Odlingssätt: ${methods.join(', ')}. ` : ''}{crops.length ? `Grödor: ${crops.join(', ')}. ` : ''}Det här sparar dina önskemål. En aktiv odling skapas först när du lägger till en växt eller loggar en sådd.</p></div></div><div className="grid gap-3 sm:grid-cols-2"><Button variant="outline" className="h-auto min-h-11 whitespace-normal" disabled={saving} onClick={() => setStep(2)}>Justera planen</Button><Button className="h-auto min-h-11 whitespace-normal gap-2" onClick={finish} disabled={saving}>{saving ? 'Sparar din plan…' : importedPlan ? 'Spara och öppna min dagbok' : 'Öppna min Odlingsdagbok'} {!saving && <ArrowRight className="h-4 w-4" />}</Button></div></div>}
             </motion.div>
           </AnimatePresence>
+          <div className="mt-6 border-t border-border pt-4 text-center">
+            <Button variant="ghost" disabled={saving} onClick={skip}>Hoppa över</Button>
+            <p className="text-sm text-muted-foreground">Du kan anpassa din odlingsprofil senare i inställningarna.</p>
+          </div>
         </div>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { formatKg } from '@/lib/formatNumber';
 export interface SeasonJourneyInput {
   sowings?: any[];
   harvests?: any[];
@@ -89,14 +90,14 @@ export function buildSeasonJourney(input: SeasonJourneyInput): SeasonJourney {
     { id: 'first-sowing', label: 'Första sådden', reached: sowingCount >= 1, progressLabel: `${sowingCount}/1` },
     { id: 'five-sowings', label: '5 sådder', reached: sowingCount >= 5, progressLabel: `${Math.min(sowingCount, 5)}/5` },
     { id: 'first-harvest', label: 'Första skörden', reached: harvestCount >= 1, progressLabel: `${harvestCount}/1` },
-    { id: 'ten-kg', label: '10 kg skörd', reached: harvestKg >= 10, progressLabel: `${Math.min(harvestKg, 10).toFixed(1)}/10 kg` },
+    { id: 'ten-kg', label: '10 kg skörd', reached: harvestKg >= 10, progressLabel: `${formatKg(Math.min(harvestKg, 10))}/10 kg` },
     { id: 'five-photos', label: '5 bilder', reached: photoCount >= 5, progressLabel: `${Math.min(photoCount, 5)}/5` },
     { id: 'three-day-streak', label: '3 dagars streak', reached: streakDays >= 3, progressLabel: `${Math.min(streakDays, 3)}/3` },
     { id: 'seven-day-streak', label: '7 dagars streak', reached: streakDays >= 7, progressLabel: `${Math.min(streakDays, 7)}/7` },
   ];
 
   const reachedMilestones = milestones.filter((item) => item.reached).length;
-  const shareText = `Min säsongsresa i Odlingsdagboken: ${streakDays} dagars odlingsstreak, ${reachedMilestones}/${milestones.length} milstolpar och ${harvestKg.toFixed(1)} kg registrerad skörd i år. 🌱`;
+  const shareText = `Min säsongsresa i Odlingsdagboken: ${streakDays} dagars odlingsstreak, ${reachedMilestones}/${milestones.length} milstolpar och ${formatKg(harvestKg)} kg registrerad skörd i år. 🌱`;
 
   return {
     streakDays,

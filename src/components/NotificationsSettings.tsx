@@ -150,7 +150,7 @@ export default function NotificationsSettings() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm font-medium">Push-notiser</p>
-                <p className="text-xs text-muted-foreground">Behörighet: {permission}</p>
+                <p className="text-xs text-muted-foreground">{permission === 'granted' ? 'Notiser är tillåtna' : permission === 'denied' ? 'Notiser är blockerade. Tillåt dem i webbläsarens inställningar för den här sidan.' : 'Du har inte valt om notiser ska tillåtas ännu.'}</p>
               </div>
               <Switch checked={isSubscribed} disabled={loading} onCheckedChange={togglePush} />
             </div>

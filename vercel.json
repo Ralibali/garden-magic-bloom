@@ -1,6 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
+    { "source": "/villkor", "destination": "/terms", "permanent": true },
+    { "source": "/integritet", "destination": "/terms#integritet", "permanent": true },
+    { "source": "/pris", "destination": "/priser", "permanent": true },
     { "source": "/guider", "destination": "/blogg", "permanent": true },
     { "source": "/guider/:slug", "destination": "/blogg/:slug", "permanent": true },
     { "source": "/manad", "destination": "/odlingskalender", "permanent": true }
@@ -27,6 +30,13 @@
     {
       "source": "/reset-password",
       "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    },
+    {
+      "source": "/auth/:path*",
+      "headers": [
+        { "key": "Referrer-Policy", "value": "no-referrer" },
         { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
       ]
     }

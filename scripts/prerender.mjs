@@ -56,6 +56,7 @@ function staticPagesForYear(currentYear = new Date().getFullYear()) {
     { route: '/zoner', title: 'Odlingszoner i Sverige – frost, såtid och utplantering', description: 'Lär dig hur svensk odlingszon påverkar frost, såtid, utplantering och vilka växter som passar där du bor.', heading: 'Odlingszoner i Sverige', schemaType: 'CollectionPage' },
     { route: '/install', title: 'Installera Odlingsdagboken som app', description: 'Installera Odlingsdagboken på mobil, surfplatta eller dator och öppna din odling direkt från hemskärmen.', heading: 'Installera Odlingsdagboken' },
     { route: '/terms', title: 'Villkor och integritet | Odlingsdagboken', description: 'Läs användarvillkor och information om hur Odlingsdagboken behandlar personuppgifter.', heading: 'Villkor och integritet' },
+    { route: '/auth/confirm', title: 'Bekräfta din e-post – Odlingsdagboken', description: 'Bekräfta din e-postadress.', heading: 'Bekräftar din e-post', noindex: true },
     { route: '/login', title: 'Skapa gratis konto | Odlingsdagboken', description: 'Skapa ett gratis konto och börja spara såkalender, odlingsplan, skördar och anteckningar.', heading: 'Skapa konto eller logga in', noindex: true },
     { route: '/reset-password', title: 'Återställ lösenord | Odlingsdagboken', description: 'Återställ lösenordet till ditt konto i Odlingsdagboken.', heading: 'Återställ lösenord', noindex: true },
     { route: '/app', title: 'Min odlingsdagbok', description: 'Din privata odlingsdagbok.', heading: 'Min odlingsdagbok', noindex: true },
@@ -234,6 +235,11 @@ export async function prerenderDist(dist = join(root, 'dist')) {
   const dynamicPages = [...cmsPages, ...(await satiderPages(published, new Date(), guideLib)), frostPage(guideLib)];
   const allPages = mergeRequiredPages([...staticPages, ...dynamicPages]);
   for (const page of allPages) await writePage(page);
+  for (const [alias, destination] of [['/villkor', '/terms'], ['/integritet', '/terms#integritet'], ['/pris', '/priser']]) {
+    const output = routeOutput(dist, alias);
+    await mkdir(dirname(output), { recursive: true });
+    await writeFile(output, `<!doctype html><html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=${destination}"><link rel="canonical" href="https://odlingsdagboken.com${destination.split('#')[0]}"><title>Sidan har flyttat – Odlingsdagboken</title></head><body><p><a href="${destination}">Öppna sidan</a></p></body></html>`, 'utf8');
+  }
   await writeFile(join(dist, 'sitemap.xml'), renderSitemap(allPages), 'utf8');
   await writeZoneCalendars(dist, new Date(), guideLib);
 

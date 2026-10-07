@@ -1,3 +1,4 @@
+import { formatKg } from './formatNumber';
 /**
  * Personlig odlingskalender. Slår ihop användarens egna rader (sådder,
  * utplanteringar, skördar, påminnelser) med zonens såmatris till en
@@ -473,7 +474,7 @@ export function buildCalendarEvents({ zone, from, to, today, sowings = [], harve
   for (const harvest of harvests) {
     if (!inRange(harvest.harvest_date)) continue;
     const grams = Number(harvest.weight_grams) || 0;
-    const weight = grams >= 1000 ? `${(grams / 1000).toLocaleString('sv-SE', { maximumFractionDigits: 1 })} kg` : grams > 0 ? `${grams} g` : '';
+    const weight = grams >= 1000 ? `${formatKg(grams / 1000)} kg` : grams > 0 ? `${grams} g` : '';
     events.push({
       id: `harvested:${harvest.id}`,
       kind: 'harvested',

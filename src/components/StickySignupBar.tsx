@@ -30,13 +30,15 @@ export default function StickySignupBar() {
     }
   });
 
-  const isLoginPage = location.pathname === '/login';
+  const isLoginPage = location.pathname === '/login' || location.pathname.startsWith('/auth/');
 
   useEffect(() => {
     if (dismissed || isLoginPage || loading || isAuthenticated) return;
 
     const maybeShow = () => {
-      if (!hasDecision()) return; // cookie-bannern har företräde
+      const footer = document.querySelector('[data-public-footer]');
+      if (footer && footer.getBoundingClientRect().top < window.innerHeight) { setVisible(false); return; }
+      if (!hasDecision()) { setVisible(false); return; } // cookie-bannern har företräde
       if (window.scrollY < window.innerHeight * SCROLL_TRIGGER_VH) return;
       setVisible(true);
       try {
@@ -53,11 +55,13 @@ export default function StickySignupBar() {
     const onConsent = () => maybeShow();
 
     window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
     window.addEventListener(CONSENT_EVENT, onConsent);
     maybeShow(); // ifall sidan laddas redan nerscrollad med beslut taget
 
     return () => {
       window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
       window.removeEventListener(CONSENT_EVENT, onConsent);
     };
   }, [dismissed, isLoginPage, loading, isAuthenticated, location.pathname]);

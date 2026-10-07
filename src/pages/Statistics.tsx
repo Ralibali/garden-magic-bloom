@@ -1,3 +1,6 @@
+import CropPriceEditor from '@/components/CropPriceEditor';
+import { useCropPrices } from '@/hooks/useCropPrices';
+import { formatKg } from '@/lib/formatNumber';
 import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3, Sprout, Carrot, LayoutGrid, TrendingUp, TrendingDown, Coins, Share2, Info } from 'lucide-react';
@@ -32,6 +35,7 @@ const CHART_COLORS = [
 ];
 
 const Statistics = () => {
+  const prices = useCropPrices();
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
   const prevYear = currentYear - 1;
@@ -124,12 +128,12 @@ const Statistics = () => {
     }
     let total = 0;
     const byVariety = Object.entries(agg).map(([variety, { grams }]) => {
-      const sek = valueForHarvest(variety, grams);
+      const sek = valueForHarvest(variety, grams, prices);
       total += sek;
-      return { variety, kg: +(grams / 1000).toFixed(2), sek: Math.round(sek), pricePerKg: pricePerKgFor(variety) };
+      return { variety, kg: +(grams / 1000).toFixed(2), sek: Math.round(sek), pricePerKg: pricePerKgFor(variety, prices) };
     }).sort((a, b) => b.sek - a.sek);
     return { total: Math.round(total), byVariety };
-  }, [harvests, currentYear]);
+  }, [harvests, currentYear, prices]);
 
   const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
 
@@ -157,7 +161,7 @@ const Statistics = () => {
     <PremiumGate feature="Statistik & trender">
     <div className="space-y-6">
       <FadeIn>
-        <h1 className="text-2xl font-bold flex items-center gap-2"><BarChart3 className="h-6 w-6" /> Statistik {currentYear}</h1>
+        <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-bold flex items-center gap-2"><BarChart3 className="h-6 w-6" /> Statistik {currentYear}</h1><CropPriceEditor varieties={(harvests || []).map(h => h.variety)} /></div>
       </FadeIn>
 
       {harvestValue.total > 0 && (
@@ -170,7 +174,7 @@ const Statistics = () => {
                   <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1.5">
                     Skördens värde {currentYear}
                     <TooltipProvider><UITooltip><TooltipTrigger asChild><Info className="h-3 w-3 cursor-help" /></TooltipTrigger>
-                      <TooltipContent className="max-w-xs text-xs">Beräknat på genomsnittliga butikspriser per kilo i Sverige.</TooltipContent>
+                      <TooltipContent className="max-w-xs text-xs">Beräknat med dina grödpriser. För grödor utan eget pris används ett uppskattat butikspris.</TooltipContent>
                     </UITooltip></TooltipProvider>
                   </p>
                   <p className="text-3xl font-bold text-foreground">{harvestValue.total.toLocaleString('sv-SE')} kr</p>
@@ -216,7 +220,7 @@ const Statistics = () => {
           <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-2"><Carrot className="h-4 w-4" /> Skörd i år</CardTitle></CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">{(stats?.harvest_kg ?? 0).toFixed(1)} kg</p>
+              <p className="text-3xl font-bold">{formatKg(stats?.harvest_kg ?? 0)} kg</p>
               {yoyComparison?.harvestDiff !== null && yoyComparison?.harvestDiff !== undefined && (
                 <DiffBadge diff={yoyComparison.harvestDiff} label={`vs ${prevYear}`} />
               )}
@@ -245,11 +249,11 @@ const Statistics = () => {
                 <BarChart data={harvestByMonth} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
-                  <YAxis tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
+                  <YAxis tickFormatter={formatKg} tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
                   <Tooltip
                     contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 13 }}
                     labelStyle={{ color: 'hsl(var(--foreground))' }}
-                    formatter={(value: number) => [`${value} kg`]}
+                    formatter={(value: number) => [`${formatKg(value)} kg`]}
                   />
                   <Bar dataKey="current" name={String(currentYear)} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="previous" name={String(prevYear)} fill="hsl(var(--muted-foreground) / 0.3)" radius={[4, 4, 0, 0]} />
@@ -312,7 +316,7 @@ const Statistics = () => {
                       <div key={v.variety} className="space-y-1">
                         <div className="flex items-center justify-between text-sm">
                           <span className="font-medium text-foreground">{i + 1}. {v.variety}</span>
-                          <span className="text-muted-foreground">{v.kg} kg</span>
+                          <span className="text-muted-foreground">{formatKg(v.kg)} kg</span>
                         </div>
                         <div className="h-2 rounded-full bg-muted overflow-hidden">
                           <div
@@ -331,7 +335,7 @@ const Statistics = () => {
               <Card className="lg:col-span-2">
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2"><Coins className="h-4 w-4" /> Värde per gröda {currentYear}</CardTitle>
-                  <p className="text-xs text-muted-foreground">Baserat på genomsnittliga butikspriser</p>
+                  <p className="text-xs text-muted-foreground">Dina grödpriser används där du angett dem, annars uppskattade butikspriser.</p>
                 </CardHeader>
                 <CardContent className="p-0">
                   <table className="w-full text-sm">
@@ -340,8 +344,8 @@ const Statistics = () => {
                       {harvestValue.byVariety.map(v => (
                         <tr key={v.variety} className="border-t border-border/40">
                           <td className="p-2 pl-4 font-medium">{v.variety}</td>
-                          <td className="p-2 text-right">{v.kg} kg</td>
-                          <td className="p-2 text-right text-muted-foreground">{v.pricePerKg} kr</td>
+                          <td className="p-2 text-right">{formatKg(v.kg)} kg</td>
+                          <td className="p-2 text-right text-muted-foreground">{v.pricePerKg.toLocaleString('sv-SE')} kr</td>
                           <td className="p-2 pr-4 text-right font-semibold">{v.sek.toLocaleString('sv-SE')} kr</td>
                         </tr>
                       ))}

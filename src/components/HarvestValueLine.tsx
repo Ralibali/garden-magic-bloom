@@ -1,15 +1,17 @@
+import { useCropPrices } from '@/hooks/useCropPrices';
 import { useQuery } from '@tanstack/react-query';
 import { Coins } from 'lucide-react';
 import { api } from '@/lib/api';
 import { valueForHarvest } from '@/data/cropPrices';
 
 export default function HarvestValueLine() {
+  const prices = useCropPrices();
   const year = new Date().getFullYear();
   const { data: harvests } = useQuery({ queryKey: ['harvests'], queryFn: api.getHarvests });
   if (!harvests) return null;
   let total = 0;
   for (const h of harvests as any[]) {
-    if (new Date(h.harvest_date).getFullYear() === year) total += valueForHarvest(h.variety, h.weight_grams || 0);
+    if (new Date(h.harvest_date).getFullYear() === year) total += valueForHarvest(h.variety, h.weight_grams || 0, prices);
   }
   if (total <= 0) return null;
   return (

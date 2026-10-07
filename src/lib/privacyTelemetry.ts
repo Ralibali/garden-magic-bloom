@@ -1,7 +1,7 @@
 import { readPrivacyConsent } from './privacyConsent';
 /** Shared gate for first-party usage telemetry. A legacy decision never grants consent. */
 const CONSENT_KEY = 'cookie-consent-ga4-v2';
-const PRIVATE_PATHS = ['/app', '/admin'];
+const PRIVATE_PATHS = ['/app', '/admin', '/auth'];
 
 export function hasTelemetryConsent(): boolean {
   return readPrivacyConsent(CONSENT_KEY)?.analytics === true;

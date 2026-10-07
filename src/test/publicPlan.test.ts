@@ -38,8 +38,8 @@ describe('public plan import', () => {
       selectedCrops: [' Morot ', '', null],
     })).toMatchObject({
       type: 'odlingsplan',
-      zone: 3,
-      method: 'Pallkrage',
+      zone: null,
+      method: '',
       crops: ['Morot'],
     });
   });

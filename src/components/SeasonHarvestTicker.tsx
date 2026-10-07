@@ -1,3 +1,5 @@
+import { useCropPrices } from '@/hooks/useCropPrices';
+import { formatKg } from '@/lib/formatNumber';
 import { useEffect, useRef, useState } from 'react';
 import { Coins, Scale } from 'lucide-react';
 import { valueForHarvest } from '@/data/cropPrices';
@@ -47,13 +49,14 @@ function useCountUp(target: number, durationMs = 900) {
 }
 
 export default function SeasonHarvestTicker({ harvests }: { harvests: any[] }) {
+  const prices = useCropPrices();
   const year = new Date().getFullYear();
   let kg = 0;
   let value = 0;
   for (const h of harvests) {
     if (!h?.harvest_date || new Date(h.harvest_date).getFullYear() !== year) continue;
     kg += (h.weight_grams || 0) / 1000;
-    value += valueForHarvest(h.variety || '', h.weight_grams || 0);
+    value += valueForHarvest(h.variety || '', h.weight_grams || 0, prices);
   }
 
   const displayKg = useCountUp(kg);
@@ -79,12 +82,12 @@ export default function SeasonHarvestTicker({ harvests }: { harvests: any[] }) {
           <Scale className="h-4 w-4 text-primary" />
         </div>
         <p className="mt-2 text-3xl font-bold tracking-tight tabular-nums">
-          {displayKg.toFixed(1)} <span className="text-sm font-medium text-muted-foreground">kg</span>
+          {formatKg(displayKg)} <span className="text-sm font-medium text-muted-foreground">kg</span>
         </p>
       </div>
       <div className="metric-card relative p-4">
         <div className="flex items-center justify-between">
-          <p className="data-label">Butiksvärde</p>
+          <p className="data-label">Uppskattat värde</p>
           <Coins className="h-4 w-4 text-warning" />
         </div>
         <p className="mt-2 text-3xl font-bold tracking-tight tabular-nums">

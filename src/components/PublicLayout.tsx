@@ -17,7 +17,7 @@ export const PUBLIC_NAV: NavItem[] = [
   { label: 'Odlingskalender', to: '/odlingskalender', matchPrefix: '/odlingskalender' },
   { label: 'Såtider', to: '/satider', matchPrefix: '/satider' },
   { label: 'Blogg', to: '/blogg', matchPrefix: '/blogg' },
-  { label: 'Pris', to: '/#pris', anchor: 'pris' },
+  { label: 'Priser', to: '/priser', matchPrefix: '/priser' },
 ];
 
 const NAV = PUBLIC_NAV;
@@ -157,7 +157,7 @@ export default function PublicLayout({ children, bare = false }: PublicLayoutPro
 
       <StickySignupBar />
 
-      <footer className="mt-20 border-t border-white/8 bg-[hsl(151_34%_12%)] text-white">
+      <footer data-public-footer className="mt-20 border-t border-white/8 bg-[hsl(151_34%_12%)] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="grid gap-10 md:grid-cols-[1.35fr_.65fr_.65fr]">
             <div className="max-w-md">

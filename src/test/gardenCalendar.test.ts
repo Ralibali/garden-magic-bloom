@@ -136,7 +136,7 @@ describe('buildCalendarEvents', () => {
     });
     const kinds = events.map((e) => e.kind);
     expect(kinds).toEqual(expect.arrayContaining(['sown', 'plant-out-due', 'harvest-expected', 'harvested', 'reminder', 'frost']));
-    expect(events.find((e) => e.kind === 'harvested')?.detail).toBe('1,5 kg');
+    expect(events.find((e) => e.kind === 'harvested')?.detail).toBe('1,50 kg');
     expect(events.find((e) => e.kind === 'sown')?.detail).toBe('Förodling · Växthuset');
     // Sorterad på datum
     expect(events.map((e) => e.date)).toEqual([...events.map((e) => e.date)].sort());

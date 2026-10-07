@@ -1,3 +1,4 @@
+import { formatKg } from '@/lib/formatNumber';
 /**
  * Bygger en delbar säsongsrapport (text) för sociala medier och utskrift.
  */
@@ -16,7 +17,7 @@ export interface SeasonShareInput {
 }
 
 const fmtKg = (grams: number) =>
-  (grams / 1000).toLocaleString('sv-SE', { maximumFractionDigits: 1 });
+  formatKg(grams / 1000);
 
 /** Bygger den delbara säsongsrapporten som ren text. */
 export function buildSeasonSummary(input: SeasonShareInput): string {
@@ -36,7 +37,7 @@ export function buildSeasonSummary(input: SeasonShareInput): string {
     lines.push(`🏆 ${tops.map((c) => `${c.variety} ${fmtKg(c.grams)} kg`).join(' · ')}`);
   }
   if (input.valueSek && input.valueSek > 0) {
-    lines.push(`💰 Skördens värde: ca ${input.valueSek.toLocaleString('sv-SE')} kr i butikspris`);
+    lines.push(`💰 Skördens värde: ca ${input.valueSek.toLocaleString('sv-SE')} kr (uppskattat)`);
   }
   if (input.climateZone) {
     lines.push(`📍 Odlat i klimatzon ${input.climateZone}`);

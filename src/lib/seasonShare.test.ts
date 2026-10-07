@@ -19,10 +19,10 @@ describe('seasonShare', () => {
       climateZone: 3,
     }).replace(/\u00a0/g, ' ');
     expect(text).toContain('Min odlingssäsong 2026');
-    expect(text).toContain('12,4 kg');
+    expect(text).toContain('12,40 kg');
     expect(text).toContain('23 tillfällen');
     expect(text).toContain('15 sådder i 3 bäddar');
-    expect(text).toContain('Tomat 4,2 kg');
+    expect(text).toContain('Tomat 4,20 kg');
     expect(text).toContain('1 240 kr');
     expect(text).toContain('klimatzon 3');
     expect(text).toContain('odlingsdagboken.com');
@@ -70,8 +70,8 @@ describe('seasonShare', () => {
         { variety: 'E', grams: 0 },
       ],
     });
-    expect(text).toContain('A 5 kg');
-    expect(text).toContain('C 2 kg');
+    expect(text).toContain('A 5,00 kg');
+    expect(text).toContain('C 2,00 kg');
     expect(text).not.toContain('D ');
     expect(text).not.toContain('E ');
   });

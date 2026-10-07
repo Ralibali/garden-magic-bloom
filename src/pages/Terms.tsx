@@ -115,7 +115,7 @@ export default function Terms() {
           </p>
 
           {/* ---------------------------------------------------------------- */}
-          <h2 className="font-serif text-lg text-foreground mt-6 mb-2">5. Personuppgifter & GDPR</h2>
+          <h2 id="integritet" className="scroll-mt-24 font-serif text-lg text-foreground mt-6 mb-2">5. Personuppgifter & GDPR</h2>
           <p className="text-sm text-foreground leading-relaxed">
             Vi behandlar personuppgifter i enlighet med EU:s dataskyddsförordning (GDPR, 2016/679) och svenska dataskyddslagen (2018:218).
           </p>

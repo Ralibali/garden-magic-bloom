@@ -1,3 +1,4 @@
+import { profileAccess, type AccessType, type AccessSummary } from '@/lib/subscriptionStatus';
 import { sendAnalyticsEvent } from '@/lib/ga4Runtime';
 import { useQueryClient } from '@tanstack/react-query';
 import { authWebOrigin, isNativeApp } from '@/lib/native';
@@ -14,6 +15,9 @@ interface UserProfile {
   is_premium?: boolean;
   subscription_status?: string;
   subscription_end?: string | null;
+  access_type?: AccessType;
+  trial_end?: string | null;
+  can_manage_subscription?: boolean | null;
   [key: string]: any;
 }
 
@@ -53,31 +57,34 @@ function toBasicProfile(supaUser: SupabaseUser): UserProfile {
 }
 
 async function buildProfile(supaUser: SupabaseUser): Promise<UserProfile> {
-  let subscriptionEnd: string | null = null;
+  let checked: AccessSummary | null = null;
   try {
-    const { data } = await supabase.functions.invoke('check-subscription');
-    if (data?.subscription_end) subscriptionEnd = data.subscription_end;
+    const { data, error } = await supabase.functions.invoke('check-subscription');
+    // Legacy responses cannot distinguish a grant from a paid subscription.
+    if (!error && typeof data?.subscribed === 'boolean' && data?.access_type) checked = data;
   } catch {}
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('display_name, subscription_status, premium_expires_at')
+    .select('display_name, subscription_status, premium_expires_at, created_at')
     .eq('user_id', supaUser.id)
     .maybeSingle();
-
-  let subStatus = profile?.subscription_status ?? 'free';
-  if (subStatus === 'premium' && profile?.premium_expires_at) {
-    const expiresAt = new Date(profile.premium_expires_at);
-    if (expiresAt < new Date()) subStatus = 'free';
-  }
-
+  const fallback = profileAccess(profile);
+  const access: AccessSummary = checked ?? {
+    ...fallback,
+    access_type: fallback.subscribed ? 'unknown' : 'free',
+    can_manage_subscription: null,
+  };
   return {
     id: supaUser.id,
     email: supaUser.email ?? '',
     name: profile?.display_name ?? supaUser.user_metadata?.name ?? '',
-    is_premium: subStatus === 'premium',
-    subscription_status: subStatus,
-    subscription_end: subscriptionEnd,
+    is_premium: access.subscribed,
+    subscription_status: access.subscribed ? 'premium' : 'free',
+    subscription_end: access.subscription_end,
+    access_type: access.access_type,
+    trial_end: access.trial_end,
+    can_manage_subscription: access.can_manage_subscription,
   };
 }
 
@@ -103,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (supaUser.email) void markLeadConverted(supaUser.email, supaUser.id);
 
       if (hydrateProfile) {
-        void buildProfile(supaUser)
+        void new Promise<void>(resolve => setTimeout(resolve, 0)).then(() => buildProfile(supaUser))
           .then((profile) => {
             if (isMounted && activeUserId.current === supaUser.id) setUser(profile);
           })
@@ -180,7 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
       options: {
         data: { name },
-        emailRedirectTo: `${authWebOrigin()}/app`,
+        emailRedirectTo: `${authWebOrigin()}/auth/confirm`,
       },
     });
 

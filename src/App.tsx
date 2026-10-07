@@ -36,6 +36,7 @@ const SettingsPage = React.lazy(() => import("./pages/Settings"));
 const Premium = React.lazy(() => import("./pages/Premium"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 const Admin = React.lazy(() => import("./pages/Admin"));
+const ConfirmEmail = React.lazy(() => import("./pages/ConfirmEmail"));
 const Terms = React.lazy(() => import("./pages/Terms"));
 const Guides = React.lazy(() => import("./pages/Guides"));
 const GuideArticle = React.lazy(() => import("./pages/GuideArticle"));
@@ -188,6 +189,10 @@ const AppRoutes = () => (
           <Route path="/faltdagbok" element={<FieldJournal />} />
           <Route path="/radera-konto" element={<DeleteAccountInfo />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/auth/confirm" element={<ConfirmEmail />} />
+          <Route path="/villkor" element={<Navigate to="/terms" replace />} />
+          <Route path="/integritet" element={<Navigate to="/terms#integritet" replace />} />
+          <Route path="/pris" element={<Navigate to="/priser" replace />} />
           <Route path="/terms" element={<Terms />} />
           {/* SEO: /guider konsoliderad till /blogg (301 i vercel.json, client-side fallback här) */}
           <Route path="/guider" element={<Navigate to="/blogg" replace />} />

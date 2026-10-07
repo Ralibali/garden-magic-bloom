@@ -1,3 +1,4 @@
+import { signupConfirmationUrl } from '../_shared/signupConfirmation.ts'
 import * as React from 'npm:react@18.3.1'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { parseEmailWebhookPayload } from 'npm:@lovable.dev/email-js'
@@ -205,8 +206,7 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
-  // Rewrite only the redirect_to parameter inside the confirmation URL
-  // The base URL must remain pointing to the auth verification endpoint
+  // Signup is verified on our own domain; other auth actions keep their existing flow.
   const rawUrl = payload.data.url || ''
   let rewrittenUrl = rawUrl
   try {
@@ -221,6 +221,10 @@ async function handleWebhook(req: Request): Promise<Response> {
     }
   } catch {
     // If URL parsing fails, use raw URL as-is
+  }
+
+  if (emailType === 'signup') {
+    rewrittenUrl = signupConfirmationUrl(rawUrl, Deno.env.get('SUPABASE_URL')!)
   }
 
   const templateProps = {

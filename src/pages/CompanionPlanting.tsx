@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, ThumbsUp, ThumbsDown, Leaf, Sparkles, AlertTriangle, HeartHandshake, Sprout } from 'lucide-react';
@@ -105,6 +106,8 @@ const CompanionPlanting = () => {
           />
         </FadeIn>
       )}
+
+      {!hasActiveSowings && <Card><CardContent className="p-5 space-y-3"><h2 className="font-semibold">Utforska innan du planterar</h2><p className="text-sm text-muted-foreground">Välj en gröda för att se kombinationerna i biblioteket. Logga sedan dina egna sådder och koppla dem till en bädd för att jämföra din plantering.</p><div className="flex flex-wrap gap-2">{plants.slice(0, 5).map(plant => <Button key={plant} variant={search === plant ? 'default' : 'outline'} onClick={() => setSearch(plant)}>{plant}</Button>)}{search && <Button variant="ghost" onClick={() => setSearch('')}>Visa alla</Button>}</div></CardContent></Card>}
 
       {/* Referensbibliotek */}
       <FadeIn delay={0.1}>

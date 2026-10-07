@@ -1,3 +1,4 @@
+import { formatKg } from '@/lib/formatNumber';
 import React, { useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Share2, Copy, Check } from 'lucide-react';
@@ -32,7 +33,7 @@ function drawShareCard(canvas: HTMLCanvasElement, props: ShareCardProps) {
 
   ctx.fillStyle = '#2d3a2e';
   ctx.font = 'bold 120px system-ui';
-  ctx.fillText(`${props.totalHarvestKg.toFixed(1)}`, w / 2, 280);
+  ctx.fillText(`${formatKg(props.totalHarvestKg)}`, w / 2, 280);
 
   ctx.fillStyle = '#5a7a58';
   ctx.font = '32px system-ui';
@@ -90,9 +91,9 @@ export default function ShareCard({ totalHarvestKg, sowingsCount, bedsCount, use
     if (!blob) return;
     const file = new File([blob], 'min-odling.png', { type: 'image/png' });
     if (navigator.share && navigator.canShare({ files: [file] })) {
-      await navigator.share({ title: 'Min odling 🌱', text: `Jag har skördat ${totalHarvestKg.toFixed(1)} kg i år! 🥕`, files: [file] });
+      await navigator.share({ title: 'Min odling 🌱', text: `Jag har skördat ${formatKg(totalHarvestKg)} kg i år! 🥕`, files: [file] });
     } else {
-      await navigator.clipboard.writeText(`Jag har skördat ${totalHarvestKg.toFixed(1)} kg i år! 🥕🌱\nodlingsdagboken.com`);
+      await navigator.clipboard.writeText(`Jag har skördat ${formatKg(totalHarvestKg)} kg i år! 🥕🌱\nodlingsdagboken.com`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -103,7 +104,7 @@ export default function ShareCard({ totalHarvestKg, sowingsCount, bedsCount, use
       <canvas ref={canvasRef} className="w-full rounded-xl shadow-lg border border-border" style={{ maxWidth: 400 }} />
       <div className="flex gap-2">
         <Button onClick={handleShare} className="flex-1 gap-2"><Share2 className="h-4 w-4" /> Dela</Button>
-        <Button variant="outline" onClick={() => { navigator.clipboard.writeText(`Skördat ${totalHarvestKg.toFixed(1)} kg! odlingsdagboken.com`); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="gap-2">
+        <Button variant="outline" onClick={() => { navigator.clipboard.writeText(`Skördat ${formatKg(totalHarvestKg)} kg! odlingsdagboken.com`); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="gap-2">
           {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
           {copied ? 'Kopierat!' : 'Kopiera'}
         </Button>

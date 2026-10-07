@@ -1,3 +1,4 @@
+import { subscriptionLabel } from '@/lib/subscriptionStatus';
 import { isNativeApp } from '@/lib/native';
 import { useEffect, useRef, useState } from 'react';
 import { Home, Sprout, LayoutGrid, Carrot, BarChart3, Settings, LogOut, Crown, Shield, CalendarDays, RefreshCw, Package, Clock, Heart, Bug, Camera, Flower2, BookOpen, Sparkles, Bell, ArrowUpRight, ChevronDown, MoreHorizontal } from 'lucide-react';
@@ -171,7 +172,7 @@ export function AppSidebar() {
 
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 rounded-2xl bg-white/[0.045] p-2.5'}`}>
           <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center text-sm font-bold text-white shrink-0">{initial}</div>
-          {!collapsed && <div className="min-w-0 flex-1"><p className="text-sm font-semibold text-white truncate">{displayName}</p><p className="text-xs text-sidebar-foreground/55 truncate">{isPremium ? 'Plus-medlem' : 'Gratis konto'}</p></div>}
+          {!collapsed && <div className="min-w-0 flex-1"><p className="text-sm font-semibold text-white truncate">{displayName}</p><p className="text-xs text-sidebar-foreground/55 truncate">{subscriptionLabel(user)}</p></div>}
           {!collapsed && <Button variant="ghost" size="icon" className="h-8 w-8 text-sidebar-foreground/60 hover:text-white hover:bg-white/10" onClick={() => navigate('/app/settings')} aria-label="Inställningar"><Settings className="h-3.5 w-3.5" /></Button>}
           {!collapsed && <Button variant="ghost" size="icon" className="h-8 w-8 text-sidebar-foreground/60 hover:text-white hover:bg-white/10" onClick={handleLogout} aria-label="Logga ut"><LogOut className="h-3.5 w-3.5" /></Button>}
         </div>

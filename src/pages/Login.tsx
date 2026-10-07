@@ -247,7 +247,7 @@ export default function Login() {
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email: verificationEmail,
-        options: { emailRedirectTo: `${authWebOrigin()}/app` },
+        options: { emailRedirectTo: `${authWebOrigin()}/auth/confirm` },
       });
       if (error) throw error;
       plausibleEvent('Signup Confirmation Resent', { source });

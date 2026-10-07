@@ -23,7 +23,7 @@ export default function PublicPlanHandoff({ plan, onNavigate, onDismiss }: Publi
       <CardContent className="p-5 sm:p-6">
         <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
           <div>
-            <Badge variant="secondary" className="mb-3 gap-1"><CalendarDays className="h-3.5 w-3.5" /> Sparad från verktyget</Badge>
+            <Badge variant="secondary" className="mb-3 gap-1"><CalendarDays className="h-3.5 w-3.5" /> {plan?.type ? 'Sparat från verktyget' : 'Dina önskade grödor'}</Badge>
             <h2 className="font-serif text-2xl sm:text-3xl mb-2">
               {isAkuten ? 'Spara problemet på en växt' : `Din ${label} väntar på dig`}
             </h2>

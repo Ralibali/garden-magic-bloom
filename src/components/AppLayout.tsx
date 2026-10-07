@@ -34,6 +34,11 @@ function useSavedPublicPlan() {
       if (!parsed?.dismissed) setPlan(parsed);
     } catch { setPlan(null); }
   }, []);
+  useEffect(() => {
+    const clear = () => setPlan(null);
+    window.addEventListener('public-plan-cleared', clear);
+    return () => window.removeEventListener('public-plan-cleared', clear);
+  }, []);
   const dismiss = () => {
     try { localStorage.removeItem('odlingsdagboken_latest_public_plan'); } catch {}
     setPlan(null);
@@ -102,7 +107,7 @@ export default function AppLayout() {
               <Suspense fallback={<ContentLoader />}>
                 <AnimatePresence mode="wait">
                   <motion.div key={location.pathname} variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }} className="space-y-6">
-                    {plan && <PublicPlanHandoff plan={plan} onNavigate={(path, state) => navigate(path, state ? { state } : undefined)} onDismiss={dismiss} />}
+                    {plan && location.pathname !== '/app' && <PublicPlanHandoff plan={plan} onNavigate={(path, state) => navigate(path, state ? { state } : undefined)} onDismiss={dismiss} />}
                     <Outlet />
                   </motion.div>
                 </AnimatePresence>

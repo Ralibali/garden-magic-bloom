@@ -24,7 +24,10 @@ export default function PublicEmailCapture({ source, plan, title, description }:
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!email.trim()) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setErrorMessage('Ange en giltig e-postadress, till exempel namn@exempel.se.');
+      return;
+    }
 
     setLoading(true);
     setErrorMessage('');
@@ -98,7 +101,7 @@ export default function PublicEmailCapture({ source, plan, title, description }:
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card p-5">
+    <form noValidate onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card p-5">
       <div className="flex gap-3 mb-4">
         <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0"><Mail className="h-4 w-4" /></div>
         <div>
@@ -117,7 +120,7 @@ export default function PublicEmailCapture({ source, plan, title, description }:
         aria-hidden="true"
       />
       <div className="flex flex-col sm:flex-row gap-2">
-        <Input type="email" placeholder="din@email.se" value={email} onChange={(event) => setEmail(event.target.value)} required className="h-11" />
+        <Input type="email" aria-label="E-postadress" aria-invalid={!!errorMessage} aria-describedby={errorMessage ? "lead-email-error" : undefined} placeholder="din@email.se" value={email} onChange={(event) => { setEmail(event.target.value); setErrorMessage(''); }} required className="h-11" />
         <Button type="submit" className="h-11 shrink-0" disabled={loading}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
           Skicka planen
@@ -127,7 +130,7 @@ export default function PublicEmailCapture({ source, plan, title, description }:
         <input type="checkbox" checked={marketingConsent} onChange={(event) => setMarketingConsent(event.target.checked)} className="mt-0.5" />
         <span>Ja tack, skicka även relevanta odlingstips och påminnelser. Frivilligt och enkelt att avsluta.</span>
       </label>
-      {errorMessage ? <p className="text-[11px] text-destructive mt-2">{errorMessage}</p> : <p className="text-[11px] text-muted-foreground mt-2">Planmejlet skickas oavsett om du väljer odlingstips. Inget betalkort krävs.</p>}
+      {errorMessage ? <p id="lead-email-error" role="alert" className="text-sm text-destructive mt-2">{errorMessage}</p> : <p className="text-[11px] text-muted-foreground mt-2">Planmejlet skickas oavsett om du väljer odlingstips. Inget betalkort krävs.</p>}
     </form>
   );
 }

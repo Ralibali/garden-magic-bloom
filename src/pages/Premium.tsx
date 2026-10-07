@@ -1,3 +1,4 @@
+import { subscriptionLabel, subscriptionDescription } from '@/lib/subscriptionStatus';
 import { isNativeApp } from '@/lib/native';
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -92,6 +93,7 @@ export default function Premium() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-10 animate-fade-in">
+      <section className="rounded-2xl border bg-card p-5 space-y-2" aria-label="Ditt abonnemang"><h2 className="font-semibold">{subscriptionLabel(user)}</h2><p className="text-sm text-muted-foreground">{subscriptionDescription(user)}</p></section>
       <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/12 via-card to-accent/10 p-6 sm:p-10">
         <div className="relative grid lg:grid-cols-[1.3fr_.7fr] gap-8 items-center">
           <div>
@@ -113,7 +115,7 @@ export default function Premium() {
                 <span className="text-muted-foreground"> kr/år</span>
               </div>
               <p className="text-xs text-muted-foreground mb-4">Motsvarar cirka 8 kr per månad. Priset inkluderar moms.</p>
-              {isPremium ? (
+              {user?.can_manage_subscription || (isPremium && user?.can_manage_subscription == null) ? (
                 <Button variant="outline" className="w-full h-11" onClick={openPortal} disabled={portalLoading}>
                   {portalLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Hantera abonnemang
                 </Button>

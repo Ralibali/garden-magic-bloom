@@ -2,7 +2,7 @@ export type PublicPlanType = 'sakalender' | 'odlingsplan' | 'odlingsakuten';
 
 export interface ImportedPublicPlan {
   type: PublicPlanType;
-  zone: number;
+  zone: number | null;
   method: string;
   crops: string[];
   raw: Record<string, unknown>;
@@ -14,9 +14,9 @@ const PUBLIC_PLAN_KEYS = [
   'odlingsdagboken_public_odlingsplan',
 ] as const;
 
-function normalizeZone(value: unknown): number {
-  const zone = Number.parseInt(String(value ?? ''), 10);
-  return Number.isFinite(zone) && zone >= 1 && zone <= 8 ? zone : 3;
+function normalizeZone(value: unknown): number | null {
+  const zone = Number(value);
+  return Number.isInteger(zone) && zone >= 1 && zone <= 8 ? zone : null;
 }
 
 function normalizeStringArray(value: unknown): string[] {
@@ -38,7 +38,7 @@ export function parsePublicPlan(value: unknown): ImportedPublicPlan | null {
   const crops = normalizeStringArray(
     raw.crops ?? raw.selectedCrops ?? raw.plants ?? (typeof raw.crop === 'string' ? [raw.crop] : []),
   );
-  const method = String(raw.method ?? raw.growingMethod ?? raw.place ?? 'Pallkrage').trim() || 'Pallkrage';
+  const method = String(raw.method ?? raw.growingMethod ?? raw.place ?? '').trim();
 
   return {
     type,
@@ -66,5 +66,6 @@ export function loadPublicPlan(): ImportedPublicPlan | null {
 
 export function clearPublicPlan() {
   if (typeof window === 'undefined') return;
-  for (const key of PUBLIC_PLAN_KEYS) localStorage.removeItem(key);
+  try { for (const key of PUBLIC_PLAN_KEYS) localStorage.removeItem(key); } catch { /* Storage can be unavailable. */ }
+  window.dispatchEvent(new Event('public-plan-cleared'));
 }
