@@ -18,20 +18,20 @@ describe('sitemap follows the published pages', () => {
     expect(result).not.toContain('/app');
   });
 
-  it('lists existing /manad/:slug locs once those pages are prerendered', () => {
+  it('excludes month aliases and thin tag pages', () => {
     const result = renderSitemap([
       { route: '/odlingskalender/maj', modifiedTime: '2026-04-21T10:14:41.906846+00:00' },
       { route: '/manad/maj', modifiedTime: '2026-04-21T10:14:41.906846+00:00' },
       { route: '/manad/januari', modifiedTime: '2026-04-20T21:09:00.02363+00:00' },
     ]);
     expect(result).toContain('<loc>https://odlingsdagboken.com/odlingskalender/maj</loc>');
-    expect(result).toContain('<loc>https://odlingsdagboken.com/manad/maj</loc>');
-    expect(result).toContain('<loc>https://odlingsdagboken.com/manad/januari</loc>');
+    expect(result).not.toContain('<loc>https://odlingsdagboken.com/manad/maj</loc>');
+    expect(result).not.toContain('<loc>https://odlingsdagboken.com/manad/januari</loc>');
   });
 
   it('encodes URLs and XML, omits unknown dates and rejects foreign canonical URLs', () => {
-    const result = renderSitemap([{ route: '/blogg/tagg/frö & jord', modifiedTime: 'unknown' }]);
-    expect(result).toContain('/blogg/tagg/fr%C3%B6%20&amp;%20jord');
+    const result = renderSitemap([{ route: '/vaxter/frö & jord', modifiedTime: 'unknown' }]);
+    expect(result).toContain('/vaxter/fr%C3%B6%20&amp;%20jord');
     expect(result).not.toContain('<lastmod>');
     expect(() => renderSitemap([{ route: '//example.com/foreign' }])).toThrow(/must belong/);
   });

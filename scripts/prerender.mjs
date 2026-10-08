@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { createPublicRenderer } from './prerender-public-react.mjs';
+import { writeHostingPages } from './hosting-pages.mjs';
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,9 +19,12 @@ import {
   DEFAULT_OG_IMAGE,
   HOMEPAGE_TITLE,
   HOMEPAGE_H1,
+  stripHtml,
+  decodeEntities,
 } from './prerender-lib.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const localZoneGuides = JSON.parse(await readFile(join(root, 'src/content/zoneGuides.json'), 'utf8'));
 
 function staticPagesForYear(currentYear = new Date().getFullYear()) {
   const origin = 'https://odlingsdagboken.com';
@@ -150,6 +155,7 @@ async function loadDynamicPages(guideLib) {
     for (const [tag, taggedPosts] of tagMap) {
       pages.push({
         route: `/blogg/tagg/${encodeURIComponent(tag)}`,
+        noindex: true,
         title: `${tag} – guider och odlingstips | Odlingsdagboken`,
         heading: `Guider om ${tag}`,
         description: `Artiklar, guider och praktiska odlingstips om ${tag} för svenska hobbyodlare.`,
@@ -180,10 +186,11 @@ async function loadDynamicPages(guideLib) {
       pages.push(calendarMonthFirstByte(month, '/manad'));
     }
 
-    for (const zone of zones || []) {
+    const publishedZones = [...(zones || []), ...localZoneGuides.filter(guide => !(zones || []).some(zone => zone.slug === guide.slug))];
+    for (const zone of publishedZones) {
       pages.push({
         route: `/zoner/${zone.slug}`,
-        title: `${zone.title} – odlingsguide | Odlingsdagboken`,
+        title: `${zone.title} – Odlingsguide | Odlingsdagboken`,
         heading: zone.title,
         description: truncate(zone.description || `Klimat, frost, såtid och lämpliga växter för odlingszon ${zone.zone_number}.`),
         body: zone.description,
@@ -193,7 +200,7 @@ async function loadDynamicPages(guideLib) {
       });
     }
 
-    return { pages, published: { plants: plants || [], zones: zones || [] } };
+    return { pages, published: { plants: plants || [], zones: publishedZones } };
   } catch (error) {
     throw new Error('[prerender] Dynamisk SEO-data kunde inte hämtas; avbryter för att inte publicera ofullständiga artikelsidor och webbplatskarta.', { cause: error });
   }
@@ -218,9 +225,19 @@ async function loadViteShell(dist) {
 
 export async function prerenderDist(dist = join(root, 'dist')) {
   const template = await loadViteShell(dist);
+  writeHostingPages(template, 'Odlingsdagboken');
   const staticPages = staticPagesForYear();
+  const renderPublic = await createPublicRenderer();
 
   async function writePage(page) {
+    const rendered = renderPublic(page.route, published.zones);
+    if (rendered) {
+      const meta = rendered.meta;
+      Object.assign(page, { title: meta.title, description: meta.description, image: meta.ogImage, imageAlt: meta.ogImageAlt, noindex: meta.noindex,
+        heading: decodeEntities(stripHtml(rendered.html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)?.[1] || '')),
+        schema: Array.isArray(meta.jsonLd) ? { '@context': 'https://schema.org', '@graph': meta.jsonLd } : meta.jsonLd,
+        renderedHtml: rendered.html });
+    }
     const output = routeOutput(dist, page.route);
     const html = renderPage(template, page);
     if (page.route !== '/') assertUniqueFirstByte(html, page);

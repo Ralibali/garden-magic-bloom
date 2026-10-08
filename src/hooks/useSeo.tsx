@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
+import { SeoPrerenderContext } from './seo-prerender-context';
 import { Helmet } from 'react-helmet-async';
 
 const BASE = 'https://odlingsdagboken.com';
 const DEFAULT_OG_IMAGE = `${BASE}/og-image.png`;
 
-interface SeoProps {
+export interface SeoProps {
   title: string;
   description: string;
   path: string;
@@ -12,6 +13,7 @@ interface SeoProps {
   ogImage?: string;
   ogImageAlt?: string;
   noindex?: boolean;
+  follow?: boolean;
   jsonLd?: Record<string, any> | Record<string, any>[];
   articleMeta?: {
     publishedTime?: string;
@@ -28,7 +30,9 @@ interface SeoProps {
  * Twitter cards, hreflang, article meta and optional JSON-LD.
  * Works with SSR/pre-rendering.
  */
-export function Seo({ title, description, path, ogType = 'website', ogImage, ogImageAlt, noindex, jsonLd, articleMeta }: SeoProps) {
+export function Seo({ title, description, path, ogType = 'website', ogImage, ogImageAlt, noindex, follow = false, jsonLd, articleMeta }: SeoProps) {
+  const collector = useContext(SeoPrerenderContext);
+  if (collector) Object.assign(collector, { title, description, path, ogType, ogImage, ogImageAlt, noindex, follow, jsonLd, articleMeta });
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   const fullUrl = `${BASE}${normalizedPath}`;
   const imgUrl = ogImage
@@ -50,7 +54,7 @@ export function Seo({ title, description, path, ogType = 'website', ogImage, ogI
       <html lang="sv" />
       <title>{title}</title>
       <meta name="description" content={description} />
-      <meta name="robots" content={noindex ? 'noindex, nofollow, noarchive' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
+      <meta name="robots" content={noindex ? (follow ? 'noindex, follow' : 'noindex, nofollow, noarchive') : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
       <link rel="canonical" href={fullUrl} />
       <link rel="alternate" href={fullUrl} hrefLang="sv-SE" />
       <link rel="alternate" href={fullUrl} hrefLang="x-default" />

@@ -1,59 +1,142 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
-    { "source": "/vaxtguider", "destination": "/vaxter", "statusCode": 301 },
-    { "source": "/villkor", "destination": "/terms", "permanent": true },
-    { "source": "/integritet", "destination": "/terms#integritet", "permanent": true },
-    { "source": "/pris", "destination": "/priser", "permanent": true },
-    { "source": "/guider", "destination": "/blogg", "permanent": true },
-    { "source": "/guider/:slug", "destination": "/blogg/:slug", "permanent": true },
-    { "source": "/manad", "destination": "/odlingskalender", "permanent": true }
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.odlingsdagboken.com"
+        }
+      ],
+      "destination": "https://odlingsdagboken.com/:path*",
+      "statusCode": 301
+    },
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/manad/:slug",
+      "destination": "/odlingskalender/:slug",
+      "statusCode": 301
+    },
+    {
+      "source": "/vaxtguider",
+      "destination": "/vaxter",
+      "statusCode": 301
+    },
+    {
+      "source": "/villkor",
+      "destination": "/terms",
+      "statusCode": 301
+    },
+    {
+      "source": "/integritet",
+      "destination": "/terms#integritet",
+      "statusCode": 301
+    },
+    {
+      "source": "/pris",
+      "destination": "/priser",
+      "statusCode": 301
+    },
+    {
+      "source": "/guider",
+      "destination": "/blogg",
+      "statusCode": 301
+    },
+    {
+      "source": "/guider/:slug",
+      "destination": "/blogg/:slug",
+      "statusCode": 301
+    },
+    {
+      "source": "/manad",
+      "destination": "/odlingskalender",
+      "statusCode": 301
+    }
   ],
   "headers": [
     {
       "source": "/app",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
       ]
     },
     {
       "source": "/app/:path*",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
       ]
     },
     {
       "source": "/login",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
       ]
     },
     {
       "source": "/reset-password",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
       ]
     },
     {
       "source": "/auth/:path*",
       "headers": [
-        { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
       ]
     }
   ],
   "rewrites": [
     {
-      "source": "/llms.txt",
-      "destination": "https://ysonnvbkrwajacvdkqut.supabase.co/functions/v1/llms-txt"
+      "source": "/app/:path*",
+      "destination": "/app.html"
     },
     {
-      "source": "/sitemap.xml",
-      "destination": "https://ysonnvbkrwajacvdkqut.supabase.co/functions/v1/sitemap"
+      "source": "/auth/:path*",
+      "destination": "/app.html"
     },
     {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "source": "/faltdagbok",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/radera-konto",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/install",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/reset-password",
+      "destination": "/app.html"
     }
   ]
 }
