@@ -116,10 +116,10 @@ export default function ZonDetail() {
           </CardContent>
         </Card> : null}
 
-        {localContent && <div className="prose prose-lg max-w-none mb-10">
+        {localContent && <div className="max-w-none mb-10 space-y-6 text-foreground/85 leading-relaxed [&_a]:text-primary [&_a]:underline">
           <p>Svensk Trädgårds zonkarta beskriver härdighet hos träd och buskar. För grönsakernas sådd behöver du även följa sortens anvisningar och vädret där du odlar.</p>
-          {localContent.sections.map(section => <section key={section.heading}><h2>{section.heading}</h2><p>{section.text}</p></section>)}
-          <h2>Fortsätt planeringen</h2>
+          {localContent.sections.map(section => <section key={section.heading} className="space-y-3"><h2 className="font-serif text-2xl text-foreground">{section.heading}</h2><p>{section.text}</p></section>)}
+          <h2 className="font-serif text-2xl text-foreground">Fortsätt planeringen</h2>
           <ul><li><Link to="/sakalender">Öppna såkalendern</Link></li><li><Link to="/sista-frost">Läs om sista frost</Link></li><li><Link to="/vaxter">Utforska växtguiderna</Link></li></ul>
           <p>Källor om zonindelning: <a href="https://svensktradgard.se/tradgardsrad/zonkartan/digitala-zonkartan">Svensk Trädgårds zonkarta</a> och <a href="https://svensktradgard.se/tradgardsrad/zonkartan/utlasa-zonkartan/">så tolkar du zonkartan</a>. Checklistorna ovan är Odlingsdagbokens förslag för din egen planering.</p>
         </div>}
