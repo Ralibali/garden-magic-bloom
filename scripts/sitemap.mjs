@@ -6,7 +6,7 @@ export function renderSitemap(pages) {
   const seen = new Set();
   const entries = [];
   for (const page of pages) {
-    if (page.noindex || seen.has(page.route)) continue;
+    if (page.noindex || page.route.startsWith('/manad/') || page.route.startsWith('/blogg/tagg/') || seen.has(page.route)) continue;
     seen.add(page.route);
     const url = new URL(page.route, ORIGIN);
     if (url.origin !== ORIGIN) throw new Error(`Sitemap route must belong to ${ORIGIN}: ${page.route}`);

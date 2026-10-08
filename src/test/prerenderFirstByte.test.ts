@@ -106,7 +106,7 @@ describe('prerender first-byte for rebuilt homepage shells', () => {
   });
 
   it.each(REQUIRED_MANAD_FIRST_BYTE_PAGES)(
-    'writes unique title, H1 and self-canonical for $route',
+    'keeps month context but redirects and canonicals aliases to /odlingskalender for $route',
     (page) => {
       const html = renderPage(TEMPLATE, page);
       const signals = firstByteSignals(html);
@@ -117,32 +117,18 @@ describe('prerender first-byte for rebuilt homepage shells', () => {
       expect(signals.h1).toBe(page.heading);
       expect(signals.h1.toLowerCase()).toContain(month);
       expect(signals.h1).not.toBe(HOMEPAGE_H1);
-      expect(signals.canonical).toBe(`https://odlingsdagboken.com${page.route}`);
+      expect(signals.canonical).toBe(`https://odlingsdagboken.com/odlingskalender/${month}`);
+      expect(html).toContain('content="noindex, follow"');
+      expect(html).toContain('http-equiv="refresh"');
       expect(signals.canonical).not.toBe(HOMEPAGE_CANONICAL);
       expect(html).toContain(String(page.body).slice(0, 40));
       expect(html).not.toMatch(/adtraction|adrecord/i);
-      if (page.route === '/manad/maj') {
-        const bodyAt = html.indexOf(String(page.body).slice(0, 40));
-        const ctaAt = html.indexOf(DIN_TRADGARD_MAJ_ANNONS.linkText);
-        expect(html).toContain(`>${DIN_TRADGARD_MAJ_ANNONS.disclosure}<`);
-        expect(html).toContain(DIN_TRADGARD_MAJ_ANNONS.disclosureLine);
-        expect(html).toContain(DIN_TRADGARD_MAJ_ANNONS.linkText);
-        expect(html).toContain(DIN_TRADGARD_MAJ_ANNONS.floor);
-        expect(html).toContain('a=985743');
-        expect(html).toContain('c=3467735');
-        expect(html).toContain(`rel="${DIN_TRADGARD_MAJ_ANNONS.rel}"`);
-        expect(ctaAt).toBeGreaterThan(bodyAt);
-      } else {
-        expect(html).not.toMatch(/affiliate/i);
-        expect(html).not.toContain('addrevenue.io');
-        expect(html).not.toContain('a=985743');
-        expect(html).not.toContain(DIN_TRADGARD_MAJ_ANNONS.linkText);
-      }
+      expect(html).not.toContain('addrevenue.io');
       expect(() => assertUniqueFirstByte(html, page)).not.toThrow();
     },
   );
 
-  it('does not put the Din trädgård Annons on /odlingskalender/maj', () => {
+  it('keeps the approved Annons on canonical /odlingskalender/maj', () => {
     const html = renderPage(TEMPLATE, calendarMonthFirstByte({
       slug: 'maj',
       month_name: 'maj',
@@ -151,9 +137,9 @@ describe('prerender first-byte for rebuilt homepage shells', () => {
       updated_at: '2026-04-21T10:14:41.906846+00:00',
     }, '/odlingskalender'));
     expect(firstByteSignals(html).canonical).toBe('https://odlingsdagboken.com/odlingskalender/maj');
-    expect(html).not.toContain('addrevenue.io');
-    expect(html).not.toContain('a=985743');
-    expect(html).not.toContain(DIN_TRADGARD_MAJ_ANNONS.linkText);
+    expect(html).toContain('addrevenue.io');
+    expect(html).toContain('a=985743');
+    expect(html).toContain(DIN_TRADGARD_MAJ_ANNONS.linkText);
   });
 
   it.each(REQUIRED_FIRST_BYTE_PAGES)(

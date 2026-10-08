@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Seo } from '@/hooks/useSeo';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Link, Navigate, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom';
 import { legacyBlogTarget } from '@/lib/legacyBlog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -34,6 +34,7 @@ const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('sv-SE', { year: 'numeric', month: 'long', day: 'numeric' });
 
 export default function Guides() {
+  const { tag } = useParams();
   const legacyTarget = legacyBlogTarget(useLocation().search);
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -60,6 +61,7 @@ export default function Guides() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return posts.filter(p => {
+      if (tag && !(p.tags || []).includes(tag)) return false;
       if (activeCategory && p.category !== activeCategory) return false;
       if (!q) return true;
       return (
@@ -68,7 +70,7 @@ export default function Guides() {
         (p.tags || []).some((t: string) => t.toLowerCase().includes(q))
       );
     });
-  }, [posts, query, activeCategory]);
+  }, [posts, query, activeCategory, tag]);
 
   const featured = filtered.find(p => p.cover_image_url) || filtered[0];
   const rest = filtered.filter(p => p.id !== featured?.id);
@@ -82,9 +84,11 @@ export default function Guides() {
   return (
     <PublicLayout>
       <Seo
-        title={`Odlingstips & guider ${CURRENT_YEAR} | Odlingsdagboken`}
-        description="Guider, såtider och tips för svenska hobbyodlare. Lär dig mer om växtföljd, pallkrage, växthus och klassisk grönsaksodling — anpassat för svenska förhållanden."
-        path="/blogg"
+        title={tag ? `${tag} – guider och odlingstips | Odlingsdagboken` : `Odlingstips & guider ${CURRENT_YEAR} | Odlingsdagboken`}
+        description={tag ? `Artiklar, guider och praktiska odlingstips om ${tag} för svenska hobbyodlare.` : "Guider, såtider och tips för svenska hobbyodlare. Lär dig mer om växtföljd, pallkrage, växthus och klassisk grönsaksodling — anpassat för svenska förhållanden."}
+        path={tag ? `/blogg/tagg/${encodeURIComponent(tag)}` : "/blogg"}
+        noindex={!!tag}
+        follow={!!tag}
         ogImage="/blog-images/spring-garden.jpg"
         ogImageAlt="Svensk köksträdgård – Odlingsdagbokens blogg"
         jsonLd={[
