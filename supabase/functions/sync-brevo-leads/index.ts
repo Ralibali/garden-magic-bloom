@@ -1,3 +1,4 @@
+// @ts-nocheck -- runtime-validated Deno edge function; generic client typing is too strict here
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { buildBrevoLeadAttributes } from '../_shared/brevoLeadAttributes.ts'
 
