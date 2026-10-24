@@ -112,10 +112,6 @@ Deno.serve(async (req) => {
       loc: `/odlingskalender/${month.slug}`,
       lastmod: dateOnly(month.updated_at || month.created_at),
     });
-    entries.push({
-      loc: `/manad/${month.slug}`,
-      lastmod: dateOnly(month.updated_at || month.created_at),
-    });
   }
 
   for (const zone of zones) {
@@ -124,24 +120,12 @@ Deno.serve(async (req) => {
       lastmod: dateOnly(zone.updated_at || zone.created_at),
     });
   }
-
-  const tags = new Map<string, string[]>();
-  for (const post of posts as Array<{ tags: string[] | null; updated_at: string | null; published_at: string | null }>) {
-    for (const tag of Array.isArray(post.tags) ? post.tags : []) {
-      const normalized = tag?.trim();
-      if (!normalized) continue;
-      const dates = tags.get(normalized) ?? [];
-      const date = post.updated_at || post.published_at;
-      if (date) dates.push(date);
-      tags.set(normalized, dates);
+  // Reviewed guides in src/content/zoneGuides.json cover the missing CMS zones.
+  for (let number = 3; number <= 8; number += 1) {
+    const slug = `zon-${number}`;
+    if (!zones.some(zone => zone.slug === slug)) {
+      entries.push({ loc: `/zoner/${slug}`, lastmod: '2026-10-08' });
     }
-  }
-
-  for (const [tag, dates] of tags) {
-    entries.push({
-      loc: `/blogg/tagg/${encodeURIComponent(tag)}`,
-      lastmod: latestDate(dates),
-    });
   }
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>

@@ -1,0 +1,12 @@
+# Odlingsdagboken
+
+Odlingsdagboken är en svensk tjänst från Aurora Media AB för odlingsplanering, såkalender och anteckningar om den egna odlingen.
+
+- [Såkalender](https://odlingsdagboken.com/sakalender): välj zon och planera sådd.
+- [Odlingskalender](https://odlingsdagboken.com/odlingskalender): månad för månad. De kanoniska månadsadresserna börjar med /odlingskalender/.
+- [Växtbibliotek](https://odlingsdagboken.com/vaxter): växtguider och skötsel.
+- [Guider](https://odlingsdagboken.com/blogg): publicerade odlingsartiklar.
+- [Priser](https://odlingsdagboken.com/priser): aktuella planer och villkor.
+- [Om oss](https://odlingsdagboken.com/om-oss): ansvarig utgivare och kontakt.
+
+Läs den aktuella sidan för detaljer. Privata odlingsdagböcker och kontosidor ingår inte i det publika materialet.

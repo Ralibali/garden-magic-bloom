@@ -12,12 +12,15 @@ import { ORG_AUTHOR, ORG_PUBLISHER, buildBreadcrumbs } from '@/lib/seoData';
 import { ArticleAttribution } from '@/components/ArticleAttribution';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
 import PublicNotFound from '@/components/PublicNotFound';
+import { getLocalZoneGuide, LOCAL_ZONE_GUIDES } from '@/lib/localZoneGuides';
 
 export default function ZonDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const localZone = getLocalZoneGuide(slug);
 
   const { data: zone, isLoading } = useQuery({
     queryKey: ['seo-zone', slug],
+    initialData: localZone ?? undefined,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('seo_zones')
@@ -26,14 +29,14 @@ export default function ZonDetail() {
         .eq('published', true)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data ?? localZone;
     },
     enabled: !!slug,
   });
 
   const { data: linkedPlants = [] } = useQuery({
     queryKey: ['seo-zone-plants', zone?.id],
-    enabled: !!zone?.id,
+    enabled: !!zone?.id && !zone.id.startsWith('local:'),
     queryFn: async () => {
       const { data } = await supabase
         .from('seo_plant_zones')
@@ -49,6 +52,8 @@ export default function ZonDetail() {
   if (!zone) return <PublicNotFound path={`/zoner/${slug || ''}`} title="Zonguiden hittades inte" description="Zonguiden finns inte eller är inte publicerad." backTo="/zoner" backLabel="Alla odlingszoner" />;
 
   const sanitized = zone.content_html ? DOMPurify.sanitize(zone.content_html) : '';
+  const localContent = zone.id.startsWith('local:') ? LOCAL_ZONE_GUIDES.find(item => item.slug === slug) : null;
+  const hasClimateFacts = zone.typical_regions?.length || zone.frost_free_days_min || zone.last_frost_typical || zone.first_frost_typical || zone.winter_temp_min != null;
   const faqArr = Array.isArray(zone.faq) ? zone.faq as Array<{ question: string; answer: string }> : [];
 
   const jsonLd: any[] = [
@@ -96,7 +101,7 @@ export default function ZonDetail() {
           {zone.description && <p className="text-lg text-muted-foreground">{zone.description}</p>}
         </header>
 
-        <Card className="border-border/50 mb-8">
+        {hasClimateFacts ? <Card className="border-border/50 mb-8">
           <CardContent className="p-6">
             <h2 className="font-serif text-lg text-foreground mb-4 flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" /> Klimatfakta
@@ -109,7 +114,15 @@ export default function ZonDetail() {
               {zone.winter_temp_min != null && (<><dt className="text-muted-foreground flex items-center gap-1.5"><Thermometer className="h-3 w-3" />Lägsta vintertemperatur</dt><dd className="font-medium">{zone.winter_temp_min}°C</dd></>)}
             </dl>
           </CardContent>
-        </Card>
+        </Card> : null}
+
+        {localContent && <div className="max-w-none mb-10 space-y-6 text-foreground/85 leading-relaxed [&_a]:text-primary [&_a]:underline">
+          <p>Svensk Trädgårds zonkarta beskriver härdighet hos träd och buskar. För grönsakernas sådd behöver du även följa sortens anvisningar och vädret där du odlar.</p>
+          {localContent.sections.map(section => <section key={section.heading} className="space-y-3"><h2 className="font-serif text-2xl text-foreground">{section.heading}</h2><p>{section.text}</p></section>)}
+          <h2 className="font-serif text-2xl text-foreground">Fortsätt planeringen</h2>
+          <ul><li><Link to="/sakalender">Öppna såkalendern</Link></li><li><Link to="/sista-frost">Läs om sista frost</Link></li><li><Link to="/vaxter">Utforska växtguiderna</Link></li></ul>
+          <p>Källor om zonindelning: <a href="https://svensktradgard.se/tradgardsrad/zonkartan/digitala-zonkartan">Svensk Trädgårds zonkarta</a> och <a href="https://svensktradgard.se/tradgardsrad/zonkartan/utlasa-zonkartan/">så tolkar du zonkartan</a>. Checklistorna ovan är Odlingsdagbokens förslag för din egen planering.</p>
+        </div>}
 
         {sanitized && (
           <div

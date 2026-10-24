@@ -20,7 +20,7 @@ export const DEFAULT_SUPABASE_ANON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlzb25udmJrcndhamFjdmRrcXV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Mzg5MjEsImV4cCI6MjA4ODQxNDkyMX0.noi4GzE33SVpbFvdwOmGiNpaq6KfY3IcRSJYwJwQ0Ww';
 
 export const HOMEPAGE_TITLE = 'Odlingsdagboken – såkalender, odlingsplan och skördelogg';
-export const HOMEPAGE_H1 = 'Digital odlingsdagbok för svenska odlare';
+export const HOMEPAGE_H1 = 'Din odling. Dina ögonblick. Din dagbok.';
 export const HOMEPAGE_CANONICAL = `${ORIGIN}/`;
 
 export const REQUIRED_FIRST_BYTE_PAGES = [
@@ -77,6 +77,7 @@ export function calendarMonthFirstByte(month, pathPrefix = '/odlingskalender') {
   const name = String(month.month_name || slug).toLowerCase();
   return {
     route: `${pathPrefix}/${slug}`,
+    ...(pathPrefix === '/manad' ? { canonicalRoute: `/odlingskalender/${slug}`, noindex: true, redirectTo: `/odlingskalender/${slug}` } : {}),
     title: `Odlingskalender ${name} – så, plantera och skörda i din zon`,
     heading: `Odlingskalender för ${name}`,
     description: truncate(month.intro || `Vad du kan så, plantera och skörda i ${name}.`),
@@ -115,7 +116,7 @@ export function firstByteSignals(html) {
 
 export function assertUniqueFirstByte(html, page) {
   const signals = firstByteSignals(html);
-  const expectedCanonical = canonicalFor(page.route);
+  const expectedCanonical = canonicalFor(page.canonicalRoute || page.route);
   const failures = [];
   if (signals.title === HOMEPAGE_TITLE) failures.push(`title collapsed to homepage (${signals.title})`);
   if (signals.h1 === HOMEPAGE_H1) failures.push(`H1 collapsed to homepage (${signals.h1})`);
@@ -181,7 +182,7 @@ export function plantAddCtaMarkup(crop) {
 
 /** Addrevenue Din trädgård — /manad/maj only. Copy is verbatim READY 2026-09-02. */
 export const DIN_TRADGARD_MAJ_ANNONS = {
-  route: '/manad/maj',
+  route: '/odlingskalender/maj',
   href: 'https://addrevenue.io/t?a=985743&c=3467735',
   disclosure: 'Annons',
   disclosureLine: 'Affiliatelänkar till Din trädgård.',
@@ -197,6 +198,7 @@ export function annonsCtaMarkup(route) {
 }
 
 export function fallbackMarkup(page) {
+  if (page.renderedHtml) return `<div id="root">${page.renderedHtml}</div>`;
   const body = truncate(page.body || page.description, 900);
   // contentHtml är färdig, escapad markup från en generator (t.ex. såtidssidorna).
   const articleBody = typeof page.contentHtml === 'string' && page.contentHtml
@@ -214,7 +216,7 @@ export function fallbackMarkup(page) {
 
 export function pageSchema(page) {
   if (page.schema) return page.schema;
-  const canonical = canonicalFor(page.route);
+  const canonical = canonicalFor(page.canonicalRoute || page.route);
   const schemaType = page.schemaType || (page.type === 'article' ? 'Article' : 'WebPage');
   const result = {
     '@type': schemaType,
@@ -238,12 +240,13 @@ export function pageSchema(page) {
 }
 
 export function renderPage(template, page) {
-  const canonical = canonicalFor(page.route);
+  const canonical = canonicalFor(page.canonicalRoute || page.route);
   const image = page.image || DEFAULT_OG_IMAGE;
   let html = template;
+  if (page.redirectTo) html = html.replace('</head>', `<meta http-equiv="refresh" content="0;url=${escapeHtml(page.redirectTo)}"></head>`);
   html = replaceTitle(html, page.title);
   html = replaceMetaName(html, 'description', page.description);
-  html = replaceMetaName(html, 'robots', page.noindex ? 'noindex, nofollow, noarchive' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+  html = replaceMetaName(html, 'robots', page.noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
   html = replaceCanonical(html, canonical);
   html = replaceAlternate(html, 'sv-SE', canonical);
   html = replaceAlternate(html, 'x-default', canonical);

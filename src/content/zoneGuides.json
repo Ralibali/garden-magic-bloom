@@ -1,0 +1,128 @@
+[
+  {
+    "slug": "zon-3",
+    "zone_number": 3,
+    "title": "Odla i zon 3 – välj sort och läge",
+    "description": "Planera trädgården i zon 3 med rätt sortval och anteckningar om ditt eget odlingsläge.",
+    "updated_at": "2026-10-08",
+    "sections": [
+      {
+        "heading": "Börja med sortnamnet",
+        "text": "När du jämför fruktträd eller bärbuskar, skriv upp både art och sort. Be plantskolan ange härdighet för just den sorten i zon 3. Ett gemensamt växtnamn räcker inte som underlag för att välja rätt planta."
+      },
+      {
+        "heading": "Jämför två platser i trädgården",
+        "text": "Välj en skyddad plats och en mer öppen plats att följa under säsongen. Anteckna sol, vind och när jorden går att bearbeta. Använd skillnaderna när du placerar nästa odling, i stället för att flytta alla datum efter en generell kalender."
+      },
+      {
+        "heading": "Spara ett enkelt beslutsunderlag",
+        "text": "Logga sort, planteringsplats och datum tillsammans med ett foto. Följ upp efter vintern. Då kan du skilja ett återkommande problem på platsen från hur en enskild planta utvecklades."
+      }
+    ]
+  },
+  {
+    "slug": "zon-4",
+    "zone_number": 4,
+    "title": "Odla i zon 4 – planera efter platsen",
+    "description": "Välj växter för zon 4 och bygg en odlingsplan som tar hänsyn till lokala förhållanden.",
+    "updated_at": "2026-10-08",
+    "sections": [
+      {
+        "heading": "Kontrollera din adress",
+        "text": "Utgå från adressen i zonkartan, inte bara länet eller närmaste stad. Markera sedan var på tomten du vill plantera. Skriv ned vad som skiljer den platsen från övriga trädgården innan du jämför olika växtsorter."
+      },
+      {
+        "heading": "Dela upp växtval och såplan",
+        "text": "Gör en lista för träd och buskar med sortnamn och angiven härdighet. Gör en annan för årets grönsaker med uppgifterna på fröpåsen. Det gör det lättare att se vilka beslut som gäller övervintring och vilka som gäller säsongens sådd."
+      },
+      {
+        "heading": "Utvärdera en förändring i taget",
+        "text": "Prova ett nytt läge eller en ny sort i liten skala. Behåll några av dina vanliga odlingar som jämförelse och notera resultatet. Nästa års plan blir mer användbar när du vet vad du faktiskt ändrade."
+      }
+    ]
+  },
+  {
+    "slug": "zon-5",
+    "zone_number": 5,
+    "title": "Odla i zon 5 – följ ditt mikroklimat",
+    "description": "En praktisk start för odling i zon 5: undersök läget, kontrollera härdighet och följ säsongen.",
+    "updated_at": "2026-10-08",
+    "sections": [
+      {
+        "heading": "Undvik slutsatser från kartans norr och söder",
+        "text": "Samma odlingszon kan förekomma på olika håll i Sverige. Sök fram din adress och läs kartan nära din tomt. Använd sedan egna observationer för att bedöma planteringsplatsen."
+      },
+      {
+        "heading": "Fråga efter erfarenhet av sorten",
+        "text": "Ta med sortnamn, zon och en beskrivning av läget när du frågar en plantskola. Be om råd som gäller den aktuella växten. Spara rekommendationen tillsammans med kvittot och din planteringsanteckning."
+      },
+      {
+        "heading": "Följ utvecklingen genom hela säsongen",
+        "text": "Anteckna när tillväxten startar, när du planterar ut och hur plantorna ser ut efter kalla nätter. Fotografera samma plats flera gånger. Använd serien för att planera nästa år i stället för att dra stora slutsatser från ett enskilt datum."
+      }
+    ]
+  },
+  {
+    "slug": "zon-6",
+    "zone_number": 6,
+    "title": "Odla i zon 6 – välj en tydlig försöksplan",
+    "description": "Planera odling i zon 6 med dokumenterade sortval och uppföljning av övervintring och säsong.",
+    "updated_at": "2026-10-08",
+    "sections": [
+      {
+        "heading": "Gör härdigheten till en del av inköpslistan",
+        "text": "För varje träd eller buske: skriv sortnamnet och kontrollera att säljarens härdighetsangivelse omfattar zon 6. Fråga också vilka krav växten har på platsen. Behåll informationen så att du kan följa upp valet efter vintern."
+      },
+      {
+        "heading": "Börja med en hanterbar odling",
+        "text": "Välj några odlingar som du kan följa ordentligt. Skriv ned vilka du vill använda som jämförelse och vilka som är försök. Planera vilka observationer du behöver för att avgöra om försöket är värt att upprepa."
+      },
+      {
+        "heading": "Skilj på överlevnad och skörderesultat",
+        "text": "Logga både om växten övervintrar och hur den utvecklas under sommaren. För grönsaker kan du notera sort, sådd, utplantering och skörd separat. Då ser du tydligare vilken del av odlingen som behöver ändras."
+      }
+    ]
+  },
+  {
+    "slug": "zon-7",
+    "zone_number": 7,
+    "title": "Odla i zon 7 – utgå från lokala erfarenheter",
+    "description": "Dokumentera växtval och odlingsläge i zon 7 och använd resultaten till nästa säsongs plan.",
+    "updated_at": "2026-10-08",
+    "sections": [
+      {
+        "heading": "Kontrollera växten före planteringen",
+        "text": "Be om härdighetsuppgifter för den exakta sorten när du väljer träd och buskar till zon 7. Komplettera med erfarenheter från odlare eller plantskolor med liknande lägen. Anteckna också om deras odling skiljer sig från din."
+      },
+      {
+        "heading": "Bestäm vad försöket ska visa",
+        "text": "Välj en tydlig fråga: fungerar sorten på den här platsen, eller behöver odlingen flyttas? Ändra så få saker som möjligt samtidigt. Märk plantorna ordentligt och följ upp med bilder så att du kan jämföra rätt exemplar."
+      },
+      {
+        "heading": "Planera uppföljningen redan nu",
+        "text": "Lägg in påminnelser för kontroll efter vintern, efter utplantering och vid säsongens slut. Spara både det som lyckas och det som inte fungerar. Dina egna anteckningar blir ett bättre stöd än en kalender som saknar lokal erfarenhet."
+      }
+    ]
+  },
+  {
+    "slug": "zon-8",
+    "zone_number": 8,
+    "title": "Odla i zon 8 – pröva och dokumentera",
+    "description": "Bygg en försiktig odlingsplan för zon 8 med noggranna sortval och egna observationer.",
+    "updated_at": "2026-10-08",
+    "sections": [
+      {
+        "heading": "Börja med förutsättningarna",
+        "text": "Zon 8 ligger i den kärvaste delen av Svensk Trädgårds zonindelning. Beskriv din planteringsplats och kontrollera härdighetsuppgifterna för varje träd eller buske. Fråga efter lokal erfarenhet innan du väljer en sort som du inte har odlat tidigare."
+      },
+      {
+        "heading": "Skilj försöket från det du räknar med",
+        "text": "Gör en liten försökslista och bestäm hur mycket plats och arbete du vill lägga på den. Skriv vad du hoppas lära dig. Undvik att göra hela odlingsplanen beroende av ett oprövat val."
+      },
+      {
+        "heading": "Bygg din egen historik",
+        "text": "Dokumentera plantans utgångsläge, plats och planteringsdatum. Följ sedan övervintring och sommarens utveckling var för sig. För ettåriga grödor: spara sortens anvisningar och jämför dem med dina faktiska datum, utan att behandla zonnumret som ett exakt frostdatum."
+      }
+    ]
+  }
+]

@@ -30,7 +30,7 @@ const checks = [
   ...allGuardedFirstBytePages().map((page) => ({ route: page.route, expect: page, plant: false })),
   { route: `${REQUIRED_FIRST_BYTE_PAGES[0].route}/`, expect: REQUIRED_FIRST_BYTE_PAGES[0], plant: false },
   { route: '/manad/maj/', expect: REQUIRED_MANAD_FIRST_BYTE_PAGES.find((page) => page.route === '/manad/maj'), plant: false },
-  { route: '/vaxter', expect: { title: 'Växtbibliotek – såtid, skötsel och skörd', heading: 'Växtbibliotek för svenska odlare', route: '/vaxter' }, plant: false },
+  { route: '/vaxter', expect: { title: 'Växtguider – grönsaker, frukter & örter | Odlingsdagboken', route: '/vaxter' }, plant: false },
 ];
 
 for (const check of checks) {
@@ -56,7 +56,8 @@ for (const check of checks) {
   if (check.expect.heading && signals.h1 !== check.expect.heading) {
     fail(`${check.route} H1 "${signals.h1}" != "${check.expect.heading}"`);
   }
-  const selfCanonical = `https://odlingsdagboken.com${check.expect.route}`;
+  const selfCanonical = `https://odlingsdagboken.com${check.expect.canonicalRoute || check.expect.route}`;
+  if (check.expect.redirectTo && (!html.includes('http-equiv="refresh"') || !html.includes('content="noindex, follow"'))) fail(`${check.route} must be a noindex alias`);
   if (signals.canonical !== selfCanonical) {
     fail(`${check.route} canonical "${signals.canonical}" != "${selfCanonical}"`);
   }

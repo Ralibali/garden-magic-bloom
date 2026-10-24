@@ -35,8 +35,8 @@ describe('standalone marketing routes (hydrate must not 404)', () => {
     const vercel = readFileSync(join(process.cwd(), 'vercel.json'), 'utf8');
     expect(app).toContain('path="/manad/:slug"');
     expect(app).toContain('element={<OdlingskalenderManad />}');
-    expect(app).not.toContain('LegacyMonthRedirect');
-    expect(vercel).not.toMatch(/"source":\s*"\/manad\/:slug"/);
+    expect(app).toContain('element={<LegacyMonthRedirect />}');
+    expect(vercel).toMatch(/"source":\s*"\/manad\/:slug"/);
   });
 
   it('gates the Din trädgård Annons to /manad/maj in the month page', () => {

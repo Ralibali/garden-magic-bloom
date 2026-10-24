@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import React, { Suspense } from "react";
 import { HelmetProvider } from "react-helmet-async";
@@ -162,6 +162,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function LegacyMonthRedirect() {
+  const { slug } = useParams();
+  const { search, hash } = useLocation();
+  return <Navigate to={`/odlingskalender/${slug}${search}${hash}`} replace />;
+}
+
 // Redirect /guider/:slug → /blogg/:slug (consolidate duplicate content)
 function GuiderRedirect() {
   const { slug } = useParams();
@@ -222,8 +228,8 @@ const AppRoutes = () => (
           <Route path="/odlingskalender" element={<OdlingskalenderIndex />} />
           <Route path="/odlingskalender/:slug" element={<OdlingskalenderManad />} />
           <Route path="/manad" element={<Navigate to="/odlingskalender" replace />} />
-          {/* Existing /manad/:slug URLs — same CMS month page, self-canonical. */}
-          <Route path="/manad/:slug" element={<OdlingskalenderManad />} />
+          {/* Legacy month aliases point to the canonical calendar route. */}
+          <Route path="/manad/:slug" element={<LegacyMonthRedirect />} />
           <Route path="/zoner" element={<ZonerIndex />} />
           <Route path="/zoner/:slug" element={<ZonDetail />} />
           <Route path="/satider" element={<SatiderIndex />} />

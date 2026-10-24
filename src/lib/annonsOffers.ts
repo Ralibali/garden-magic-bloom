@@ -1,6 +1,6 @@
 /** Disclosed Addrevenue offer for Odlingsdagboken /manad/maj only. Copy is verbatim READY 2026-09-02. */
 export const DIN_TRADGARD_MAJ_ANNONS = {
-  route: '/manad/maj',
+  route: '/odlingskalender/maj',
   href: 'https://addrevenue.io/t?a=985743&c=3467735',
   disclosure: 'Annons',
   disclosureLine: 'Affiliatelänkar till Din trädgård.',

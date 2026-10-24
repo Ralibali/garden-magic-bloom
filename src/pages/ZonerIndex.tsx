@@ -7,10 +7,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, MapPin, ArrowRight } from 'lucide-react';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
 import PersonalizeZoneCta from '@/components/PersonalizeZoneCta';
+import { getLocalZoneGuide } from '@/lib/localZoneGuides';
 
 export default function ZonerIndex() {
   const { data: zones = [], isLoading } = useQuery({
     queryKey: ['seo-zones-index'],
+    initialData: [],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('seo_zones')
@@ -26,7 +28,7 @@ export default function ZonerIndex() {
   const allZones = Array.from({ length: 8 }, (_, i) => {
     const num = i + 1;
     const dbRow = zones.find(z => z.zone_number === num);
-    return dbRow || { id: `zon-${num}`, slug: `zon-${num}`, zone_number: num, title: `Zon ${num}`, description: null, typical_regions: null, _placeholder: true };
+    return dbRow || getLocalZoneGuide(`zon-${num}`) || { id: `zon-${num}`, slug: `zon-${num}`, zone_number: num, title: `Zon ${num}`, description: null, typical_regions: null, _placeholder: true };
   });
 
   return (
@@ -59,7 +61,7 @@ export default function ZonerIndex() {
           </div>
           <h1 className="text-3xl sm:text-4xl font-serif text-foreground mb-3">Hitta din odlingszon</h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Sverige delas in i åtta odlingszoner, från Skåne (zon ett) till norra fjälltrakterna (zon åtta). Din zon avgör vilka växter som trivs och när du kan så.
+            Sveriges åtta odlingszoner hjälper dig välja härdiga träd och buskar. För grönsakernas sådd behöver du också följa sortens anvisningar och ditt lokala väder.
           </p>
         </header>
 
