@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "site": "odlingsdagboken",
+  "content_id": "editorial-20260927-dokumentera-litet-odlingsforsok",
+  "author": "ChatGPT",
+  "status": "draft",
+  "written_at": "2026-09-27T09:59:39.112836+00:00",
+  "not_before": "2026-10-01",
+  "sources_checked_at": "2026-09-27T09:59:39.112836+00:00",
+  "quality_checked_at": "2026-09-27T09:59:39.112836+00:00",
+  "slug": "dokumentera-litet-odlingsforsok",
+  "title": "Dokumentera ett litet odlingsförsök innan du börjar",
+  "description": "Dokumentera ett litet odlingsförsök innan du börjar. Samla fråga, jämförelse och planerade anteckningar utan att dra för stora slutsatser av utfallet.",
+  "category": "guide",
+  "tags": [
+    "dokumentation",
+    "arbetsmall"
+  ],
+  "cover_image": "/blog-images/spring-garden.jpg",
+  "cta_path": "/login",
+  "search_intent": "Planera dokumentationen av en liten samtidig odlingsjämförelse, skilt från årsutvärdering, skördelogg och råd om odlingsmetod.",
+  "source_urls": [
+    "https://odlingsdagboken.com/hur-det-fungerar"
+  ],
+  "content_html": "<p>När du vill jämföra två arbetssätt i odlingen är det lätt att börja praktiskt och fundera på anteckningarna först efteråt. Då kan det vara svårt att minnas vad som faktiskt skilde alternativen åt. Ett kort försöksunderlag hjälper dig att beskriva frågan, förutsättningarna och vad du tänker följa.</p>\n<p>Den här mallen handlar om din dokumentation. Den rekommenderar ingen viss odlingsåtgärd och gör inte ett litet hobbyförsök till vetenskapligt bevis. Syftet är att nästa års läsning ska visa vad du gjorde och vad underlaget räcker till att säga.</p>\n<h2>Skriv frågan med egna ord</h2>\n<p>Välj en avgränsad fråga som du faktiskt vill undersöka. Skriv vilket alternativ du jämför med vilket och vad du hoppas kunna observera. Håll ett önskat resultat åtskilt från den fråga som försöket ska hjälpa dig att förstå.</p>\n<p>Om du vill prova många förändringar samtidigt behöver du vara medveten om att anteckningarna blir svårare att tolka. Beskriv därför alla skillnader du känner till redan från början. Mallen bestämmer inte hur försöket ska läggas upp, men den gör dina val synliga.</p>\n<h2>Beskriv de två utgångslägena</h2>\n<p>Ge alternativen tydliga namn och ange var de finns. Skriv vilka växter eller sådder det gäller, vilka datum som är kända och vilket underlag du har. Använd samma benämningar i märkning, bilder och anteckningar så att alternativen inte förväxlas senare.</p>\n<p>Anteckna även skillnader som inte är själva frågan. Platser kan ha olika förutsättningar, och materialet kan ha olika ursprung. Du behöver inte kunna bedöma betydelsen av varje skillnad för att dokumentera den. Skriv vad du vet och markera resten som okänt.</p>\n<h2>Bestäm vad du ska anteckna</h2>\n<p>Gör ett försökskort med följande fält:</p>\n<ul><li>Frågan du vill undersöka.</li><li>Alternativens namn och placering.</li><li>Kända förutsättningar när försöket börjar.</li><li>Det du planerar att observera eller notera.</li><li>Hur och när anteckningarna ska göras.</li><li>Avvikelser från den ursprungliga planen.</li><li>Öppna frågor som du behöver komma ihåg vid läsningen.</li></ul>\n<p>Välj ett sätt att beskriva uppgifterna som du klarar att använda konsekvent. Om en notering saknas ska den inte senare fyllas med ett antaget värde. Samma skillnad mellan okänt och bekräftat noll beskrivs i guiden om <a href=\"/blogg/noll-skord-eller-saknad-anteckning\">saknade skördeanteckningar</a>.</p>\n<h2>Logga ändringar när de inträffar</h2>\n<p>Om förutsättningarna ändras under försöket, skriv vad som faktiskt hände och när. Det kan vara att ett alternativ flyttades eller att den planerade anteckningen inte gick att göra. Behåll den ursprungliga planen som jämförelse i stället för att skriva om den i efterhand.</p>\n<p>Fotografier kan ge ett kompletterande underlag när datum och motiv är tydliga. Använd gärna <a href=\"/blogg/fotopunkter-kokstradgard-jamforbara-bilder\">fasta fotopunkter för bäddbilderna</a>. Bilden ska hjälpa dig att hitta sammanhanget, inte ersätta en uppgift som aldrig noterades.</p>\n<h2>Skilj observationen från din tolkning</h2>\n<p>När du går igenom försöket, skriv först vad anteckningarna visar. Lägg sedan din egen tolkning i en separat del och nämn skillnader eller luckor som kan påverka den. Att två alternativ fick olika utfall fastställer inte i sig orsaken till skillnaden.</p>\n<p>Läs <a href=\"/hur-det-fungerar\">hur Odlingsdagboken fungerar</a> och <a href=\"/login\">samla dina odlingsanteckningar</a> om du vill prova ett digitalt arbetssätt. AI-assisterad originalguide med en dokumentationsmall. Använd försökskortet i det verktyg som passar dig; texten utlovar ingen färdig experimentfunktion eller automatisk analys.</p>",
+  "editorial_review": {
+    "reviewed_at": "2026-09-27T09:59:39.112836+00:00",
+    "published_inventory_reviewed": 139,
+    "distinct_intent_confirmed": true,
+    "source_review": "Owned product entry reviewed. Original documentation template; no medical, horticultural, pricing or automatic-feature claim.",
+    "live_verification": "draft_only",
+    "publication_gate": "Earliest 2026-09-29, and only after a fresh previous-publication reader check, current main, complete published inventory and current primary-source review. Keep unpublished until all checks pass; assign actual publication dates at release."
+  }
+}
