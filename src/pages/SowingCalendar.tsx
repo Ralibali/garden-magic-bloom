@@ -95,12 +95,12 @@ export default function SowingCalendar() {
   const location = useLocation();
   // Från en såtidssida eller zonväljaren: { planCrops?: string[]; zone?: number }.
   const [entryIntent] = useState(() => {
-    const state = (location.state ?? {}) as { planCrops?: unknown; zone?: unknown };
+    const state = (location.state ?? {}) as { planCrops?: unknown; zone?: unknown; season?: unknown };
     const zone = Number(state.zone);
     const crops = Array.isArray(state.planCrops)
       ? state.planCrops.map((crop) => guideCropForName(String(crop))?.name).filter((crop): crop is string => !!crop)
       : [];
-    return { zone: zone >= 1 && zone <= 8 ? Math.round(zone) : null, crops };
+    return { season: typeof state.season === 'number' ? state.season : undefined, zone: zone >= 1 && zone <= 8 ? Math.round(zone) : null, crops };
   });
   const queryClient = useQueryClient();
   const today = localDateKey();
@@ -463,7 +463,8 @@ export default function SowingCalendar() {
           onOpenChange={setPlannerOpen}
           zone={zone}
           today={today}
-          suggestedCrops={suggestedCrops}
+          suggestedCrops={entryIntent.crops.length ? entryIntent.crops : suggestedCrops}
+          initialYear={entryIntent.season}
           existingKeys={existingPlanKeys}
           onCreate={createSeasonPlan}
         />

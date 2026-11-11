@@ -20,7 +20,7 @@ const esc = (value = '') => String(value)
 export async function loadSowingGuideLib() {
   const result = await build({
     stdin: {
-      contents: "export * from './src/lib/sowingGuide.ts';\nexport * from './src/lib/frostGuide.ts';",
+      contents: "export * from './src/lib/sowingGuide.ts';\nexport * from './src/lib/frostGuide.ts';\nexport { raisedBedPath, raisedBedLabel } from './src/lib/guideRoutes.ts';",
       resolveDir: root,
       loader: 'ts',
     },

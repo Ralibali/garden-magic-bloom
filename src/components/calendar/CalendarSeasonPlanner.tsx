@@ -11,6 +11,7 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   zone: number;
   today: string;
+  initialYear?: number;
   /** Grödor användaren odlat tidigare – förvalda. */
   suggestedCrops: string[];
   /** Planer som redan finns som påminnelser (source_action_id). */
@@ -28,10 +29,10 @@ const CATEGORY_ORDER: { key: string; label: string }[] = [
   { key: 'flerårigt', label: 'Fleråriga' },
 ];
 
-export default function CalendarSeasonPlanner({ open, onOpenChange, zone, today, suggestedCrops, existingKeys, onCreate }: Props) {
+export default function CalendarSeasonPlanner({ open, onOpenChange, zone, today, initialYear, suggestedCrops, existingKeys, onCreate }: Props) {
   const thisYear = Number(today.slice(0, 4));
   // Från september planerar de flesta nästa säsong.
-  const [year, setYear] = useState(() => (Number(today.slice(5, 7)) >= 9 ? thisYear + 1 : thisYear));
+  const [year, setYear] = useState(() => initialYear === thisYear || initialYear === thisYear + 1 ? initialYear : (Number(today.slice(5, 7)) >= 9 ? thisYear + 1 : thisYear));
   const [selected, setSelected] = useState<Set<string>>(() => new Set(suggestedCrops));
   const [progress, setProgress] = useState<number | null>(null);
 

@@ -1860,6 +1860,11 @@ export type Database = {
       }
     }
     Functions: {
+      request_sowing_calendar: {
+        Args: { p_email: string; p_plan: Json; p_marketing: boolean; p_pilot: boolean }
+        Returns: string
+      }
+      save_sowing_calendar: { Args: { p_plan: Json }; Returns: undefined }
       change_garden_reminder: {
         Args: { p_action: string; p_expected?: Json; p_item: Json }
         Returns: Json

@@ -1,7 +1,7 @@
 import WateringAdvice from '@/components/garden/WateringAdvice';
 import { subscriptionDescription } from '@/lib/subscriptionStatus';
 import { formatKg } from '@/lib/formatNumber';
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowRight, BookOpen, Camera, Carrot, ChevronDown, CloudSun, Flower2, MapPin, NotebookPen, Plus, Snowflake, Sparkles, Sprout } from 'lucide-react';
@@ -40,6 +40,34 @@ export default function Dashboard() {
   const [wrapOpen, setWrapOpen] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const profile = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
+  const [saveAttempt, setSaveAttempt] = useState(0);
+  const [calendarSaveFailed, setCalendarSaveFailed] = useState(false);
+  const hasProfile = Boolean(profile.data?.onboarding_completed);
+  useEffect(() => {
+    if (!user?.id || !hasProfile) return;
+    const key = 'odlingsdagboken_calendar_to_save';
+    let active = true;
+    async function finishSave() {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return;
+        const plan = JSON.parse(raw);
+        if (plan.type !== 'sakalender' || !plan.createdAt || Date.now() - Date.parse(plan.createdAt) > 172800000) {
+          localStorage.removeItem(key);
+          return;
+        }
+        const { supabase } = await import('@/integrations/supabase/client');
+        const { error } = await supabase.rpc('save_sowing_calendar', { p_plan: plan });
+        if (error) throw error;
+        if (!active) return;
+        if (localStorage.getItem(key) === raw) localStorage.removeItem(key);
+        setCalendarSaveFailed(false);
+        await client.invalidateQueries({ queryKey: ['profile'] });
+      } catch { if (active) setCalendarSaveFailed(true); }
+    }
+    void finishSave();
+    return () => { active = false; };
+  }, [user?.id, hasProfile, saveAttempt, client]);
   const garden = useQuery({ queryKey: ['cultivations', user?.id], queryFn: getCultivationData, enabled: !!user?.id });
   const diary = useQuery({ queryKey: ['garden-diary', user?.id], queryFn: getDiary, enabled: !!user?.id });
   const reminders = useQuery({ queryKey: ['reminder-settings'], queryFn: api.getReminderSettings });
@@ -59,7 +87,7 @@ export default function Dashboard() {
   const items = useMemo(() => garden.data ? buildCultivations(garden.data) : [], [garden.data]);
   const active = items.filter(item => item.status !== 'done');
   const overduePlants = items.filter(item => item.plant && item.profile && ['urgent', 'due'].includes(item.profile.status)).map(item => ({ ...item.plant, care_profile: item.profile }));
-  const prefs = (profile.data?.preferences || {}) as { garden_categories?: GardenCategory[]; onboarding_plan?: { crops?: string[]; methods?: string[]; public_plan?: Record<string, unknown> | null } };
+  const prefs = (profile.data?.preferences || {}) as { sowing_calendar?: Record<string, unknown>; garden_categories?: GardenCategory[]; onboarding_plan?: { crops?: string[]; methods?: string[]; public_plan?: Record<string, unknown> | null } };
   const plantOnly = !!prefs.garden_categories?.length && prefs.garden_categories.every(category => category === 'krukvaxter');
   const firstName = profile.data?.display_name?.trim().split(' ')[0];
   const today = localDateKey();
@@ -94,7 +122,10 @@ export default function Dashboard() {
         <Link to="/app/gro"><Sparkles />Fråga Gro</Link>
       </nav>
 
-      {!planDismissed && !garden.isPending && !garden.isError && !active.length && prefs.onboarding_plan && ((prefs.onboarding_plan.crops?.length ?? 0) > 0 || prefs.onboarding_plan.public_plan) && <PublicPlanHandoff plan={prefs.onboarding_plan.public_plan ?? prefs.onboarding_plan} onDismiss={() => setPlanDismissed(true)} onNavigate={(path, state) => navigate(path, { state })} />}
+      {calendarSaveFailed && <div role="alert" className="rounded-xl border p-4">Din såkalender kunde inte sparas. <button className="underline" onClick={() => setSaveAttempt(n => n + 1)}>Försök igen</button></div>}
+      {!planDismissed && prefs.sowing_calendar ? <PublicPlanHandoff plan={prefs.sowing_calendar} onDismiss={() => setPlanDismissed(true)} onNavigate={(path, state) => navigate(path, { state })} /> :
+        !planDismissed && !garden.isPending && !garden.isError && !active.length && prefs.onboarding_plan && ((prefs.onboarding_plan.crops?.length ?? 0) > 0 || prefs.onboarding_plan.public_plan) && <PublicPlanHandoff plan={prefs.onboarding_plan.public_plan ?? prefs.onboarding_plan} onDismiss={() => setPlanDismissed(true)} onNavigate={(path, state) => navigate(path, { state })} />}
+
 
       {!plantOnly && <WateringAdvice rain={rain.data} temperature={temperature} />}
 

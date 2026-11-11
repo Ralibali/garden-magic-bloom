@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { getCropTiming } from '@/data/sowingMatrix';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +16,12 @@ export default function PublicPlanHandoff({ plan, onNavigate, onDismiss }: Publi
   const methods = plan?.methods || (plan?.method ? [plan.method] : []);
   const isAkuten = plan?.type === 'odlingsakuten';
   const label = isAkuten ? 'felsökning' : plan?.type === 'sakalender' ? 'såkalender' : 'odlingsplan';
-  const crop = plan?.crop || crops[0];
+  const [choice, setChoice] = useState('');
+  const crop = plan?.crop || (crops.includes(choice) ? choice : crops[0]);
+  const calendar = plan?.type === 'sakalender';
+  const zone = Number(plan?.zone) || 3;
+  const variety = plan?.varieties?.[crop];
+  const cropLabel = variety ? crop + ' ' + variety : crop;
   const symptom = plan?.symptom;
 
   return (
@@ -25,12 +31,12 @@ export default function PublicPlanHandoff({ plan, onNavigate, onDismiss }: Publi
           <div>
             <Badge variant="secondary" className="mb-3 gap-1"><CalendarDays className="h-3.5 w-3.5" /> {plan?.type ? 'Sparat från verktyget' : 'Dina önskade grödor'}</Badge>
             <h2 className="font-serif text-2xl sm:text-3xl mb-2">
-              {isAkuten ? 'Spara problemet på en växt' : `Din ${label} väntar på dig`}
+              {isAkuten ? 'Spara problemet på en växt' : (calendar && plan?.season ? 'Min såkalender ' + plan.season : `Din ${label} väntar på dig`)}
             </h2>
             <p className="text-sm text-primary-foreground/85 leading-relaxed max-w-2xl">
               {isAkuten
                 ? `Du felsökte ${crop ? crop.toLowerCase() : 'en planta'}${symptom ? ` med “${String(symptom).toLowerCase()}”` : ''}. Spara det i problemloggen så kan du följa upp vad som faktiskt hjälpte.`
-                : `${crops.length > 0 ? `Du valde ${crops.slice(0, 6).join(', ')}${crops.length > 6 ? ' med flera' : ''}. ` : ''}${methods.length > 0 ? `Odlingssätt: ${methods.join(', ')}. ` : ''}Skapa en odlingsplats och logga första sådden så blir planen användbar i din odlingsdagbok.`}
+                : `${crops.length > 0 ? `Du valde ${crops.slice(0, 6).join(', ')}${crops.length > 6 ? ' med flera' : ''}. ` : ''}${methods.length > 0 ? `Odlingssätt: ${methods.join(', ')}. ` : ''}Logga en sådd eller välj vilka påminnelser du vill ha.`}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row lg:flex-col gap-2 lg:w-56">
@@ -56,6 +62,16 @@ export default function PublicPlanHandoff({ plan, onNavigate, onDismiss }: Publi
                 >
                   Lägg till växten <Sprout className="h-4 w-4" />
                 </Button>
+              </>
+            ) : calendar && crops.length ? (
+              <>
+                <label className="grid gap-1 text-sm">Gröda
+                  <select value={crop} onChange={e => setChoice(e.target.value)} className="rounded-md bg-background p-2 text-foreground">
+                    {crops.map((name: string) => <option key={name} value={name}>{name}{plan.varieties?.[name] ? ' · ' + plan.varieties[name] : ''}</option>)}
+                  </select>
+                </label>
+                <Button variant="secondary" onClick={() => onNavigate('/app/sowings', { prefill: { variety: cropLabel, type: getCropTiming(crop, zone)?.preStart ? 'indoor' : 'direct' } })}>Sått idag <Sprout className="ml-2 h-4 w-4" /></Button>
+                <Button variant="outline" className="bg-transparent text-primary-foreground" onClick={() => onNavigate('/app/calendar', { planCrops: crops, zone, season: plan.season })}>Välj påminnelser</Button>
               </>
             ) : (
               <>

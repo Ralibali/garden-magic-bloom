@@ -90,9 +90,10 @@ export default function GrowthHome() {
             <h1 className="max-w-2xl font-serif text-5xl !text-white leading-[1.06] tracking-tight sm:text-6xl lg:text-[4.25rem]">Din odling.<br />Dina ögonblick.<br /><span className="text-[#e5cd83]">Din dagbok.</span></h1>
             <p className="mt-6 max-w-lg text-lg leading-relaxed text-white/80">Från det allra första fröet till den där skörden du aldrig glömmer. Samla bilder, följ det som växer och ta med dig lärdomarna till nästa säsong.</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="min-h-12 bg-[#e5cd83] px-6 text-base text-[#173e2b] hover:bg-[#f2dfa7]" onClick={() => trackCta('hero_primary')}><Link to={isAuthenticated ? '/app/timeline' : '/login?mode=register'}>{isAuthenticated ? 'Öppna min dagbok' : 'Börja min odlingsdagbok'}<ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
-              <Button asChild variant="outline" size="lg" className="min-h-12 border-white/30 bg-transparent text-base text-white hover:bg-white/10 hover:text-white" onClick={() => trackCta('hero_secondary')}><Link to="/sakalender">Utforska såkalendern</Link></Button>
+              <Button asChild size="lg" className="min-h-12 bg-[#e5cd83] px-6 text-base text-[#173e2b] hover:bg-[#f2dfa7]" onClick={() => trackCta('hero_primary')}><Link to={isAuthenticated ? '/app/timeline' : '/sakalender?via=startsidan'}>{isAuthenticated ? 'Öppna min dagbok' : 'Skapa min såkalender'}<ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+              <Button asChild variant="outline" size="lg" className="min-h-12 border-white/30 bg-transparent text-base text-white hover:bg-white/10 hover:text-white" onClick={() => trackCta('hero_secondary')}><Link to="/login?mode=register">Skapa gratis konto</Link></Button>
             </div>
+            {new Date() < new Date('2027-06-01T00:00:00+02:00') && <Link className="mt-5 inline-block text-sm text-white underline underline-offset-4" to="/sakalender?pilot=1&via=odlarpilot">Bli testodlare våren 2027</Link>}
             <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/70"><span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-200" />Gratis att börja</span><span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-200" />För svenska klimatzoner</span></div>
           </div>
           <div className="relative pb-8 sm:pb-12">

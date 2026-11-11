@@ -21,7 +21,7 @@ import {
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-function staticPagesForYear(currentYear = new Date().getFullYear()) {
+function staticPagesForYear(season, currentYear = new Date().getFullYear()) {
   const origin = 'https://odlingsdagboken.com';
   return [
     {
@@ -46,7 +46,7 @@ function staticPagesForYear(currentYear = new Date().getFullYear()) {
     },
     { route: '/priser', title: 'Priser – Odlingsdagboken Plus 99 kr/år', description: 'Börja gratis och uppgradera till Plus för fler bäddar, Gro, statistik och säsongsjämförelser.', heading: 'Priser för Odlingsdagboken' },
     { route: '/om-oss', title: 'Om Odlingsdagboken', description: 'Läs varför Odlingsdagboken är byggd för svenska hobbyodlare och hur tjänsten hjälper dig lära av varje säsong.', heading: 'Om Odlingsdagboken' },
-    { route: '/sakalender', title: `Såkalender ${currentYear} – personlig såkalender för din zon`, description: 'Skapa en gratis såkalender för svenska odlare. Välj klimatzon och få tider för förodling, utplantering, direktsådd och skörd.', heading: `Såkalender ${currentYear} för Sverige` },
+    { route: '/sakalender', title: `Såkalender ${season} – personlig såkalender för din zon`, description: 'Skapa en gratis såkalender för svenska odlare. Välj klimatzon och få tider för förodling, utplantering, direktsådd och skörd.', heading: `Såkalender ${season} för Sverige` },
     { route: '/odlingsplan', title: 'Skapa en odlingsplan för pallkrage, växthus och friland', description: 'Planera pallkrage, växthus, friland, balkong eller kolonilott och spara planen i din digitala odlingsdagbok.', heading: 'Skapa din odlingsplan' },
     { route: '/odlingsakuten', title: 'Odlingsakuten – hjälp med gula blad och växtproblem', description: 'Felsök gula blad, slokande plantor, skadedjur och svag tillväxt med råd anpassade för svenska förhållanden.', heading: 'Odlingsakuten' },
     { route: '/gro', title: 'Gro – personlig AI-coach för din odling', description: 'Fråga Gro om såtider, växtproblem, väder, växtföljd och planering utifrån din egen odlingshistorik.', heading: 'Möt odlingscoachen Gro' },
@@ -132,7 +132,10 @@ async function loadDynamicPages(guideLib) {
         description,
         body: post.excerpt || post.content,
         articleContent: post.content,
-        afterContentHtml: guideLib ? relatedSatiderMarkup(guideLib, `${post.title} ${(post.tags || []).join(' ')} ${post.excerpt || ''}`) : '',
+        afterContentHtml: [
+          post.slug === 'pallkrage-storlek-guide' ? `<p><a href="${guideLib.raisedBedPath.replaceAll('&', '&amp;')}">${guideLib.raisedBedLabel}</a></p>` : '',
+          relatedSatiderMarkup(guideLib, `${post.title} ${(post.tags || []).join(' ')} ${post.excerpt || ''}`),
+        ].join(''),
         type: 'article',
         image: post.cover_image_url || DEFAULT_OG_IMAGE,
         imageAlt: post.title,
@@ -218,7 +221,8 @@ async function loadViteShell(dist) {
 
 export async function prerenderDist(dist = join(root, 'dist')) {
   const template = await loadViteShell(dist);
-  const staticPages = staticPagesForYear();
+  const guideLib = await loadSowingGuideLib();
+  const staticPages = staticPagesForYear(guideLib.guideSeasonYear());
 
   async function writePage(page) {
     const output = routeOutput(dist, page.route);
@@ -229,7 +233,6 @@ export async function prerenderDist(dist = join(root, 'dist')) {
     return output;
   }
 
-  const guideLib = await loadSowingGuideLib();
   const home = staticPages.find((page) => page.route === '/');
   if (home) home.contentHtml = homeGuideLinksMarkup(guideLib, home.description);
   const { pages: cmsPages, published } = await loadDynamicPages(guideLib);
