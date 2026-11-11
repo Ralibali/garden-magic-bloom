@@ -51,3 +51,6 @@ export const POPULAR_CROP_NAMES = ['Tomat', 'Potatis', 'Morot', 'Gurka', 'Chili'
 export function satiderHref(crop: string): string {
   return `${SATIDER_PATH}/${cropSlug(crop)}`;
 }
+
+export const raisedBedPath = '/sakalender?mall=pallkrage-120x80&via=pallkrageguiden';
+export const raisedBedLabel = 'Använd en plan för min pallkrage på 120 × 80 cm';

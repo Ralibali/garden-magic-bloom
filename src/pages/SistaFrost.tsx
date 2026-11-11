@@ -111,7 +111,8 @@ export default function SistaFrost() {
             <p className="text-sm text-muted-foreground">Odlingsdagboken bevakar prognosen för din plats och varnar när en kall natt är på väg – och påminner om vilka plantor som står ute.</p>
           </div>
           <Button asChild className="shrink-0"><Link to={alertHref}>Slå på frostvarning <ArrowRight className="h-4 w-4" /></Link></Button>
-        </section>
+          <p className="mt-4"><Link className="font-semibold underline" to={`/sakalender?crop=Tomat&zone=${zone}&via=sista-frost`}>Planera mina tomater i zon {zone}</Link></p>
+          </section>
 
         <section aria-labelledby="places-heading" className="mb-10">
           <h2 id="places-heading" className="mb-3 font-serif text-2xl text-foreground">Sista frost ort för ort</h2>

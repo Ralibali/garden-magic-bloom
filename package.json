@@ -16,6 +16,7 @@
     "test:publish": "node scripts/assert-publish-unit.mjs",
     "test:hydrate": "node scripts/assert-hydrate.mjs",
     "test": "vitest run",
+    "posttest": "node scripts/test-calendar-delivery.mjs",
     "test:watch": "vitest",
     "editorial:check": "node scripts/editorial-publisher.mjs check && node --test scripts/editorial-publisher.test.mjs",
     "prebuild": "node scripts/check-app-foundation.mjs && npm run editorial:check",

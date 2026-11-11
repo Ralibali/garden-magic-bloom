@@ -13,6 +13,7 @@ import ShareButtons from '@/components/ShareButtons';
 import BlogComments from '@/components/BlogComments';
 import { Seo } from '@/hooks/useSeo';
 import InlineSignupCTA from '@/components/InlineSignupCTA';
+import { raisedBedPath, raisedBedLabel } from '@/lib/guideRoutes';
 import RelatedSowingTimes from '@/components/RelatedSowingTimes';
 import PublicLayout from '@/components/PublicLayout';
 import PublicNotFound from '@/components/PublicNotFound';
@@ -308,6 +309,7 @@ export default function GuideArticle() {
             </div>
           )}
 
+          {post.slug === 'pallkrage-storlek-guide' && <Link to={raisedBedPath} className="my-6 inline-flex min-h-11 items-center rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground">{raisedBedLabel}</Link>}
           <RelatedSowingTimes text={`${post.title} ${(post.tags ?? []).join(' ')} ${post.excerpt ?? ''}`} className="mt-10" />
 
           {/* Share + tags */}
