@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { loadPublicBlogPost, loadPublicBlogPosts, loadPublicBlogGlossary } from '@/lib/publicBlog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -126,33 +126,22 @@ export default function GuideArticle() {
 
   const { data: post, isLoading, isError } = useQuery({
     queryKey: ['blog-post', slug],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('blog_posts').select('*').eq('slug', slug).eq('is_published', true).single();
-      if (error) throw error;
-      const { data: profile } = await supabase.from('profiles').select('display_name').eq('user_id', data.author_id).single();
-      return { ...data, author_name: profile?.display_name || 'Odlingsdagboken' };
-    },
+    queryFn: () => loadPublicBlogPost(slug!),
+    retry: 1,
     enabled: !!slug,
   });
 
   const { data: allPosts = [] } = useQuery({
     queryKey: ['all-published-posts'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('blog_posts').select('id, title, slug, excerpt, cover_image_url, category, tags, published_at, content').eq('is_published', true).order('published_at', { ascending: false });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: loadPublicBlogPosts,
+    retry: 1,
   });
 
   const postGlossaryIds: string[] = (post as any)?.glossary_ids || [];
   const { data: glossary = [] } = useQuery({
     queryKey: ['link-glossary', postGlossaryIds],
-    queryFn: async () => {
-      if (postGlossaryIds.length === 0) return [];
-      const { data, error } = await supabase.from('link_glossary').select('keyword, url, rel').eq('is_active', true).in('id', postGlossaryIds);
-      if (error) throw error;
-      return data as { keyword: string; url: string; rel: string }[];
-    },
+    queryFn: () => loadPublicBlogGlossary(postGlossaryIds),
+    retry: 1,
     enabled: !!post,
   });
 

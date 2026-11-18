@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Seo } from '@/hooks/useSeo';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { loadPublicBlogPosts } from '@/lib/publicBlog';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { legacyBlogTarget } from '@/lib/legacyBlog';
 import { Badge } from '@/components/ui/badge';
@@ -40,15 +40,8 @@ export default function Guides() {
 
   const { data: posts = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['public-blog-posts'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('id, title, slug, excerpt, cover_image_url, category, tags, published_at, content')
-        .eq('is_published', true)
-        .order('published_at', { ascending: false });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: loadPublicBlogPosts,
+    retry: 1,
   });
 
   const categories = useMemo(() => {
