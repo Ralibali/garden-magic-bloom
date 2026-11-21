@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "site": "odlingsdagboken",
+  "content_id": "editorial-20261121-baddnamn-andras-behall-historiken",
+  "author": "ChatGPT",
+  "status": "draft",
+  "written_at": "2026-11-21T12:27:34.368337+00:00",
+  "slug": "baddnamn-andras-behall-historiken",
+  "title": "När en bädd byter namn: behåll kopplingen till gamla anteckningar",
+  "description": "Gör en enkel namnnyckel när en odlingsbädd döps om, delas eller slås ihop. Behåll gamla hänvisningar utan att flytta historik till fel odlingsyta.",
+  "category": "guide",
+  "tags": [
+    "dokumentation",
+    "arbetsmall"
+  ],
+  "cover_image": "/blog-images/spring-garden.jpg",
+  "cta_path": "/login",
+  "search_intent": "Behålla läsbar platshistorik när bäddar döps om eller delas, skilt från att märka och flytta enskilda plantor.",
+  "source_urls": [
+    "https://odlingsdagboken.com/hur-det-fungerar"
+  ],
+  "sourceReviewStatus": "Recheck product and all published content before promotion. No publication date assigned.",
+  "content_html": "<p>En bädd som kallades Tomatbädden kan få ett annat namn nästa säsong. Kanske delas den också i två mindre ytor. Om gamla anteckningar bara får det nya namnet kan det bli oklart vilken plats en tidigare skörd eller åtgärd faktiskt avsåg. En kort namnnyckel hjälper dig att läsa historiken utan att skriva om den.</p>\n<p>Börja med att skilja på ett namnbyte och en ändrad yta. Ett nytt namn på samma avgränsade plats är en sak. När en bädd delas, flyttas eller slås ihop förändras också vad platsangivelsen betyder. Beskriv därför förändringen med ord, inte bara med en ny etikett.</p>\n<h2>Spara den gamla beteckningen</h2>\n<p>Skriv det gamla namnet precis som det står i dagboken. Lägg till den nya beteckningen och datumet då du börjar använda den. Om datumet är osäkert anger du det; ett påhittat exakt datum gör inte anteckningen mer användbar.</p>\n<p>Behåll gamla originalanteckningar med sina dåvarande namn. Hänvisa framåt till namnnyckeln där det går. Då kan du följa både vad platsen hette när händelsen inträffade och hur du hittar den i dagens plan.</p>\n<h2>Rita upp vad som ändrades</h2>\n<p>Gör en enkel skiss över kanter och fasta hållpunkter. Spara en daterad bild eller skiss från före förändringen om du har en. Saknas den behöver du inte återskapa detaljer ur minnet som om de vore säkra.</p>\n<p>Vid en delning ger du de nya delarna var sin beteckning. Skriv att båda tidigare ingick i den äldre bädden. Fördela inte automatiskt gamla skördemängder mellan delarna: en notering för hela den gamla ytan säger inte hur stor andel som kom från varje del.</p>\n<h2>Använd samma namnnyckel på flera ställen</h2>\n<p>En rad per förändring räcker som start:</p>\n<ul><li>Gammal beteckning och var den förekommer.</li><li>Ny beteckning eller nya delars namn.</li><li>Datum, eller en tydligt markerad osäker tidsperiod.</li><li>Oförändrad yta, delning, sammanslagning eller annan ändring.</li><li>Hänvisning till en skiss och sådant du inte säkert vet.</li></ul>\n<p>Kontrollera sedan skyltar, aktuella planeringsanteckningar och dina bilders beskrivningar. Det viktiga är att en läsare kan översätta mellan beteckningarna. Du behöver inte redigera varje äldre fil för att få en användbar koppling.</p>\n<h2>Prova att följa en gammal notering</h2>\n<p>Välj en äldre anteckning och försök hitta platsen med hjälp av namnnyckeln. Om två möjliga ytor återstår behöver beskrivningen förtydligas. Låt osäkerheten stå kvar om det saknas underlag för att avgöra saken.</p>\n<p>Läs även om <a href=\"/blogg/fotopunkter-kokstradgard-jamforbara-bilder\">fotopunkter för jämförbara bäddbilder</a>. Läs <a href=\"/hur-det-fungerar\">hur Odlingsdagboken fungerar</a> och <a href=\"/login\">öppna din odlingsdagbok</a> om du vill samla anteckningarna digitalt. Namnnyckeln är en egen arbetsmall och innebär inget löfte om automatisk överföring av bäddhistorik. AI-assisterad originalguide.</p>"
+}
